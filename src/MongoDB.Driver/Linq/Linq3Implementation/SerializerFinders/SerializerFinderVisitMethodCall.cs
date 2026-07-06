@@ -153,8 +153,6 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducers([MongoQueryableMethod.Documents, MongoQueryableMethod.DocumentsWithSerializer], DeduceDocumentsMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.ElementAtOverloads, (visitor, expression) => visitor.DeduceItemAndCollectionSerializers(expression, expression.Arguments[0]));
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.Except, DeduceExceptMethodSerializers);
-            // TODO: Definitely wrong registration copy-pasted from prev code, investigate before merge to main
-            // RegisterSerializerDeducer(EnumerableMethod.First, DeduceSetWindowFieldsMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads, DeduceFirstOrLastOrSingleMethodsSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.GroupByOverloads, DeduceGroupByMethodSerializers);
             RegisterSerializerDeducers([EnumerableMethod.GroupJoin, QueryableMethod.GroupJoin], DeduceGroupJoinMethodSerializers);
@@ -182,6 +180,7 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducers([EnumerableMethod.SequenceEqual, QueryableMethod.SequenceEqual], DeduceSequenceEqualMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.SkipOrTakeOverloads, DeduceSkipOrTakeMethodSerializers);
             RegisterSerializerDeducers(MongoEnumerableMethod.StandardDeviationOverloads, DeduceStandardDeviationMethodSerializers);
+            RegisterSerializerDeducers(MongoQueryableMethod.StandardDeviationOverloads, DeduceStandardDeviationMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.SumOverloads, DeduceEnumerableSumMethodSerializers);
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.Union, (visitor, expression) => visitor.DeduceCollectionAndCollectionSerializers(expression, expression.Arguments[0]));
             RegisterSerializerDeducers(__whereOverloads, DeduceWhereSerializers);
@@ -1189,13 +1188,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression.Arguments[0], expression.Arguments[1]);
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
-
-        // DeduceSetWindowFieldsMethodSerializers
-        // static void DeduceSetWindowFieldsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
-        // {
-        //     visitor.DeduceCollectionAndCollectionSerializers(expression.Object, expression.Arguments[0]);
-        //     visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
-        // }
 
         // DeduceShiftMethodSerializers
         private static void DeduceShiftMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)

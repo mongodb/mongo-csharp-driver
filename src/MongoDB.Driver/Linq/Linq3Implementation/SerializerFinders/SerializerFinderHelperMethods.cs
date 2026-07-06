@@ -169,8 +169,7 @@ internal partial class SerializerFinderVisitor
             AddNodeSerializer(collectionExpression2, collectionSerializer2);
         }
     }
-
-    // TODO: merge this and next methods.
+    
     private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
     {
         DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);
