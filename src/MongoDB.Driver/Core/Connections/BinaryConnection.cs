@@ -836,8 +836,8 @@ namespace MongoDB.Driver.Core.Connections
                     var opcode = PeekOpcode(stream);
                     if (opcode == Opcode.Compressed)
                     {
-                        var compresedMessageEncoder = encoderFactory.GetCompressedMessageEncoder();
-                        var compressedMessage = (CompressedMessage)compresedMessageEncoder.ReadMessage();
+                        var compressedMessageEncoder = encoderFactory.GetCompressedMessageEncoder();
+                        var compressedMessage = (CompressedMessage)compressedMessageEncoder.ReadMessage();
                         message = (ResponseCommandMessage)compressedMessage.OriginalMessage;
                     }
                     else
