@@ -92,8 +92,7 @@ public class QueryableEncryptionStringQueryTests : LoggableTestClass
 
     private static void RequireStringSupport()
     {
-        // GA prefix/suffix string queries require server 9.0+. The substring query (EncStrContains) is still
-        // preview (substringPreview) but remains valid on 9.0, so it is exercised here under the same gate.
+        // Prefix, suffix, and substring string queries are all GA and require server 9.0+.
         RequireServer.Check()
             .Supports(Feature.Csfle2QEv2StringAlgorithm)
             .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
