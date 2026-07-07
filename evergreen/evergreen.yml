@@ -1985,6 +1985,11 @@ axes:
         variables:
           OS: "ubuntu-2004"
         run_on: ubuntu2004-small
+      - id: "ubuntu-2204"
+        display_name: "Ubuntu 22.04"
+        variables:
+          OS: "ubuntu-2204"
+        run_on: ubuntu2204-small
       - id: "macos-14"
         display_name: "macOS 14.00"
         variables:
@@ -2729,7 +2734,16 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
-  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid"], topology: ["replicaset"] }
+  display_name: "CSFLE Mocked KMS ${version} ${os}"
+  tasks:
+    - name: test-csfle-with-mocked-kms-tls-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net60
+    - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net60
+
+- matrix_name: "csfle-with-mocked-kms-tests-linux-2204"
+  matrix_spec: { os: "ubuntu-2204", ssl: "nossl", version: ["latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
