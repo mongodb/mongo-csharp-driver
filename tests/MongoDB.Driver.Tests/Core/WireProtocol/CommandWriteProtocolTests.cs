@@ -32,6 +32,7 @@ using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.WireProtocol.Messages;
@@ -482,6 +483,46 @@ namespace MongoDB.Driver.Core.WireProtocol
                     new BsonDocument("id", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard)));
                 return mockSession.Object;
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_preserve_server_supplied_retryAfterMS_in_the_command_exception(
+            [Values(false, true)] bool async)
+        {
+            var connection = new MockConnection();
+            connection.Description = __connectionDescription;
+            var errorResponse = new BsonDocument
+            {
+                { "ok", 0 },
+                { "code", 462 },
+                { "errmsg", "overloaded" },
+                { "errorLabels", new BsonArray { "SystemOverloadedError", "RetryableError" } },
+                { "retryAfterMS", 50 }
+            };
+            connection.EnqueueCommandResponseMessage(
+                MessageHelper.BuildCommandResponse(CreateRawBsonDocument(errorResponse)));
+
+            var subject = new CommandWireProtocol<BsonDocument>(
+                NoCoreSession.Instance,
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                new BsonDocument("insert", "testCollection"),
+                commandPayloads: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                null, // serverApi
+                TimeSpan.FromMilliseconds(42));
+
+            var exception = async
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(OperationContext.NoTimeout, connection))
+                : Record.Exception(() => subject.Execute(OperationContext.NoTimeout, connection));
+
+            var commandException = exception.Should().BeOfType<MongoCommandException>().Subject;
+            commandException.Result["retryAfterMS"].ToInt32().Should().Be(50);
+            RetryabilityHelper.GetRetryAfterMs(commandException).Should().Be(50);
         }
 
         // private methods

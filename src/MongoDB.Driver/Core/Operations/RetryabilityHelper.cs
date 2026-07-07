@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsGreaterThanZero(attempt, nameof(attempt));
             Ensure.IsGreaterThanZero(backoffBase, nameof(backoffBase));
             Ensure.IsGreaterThanZero(backoffInitial, nameof(backoffInitial));
-            Ensure.IsGreaterThan(backoffMax, backoffInitial, nameof(backoffMax));
+            Ensure.IsGreaterThanOrEqualTo(backoffMax, backoffInitial, nameof(backoffMax));
 
             var j = random.NextDouble();
             return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
@@ -132,15 +132,46 @@ namespace MongoDB.Driver.Core.Operations
         /// <summary>
         /// Gets the operation retry backoff delay used for operation retries under client backpressure.
         /// </summary>
-        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random)
+        /// <param name="attempt">The retry attempt number.</param>
+        /// <param name="random">The random number generator.</param>
+        /// <param name="retryAfterMs">
+        /// A server-supplied backoff base (from the overload error's <c>retryAfterMS</c> field) that overrides
+        /// the driver's default initial backoff, or <see langword="null"/> to use the default.
+        /// </param>
+        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random, int? retryAfterMs = null)
         {
+            // Limit a server-supplied override to MaxBackoff so the backoff still resolves to min(MaxBackoff, ...) rather than tripping GetRetryDelayMs's guard.
+            var initialBackoff = Math.Min(
+                retryAfterMs ?? OperationRetryBackpressureConstants.InitialBackoff,
+                OperationRetryBackpressureConstants.MaxBackoff);
             return TimeSpan.FromMilliseconds(
                 GetRetryDelayMs(
                     random,
                     attempt,
                     OperationRetryBackpressureConstants.BasePowerBackoff,
-                    OperationRetryBackpressureConstants.InitialBackoff,
+                    initialBackoff,
                     OperationRetryBackpressureConstants.MaxBackoff));
+        }
+
+        /// <summary>
+        /// Reads a server-supplied backoff override (the <c>retryAfterMS</c> field) from a retryable overload error,
+        /// or <see langword="null"/> when absent. Only <see cref="MongoCommandException"/> results are inspected; a
+        /// missing, non-numeric, or non-positive value is treated as absent.
+        /// </summary>
+        public static int? GetRetryAfterMs(Exception exception)
+        {
+            if (exception is MongoCommandException { Result: { } result } &&
+                result.TryGetValue("retryAfterMS", out var value) &&
+                value.IsNumeric)
+            {
+                var ms = value.ToInt64();
+                if (ms > 0)
+                {
+                    return (int)Math.Min(ms, int.MaxValue);
+                }
+            }
+
+            return null;
         }
 
         public static bool IsCommandRetryable(BsonDocument command)

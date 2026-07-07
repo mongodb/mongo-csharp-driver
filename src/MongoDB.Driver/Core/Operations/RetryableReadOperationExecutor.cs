@@ -165,7 +165,8 @@ namespace MongoDB.Driver.Core.Operations
                     currentTransaction.ResetState();
                 }
 
-                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
+                var retryAfterMs = RetryabilityHelper.GetRetryAfterMs(exception);
+                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random, retryAfterMs);
 
                 return attempt <= context.MaxAdaptiveRetries;
             }
