@@ -101,6 +101,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [InlineData("prefixPreview")]
         [InlineData("suffix")]
         [InlineData("suffixPreview")]
+        [InlineData("substring")]
         [InlineData("substringPreview")]
         public void Constructor_should_succeed_with_valid_queryType_for_String(string validQueryType)
         {
@@ -122,13 +123,15 @@ namespace MongoDB.Driver.Tests.Encryption
                 .Which.Message.Should().Contain("PrefixOptions must be set");
         }
 
-        [Fact]
-        public void Constructor_should_fail_when_substringPreview_queryType_without_substringOptions()
+        [Theory]
+        [InlineData("substring")]
+        [InlineData("substringPreview")]
+        public void Constructor_should_fail_when_substring_queryType_without_substringOptions(string queryType)
         {
             var exception = Record.Exception(() => new EncryptOptions(
                 algorithm: EncryptionAlgorithm.String,
                 keyId: Guid.NewGuid(),
-                queryType: "substringPreview",
+                queryType: queryType,
                 stringOptions: new StringOptions(true, true)));
 
             exception.Should().BeOfType<ArgumentException>()
