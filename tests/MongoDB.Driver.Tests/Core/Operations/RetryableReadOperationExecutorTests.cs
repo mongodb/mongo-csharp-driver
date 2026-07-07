@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -133,6 +134,31 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
                 operationContext, context, isOperationRetryable: true, exception, attempt: 1, random, overloadErrorSeen: false, out _);
 
             result.Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(1, 50, 0, 50)]
+        [InlineData(2, 50, 0, 100)]
+        [InlineData(1, 10000, 0, 10000)]
+        [InlineData(2, 20000, 0, 10000)]
+        public void ShouldRetry_with_retryAfterMs_should_use_it_as_backoff_base(
+            int attempt,
+            int retryAfterMs,
+            int expectedRangeMinMs,
+            int expectedRangeMaxMs)
+        {
+            var context = CreateContext(retryRequested: true, isInTransaction: false);
+            var result = BsonDocument.Parse($"{{ ok : 0, code : 2, retryAfterMS : {retryAfterMs} }}");
+            var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
+            var operationContext = new OperationContext(null, CancellationToken.None);
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.NextDouble()).Returns(1.0);
+
+            var didRetry = RetryableReadOperationExecutorReflector.ShouldRetry(
+                operationContext, context, isOperationRetryable: true, exception, attempt, randomMock.Object, overloadErrorSeen: false, out var backoff);
+
+            didRetry.Should().BeTrue();
+            backoff.TotalMilliseconds.Should().BeInRange(expectedRangeMinMs, expectedRangeMaxMs);
         }
 
         // private methods

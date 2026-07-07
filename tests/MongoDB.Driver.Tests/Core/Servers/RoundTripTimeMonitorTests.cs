@@ -192,10 +192,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             if (sentMessages.Count > 1)
             {
-                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             }
         }
 
@@ -232,10 +232,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             if (sentMessages.Count > 1)
             {
-                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : true, $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             }
         }
 

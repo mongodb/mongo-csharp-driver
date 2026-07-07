@@ -141,6 +141,26 @@ namespace MongoDB.Driver.Core.TestHelpers
             return commandException;
         }
 
+        public static MongoCommandException CreateMongoCommandExceptionWithLabels(BsonDocument result, params string[] labels)
+        {
+            var clusterId = new ClusterId(1);
+            var endPoint = new DnsEndPoint("localhost", 27017);
+            var serverId = new ServerId(clusterId, endPoint);
+            var connectionId = new ConnectionId(serverId);
+            var message = "Fake MongoCommandException";
+            var command = BsonDocument.Parse("{ command : 1 }");
+            var commandException = new MongoCommandException(connectionId, message, command, result);
+            foreach (var label in labels)
+            {
+                if (label != null)
+                {
+                    commandException.AddErrorLabel(label);
+                }
+            }
+
+            return commandException;
+        }
+
         public static MongoCommandException CreateMongoWriteConcernException(BsonDocument writeConcernResultDocument, string label = null)
         {
             var clusterId = new ClusterId(1);

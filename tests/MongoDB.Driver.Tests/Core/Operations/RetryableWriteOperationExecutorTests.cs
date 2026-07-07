@@ -15,14 +15,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Reflection;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
 
@@ -85,6 +90,42 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             result.Should().Be(expectedResult);
         }
 
+        [Theory]
+        [InlineData(1, 50, 0, 50)]
+        [InlineData(2, 50, 0, 100)]
+        [InlineData(1, 10000, 0, 10000)]
+        [InlineData(2, 20000, 0, 10000)]
+        public void ShouldRetry_with_retryAfterMs_should_use_it_as_backoff_base(
+            int attempt,
+            int retryAfterMs,
+            int expectedRangeMinMs,
+            int expectedRangeMaxMs)
+        {
+            var context = CreateContext(retryRequested: true, areRetryableWritesSupported: true, hasSessionId: true, isInTransaction: false);
+            var result = BsonDocument.Parse($"{{ ok : 0, code : 2, retryAfterMS : {retryAfterMs} }}");
+            var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
+            var operationContext = new OperationContext(null, CancellationToken.None);
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.NextDouble()).Returns(1.0);
+
+            var didRetry = RetryableWriteOperationExecutorReflector.ShouldRetry(
+                operationContext,
+                errorDuringChannelAcquisition: false,
+                context.ChannelSource.ServerDescription,
+                WriteConcern.Acknowledged,
+                context,
+                exception,
+                attempt,
+                randomMock.Object,
+                isEndTransactionOperation: false,
+                isOperationRetryable: true,
+                overloadErrorSeen: false,
+                out var backoff);
+
+            didRetry.Should().BeTrue();
+            backoff.TotalMilliseconds.Should().BeInRange(expectedRangeMinMs, expectedRangeMaxMs);
+        }
+
         // private methods
         private IWriteBinding CreateBinding(bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
@@ -144,5 +185,37 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
         public static bool IsOperationAcknowledged(WriteConcern writeConcern)
             => (bool)Reflector.InvokeStatic(typeof(RetryableWriteOperationExecutor), nameof(IsOperationAcknowledged), writeConcern);
+
+        public static bool ShouldRetry(
+            OperationContext operationContext,
+            bool errorDuringChannelAcquisition,
+            ServerDescription server,
+            WriteConcern writeConcern,
+            RetryableWriteContext context,
+            Exception exception,
+            int attempt,
+            IRandom random,
+            bool isEndTransactionOperation,
+            bool isOperationRetryable,
+            bool overloadErrorSeen,
+            out TimeSpan backoff)
+        {
+            var methodInfo = typeof(RetryableWriteOperationExecutor)
+                .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+                .Single(m => m.Name == nameof(ShouldRetry) && m.GetParameters().Length == 12);
+
+            var args = new object[] { operationContext, errorDuringChannelAcquisition, server, writeConcern, context, exception, attempt, random, isEndTransactionOperation, isOperationRetryable, overloadErrorSeen, default(TimeSpan) };
+
+            try
+            {
+                var result = (bool)methodInfo.Invoke(null, args);
+                backoff = (TimeSpan)args[11];
+                return result;
+            }
+            catch (TargetInvocationException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
     }
 }

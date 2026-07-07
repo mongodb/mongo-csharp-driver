@@ -108,8 +108,8 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
         }
 
         [Fact]
-        // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-true
-        public async Task HandshakeDocumentsIncludeBackpressureTrue()
+        // https://github.com/mongodb/specifications/pull/1953 (spec PR updating Test 9 from `backpressure: true` to `backpressure: "2"`)
+        public async Task HandshakeDocumentsIncludeBackpressureVersion()
         {
             RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard
 
@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             foreach (var doc in commandStartedEvents.Select(ev => ev.Command))
             {
                 doc.Contains("backpressure").Should().BeTrue();
-                doc["backpressure"].AsBoolean.Should().BeTrue();
+                doc["backpressure"].AsString.Should().Be("2");
             }
         }
 
