@@ -134,15 +134,15 @@ namespace MongoDB.Driver.Core.Operations
         /// </summary>
         /// <param name="attempt">The retry attempt number.</param>
         /// <param name="random">The random number generator.</param>
-        /// <param name="retryAfterMs">
-        /// A server-supplied backoff base (from the overload error's <c>retryAfterMS</c> field) that overrides
+        /// <param name="baseBackoffMs">
+        /// A server-supplied backoff base (from the overload error's <c>baseBackoffMS</c> field) that overrides
         /// the driver's default initial backoff, or <see langword="null"/> to use the default.
         /// </param>
-        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random, int? retryAfterMs = null)
+        public static TimeSpan GetOperationRetryBackoffDelay(int attempt, IRandom random, int? baseBackoffMs = null)
         {
             // Limit a server-supplied override to MaxBackoff so the backoff still resolves to min(MaxBackoff, ...) rather than tripping GetRetryDelayMs's guard.
             var initialBackoff = Math.Min(
-                retryAfterMs ?? OperationRetryBackpressureConstants.InitialBackoff,
+                baseBackoffMs ?? OperationRetryBackpressureConstants.InitialBackoff,
                 OperationRetryBackpressureConstants.MaxBackoff);
             return TimeSpan.FromMilliseconds(
                 GetRetryDelayMs(
@@ -154,14 +154,14 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Reads a server-supplied backoff override (the <c>retryAfterMS</c> field) from a retryable overload error,
+        /// Reads a server-supplied backoff override (the <c>baseBackoffMS</c> field) from a retryable overload error,
         /// or <see langword="null"/> when absent. Only <see cref="MongoCommandException"/> results are inspected; a
         /// missing, non-numeric, or non-positive value is treated as absent.
         /// </summary>
-        public static int? GetRetryAfterMs(Exception exception)
+        public static int? GetBaseBackoffMs(Exception exception)
         {
             if (exception is MongoCommandException { Result: { } result } &&
-                result.TryGetValue("retryAfterMS", out var value) &&
+                result.TryGetValue("baseBackoffMS", out var value) &&
                 value.IsNumeric)
             {
                 var ms = value.ToInt64();

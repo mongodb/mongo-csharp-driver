@@ -487,7 +487,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Execute_should_preserve_server_supplied_retryAfterMS_in_the_command_exception(
+        public async Task Execute_should_preserve_server_supplied_baseBackoffMS_in_the_command_exception(
             [Values(false, true)] bool async)
         {
             var connection = new MockConnection();
@@ -498,7 +498,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 { "code", 462 },
                 { "errmsg", "overloaded" },
                 { "errorLabels", new BsonArray { "SystemOverloadedError", "RetryableError" } },
-                { "retryAfterMS", 50 }
+                { "baseBackoffMS", 50 }
             };
             connection.EnqueueCommandResponseMessage(
                 MessageHelper.BuildCommandResponse(CreateRawBsonDocument(errorResponse)));
@@ -521,8 +521,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 : Record.Exception(() => subject.Execute(OperationContext.NoTimeout, connection));
 
             var commandException = exception.Should().BeOfType<MongoCommandException>().Subject;
-            commandException.Result["retryAfterMS"].ToInt32().Should().Be(50);
-            RetryabilityHelper.GetRetryAfterMs(commandException).Should().Be(50);
+            commandException.Result["baseBackoffMS"].ToInt32().Should().Be(50);
+            RetryabilityHelper.GetBaseBackoffMs(commandException).Should().Be(50);
         }
 
         // private methods
