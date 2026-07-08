@@ -169,7 +169,7 @@ internal partial class SerializerFinderVisitor
             AddNodeSerializer(collectionExpression2, collectionSerializer2);
         }
     }
-
+    
     private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
     {
         DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);

@@ -79,7 +79,6 @@ internal static class EnumerableOrQueryableMethod
     // sets of methods
     private static readonly IReadOnlyMethodInfoSet __aggregateOverloads;
     private static readonly IReadOnlyMethodInfoSet __aggregateWithSeedOverloads;
-    private static readonly IReadOnlyMethodInfoSet __anyOverloads;
     private static readonly IReadOnlyMethodInfoSet __appendOrPrepend;
     private static readonly IReadOnlyMethodInfoSet __averageOverloads;
     private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
@@ -477,12 +476,6 @@ internal static class EnumerableOrQueryableMethod
         [
             __aggregateWithSeedAndFunc,
             __aggregateWithSeedFuncAndResultSelector
-        ]);
-
-        __anyOverloads = MethodInfoSet.Create(
-        [
-            __any,
-            __anyWithPredicate
         ]);
 
         __appendOrPrepend = MethodInfoSet.Create(
@@ -973,7 +966,6 @@ internal static class EnumerableOrQueryableMethod
     // sets of methods
     public static IReadOnlyMethodInfoSet AggregateOverloads => __aggregateOverloads;
     public static IReadOnlyMethodInfoSet AggregateWithSeedOverloads => __aggregateWithSeedOverloads;
-    public static IReadOnlyMethodInfoSet AnyOverloads => __anyOverloads;
     public static IReadOnlyMethodInfoSet AppendOrPrepend => __appendOrPrepend;
     public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
     public static IReadOnlyMethodInfoSet AverageWithSelectorOverloads => __averageWithSelectorOverloads;

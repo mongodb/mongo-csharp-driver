@@ -46,6 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __endsWithWithString;
         private static readonly MethodInfo __endsWithWithStringAndComparisonType;
         private static readonly MethodInfo __endsWithWithStringAndIgnoreCaseAndCulture;
+        private static readonly MethodInfo __equals;
         private static readonly MethodInfo __equalsWithComparisonType;
         private static readonly MethodInfo __getChars;
         private static readonly MethodInfo __indexOfAny;
@@ -81,6 +82,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         private static readonly MethodInfo __startsWithWithString;
         private static readonly MethodInfo __startsWithWithStringAndComparisonType;
         private static readonly MethodInfo __startsWithWithStringAndIgnoreCaseAndCulture;
+        private static readonly MethodInfo __staticEquals;
         private static readonly MethodInfo __staticEqualsWithComparisonType;
         private static readonly MethodInfo __stringInWithEnumerable;
         private static readonly MethodInfo __stringInWithParams;
@@ -174,6 +176,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __endsWithWithString = ReflectionInfo.Method((string s, string value) => s.EndsWith(value));
             __endsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.EndsWith(value, comparisonType));
             __endsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.EndsWith(value, ignoreCase, culture));
+            __equals = ReflectionInfo.Method((string s, string value) => s.Equals(value));
             __equalsWithComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Equals(value, comparisonType));
             __getChars = ReflectionInfo.Method((string s, int index) => s[index]);
             __indexOfAny = ReflectionInfo.Method((string s, char[] anyOf) => s.IndexOfAny(anyOf));
@@ -218,6 +221,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __startsWithWithString = ReflectionInfo.Method((string s, string value) => s.StartsWith(value));
             __startsWithWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.StartsWith(value, comparisonType));
             __startsWithWithStringAndIgnoreCaseAndCulture = ReflectionInfo.Method((string s, string value, bool ignoreCase, CultureInfo culture) => s.StartsWith(value, ignoreCase, culture));
+            __staticEquals = ReflectionInfo.Method((string a, string b) => string.Equals(a, b));
             __staticEqualsWithComparisonType = ReflectionInfo.Method((string a, string b, StringComparison comparisonType) => string.Equals(a, b, comparisonType));
             __stringInWithEnumerable = ReflectionInfo.Method((string s, IEnumerable<StringOrRegularExpression> values) => s.StringIn(values));
             __stringInWithParams = ReflectionInfo.Method((string s, StringOrRegularExpression[] values) => s.StringIn(values));
@@ -523,6 +527,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo EndsWithWithString => __endsWithWithString;
         public static MethodInfo EndsWithWithStringAndComparisonType => __endsWithWithStringAndComparisonType;
         public static MethodInfo EndsWithWithStringAndIgnoreCaseAndCulture => __endsWithWithStringAndIgnoreCaseAndCulture;
+        public static MethodInfo EqualsInstanceMethod => __equals;
         public static MethodInfo EqualsWithComparisonType => __equalsWithComparisonType;
         public static MethodInfo GetChars => __getChars;
         public static MethodInfo IndexOfAny => __indexOfAny;
@@ -554,6 +559,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         public static MethodInfo StartsWithWithString => __startsWithWithString;
         public static MethodInfo StartsWithWithStringAndComparisonType => __startsWithWithStringAndComparisonType;
         public static MethodInfo StartsWithWithStringAndIgnoreCaseAndCulture => __startsWithWithStringAndIgnoreCaseAndCulture;
+        public static MethodInfo StaticEquals => __staticEquals;
         public static MethodInfo StaticEqualsWithComparisonType => __staticEqualsWithComparisonType;
         public static MethodInfo StringInWithEnumerable => __stringInWithEnumerable;
         public static MethodInfo StringInWithParams => __stringInWithParams;
