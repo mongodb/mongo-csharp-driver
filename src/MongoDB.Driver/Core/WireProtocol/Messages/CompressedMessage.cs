@@ -40,9 +40,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         public MongoDBMessage OriginalMessage => _originalMessage;
         public BsonStream OriginalMessageStream => _originalMessageStream;
 
-        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory)
-        {
-            return encoderFactory.GetCompressedMessageEncoder();
-        }
+        public override IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory) =>
+            encoderFactory.GetCompressedMessageEncoder();
     }
 }
