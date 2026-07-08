@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using Xunit;
@@ -102,15 +104,23 @@ namespace MongoDB.Bson.Tests
             Assert.Equal(expected, actual);
         }
 
+        public static IEnumerable<object[]> ParseHexStringValidInput
+        {
+            get
+            {
+                yield return new object[] { "", new byte[0] };
+                yield return new object[] { "1", new byte[] { 0x01 } };
+                yield return new object[] { "12", new byte[] { 0x12 } };
+                yield return new object[] { "123", new byte[] { 0x01, 0x23 } };
+                yield return new object[] { "1234", new byte[] { 0x12, 0x34 } };
+                yield return new object[] { "12345", new byte[] { 0x01, 0x23, 0x45 } };
+                yield return new object[] { "123456", new byte[] { 0x12, 0x34, 0x56 } };
+                yield return new object[] { "0123456789abcdefABCDEF", new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xab, 0xcd, 0xef } };
+            }
+        }
+
         [Theory]
-        [InlineData("", new byte[0])]
-        [InlineData("1", new byte[] { 0x01 })]
-        [InlineData("12", new byte[] { 0x12 })]
-        [InlineData("123", new byte[] { 0x01, 0x23 })]
-        [InlineData("1234", new byte[] { 0x12, 0x34 })]
-        [InlineData("12345", new byte[] { 0x01, 0x23, 0x45 })]
-        [InlineData("123456", new byte[] { 0x12, 0x34, 0x56 })]
-        [InlineData("0123456789abcdefABCDEF", new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xab, 0xcd, 0xef })]
+        [MemberData(nameof(ParseHexStringValidInput))]
         public void ParseHexString_should_return_expected_result(string s, byte[] expectedResult)
         {
             var result = BsonUtils.ParseHexString(s);
@@ -119,16 +129,43 @@ namespace MongoDB.Bson.Tests
         }
 
         [Theory]
-        [InlineData("x")]
-        [InlineData("/")] // character just before "0"
-        [InlineData(":")] // character just after "9"
-        [InlineData("`")] // character just before "a"
-        [InlineData("g")] // character just after "f"
-        [InlineData("@")] // character just before "A"
-        [InlineData("G")] // character just after "F"
+        [MemberData(nameof(ParseHexStringValidInput))]
+        public void ParseHexStringSpan_should_return_expected_result(string s, byte[] expectedResult)
+        {
+            Span<byte> result = stackalloc byte[(s.Length + 1) / 2];
+            BsonUtils.ParseHexString(s.AsSpan(), result);
+
+            result.ToArray().Should().Equal(expectedResult);
+        }
+
+        public static IEnumerable<object[]> ParseHexStringInvalidInput
+        {
+            get
+            {
+                yield return new object[] { "x" };
+                yield return new object[] { "/" };  // character just before "0"
+                yield return new object[] { ":" };  // character just after "9"
+                yield return new object[] { "`" };  // character just before "a"
+                yield return new object[] { "g" };  // character just after "f"
+                yield return new object[] { "@" };  // character just before "A"
+                yield return new object[] { "G" };  // character just after "F"
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ParseHexStringInvalidInput))]
         public void ParseHexString_should_throw_when_string_is_invalid(string s)
         {
             var exception = Record.Exception(() => BsonUtils.ParseHexString(s));
+
+            exception.Should().BeOfType<FormatException>();
+        }
+
+        [Theory]
+        [MemberData(nameof(ParseHexStringInvalidInput))]
+        public void ParseHexStringSpan_should_throw_when_string_is_invalid(string s)
+        {
+            var exception = Record.Exception(() => BsonUtils.ParseHexString(s.AsSpan(), new byte[(s.Length + 1) / 2]));
 
             exception.Should().BeOfType<FormatException>();
         }
@@ -140,6 +177,43 @@ namespace MongoDB.Bson.Tests
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("s");
+        }
+
+        [Theory]
+        [InlineData(1, 0, true)]
+        [InlineData(1, 1, false)]
+        [InlineData(1, 2, true)]
+        [InlineData(1, 3, true)]
+        [InlineData(2, 0, true)]
+        [InlineData(2, 1, false)]
+        [InlineData(2, 2, true)]
+        [InlineData(2, 3, true)]
+        [InlineData(9, 1, true)]
+        [InlineData(9, 4, true)]
+        [InlineData(9, 5, false)]
+        [InlineData(9, 6, true)]
+        [InlineData(10, 1, true)]
+        [InlineData(10, 4, true)]
+        [InlineData(10, 5, false)]
+        [InlineData(10, 6, true)]
+        [InlineData(11, 1, true)]
+        [InlineData(11, 4, true)]
+        [InlineData(11, 5, true)]
+        [InlineData(11, 6, false)]
+        [InlineData(11, 7, true)]
+        public void ParseHexStringSpan_should_throw_when_length_is_incorrect(int inputLength, int destinationLength, bool shouldThrow)
+        {
+            var exception = Record.Exception(() => BsonUtils.ParseHexString(new string('0', inputLength).AsSpan(), new byte[destinationLength]));
+
+            if (shouldThrow)
+            {
+                var formatException = exception.Should().BeOfType<FormatException>().Subject;
+                formatException.Message.Should().Be($"Target should be {(inputLength + 1) / 2} bytes long");
+            }
+            else
+            {
+                exception.Should().BeNull();
+            }
         }
 
         [Theory]
@@ -165,14 +239,7 @@ namespace MongoDB.Bson.Tests
         }
 
         [Theory]
-        [InlineData("", new byte[0])]
-        [InlineData("1", new byte[] { 0x01 })]
-        [InlineData("12", new byte[] { 0x12 })]
-        [InlineData("123", new byte[] { 0x01, 0x23 })]
-        [InlineData("1234", new byte[] { 0x12, 0x34 })]
-        [InlineData("12345", new byte[] { 0x01, 0x23, 0x45 })]
-        [InlineData("123456", new byte[] { 0x12, 0x34, 0x56 })]
-        [InlineData("0123456789abcdefABCDEF", new byte[] { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef, 0xab, 0xcd, 0xef })]
+        [MemberData(nameof(ParseHexStringValidInput))]
         public void TryParseHexString_should_return_expected_result(string s, byte[] expectedBytes)
         {
             byte[] bytes;
@@ -181,16 +248,20 @@ namespace MongoDB.Bson.Tests
             result.Should().BeTrue();
             bytes.Should().Equal(expectedBytes);
         }
+        [Theory]
+        [MemberData(nameof(ParseHexStringValidInput))]
+        public void TryParseHexStringSpan_should_return_expected_result(string s, byte[] expectedBytes)
+        {
+            Span<byte> bytes = stackalloc byte[expectedBytes.Length];
+            var result = BsonUtils.TryParseHexString(s.AsSpan(), bytes);
+
+            result.Should().BeTrue();
+            bytes.ToArray().Should().Equal(expectedBytes);
+        }
 
         [Theory]
+        [MemberData(nameof(ParseHexStringInvalidInput))]
         [InlineData(null)]
-        [InlineData("x")]
-        [InlineData("/")] // character just before "0"
-        [InlineData(":")] // character just after "9"
-        [InlineData("`")] // character just before "a"
-        [InlineData("g")] // character just after "f"
-        [InlineData("@")] // character just before "A"
-        [InlineData("G")] // character just after "F"
         public void TryParseHexString_should_return_expected_result_when_string_is_invalid(string s)
         {
             byte[] bytes;
@@ -198,6 +269,19 @@ namespace MongoDB.Bson.Tests
 
             result.Should().BeFalse();
             bytes.Should().BeNull();
+        }
+
+        [Theory]
+        [MemberData(nameof(ParseHexStringInvalidInput))]
+        public void TryParseHexStringSpan_should_return_expected_result_when_string_is_invalid(string s)
+        {
+            string input = "12345" + s;
+            int length = (input.Length + 1) / 2;
+            Span<byte> bytes = stackalloc byte[length];
+            var result = BsonUtils.TryParseHexString(input.AsSpan(), bytes);
+
+            result.Should().BeFalse();
+            bytes.ToArray().Should().Equal(new byte[] { 0x12, 0x34 }.Concat(new byte[length - 2]));
         }
     }
 }

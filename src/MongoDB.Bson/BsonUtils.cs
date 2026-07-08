@@ -73,6 +73,24 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
+        /// Parses a hex char span into its equivalent byte span.
+        /// </summary>
+        /// <param name="s">The hex char span to parse.</param>
+        /// <param name="destination">The destination span to fill with the byte equivalent of the hex string.</param>
+        public static void ParseHexString(ReadOnlySpan<char> s, Span<byte> destination)
+        {
+            int expectedLength = GetByteLength(s.Length);
+            if (destination.Length != expectedLength)
+            {
+                throw new FormatException($"Target should be {expectedLength} bytes long");
+            }
+            if (!TryParseHexString(s, destination))
+            {
+                throw new FormatException("String should contain only hexadecimal digits.");
+            }
+        }
+
+        /// <summary>
         /// Converts from number of milliseconds since Unix epoch to DateTime.
         /// </summary>
         /// <param name="millisecondsSinceEpoch">The number of milliseconds since Unix epoch.</param>
@@ -212,14 +230,35 @@ namespace MongoDB.Bson
         /// <returns>True if the hex string was successfully parsed.</returns>
         public static bool TryParseHexString(string s, out byte[] bytes)
         {
-            bytes = null;
-
             if (s == null)
             {
+                bytes = null;
                 return false;
             }
 
-            var buffer = new byte[(s.Length + 1) / 2];
+            var buffer = new byte[GetByteLength(s.Length)];
+            if (TryParseHexString(s.AsSpan(), buffer))
+            {
+                bytes = buffer;
+                return true;
+            }
+            else
+            {
+                bytes = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to parse a hex char span into its equivalent byte span.
+        /// </summary>
+        /// <param name="s">The hex char span to parse.</param>
+        /// <param name="destination">The destination span to fill with the byte equivalent of the hex string.</param>
+        /// <returns>True if the hex char span was successfully parsed.</returns>
+        public static bool TryParseHexString(ReadOnlySpan<char> s, Span<byte> destination)
+        {
+            if (destination.Length != GetByteLength(s.Length))
+                return false;
 
             var i = 0;
             var j = 0;
@@ -232,7 +271,7 @@ namespace MongoDB.Bson
                 {
                     return false;
                 }
-                buffer[j++] = (byte)y;
+                destination[j++] = (byte)y;
             }
 
             while (i < s.Length)
@@ -246,14 +285,17 @@ namespace MongoDB.Bson
                 {
                     return false;
                 }
-                buffer[j++] = (byte)((x << 4) | y);
+                destination[j++] = (byte)((x << 4) | y);
             }
 
-            bytes = buffer;
             return true;
         }
 
         // private static methods
+
+        private static int GetByteLength(int hexStringLength)
+            => (hexStringLength + 1) / 2;
+
         private static bool TryParseHexChar(char c, out int value)
         {
             if (c >= '0' && c <= '9')
