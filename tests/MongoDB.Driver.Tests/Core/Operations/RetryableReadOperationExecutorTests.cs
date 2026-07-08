@@ -141,14 +141,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         [InlineData(2, 50, 0, 100)]
         [InlineData(1, 10000, 0, 10000)]
         [InlineData(2, 20000, 0, 10000)]
-        public void ShouldRetry_with_retryAfterMs_should_use_it_as_backoff_base(
+        public void ShouldRetry_with_baseBackoffMs_should_use_it_as_backoff_base(
             int attempt,
-            int retryAfterMs,
+            int baseBackoffMs,
             int expectedRangeMinMs,
             int expectedRangeMaxMs)
         {
             var context = CreateContext(retryRequested: true, isInTransaction: false);
-            var result = BsonDocument.Parse($"{{ ok : 0, code : 2, retryAfterMS : {retryAfterMs} }}");
+            var result = BsonDocument.Parse($"{{ ok : 0, code : 2, baseBackoffMS : {baseBackoffMs} }}");
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
             var operationContext = new OperationContext(null, CancellationToken.None);
             var randomMock = new Mock<IRandom>();

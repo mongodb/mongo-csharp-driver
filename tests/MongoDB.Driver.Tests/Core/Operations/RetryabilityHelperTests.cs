@@ -290,30 +290,30 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Fact]
-        public void GetRetryAfterMs_should_return_null_for_non_command_exception()
+        public void GetBaseBackoffMs_should_return_null_for_non_command_exception()
         {
             var exception = CoreExceptionHelper.CreateException(typeof(MongoConnectionException));
 
-            var retryAfterMs = RetryabilityHelper.GetRetryAfterMs(exception);
+            var baseBackoffMs = RetryabilityHelper.GetBaseBackoffMs(exception);
 
-            retryAfterMs.Should().Be(null);
+            baseBackoffMs.Should().Be(null);
         }
 
         [Theory]
         [InlineData("{ ok : 0, code : 2 }", null)]
-        [InlineData("{ ok : 0, code : 2, retryAfterMS : 0 }", null)]
-        [InlineData("{ ok : 0, code : 2, retryAfterMS : -5 }", null)]
-        [InlineData("{ ok : 0, code : 2, retryAfterMS : 'not-a-number' }", null)]
-        [InlineData("{ ok : 0, code : 2, retryAfterMS : 50 }", 50)]
-        [InlineData("{ ok : 0, code : 2, retryAfterMS : NumberLong(9999999999) }", int.MaxValue)]
-        public void GetRetryAfterMs_should_return_expected_result(string resultJson, int? expectedValue)
+        [InlineData("{ ok : 0, code : 2, baseBackoffMS : 0 }", null)]
+        [InlineData("{ ok : 0, code : 2, baseBackoffMS : -5 }", null)]
+        [InlineData("{ ok : 0, code : 2, baseBackoffMS : 'not-a-number' }", null)]
+        [InlineData("{ ok : 0, code : 2, baseBackoffMS : 50 }", 50)]
+        [InlineData("{ ok : 0, code : 2, baseBackoffMS : NumberLong(9999999999) }", int.MaxValue)]
+        public void GetBaseBackoffMs_should_return_expected_result(string resultJson, int? expectedValue)
         {
             var result = BsonDocument.Parse(resultJson);
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result);
 
-            var retryAfterMs = RetryabilityHelper.GetRetryAfterMs(exception);
+            var baseBackoffMs = RetryabilityHelper.GetBaseBackoffMs(exception);
 
-            retryAfterMs.Should().Be(expectedValue);
+            baseBackoffMs.Should().Be(expectedValue);
         }
 
         [Theory]
@@ -323,9 +323,9 @@ namespace MongoDB.Driver.Core.Operations
         [InlineData(2, 50, 0, 100)]
         [InlineData(1, 10000, 0, 10000)]
         [InlineData(2, 20000, 0, 10000)]
-        public void GetOperationRetryBackoffDelay_should_apply_retryAfterMs_override(int attempt, int? retryAfterMs, int expectedRangeMin, int expectedRangeMax)
+        public void GetOperationRetryBackoffDelay_should_apply_baseBackoffMs_override(int attempt, int? baseBackoffMs, int expectedRangeMin, int expectedRangeMax)
         {
-            var result = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, DefaultRandom.Instance, retryAfterMs);
+            var result = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, DefaultRandom.Instance, baseBackoffMs);
 
             result.TotalMilliseconds.Should().BeInRange(expectedRangeMin, expectedRangeMax);
         }
@@ -333,12 +333,12 @@ namespace MongoDB.Driver.Core.Operations
         [Theory]
         [InlineData(1, 10000, 10000)]
         [InlineData(2, 20000, 10000)]
-        public void GetOperationRetryBackoffDelay_should_limit_override_to_MaxBackoff(int attempt, int retryAfterMs, int expectedMs)
+        public void GetOperationRetryBackoffDelay_should_limit_override_to_MaxBackoff(int attempt, int baseBackoffMs, int expectedMs)
         {
             var randomMock = new Mock<IRandom>();
             randomMock.Setup(r => r.NextDouble()).Returns(1.0);
 
-            var result = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, randomMock.Object, retryAfterMs);
+            var result = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, randomMock.Object, baseBackoffMs);
 
             result.TotalMilliseconds.Should().Be(expectedMs);
         }

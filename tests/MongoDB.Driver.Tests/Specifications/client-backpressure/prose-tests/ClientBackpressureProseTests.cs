@@ -86,10 +86,10 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with retryAfterMS override base backoff)
-    public async Task ReadExecute_should_use_retryAfterMs_as_backoff_base(bool async)
+    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with baseBackoffMS override base backoff)
+    public async Task ReadExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
     {
-        await AssertRetryAfterMsOverridesBackoff(
+        await AssertBaseBackoffMsOverridesBackoff(
             async,
             random => CreateRetryableReadContext(random),
             exception =>
@@ -110,10 +110,10 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with retryAfterMS override base backoff)
-    public async Task WriteExecute_should_use_retryAfterMs_as_backoff_base(bool async)
+    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with baseBackoffMS override base backoff)
+    public async Task WriteExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
     {
-        await AssertRetryAfterMsOverridesBackoff(
+        await AssertBaseBackoffMsOverridesBackoff(
             async,
             random => CreateRetryableWriteContext(random),
             exception =>
@@ -176,7 +176,7 @@ public class ClientBackpressureProseTestsUnit
             $"backoff difference should be approximately 300ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
     }
 
-    private async Task AssertRetryAfterMsOverridesBackoff<TOperation, TContext>(
+    private async Task AssertBaseBackoffMsOverridesBackoff<TOperation, TContext>(
         bool async,
         Func<IRandom, TContext> createContext,
         Func<Exception, TOperation> createOperation,
@@ -188,18 +188,18 @@ public class ClientBackpressureProseTestsUnit
         var fullJitterRandom = new Mock<IRandom>();
         fullJitterRandom.Setup(r => r.NextDouble()).Returns(1.0);
 
-        // Exponential backoff run: overload error without retryAfterMS -> 100ms + 200ms = 300ms with jitter = 1.
+        // Exponential backoff run: overload error without baseBackoffMS -> 100ms + 200ms = 300ms with jitter = 1.
         var exponentialException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(462, "SystemOverloadedError", "RetryableError");
         var exponentialMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(exponentialException), createContext(fullJitterRandom.Object));
 
-        // retryAfterMS override run: overload error with retryAfterMS = 50 -> 50ms + 100ms = 150ms with jitter = 1.
-        var overrideResult = BsonDocument.Parse("{ ok : 0, code : 462, retryAfterMS : 50 }");
+        // baseBackoffMS override run: overload error with baseBackoffMS = 50 -> 50ms + 100ms = 150ms with jitter = 1.
+        var overrideResult = BsonDocument.Parse("{ ok : 0, code : 462, baseBackoffMS : 50 }");
         var overrideException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(overrideResult, "SystemOverloadedError", "RetryableError");
-        var withRetryAfterMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(overrideException), createContext(fullJitterRandom.Object));
+        var withBaseBackoffMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(overrideException), createContext(fullJitterRandom.Object));
 
         // Per the spec: assertTrue(abs(exponential_backoff_time - (with_retry_after_ms_time + 0.2s)) < 0.2s)
-        Math.Abs(exponentialMs - (withRetryAfterMs + 200)).Should().BeLessThan(200,
-            $"retryAfterMS should shorten the backoff base (exponential: {exponentialMs}ms, withRetryAfterMS: {withRetryAfterMs}ms)");
+        Math.Abs(exponentialMs - (withBaseBackoffMs + 200)).Should().BeLessThan(200,
+            $"baseBackoffMS should shorten the backoff base (exponential: {exponentialMs}ms, withBaseBackoffMS: {withBaseBackoffMs}ms)");
     }
 
     private static async Task<long> MeasureBackoff<TOperation, TContext>(
