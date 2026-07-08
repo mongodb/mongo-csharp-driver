@@ -297,7 +297,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAddToSetMethodSerializers
         private static void DeduceAddToSetMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -306,7 +305,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceConcatArraysMethodSerializers
         private static void DeduceConcatArraysMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -315,7 +313,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceSetUnionMethodSerializers
         private static void DeduceSetUnionMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -324,7 +321,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceMinMaxScalerMethodSerializers
         private static void DeduceMinMaxScalerMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -333,7 +329,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceStandardSerializer(expression);
         }
 
-        // DeduceEncStrMethodSerializers
         private static void DeduceEncStrMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var inputExpression = expression.Arguments[0];
@@ -349,7 +344,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceLeftJoinMethodSerializers
         private static void DeduceLeftJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -370,7 +364,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
         }
 
-        // DeducePickWindowMethodSerializers
         private static void DeducePickWindowMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -399,7 +392,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithFunc branch
         private static void DeduceAggregateWithFuncMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -413,7 +405,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, funcLambda.Body);
         }
 
-        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithSeedAndFunc branch
         private static void DeduceAggregateWithSeedAndFuncMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -428,7 +419,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, funcLambda.Body);
         }
 
-        // DeduceAggregateMethodSerializers + EnumerableOrQueryableMethod.AggregateWithSeedFuncAndResultSelector branch
         private static void DeduceAggregateWithSeedFuncAndResultSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -446,7 +436,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, resultSelectorLambda.Body);
         }
 
-        // DeduceAllMethodSerializers
         private static void DeduceAllMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -457,7 +446,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceAnyMethodSerializers + EnumerableOrQueryableMethod.AnyWithPredicate branch
         private static void DeduceAnyWithPredicateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -468,7 +456,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceAppendStageMethodSerializers
         private static void DeduceAppendStageMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -505,7 +492,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAsMethodSerializers
         private static void DeduceAsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -528,7 +514,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAsQueryableMethodSerializers
         private static void DeduceAsQueryableMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -540,7 +525,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceConcatMethodSerializers + EnumerableMethod.Concat, QueryableMethod.Concat branch
         private static void DeduceEnumerableConcatMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var firstExpression = expression.Arguments[0];
@@ -550,7 +534,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, firstExpression);
         }
 
-        // DeduceConstantMethodSerializers
         private static void DeduceConstantMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var valueExpression = expression.Arguments[0];
@@ -580,7 +563,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, serializer);
         }
 
-        // DeduceConvertMethodSerializers
         private static void DeduceConvertMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -630,7 +612,6 @@ internal partial class SerializerFinderVisitor
         }
 
 #if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        // DeduceCreateMethodSerializers + KeyValuePairMethod.Create branch
         private static void DeduceKeyValuePairCreateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsAnyNotKnown(expression.Arguments) && visitor.IsKnown(expression, out var nodeSerializer))
@@ -655,7 +636,6 @@ internal partial class SerializerFinderVisitor
         }
 #endif
 
-        // DeduceCreateMethodSerializers + TupleOrValueTupleMethod.CreateOverloads
         private static void DeduceTupleOrValueTupleCreateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsAnyNotKnown(expression.Arguments) && visitor.IsKnown(expression, out var nodeSerializer))
@@ -697,14 +677,12 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceDateFromStringMethodSerializers
         private static void DeduceDateFromStringMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var resultSerializer = expression.Method.Is(MqlMethod.DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull) ? NullableSerializer.NullableUtcDateTimeInstance : DateTimeSerializer.UtcInstance;
             visitor.DeduceSerializer(expression, resultSerializer);
         }
 
-        // DeduceDefaultIfEmptyMethodSerializers
         private static void DeduceDefaultIfEmptyMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -718,7 +696,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceDensifyMethodSerializers
         private static void DeduceDensifyMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -741,7 +718,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceDocumentsMethodSerializers
         private static void DeduceDocumentsMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -764,7 +740,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceExceptMethodSerializers
         private static void DeduceExceptMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var firstExpression = expression.Arguments[0];
@@ -773,7 +748,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, firstExpression);
         }
 
-        // DeduceExponentialMovingAverageMethodSerializers
         private static void DeduceExponentialMovingAverageMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -782,7 +756,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceStandardSerializer(expression);
         }
 
-        // DeduceFieldMethodSerializers
         private static void DeduceFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -798,7 +771,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceGroupByMethodSerializers
         private static void DeduceGroupByMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -862,7 +834,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceGroupJoinMethodSerializers
         private static void DeduceGroupJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var outerExpression = expression.Arguments[0];
@@ -882,7 +853,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
         }
 
-        // DeduceHasFlagMethodSerializers
         private static void DeduceHasFlagMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var objectExpression = expression.Object;
@@ -894,7 +864,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceJoinMethodSerializers
         private static void DeduceJoinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var outerExpression = expression.Arguments[0];
@@ -914,7 +883,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
         }
 
-        // DeduceLocfMethodSerializers
         private static void DeduceLocfMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -923,7 +891,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceLookupMethodSerializers + MongoQueryableMethod.LookupWithDocumentsAndLocalFieldAndForeignField branch
         private static void DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -946,7 +913,6 @@ internal partial class SerializerFinderVisitor
                 visitor.AddNodeSerializer(expression, IQueryableSerializer.Create(lookupResultSerializer));
             }
         }
-        // DeduceLookupMethodSerializers + LookupWithDocumentsAndLocalFieldAndForeignFieldAndPipeline branch
         private static void DeduceLookupWithDocumentsAndLocalFieldAndForeignFieldAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -975,7 +941,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceLookupMethodSerializers + LookupWithDocumentsAndPipeline branch
         private static void DeduceLookupWithDocumentsAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -998,7 +963,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceLookupMethodSerializers + LookupWithFromAndLocalFieldAndForeignField branch
         private static void DeduceLookupWithFromAndLocalFieldAndForeignFieldMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1021,7 +985,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceLookupMethodSerializers + LookupWithFromAndLocalFieldAndForeignFieldAndPipeline branch
         private static void DeduceLookupWithFromAndLocalFieldAndForeignFieldAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1055,7 +1018,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceLookupMethodSerializers + LookupWithFromAndPipeline branch
         private static void DeduceLookupWithFromAndPipelineMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1063,14 +1025,14 @@ internal partial class SerializerFinderVisitor
             var foreignDocumentSerializer = fromCollection.DocumentSerializer;
             var pipelineLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
             var pipelineLambdaLocalParameter = pipelineLambda.Parameters[0];
-            var pipelineLamdbaForeignQueryableParameter = pipelineLambda.Parameters[1];
+            var pipelineLambdaForeignQueryableParameter = pipelineLambda.Parameters[1];
 
             visitor.DeduceItemAndCollectionSerializers(pipelineLambdaLocalParameter, sourceExpression);
 
-            if (visitor.IsNotKnown(pipelineLamdbaForeignQueryableParameter))
+            if (visitor.IsNotKnown(pipelineLambdaForeignQueryableParameter))
             {
                 var foreignQueryableSerializer = IQueryableSerializer.Create(foreignDocumentSerializer);
-                visitor.AddNodeSerializer(pipelineLamdbaForeignQueryableParameter, foreignQueryableSerializer);
+                visitor.AddNodeSerializer(pipelineLambdaForeignQueryableParameter, foreignQueryableSerializer);
             }
 
             if (visitor.IsNotKnown(expression) &&
@@ -1082,7 +1044,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceOfTypeMethodSerializers
         private static void DeduceOfTypeMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1096,7 +1057,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeducePushMethodSerializers
         private static void DeducePushMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1105,7 +1065,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceRoundMethodSerializers
         private static void DeduceRoundMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -1115,7 +1074,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceSelectMethodSerializers
         private static void DeduceSelectMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1139,7 +1097,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithSelector branch
         private static void DeduceSelectManyWithSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1150,7 +1107,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithCollectionSelectorAndResultSelector branch
         private static void DeduceSelectManyWithCollectionSelectorAndResultSelectorMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1167,7 +1123,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndItemSerializers(expression, resultSelectorLambda.Body);
         }
 
-        // DeduceSelectManySerializers + EnumerableOrQueryableMethod.SelectManyWithSelectorTakingIndex branch
         private static void DeduceSelectManyWithSelectorTakingIndexMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1182,14 +1137,12 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceSequenceEqualMethodSerializers
         private static void DeduceSequenceEqualMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             visitor.DeduceCollectionAndCollectionSerializers(expression.Arguments[0], expression.Arguments[1]);
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceShiftMethodSerializers
         private static void DeduceShiftMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1198,7 +1151,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceSplitMethodSerializers
         private static void DeduceSplitMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsNotKnown(expression))
@@ -1208,7 +1160,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceSumMethodSerializers + EnumerableOrQueryableMethod.SumOverloads branch
         private static void DeduceEnumerableSumMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.SumWithSelectorOverloads))
@@ -1239,7 +1190,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, serializer);
         }
 
-        // DeduceSumMethodSerializers + WindowMethod.SumOverloads branch
         private static void DeduceWindowSumMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1248,7 +1198,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceStandardSerializer(expression);
         }
 
-        // DeduceWhereSerializers
         private static void DeduceWhereSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1272,7 +1221,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceZipSerializers
         private static void DeduceZipSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var firstExpression = expression.Arguments[0];
@@ -1300,7 +1248,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAppendOrPrependMethodSerializers
         private static void DeduceAppendOrPrependMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1310,7 +1257,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceAverageOrMedianOrPercentileMethodSerializers + __averageOrMedianOrPercentileOverloads branch
         private static void DeduceAverageOrMedianOrPercentileMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(__averageOrMedianOrPercentileWithSelectorOverloads))
@@ -1329,7 +1275,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceAverageOrMedianOrPercentileMethodSerializers + __averageOrMedianOrPercentileWindowMethodOverloads branch
         private static void DeduceAverageOrMedianOrPercentileWindowMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1358,7 +1303,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeducePickMethodSerializers
         private static void DeducePickMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var method = expression.Method;
@@ -1434,7 +1378,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceCountMethodSerializers + EnumerableOrQueryableMethod.CountOverloads branch
         private static void DeduceEnumerableCountMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.CountWithPredicateOverloads))
@@ -1448,7 +1391,6 @@ internal partial class SerializerFinderVisitor
             DeduceReturnsNumericSerializer(visitor, expression);
         }
 
-        // DeduceCovarianceMethodSerializers
         private static void DeduceCovarianceMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1459,7 +1401,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceStandardSerializer(expression);
         }
 
-        // DeduceDerivativeOrIntegralMethodSerializers
         private static void DeduceDerivativeOrIntegralMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1468,7 +1409,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceStandardSerializer(expression);
         }
 
-        // DeduceFirstOrLastOrSingleMethodsSerializers + EnumerableOrQueryableMethod.FirstOrLastOrSingleOverloads
         private static void DeduceFirstOrLastOrSingleMethodsSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.FirstOrLastOrSingleWithPredicateOverloads))
@@ -1482,7 +1422,6 @@ internal partial class SerializerFinderVisitor
             DeduceReturnsOneSourceItemSerializer(visitor, expression);
         }
 
-        // DeduceFirstOrLastOrSingleMethodsSerializers + WindowMethod.First, WindowMethod.Last branch
         private static void DeduceFirstOrLastWindowMethodsSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1491,7 +1430,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceMaxOrMinMethodSerializers + EnumerableOrQueryableMethod.MaxOrMinOverloads branch
         private static void DeduceMaxOrMinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.MaxOrMinWithSelectorOverloads))
@@ -1509,7 +1447,6 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-        // DeduceMaxOrMinMethodSerializers + WindowMethod.Max, WindowMethod.Min branch
         private static void DeduceWindowMaxOrMinMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
@@ -1518,7 +1455,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializers(expression, selectorLambda.Body);
         }
 
-        // DeduceOrderByMethodSerializers
         private static void DeduceOrderByMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1529,7 +1465,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceSkipOrTakeMethodSerializers
         private static void DeduceSkipOrTakeMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
@@ -1553,7 +1488,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
 
-        // DeduceStandardDeviationMethodSerializers + MongoEnumerableMethod.StandardDeviationOverloads branch
         private static void DeduceStandardDeviationMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (expression.Method.IsOneOf(MongoEnumerableMethod.StandardDeviationWithSelectorOverloads, MongoQueryableMethod.StandardDeviationWithSelectorOverloads))
@@ -1576,7 +1510,6 @@ internal partial class SerializerFinderVisitor
             visitor.DeduceSerializer(expression, BooleanSerializer.Instance);
         }
 
-        // DeduceStandardDeviationMethodSerializers + WindowMethod.StandardDeviationOverloads branch
         private static void DeduceWindowStandardDeviationMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var partitionExpression = expression.Arguments[0];
