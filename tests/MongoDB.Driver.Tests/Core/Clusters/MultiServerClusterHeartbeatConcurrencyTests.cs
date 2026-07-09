@@ -311,7 +311,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             mockConnection.Setup(c => c.Open(It.IsAny<OperationContext>())); // no action is required
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(GetHelloResponse);
 
             ResponseCommandMessage GetHelloResponse()

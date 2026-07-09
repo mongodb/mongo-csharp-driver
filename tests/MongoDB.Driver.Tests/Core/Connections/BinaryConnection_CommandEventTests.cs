@@ -272,8 +272,7 @@ namespace MongoDB.Driver.Core.Connections
                 encoder.WriteMessage(message);
                 _stream.Position = startPosition;
             }
-            var encoderSelector = new MongoDB.Driver.Core.WireProtocol.Messages.Encoders.CommandMessageEncoderSelector();
-            _subject.ReceiveMessageAsync(OperationContext.NoTimeout, message.ResponseTo, encoderSelector, _messageEncoderSettings).Wait();
+            _subject.ReceiveMessageAsync(OperationContext.NoTimeout, message.ResponseTo, _messageEncoderSettings).Wait();
         }
     }
 }

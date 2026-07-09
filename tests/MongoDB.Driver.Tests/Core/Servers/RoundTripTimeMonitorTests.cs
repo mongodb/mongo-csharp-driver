@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                     });
 
             mockConnection
-                .SetupSequence(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                .SetupSequence(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(
                     () =>
                     {
@@ -280,7 +280,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         private RoundTripTimeMonitor CreateSubject(TimeSpan frequency, Mock<IConnection> mockConnection)
         {
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(() => CreateResponseMessage());
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();

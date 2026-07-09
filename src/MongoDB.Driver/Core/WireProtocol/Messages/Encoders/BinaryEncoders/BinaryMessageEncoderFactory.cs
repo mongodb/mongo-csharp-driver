@@ -43,9 +43,9 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             return new CommandMessageBinaryEncoder(_stream, _encoderSettings);
         }
 
-        public IMessageEncoder GetCompressedMessageEncoder(IMessageEncoderSelector originalEncoderSelector)
+        public IMessageEncoder GetCompressedMessageEncoder()
         {
-            return new CompressedMessageBinaryEncoder(_stream, originalEncoderSelector, _compressorSource, _encoderSettings);
+            return new CompressedMessageBinaryEncoder(_stream, _compressorSource, _encoderSettings);
         }
     }
 }

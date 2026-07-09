@@ -370,11 +370,10 @@ namespace MongoDB.Driver.Core.Connections
                 _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>())).ReturnsAsync(stream);
                 _mockStreamFactory.Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>())).Returns(stream);
                 await _subject.OpenAsync(OperationContext.NoTimeout);
-                var encoderSelector = new CommandMessageEncoderSelector();
 
                 var exception = async ?
-                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings)) :
-                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
+                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, _messageEncoderSettings)) :
+                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, _messageEncoderSettings));
 
                 exception.Should().BeOfType<MongoConnectionException>();
                 var e = exception.InnerException.Should().BeOfType<FormatException>().Subject;
@@ -384,30 +383,15 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReceiveMessage_should_throw_an_ArgumentNullException_when_the_encoderSelector_is_null(
-            [Values(false, true)]
-            bool async)
-        {
-            var exception = async ?
-                await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, null, _messageEncoderSettings)) :
-                Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, null, _messageEncoderSettings));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("encoderSelector");
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public async Task ReceiveMessage_should_throw_an_ObjectDisposedException_if_the_connection_is_disposed(
             [Values(false, true)]
             bool async)
         {
-            var encoderSelector = new Mock<IMessageEncoderSelector>().Object;
             _subject.Dispose();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings)) :
-                Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
+                await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, _messageEncoderSettings)) :
+                Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, _messageEncoderSettings));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -418,11 +402,9 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)]
             bool async)
         {
-            var encoderSelector = new Mock<IMessageEncoderSelector>().Object;
-
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings)) :
-                Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
+                await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, _messageEncoderSettings)) :
+                Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, _messageEncoderSettings));
 
             exception.Should().BeOfType<InvalidOperationException>();
         }
@@ -445,11 +427,9 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new CommandMessageEncoderSelector();
-
                 var received = async ?
-                    await _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
-                    _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings);
+                    await _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, _messageEncoderSettings) :
+                    _subject.ReceiveMessage(OperationContext.NoTimeout, 10, _messageEncoderSettings);
 
                 MessageHelper.ToCommandPayload(received).Should().BeEquivalentTo(MessageHelper.ToCommandPayload(messageToReceive));
 
@@ -474,11 +454,9 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new CommandMessageEncoderSelector();
-
                 var receiveMessageTask = async ?
-                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings) :
-                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, encoderSelector, _messageEncoderSettings));
+                    _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 10, _messageEncoderSettings) :
+                    Task.Run(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 10, _messageEncoderSettings));
 
                 receiveMessageTask.IsCompleted.Should().BeFalse();
 
@@ -511,8 +489,6 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 TaskScheduler.UnobservedTaskException += eventHandler;
-                var encoderSelector = new CommandMessageEncoderSelector();
-
                 _mockStreamFactory
                     .Setup(f => f.CreateStream(_endPoint, CancellationToken.None))
                     .Returns(mockStream.Object);
@@ -523,7 +499,7 @@ namespace MongoDB.Driver.Core.Connections
 
                 _subject.Open(OperationContext.NoTimeout);
 
-                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
+                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, _messageEncoderSettings));
                 exception.Should().BeOfType<MongoConnectionException>();
 
                 GC.Collect(); // Collects the unobserved tasks
@@ -554,8 +530,6 @@ namespace MongoDB.Driver.Core.Connections
             try
             {
                 TaskScheduler.UnobservedTaskException += eventHandler;
-                var encoderSelector = new CommandMessageEncoderSelector();
-
                 _mockStreamFactory
                     .Setup(f => f.CreateStream(_endPoint, It.IsAny<CancellationToken>()))
                     .Returns(mockStream.Object);
@@ -564,7 +538,7 @@ namespace MongoDB.Driver.Core.Connections
                 SetupStreamRead(mockStream, tcs);
                 _subject.Open(OperationContext.NoTimeout);
 
-                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
+                var exception = await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, _messageEncoderSettings));
                 exception.Should().BeOfType<MongoConnectionException>();
                 exception.InnerException.Should().BeOfType<TimeoutException>();
 
@@ -603,15 +577,13 @@ namespace MongoDB.Driver.Core.Connections
                 await _subject.OpenAsync(OperationContext.NoTimeout);
                 _capturedEvents.Clear();
 
-                var encoderSelector = new CommandMessageEncoderSelector();
-
                 var exception1 = async1 ?
-                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings)) :
-                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 1, encoderSelector, _messageEncoderSettings));
+                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 1, _messageEncoderSettings)) :
+                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 1, _messageEncoderSettings));
 
                 var exception2 = async2 ?
-                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings)) :
-                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 2, encoderSelector, _messageEncoderSettings));
+                    await Record.ExceptionAsync(() => _subject.ReceiveMessageAsync(OperationContext.NoTimeout, 2, _messageEncoderSettings)) :
+                    Record.Exception(() => _subject.ReceiveMessage(OperationContext.NoTimeout, 2, _messageEncoderSettings));
 
                 exception1.Should().BeOfType<MongoConnectionException>().Subject
                     .ConnectionId.Should().Be(_subject.ConnectionId);

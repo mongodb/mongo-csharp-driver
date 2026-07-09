@@ -569,8 +569,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             if (responseExpected)
             {
-                var encoderSelector = new CommandMessageEncoderSelector();
-                var response = connection.ReceiveMessage(operationContext, responseTo, encoderSelector, _messageEncoderSettings);
+                var response = connection.ReceiveMessage(operationContext, responseTo, _messageEncoderSettings);
                 try
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption
@@ -619,8 +618,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             if (responseExpected)
             {
-                var encoderSelector = new CommandMessageEncoderSelector();
-                var response = await connection.ReceiveMessageAsync(operationContext, responseTo, encoderSelector, _messageEncoderSettings).ConfigureAwait(false);
+                var response = await connection.ReceiveMessageAsync(operationContext, responseTo, _messageEncoderSettings).ConfigureAwait(false);
                 try
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption

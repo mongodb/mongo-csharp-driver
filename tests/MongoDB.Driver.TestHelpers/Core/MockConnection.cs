@@ -203,13 +203,13 @@ namespace MongoDB.Driver.Core.TestHelpers
         public Task ReauthenticateAsync(OperationContext operationContext)
             => _replyActions.Dequeue().GetEffectiveMessageAsync();
 
-        public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+        public ResponseCommandMessage ReceiveMessage(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseCommandMessage)action.GetEffectiveMessage();
         }
 
-        public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, IMessageEncoderSelector encoderSelector, MessageEncoderSettings messageEncoderSettings)
+        public async Task<ResponseCommandMessage> ReceiveMessageAsync(OperationContext operationContext, int responseTo, MessageEncoderSettings messageEncoderSettings)
         {
             var action = _replyActions.Dequeue();
             return (ResponseCommandMessage)await action.GetEffectiveMessageAsync().ConfigureAwait(false);

@@ -410,10 +410,8 @@ namespace MongoDB.Driver.Core.Connections
         public ResponseCommandMessage ReceiveMessage(
             OperationContext operationContext,
             int responseTo,
-            IMessageEncoderSelector encoderSelector,
             MessageEncoderSettings messageEncoderSettings)
         {
-            Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
             ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
@@ -429,7 +427,7 @@ namespace MongoDB.Driver.Core.Connections
                             continue;
                         }
 
-                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        var message = helper.DecodeMessage(operationContext, buffer);
                         helper.ReceivedMessage(buffer, message);
                         return message;
                     }
@@ -445,10 +443,8 @@ namespace MongoDB.Driver.Core.Connections
         public async Task<ResponseCommandMessage> ReceiveMessageAsync(
             OperationContext operationContext,
             int responseTo,
-            IMessageEncoderSelector encoderSelector,
             MessageEncoderSettings messageEncoderSettings)
         {
-            Ensure.IsNotNull(encoderSelector, nameof(encoderSelector));
             ThrowIfCancelledOrDisposedOrNotOpen(operationContext);
 
             var helper = new ReceiveMessageHelper(this, responseTo, messageEncoderSettings, _compressorSource);
@@ -464,7 +460,7 @@ namespace MongoDB.Driver.Core.Connections
                             continue;
                         }
 
-                        var message = helper.DecodeMessage(operationContext, buffer, encoderSelector);
+                        var message = helper.DecodeMessage(operationContext, buffer);
                         helper.ReceivedMessage(buffer, message);
                         return message;
                     }
@@ -679,7 +675,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var compressedMessage = new CompressedMessage(message, uncompressedMessageStream, _sendCompressorType.Value);
             var compressedMessageEncoderFactory = new BinaryMessageEncoderFactory(compressedStream, messageEncoderSettings, _compressorSource);
-            var compressedMessageEncoder = compressedMessageEncoderFactory.GetCompressedMessageEncoder(null);
+            var compressedMessageEncoder = compressedMessageEncoderFactory.GetCompressedMessageEncoder();
             compressedMessageEncoder.WriteMessage(compressedMessage);
         }
 
@@ -824,7 +820,7 @@ namespace MongoDB.Driver.Core.Connections
                 _messageEncoderSettings = messageEncoderSettings;
             }
 
-            public ResponseCommandMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer, IMessageEncoderSelector encoderSelector)
+            public ResponseCommandMessage DecodeMessage(OperationContext operationContext, IByteBuffer buffer)
             {
                 operationContext.ThrowIfTimedOutOrCanceled();
 
@@ -840,13 +836,13 @@ namespace MongoDB.Driver.Core.Connections
                     var opcode = PeekOpcode(stream);
                     if (opcode == Opcode.Compressed)
                     {
-                        var compresedMessageEncoder = encoderFactory.GetCompressedMessageEncoder(encoderSelector);
-                        var compressedMessage = (CompressedMessage)compresedMessageEncoder.ReadMessage();
+                        var compressedMessageEncoder = encoderFactory.GetCompressedMessageEncoder();
+                        var compressedMessage = (CompressedMessage)compressedMessageEncoder.ReadMessage();
                         message = (ResponseCommandMessage)compressedMessage.OriginalMessage;
                     }
                     else
                     {
-                        var encoder = encoderSelector.GetEncoder(encoderFactory);
+                        var encoder = encoderFactory.GetCommandMessageEncoder();
                         message = (ResponseCommandMessage)encoder.ReadMessage();
                     }
                 }
