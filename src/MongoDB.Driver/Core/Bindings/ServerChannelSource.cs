@@ -37,7 +37,6 @@ namespace MongoDB.Driver.Core.Bindings
 
         public ServerDescription ServerDescription => _server.Description;
 
-
         // methods
         public void Dispose()
         {
