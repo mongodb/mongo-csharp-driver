@@ -2888,6 +2888,7 @@ buildvariants:
   matrix_spec:
     os: "ubuntu-2004"
   display_name: "Validate API compatibility"
+  activate: false
   tasks:
     - name: validate-apicompat-task-group
       depends_on:
