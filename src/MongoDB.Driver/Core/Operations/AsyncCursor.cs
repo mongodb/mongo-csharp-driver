@@ -490,6 +490,8 @@ namespace MongoDB.Driver.Core.Operations
                 return hasMore;
             }
 
+
+            // TODO: CSOT implement proper way to obtain the operationContext
             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
             var batch = GetNextBatch(operationContext);
             SaveBatch(batch);
@@ -507,6 +509,7 @@ namespace MongoDB.Driver.Core.Operations
                 return hasMore;
             }
 
+            // TODO: CSOT implement proper way to obtain the operationContext
             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
             var batch = await GetNextBatchAsync(operationContext).ConfigureAwait(false);
             SaveBatch(batch);
