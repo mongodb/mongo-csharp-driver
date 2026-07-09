@@ -130,6 +130,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private void EnsureInnerBinding(OperationContext operationContext)
         {
+            ThrowIfDisposed();
             if (_innerBinding == null)
             {
                 _innerBinding = ChannelPinningHelper.CreateReadWriteBinding(_cluster, operationContext.Session);
