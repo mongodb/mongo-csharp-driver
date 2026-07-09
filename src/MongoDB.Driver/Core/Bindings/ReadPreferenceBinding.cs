@@ -57,14 +57,14 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, operationContext.Session, _serverSelector, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _serverSelector, deprioritizedServers);
             return GetChannelSourceHelper(server);
         }
 
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, operationContext.Session, _serverSelector, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _serverSelector, deprioritizedServers).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 

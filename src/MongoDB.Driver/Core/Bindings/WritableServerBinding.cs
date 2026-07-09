@@ -53,14 +53,14 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, operationContext.Session, WritableServerSelector.Instance, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, operationContext.Session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, operationContext.Session, WritableServerSelector.Instance, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, operationContext.Session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
