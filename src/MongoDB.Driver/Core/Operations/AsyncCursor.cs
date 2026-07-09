@@ -455,12 +455,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = _channelSource.GetChannel(killCursorOperationContext))
+            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
+            using (var channel = _channelSource.GetChannel(killCursorGetChannelOperationContext))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    ExecuteKillCursorsCommand(killCursorOperationContext, channel);
+                    ExecuteKillCursorsCommand(operationContext, channel);
                 }
             }
         }
@@ -469,12 +469,12 @@ namespace MongoDB.Driver.Core.Operations
         {
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = await _channelSource.GetChannelAsync(killCursorOperationContext).ConfigureAwait(false))
+            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
+            using (var channel = await _channelSource.GetChannelAsync(killCursorGetChannelOperationContext).ConfigureAwait(false))
             {
                 if (!channel.Connection.IsExpired)
                 {
-                    await ExecuteKillCursorsCommandAsync(killCursorOperationContext, channel).ConfigureAwait(false);
+                    await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
                 }
             }
         }
