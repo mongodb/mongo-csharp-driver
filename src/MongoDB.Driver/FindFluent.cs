@@ -136,9 +136,6 @@ namespace MongoDB.Driver
                 MaxTime = _options.MaxTime,
                 Min = _options.Min,
                 NoCursorTimeout = _options.NoCursorTimeout,
-#pragma warning disable 618
-                OplogReplay = _options.OplogReplay,
-#pragma warning restore 618
                 Projection = projection,
                 ReturnKey = _options.ReturnKey,
                 ShowRecordId = _options.ShowRecordId,
