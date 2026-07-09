@@ -144,9 +144,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxTime.Should().NotHaveValue();
             subject.Min.Should().BeNull();
             subject.NoCursorTimeout.Should().NotHaveValue();
-#pragma warning disable 618
-            subject.OplogReplay.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Projection.Should().BeNull();
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
             subject.RetryRequested.Should().BeFalse();
@@ -520,32 +517,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "find", _collectionNamespace.CollectionName },
                 { "noCursorTimeout", () => noCursorTimeout.Value, noCursorTimeout.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_expected_result_when_OplogReplay_is_set(
-            [Values(null, false, true)]
-            bool? oplogReplay)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings)
-            {
-#pragma warning disable 618
-                OplogReplay = oplogReplay
-#pragma warning restore 618
-            };
-
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
-
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
-
-            var expectedResult = new BsonDocument
-            {
-                { "find", _collectionNamespace.CollectionName },
-                { "oplogReplay", () => oplogReplay.Value, oplogReplay.HasValue }
             };
             result.Should().Be(expectedResult);
         }
@@ -1057,22 +1028,6 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.NoCursorTimeout = value;
             var result = subject.NoCursorTimeout;
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void OplogReplay_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.OplogReplay = value;
-            var result = subject.OplogReplay;
-#pragma warning restore 618
 
             result.Should().Be(value);
         }

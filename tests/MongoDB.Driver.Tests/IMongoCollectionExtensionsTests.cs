@@ -611,9 +611,6 @@ namespace MongoDB.Driver.Tests
                 MaxAwaitTime = TimeSpan.FromSeconds(1),
                 MaxTime = TimeSpan.FromSeconds(2),
                 NoCursorTimeout = true,
-#pragma warning disable 618
-                OplogReplay = true
-#pragma warning restore 618
             };
 
             FindFluent<Person, Person> fluent;
@@ -661,9 +658,6 @@ namespace MongoDB.Driver.Tests
             actualOptions.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             actualOptions.MaxTime.Should().Be(options.MaxTime);
             actualOptions.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-#pragma warning disable 618
-            actualOptions.OplogReplay.Should().Be(options.OplogReplay);
-#pragma warning restore 618
         }
 
         [Theory]

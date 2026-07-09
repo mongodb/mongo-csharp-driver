@@ -57,7 +57,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _min;
         private bool? _noCursorTimeout;
-        private bool? _oplogReplay;
         private BsonDocument _projection;
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
@@ -181,13 +180,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _noCursorTimeout = value; }
         }
 
-        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
-        public bool? OplogReplay
-        {
-            get { return _oplogReplay; }
-            set { _oplogReplay = value; }
-        }
-
         public BsonDocument Projection
         {
             get { return _projection; }
@@ -284,7 +276,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
                 { "showRecordId", () => _showRecordId.Value, _showRecordId.HasValue },
                 { "tailable", true, _cursorType == CursorType.Tailable || _cursorType == CursorType.TailableAwait },
-                { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
