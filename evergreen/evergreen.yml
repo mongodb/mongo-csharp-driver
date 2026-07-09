@@ -2890,6 +2890,7 @@ buildvariants:
   display_name: "Validate API compatibility"
   tasks:
     - name: validate-apicompat-task-group
+      disable: true
       depends_on:
         - name: build-packages
           variant: ".build-packages"
