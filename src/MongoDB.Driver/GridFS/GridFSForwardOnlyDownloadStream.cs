@@ -213,7 +213,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateFirstBatchOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             _cursor = operation.Execute(operationContext, Binding);
             GetNextBatch(cancellationToken);
         }
@@ -222,7 +223,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateFirstBatchOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             _cursor = await operation.ExecuteAsync(operationContext, Binding).ConfigureAwait(false);
             await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
         }

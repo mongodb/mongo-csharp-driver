@@ -322,7 +322,8 @@ namespace MongoDB.Driver.Core.Servers
 
         private void Heartbeat(CancellationToken cancellationToken)
         {
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             CommandWireProtocol<BsonDocument> helloProtocol = null;
             bool processAnother = true;
             while (processAnother && !cancellationToken.IsCancellationRequested)

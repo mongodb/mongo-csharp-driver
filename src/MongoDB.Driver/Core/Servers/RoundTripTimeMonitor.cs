@@ -126,7 +126,8 @@ namespace MongoDB.Driver.Core.Servers
             _logger?.LogDebug(_serverId, "Monitoring started");
 
             var helloOk = false;
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle(), null, _cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, _cancellationToken);
             while (!operationContext.IsCancelledOrTimedOut())
             {
                 try

@@ -965,7 +965,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    return CreateOpenedInternal(new(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, cancellationToken));
+                    using var session = NoCoreSession.NewHandle();
+                    using var operationContext = new OperationContext(session, Timeout.InfiniteTimeSpan, cancellationToken);
+                    return CreateOpenedInternal(operationContext);
                 }
                 catch (Exception ex)
                 {
