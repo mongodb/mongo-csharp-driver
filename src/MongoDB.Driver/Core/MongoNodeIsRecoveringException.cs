@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -52,16 +50,6 @@ namespace MongoDB.Driver
         /// <param name="result">The result.</param>
         public MongoNodeIsRecoveringException(ConnectionId connectionId, BsonDocument command, BsonDocument result)
             : base(connectionId, CreateMessage(result), command, result)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoNodeIsRecoveringException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoNodeIsRecoveringException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 

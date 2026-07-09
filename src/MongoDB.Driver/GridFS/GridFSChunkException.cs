@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
@@ -44,16 +42,6 @@ namespace MongoDB.Driver.GridFS
         /// <param name="reason">The reason.</param>
         public GridFSChunkException(BsonValue id, long n, string reason)
             : base(FormatMessage(id, n, reason))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GridFSChunkException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public GridFSChunkException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

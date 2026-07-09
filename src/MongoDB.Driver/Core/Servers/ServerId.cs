@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
@@ -43,16 +41,6 @@ namespace MongoDB.Driver.Core.Servers
         {
             _clusterId = Ensure.IsNotNull(clusterId, nameof(clusterId));
             _endPoint = Ensure.IsNotNull(endPoint, nameof(endPoint));
-            _hashCode = new Hasher()
-                .Hash(_clusterId)
-                .Hash(_endPoint)
-                .GetHashCode();
-        }
-
-        private ServerId(SerializationInfo info, StreamingContext context)
-        {
-            _clusterId = (ClusterId)info.GetValue("_clusterId", typeof(ClusterId));
-            _endPoint = EndPointHelper.FromObjectData((List<object>)info.GetValue("_endPoint", typeof(List<object>)));
             _hashCode = new Hasher()
                 .Hash(_clusterId)
                 .Hash(_endPoint)

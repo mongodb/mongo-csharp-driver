@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
-using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -79,19 +77,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoWriteConcernException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoWriteConcernException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _writeConcernResult = (WriteConcernResult)info.GetValue("_writeConcernResult", typeof(WriteConcernResult));
-            _ = TryMapWriteConcernResultToException(ConnectionId, _writeConcernResult, out _writeConcernResultException);
-            AddErrorLabelsFromWriteConcernResult(this, _writeConcernResult);
-        }
-
         // properties
         /// <summary>
         /// Gets the mapped write concern result exception.
@@ -113,13 +98,6 @@ namespace MongoDB.Driver
         }
 
         // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_writeConcernResult", _writeConcernResult);
-        }
-
         /// <summary>
         /// Determines whether the exception is due to a write concern error only.
         /// </summary>

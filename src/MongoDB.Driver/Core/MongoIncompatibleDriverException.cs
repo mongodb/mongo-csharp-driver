@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,7 @@
 * limitations under the License.
 */
 
-using System;
 using System.Linq;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -74,16 +72,6 @@ namespace MongoDB.Driver
         /// <param name="clusterDescription">The cluster description.</param>
         public MongoIncompatibleDriverException(ClusterDescription clusterDescription)
             : base(FormatMessage(clusterDescription), null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoIncompatibleDriverException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoIncompatibleDriverException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -39,16 +38,6 @@ namespace MongoDB.Driver.Encryption
         /// <param name="innerException">The inner exception.</param>
         public MongoEncryptionException(Exception innerException)
             : base(FormatErrorMessage(innerException.Message), innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoEncryptionException"/> class (this overload used by deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoEncryptionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

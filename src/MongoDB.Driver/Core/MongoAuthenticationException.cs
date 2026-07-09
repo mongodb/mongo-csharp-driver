@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -43,16 +42,6 @@ namespace MongoDB.Driver
         /// <param name="innerException">The inner exception.</param>
         public MongoAuthenticationException(ConnectionId connectionId, string message, Exception innerException)
             : base(connectionId, message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoAuthenticationException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoAuthenticationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 
