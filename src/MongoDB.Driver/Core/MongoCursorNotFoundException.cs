@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -54,17 +52,6 @@ namespace MongoDB.Driver
             _cursorId = cursorId;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoCursorNotFoundException"/> class.
-        /// </summary>
-        /// <param name="info">The information.</param>
-        /// <param name="context">The context.</param>
-        protected MongoCursorNotFoundException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _cursorId = info.GetInt64("_cursorId");
-        }
-
         // properties
         /// <summary>
         /// Gets the cursor identifier.
@@ -75,14 +62,6 @@ namespace MongoDB.Driver
         public long CursorId
         {
             get { return _cursorId; }
-        }
-
-        // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_cursorId", _cursorId);
         }
     }
 }

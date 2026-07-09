@@ -15,7 +15,6 @@
 
 using System;
 using MongoDB.Bson;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -78,17 +77,6 @@ namespace MongoDB.Driver
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoServerException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoServerException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _connectionId = (ConnectionId)info.GetValue("_connectionId", typeof(ConnectionId));
-        }
-
         // properties
         /// <summary>
         /// Gets the connection identifier.
@@ -96,14 +84,6 @@ namespace MongoDB.Driver
         public ConnectionId ConnectionId
         {
             get { return _connectionId; }
-        }
-
-        // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_connectionId", _connectionId);
         }
     }
 }

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -48,16 +47,6 @@ namespace MongoDB.Bson
         /// <param name="innerException">The inner exception.</param>
         public BsonSerializationException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonSerializationException class (this overload used by deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public BsonSerializationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

@@ -16,7 +16,6 @@
 using System;
 using System.Net.Sockets;
 using MongoDB.Bson;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 
@@ -53,17 +52,6 @@ namespace MongoDB.Driver
             : base(message, innerException)
         {
             _connectionId = Ensure.IsNotNull(connectionId, nameof(connectionId));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConnectionException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoConnectionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _connectionId = (ConnectionId)info.GetValue("_connectionId", typeof(ConnectionId));
         }
 
         // properties
@@ -123,14 +111,6 @@ namespace MongoDB.Driver
         /// Determines whether the exception is network error or no.
         /// </summary>
         public virtual bool IsNetworkException => true; // true in subclasses, only if they can be considered as a network error
-
-        // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_connectionId", _connectionId);
-        }
 
         // properties
         // TODO temporary property for propagating exception generation to server

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -58,16 +57,6 @@ namespace MongoDB.Bson
         /// <param name="args">One or more args for the error message.</param>
         public BsonException(string format, params object[] args)
             : base(string.Format(format, args))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BsonException class (this overload used by deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public BsonException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 
 namespace MongoDB.Driver.Encryption
@@ -40,31 +39,8 @@ namespace MongoDB.Driver.Encryption
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MongoEncryptionCreateCollectionException"/> class (this overload used by deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoEncryptionCreateCollectionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _encryptedFields = (BsonDocument)info.GetValue(nameof(_encryptedFields), typeof(BsonDocument));
-        }
-
-        /// <summary>
         /// The encrypted fields.
         /// </summary>
         public BsonDocument EncryptedFields => _encryptedFields;
-
-        // public methods
-        /// <summary>
-        /// Gets the object data.
-        /// </summary>
-        /// <param name="info">The information.</param>
-        /// <param name="context">The context.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue(nameof(_encryptedFields), _encryptedFields);
-        }
     }
 }
