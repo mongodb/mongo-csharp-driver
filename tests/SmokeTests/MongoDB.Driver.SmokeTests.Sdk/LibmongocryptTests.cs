@@ -46,32 +46,31 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         {
             var categories = new[] {("LogLevel:MongoDB.Client", "Trace")};
 
-            using var logsTracer = new LogsTraceListener();
-            using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
+            using (var logsTracer = new LogsTraceListener())
             {
-                var localMasterKey = Convert.FromBase64String(LocalMasterKey);
-
-                var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
-                var localKey = new Dictionary<string, object>
+                using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
                 {
-                    { "key", localMasterKey }
-                };
-                kmsProviders.Add("local", localKey);
+                    var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
-                var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-                var keyVaultMongoClient = new MongoClient(InfrastructureUtilities.MongoUri);
-                var clientEncryptionSettings = new ClientEncryptionOptions(
-                    keyVaultMongoClient,
-                    keyVaultNamespace,
-                    kmsProviders);
+                    var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>();
+                    var localKey = new Dictionary<string, object> { { "key", localMasterKey } };
+                    kmsProviders.Add("local", localKey);
 
-                using var clientEncryption = new ClientEncryption(clientEncryptionSettings);
-                var dataKeyId = clientEncryption.CreateDataKey("local", new DataKeyOptions(), CancellationToken.None);
-                var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
+                    var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
+                    var keyVaultMongoClient = new MongoClient(InfrastructureUtilities.MongoUri);
+                    var clientEncryptionSettings = new ClientEncryptionOptions(
+                        keyVaultMongoClient,
+                        keyVaultNamespace,
+                        kmsProviders);
 
-                var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
+                    using (var clientEncryption = new ClientEncryption(clientEncryptionSettings))
+                    {
+                        var dataKeyId = clientEncryption.CreateDataKey("local", new DataKeyOptions(), CancellationToken.None);
+                        var base64DataKeyId = Convert.ToBase64String(GuidConverter.ToBytes(dataKeyId, GuidRepresentation.Standard));
 
-                var schemaMap = $@"{{
+                        var collectionNamespace = CollectionNamespace.FromFullName("test.coll");
+
+                        var schemaMap = $@"{{
                     properties: {{
                         encryptedField: {{
                             encrypt: {{
@@ -89,74 +88,73 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                     'bsonType': 'object'
                 }}";
 
-                var autoEncryptionSettings = new AutoEncryptionOptions(
-                    keyVaultNamespace,
-                    kmsProviders,
-                    schemaMap: new Dictionary<string, BsonDocument>()
-                    {
-                        { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
-                    });
+                        var autoEncryptionSettings = new AutoEncryptionOptions(
+                            keyVaultNamespace,
+                            kmsProviders,
+                            schemaMap: new Dictionary<string, BsonDocument>() { { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) } });
 
-                var clientSettings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
-                clientSettings.AutoEncryptionOptions = autoEncryptionSettings;
-                clientSettings.LoggingSettings = new LoggingSettings(loggerFactory);
+                        var clientSettings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
+                        clientSettings.AutoEncryptionOptions = autoEncryptionSettings;
+                        clientSettings.LoggingSettings = new LoggingSettings(loggerFactory);
 
-                var client = new MongoClient(clientSettings);
+                        var client = new MongoClient(clientSettings);
+
+                        try
+                        {
+                            var database = client.GetDatabase("test");
+                            database.DropCollection("coll");
+                            var collection = database.GetCollection<BsonDocument>("coll");
+
+                            collection.InsertOne(new BsonDocument("encryptedField", "123456789"));
+
+                            var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
+                            _output.WriteLine(result.ToJson());
+                        }
+                        catch (Exception ex)
+                        {
+                            // SERVER-106469
+#pragma warning disable CS0618 // Type or member is obsolete
+                            var serverVersion = client.Cluster.Description.Servers[0].Version;
+#pragma warning restore CS0618 // Type or member is obsolete
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
+                                serverVersion >= new SemanticVersion(8, 1, 9999))
+                            {
+                                ex.Should().BeOfType<MongoEncryptionException>();
+                                return;
+                            }
+
+                            throw;
+                        }
+                        finally
+                        {
+                            ClusterRegistry.Instance.UnregisterAndDisposeCluster(client.Cluster);
+                            ClusterRegistry.Instance.UnregisterAndDisposeCluster(keyVaultMongoClient.Cluster);
+                        }
+                    }
+                }
+
+                var expectedLogs = new[]
+                {
+                    new LogEntry(LogLevel.Debug, "MongoDB.Client",
+                        "CryptClient created. Configured shared library version:")
+                };
+
+                var actualLogs = logsTracer.GetLogs();
 
                 try
                 {
-                    var database = client.GetDatabase("test");
-                    database.DropCollection("coll");
-                    var collection = database.GetCollection<BsonDocument>("coll");
-
-                    collection.InsertOne(new BsonDocument("encryptedField", "123456789"));
-
-                    var result = collection.Find(FilterDefinition<BsonDocument>.Empty).First();
-                    _output.WriteLine(result.ToJson());
+                    InfrastructureUtilities.AssertLogs(expectedLogs, actualLogs);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    // SERVER-106469
-#pragma warning disable CS0618 // Type or member is obsolete
-                    var serverVersion = client.Cluster.Description.Servers[0].Version;
-#pragma warning restore CS0618 // Type or member is obsolete
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
-                        serverVersion >= new SemanticVersion(8, 1, 9999))
+                    _output.WriteLine("Logs observed:");
+                    foreach (var log in actualLogs)
                     {
-                        ex.Should().BeOfType<MongoEncryptionException>();
-                        return;
+                        _output.WriteLine(log.ToString());
                     }
 
                     throw;
                 }
-                finally
-                {
-                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(client.Cluster);
-                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(keyVaultMongoClient.Cluster);
-                }
-            }
-
-            var expectedLogs = new[]
-            {
-                new LogEntry(LogLevel.Debug, "MongoDB.Client",
-                    "CryptClient created. Configured shared library version:")
-            };
-
-            var actualLogs = logsTracer.GetLogs();
-
-            try
-            {
-                InfrastructureUtilities.AssertLogs(expectedLogs, actualLogs);
-            }
-            catch
-            {
-                _output.WriteLine("Logs observed:");
-                foreach (var log in actualLogs)
-                {
-                    _output.WriteLine(log.ToString());
-                }
-
-                throw;
             }
         }
     }

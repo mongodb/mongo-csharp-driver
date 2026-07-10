@@ -6,18 +6,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Configurations>Debug;Release;Release_CSharp_14</Configurations>
-    <Platforms>AnyCPU</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release_CSharp_14' ">
-    <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
-    <DefineConstants>$(DefineConstants);CSHARP_14</DefineConstants>
+    <Configurations>Debug;Release;</Configurations>
     <LangVersion>14</LangVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' != 'Release_CSharp_14' ">
-    <LangVersion>12</LangVersion>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -224,8 +224,8 @@ namespace MongoDB.Bson.Serialization
             {
                 if (_memberInfo is FieldInfo)
                 {
-                    var field = (FieldInfo)_memberInfo;
-                    return field.IsInitOnly || field.IsLiteral;
+                    var fieldInfo = (FieldInfo)_memberInfo;
+                    return fieldInfo.IsInitOnly || fieldInfo.IsLiteral;
                 }
                 else if (_memberInfo is PropertyInfo)
                 {

@@ -205,17 +205,12 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         [
          TestHelpers.MakeLambda<MyModel, string[]>(model => model.RegexField.Split(model.StringField)),
          "{ $split: [{ $getField: { field: 'StringField', input: '$$ROOT' } }, { $getField: { field: 'RegexField',  input: '$$ROOT' } }] }"
-],
+        ],
     ];
 
     public static IEnumerable<object[]> NonSupportedTestCases =
     [
         // Multiple char separators are not supported
-#if !CSHARP_14
-        // C# 14 cannot have such statement with the following compilation error occurs:
-        // error CS8640: Expression tree cannot contain value of ref struct or restricted type 'ReadOnlySpan'.
-        [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(',', ';'))],
-#endif
         [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(new[] { ',', ';' }))],
         [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(__multipleCharsSeparator))],
         // Multiple string separators are not supported

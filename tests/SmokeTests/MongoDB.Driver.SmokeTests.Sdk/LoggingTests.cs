@@ -49,43 +49,45 @@ namespace MongoDB.Driver.SmokeTests.Sdk
                 expectedLogs = expectedLogs.Where(l => l.Category == categoryName).ToArray();
             }
 
-            using var logsTracer = new LogsTraceListener();
-            using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
+            using (var logsTracer = new LogsTraceListener())
             {
-                var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
-                settings.LoggingSettings = new LoggingSettings(loggerFactory);
-                var mongoClient = new MongoClient(settings);
+                using (var loggerFactory = InfrastructureUtilities.GetLoggerFactory(logsTracer, categories))
+                {
+                    var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
+                    settings.LoggingSettings = new LoggingSettings(loggerFactory);
+                    var mongoClient = new MongoClient(settings);
+
+                    try
+                    {
+                        mongoClient.ListDatabases(new ListDatabasesOptions());
+                    }
+                    finally
+                    {
+                        ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
+                    }
+                }
+
+                var actualLogs = logsTracer.GetLogs();
 
                 try
                 {
-                    mongoClient.ListDatabases(new ListDatabasesOptions());
+                    InfrastructureUtilities.AssertLogs(expectedLogs, actualLogs);
+
+                    if (categoryName != null)
+                    {
+                        Array.ForEach(actualLogs, l => l.Category.Should().Be(categoryName));
+                    }
                 }
-                finally
+                catch
                 {
-                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
+                    _output.WriteLine("Logs observed:");
+                    foreach (var log in actualLogs)
+                    {
+                        _output.WriteLine(log.ToString());
+                    }
+
+                    throw;
                 }
-            }
-
-            var actualLogs = logsTracer.GetLogs();
-
-            try
-            {
-                InfrastructureUtilities.AssertLogs(expectedLogs, actualLogs);
-
-                if (categoryName != null)
-                {
-                    Array.ForEach(actualLogs, l => l.Category.Should().Be(categoryName));
-                }
-            }
-            catch
-            {
-                _output.WriteLine("Logs observed:");
-                foreach (var log in actualLogs)
-                {
-                    _output.WriteLine(log.ToString());
-                }
-
-                throw;
             }
         }
 
