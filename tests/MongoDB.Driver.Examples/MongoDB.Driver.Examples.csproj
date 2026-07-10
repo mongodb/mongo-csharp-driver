@@ -2,10 +2,6 @@
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Examples</AssemblyTitle>
     <Product>MongoDB.Driver.Examples</Product>
     <Description>MongoDB.Driver examples.</Description>

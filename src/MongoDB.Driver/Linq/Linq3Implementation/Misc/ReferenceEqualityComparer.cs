@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
 
         public bool Equals(T x, T y) => object.ReferenceEquals(x, y);
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = "This comparer supports reference equality only and is never used for hashing.")]
         public int GetHashCode(T obj) => throw new InvalidOperationException();
     }
 }

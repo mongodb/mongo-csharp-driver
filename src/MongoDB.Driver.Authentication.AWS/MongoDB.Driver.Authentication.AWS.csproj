@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Authentication.AWS</AssemblyTitle>
     <Product>MongoDB.Driver.Authentication.AWS</Product>
     <PackageId>MongoDB.Driver.Authentication.AWS</PackageId>
