@@ -457,6 +457,23 @@ public class MultipleRegistriesProviderPathTests
         domainB.Deserialize<Person>(documentForB).Name.Should().Be("Mario");
     }
 
+    // A registry-aware provider that resolves a nested type must resolve it through the domain's
+    // registry, not the global Default — otherwise nested resolution silently falls back to Default.
+    [Fact]
+    public void Registry_aware_provider_resolves_nested_type_within_custom_domain()
+    {
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        var innerSerializer = new NestedInnerMarkerSerializer();
+        customDomain.RegisterSerializer(typeof(NestedInner), innerSerializer);
+        customDomain.RegisterSerializationProvider(new NestedResolvingProvider(customDomain));
+
+        var outerSerializer = customDomain.SerializerRegistry.GetSerializer<NestedOuter>();
+
+        outerSerializer.Should().BeOfType<NestedOuterSerializer>();
+        ((NestedOuterSerializer)outerSerializer).InnerSerializer.Should().BeSameAs(innerSerializer);
+        BsonSerializationDomain.Default.SerializerRegistry.GetSerializer<NestedInner>().Should().NotBeSameAs(innerSerializer);
+    }
+
     private static BsonDocument SerializeToBsonDocument<T>(IBsonSerializationDomain domain, T value)
     {
         var document = new BsonDocument();
@@ -472,6 +489,48 @@ public class MultipleRegistriesProviderPathTests
 internal interface IAnimal
 {
     string Name { get; set; }
+}
+
+internal class NestedOuter
+{
+    public NestedInner Inner { get; set; }
+}
+
+internal class NestedInner
+{
+    public string Value { get; set; }
+}
+
+internal sealed class NestedInnerMarkerSerializer : SerializerBase<NestedInner>
+{
+}
+
+internal sealed class NestedOuterSerializer : SerializerBase<NestedOuter>
+{
+    public NestedOuterSerializer(IBsonSerializer innerSerializer)
+    {
+        InnerSerializer = innerSerializer;
+    }
+
+    public IBsonSerializer InnerSerializer { get; }
+}
+
+// Registry-aware provider that resolves NestedOuter's nested serializer through the supplied registry.
+internal sealed class NestedResolvingProvider : IRegistryAwareBsonSerializationProvider, IHasSerializationDomain
+{
+    public NestedResolvingProvider(IBsonSerializationDomain domain)
+    {
+        SerializationDomain = domain;
+    }
+
+    public IBsonSerializationDomain SerializationDomain { get; }
+
+    public IBsonSerializer GetSerializer(Type type) => null;
+
+    public IBsonSerializer GetSerializer(Type type, IBsonSerializerRegistry serializerRegistry)
+        => type == typeof(NestedOuter)
+            ? new NestedOuterSerializer(serializerRegistry.GetSerializer(typeof(NestedInner)))
+            : null;
 }
 
 [BsonSerializer(typeof(CustomAttributeSerializer))]

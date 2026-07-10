@@ -152,6 +152,114 @@ public class MultipleRegistriesLinqTests
         projectJson.Should().NotContain("$ApprovalState");
     }
 
+    [Fact]
+    public void Linq_Where_serializes_constant_through_custom_domain_serializer()
+    {
+        RequireServer.Check();
+
+        // CustomStringSerializer appends a "test" suffix; the Where constant must be serialized through
+        // the domain's registry (the SerializerFinderVisitConstant path), not the global Default.
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        customDomain.RegisterSerializer(new CustomStringSerializer());
+
+        var client = CreateClientWithDomain(customDomain, dropCollection: false);
+        var collection = GetTypedCollection<Person>(client);
+
+        var queryable = collection.AsQueryable().Where(p => p.Name == "Mario");
+
+        var stages = Linq3TestHelpers.Translate<Person, Person>(queryable);
+        var match = stages.Single(s => s.Contains("$match"));
+        match.ToJson().Should().Contain("Mariotest");
+    }
+
+    [Fact]
+    public void Linq_GroupBy_resolves_key_field_name_under_custom_domain()
+    {
+        RequireServer.Check();
+
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        RegisterLowerCaseElementNameConvention(customDomain, typeof(Person));
+
+        var client = CreateClientWithDomain(customDomain, dropCollection: false);
+        var collection = GetTypedCollection<Person>(client);
+
+        var queryable = collection.AsQueryable().GroupBy(p => p.Name).Select(g => new { g.Key, Count = g.Count() });
+
+        var stages = Linq3TestHelpers.Translate<Person, object>(queryable);
+        var group = stages.Single(s => s.Contains("$group"));
+        var groupJson = group.ToJson();
+        // Lowercase '$name' only appears if Person's class map was looked up via the custom domain.
+        groupJson.Should().Contain("$name");
+        groupJson.Should().NotContain("$Name");
+    }
+
+    [Fact]
+    public void Linq_OrderBy_resolves_field_name_under_custom_domain()
+    {
+        RequireServer.Check();
+
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        RegisterLowerCaseElementNameConvention(customDomain, typeof(Person));
+
+        var client = CreateClientWithDomain(customDomain, dropCollection: false);
+        var collection = GetTypedCollection<Person>(client);
+
+        var queryable = collection.AsQueryable().OrderBy(p => p.Age);
+
+        var stages = Linq3TestHelpers.Translate<Person, Person>(queryable);
+        var sort = stages.Single(s => s.Contains("$sort"));
+        var sortJson = sort.ToJson();
+        // Lowercase 'age' only appears if Person's class map was looked up via the custom domain.
+        sortJson.Should().Contain("age");
+        sortJson.Should().NotContain("Age");
+    }
+
+    [Fact]
+    public void Linq_nested_member_resolves_field_name_under_custom_domain()
+    {
+        RequireServer.Check();
+
+        // Lowercase both levels so a lowercased nested path proves both class maps were looked up via the custom domain.
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        var pack = new ConventionPack(customDomain);
+        pack.AddMemberMapConvention("LowerCaseElementName", m => m.SetElementName(m.MemberName.ToLower()));
+        customDomain.ConventionRegistry.Register("lowercase", pack, t => t == typeof(Order) || t == typeof(Customer));
+
+        var client = CreateClientWithDomain(customDomain, dropCollection: false);
+        var collection = GetTypedCollection<Order>(client);
+
+        var queryable = collection.AsQueryable().Where(o => o.Customer.Name == "Mario");
+
+        var stages = Linq3TestHelpers.Translate<Order, Order>(queryable);
+        var match = stages.Single(s => s.Contains("$match"));
+        var matchJson = match.ToJson();
+        matchJson.Should().Contain("customer.name");
+        matchJson.Should().NotContain("Customer");
+    }
+
+    [Fact]
+    public void Linq_OfType_resolves_discriminator_under_custom_domain()
+    {
+        RequireServer.Check();
+
+        // A custom '_type' discriminator (not the default '_t') proves OfType consulted the domain's convention.
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        customDomain.RegisterDiscriminatorConvention(typeof(Shape), new ScalarDiscriminatorConvention(customDomain, "_type"));
+        customDomain.RegisterDiscriminator(typeof(Circle), "Circle");
+
+        var client = CreateClientWithDomain(customDomain, dropCollection: false);
+        var collection = GetTypedCollection<Shape>(client);
+
+        var queryable = collection.AsQueryable().OfType<Circle>();
+
+        var stages = Linq3TestHelpers.Translate<Shape, Circle>(queryable);
+        var match = stages.Single(s => s.Contains("$match"));
+        var matchJson = match.ToJson();
+        matchJson.Should().Contain("_type");
+        matchJson.Should().Contain("Circle");
+        matchJson.Should().NotContain("\"_t\"");
+    }
+
     private static void RegisterLowerCaseElementNameConvention(IBsonSerializationDomain domain, Type targetType)
     {
         var pack = new ConventionPack(domain);
@@ -167,4 +275,25 @@ internal class EnumModel
     [BsonId] public ObjectId Id { get; set; }
     [BsonRepresentation(BsonType.String)]
     public ApprovalState ApprovalState { get; set; }
+}
+
+internal class Order
+{
+    [BsonId] public ObjectId Id { get; set; }
+    public Customer Customer { get; set; }
+}
+
+internal class Customer
+{
+    public string Name { get; set; }
+}
+
+internal class Shape
+{
+    [BsonId] public ObjectId Id { get; set; }
+}
+
+internal class Circle : Shape
+{
+    public double Radius { get; set; }
 }

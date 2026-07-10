@@ -14,6 +14,8 @@
 */
 
 using System;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
@@ -101,6 +103,113 @@ namespace MongoDB.Bson.Tests.Serialization
             exception.Should().BeOfType<ArgumentException>();
         }
 
+        // negative isolation: a registration in one domain must not leak into Default or an independent domain
+
+        [Fact]
+        public void Serializer_registered_in_custom_domain_should_not_leak_to_Default_or_other_domains()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+            var serializer = new MarkerSerializer<Foo>();
+
+            domainA.RegisterSerializer(typeof(Foo), serializer);
+
+            domainA.LookupSerializer(typeof(Foo)).Should().BeSameAs(serializer);
+            domainB.LookupSerializer(typeof(Foo)).Should().NotBeSameAs(serializer);
+            BsonSerializationDomain.Default.LookupSerializer(typeof(Foo)).Should().NotBeSameAs(serializer);
+        }
+
+        [Fact]
+        public void DiscriminatorConvention_registered_in_custom_domain_should_not_leak_to_Default_or_other_domains()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+            var convention = new ScalarDiscriminatorConvention("_type");
+
+            domainA.RegisterDiscriminatorConvention(typeof(Animal), convention);
+
+            domainA.LookupDiscriminatorConvention(typeof(Animal)).Should().BeSameAs(convention);
+            domainB.LookupDiscriminatorConvention(typeof(Animal)).Should().NotBeSameAs(convention);
+            BsonSerializationDomain.Default.LookupDiscriminatorConvention(typeof(Animal)).Should().NotBeSameAs(convention);
+        }
+
+        [Fact]
+        public void IdGenerator_registered_in_custom_domain_should_not_leak_to_Default_or_other_domains()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+            var idGenerator = new DomainTaggedIdGenerator(domainA);
+
+            domainA.RegisterIdGenerator(typeof(string), idGenerator);
+
+            domainA.LookupIdGenerator(typeof(string)).Should().BeSameAs(idGenerator);
+            domainB.LookupIdGenerator(typeof(string)).Should().NotBeSameAs(idGenerator);
+            BsonSerializationDomain.Default.LookupIdGenerator(typeof(string)).Should().NotBeSameAs(idGenerator);
+        }
+
+        [Fact]
+        public void Discriminator_registered_in_custom_domain_should_not_leak_to_Default_or_other_domains()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+
+            domainA.RegisterDiscriminator(typeof(Cat), "Cat");
+
+            domainA.IsTypeDiscriminated(typeof(Animal)).Should().BeTrue();
+            domainA.LookupActualType(typeof(Animal), "Cat").Should().Be(typeof(Cat));
+            domainB.IsTypeDiscriminated(typeof(Animal)).Should().BeFalse();
+            BsonSerializationDomain.Default.IsTypeDiscriminated(typeof(Animal)).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Convention_registered_in_custom_domain_should_not_leak_to_Default_or_other_domains()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+            var pack = new ConventionPack(domainA) { new IgnoreExtraElementsConvention(true) };
+
+            domainA.ConventionRegistry.Register("isolationPack", pack, t => t == typeof(ConventionPackTarget));
+
+            domainA.ClassMapRegistry.LookupClassMap(typeof(ConventionPackTarget)).IgnoreExtraElements.Should().BeTrue();
+            domainB.ClassMapRegistry.LookupClassMap(typeof(ConventionPackTarget)).IgnoreExtraElements.Should().BeFalse();
+            BsonSerializationDomain.Default.ClassMapRegistry.LookupClassMap(typeof(ConventionPackTarget)).IgnoreExtraElements.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Concurrent_registration_and_lookup_on_two_domains_should_not_cross_contaminate()
+        {
+            var domainA = BsonSerializationDomain.CreateWithDefaultConfiguration("A");
+            var domainB = BsonSerializationDomain.CreateWithDefaultConfiguration("B");
+            var serializerA = new MarkerSerializer<Foo>();
+            var serializerB = new MarkerSerializer<Foo>();
+            domainA.RegisterSerializer(typeof(Foo), serializerA);
+            domainB.RegisterSerializer(typeof(Foo), serializerB);
+
+            var exceptions = new ConcurrentQueue<Exception>();
+            Parallel.For(0, 1000, _ =>
+            {
+                try
+                {
+                    // reads of the per-domain registration must never cross over
+                    domainA.LookupSerializer(typeof(Foo)).Should().BeSameAs(serializerA);
+                    domainB.LookupSerializer(typeof(Foo)).Should().BeSameAs(serializerB);
+                    // lookups that mutate the per-domain cache / take the config write lock, run concurrently
+                    domainA.LookupSerializer(typeof(int)).Should().NotBeNull();
+                    domainB.LookupSerializer(typeof(Guid)).Should().NotBeNull();
+                    domainA.LookupDiscriminatorConvention(typeof(Animal)).Should().NotBeNull();
+                    domainB.LookupDiscriminatorConvention(typeof(Cat)).Should().NotBeNull();
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Enqueue(ex);
+                }
+            });
+
+            exceptions.Should().BeEmpty();
+            domainA.LookupSerializer(typeof(Foo)).Should().BeSameAs(serializerA);
+            domainB.LookupSerializer(typeof(Foo)).Should().BeSameAs(serializerB);
+        }
+
         // private test types
         private sealed class DomainTaggedSerializer<T> : SerializerBase<T>, IHasSerializationDomain
         {
@@ -130,6 +239,19 @@ namespace MongoDB.Bson.Tests.Serialization
             public DomainTaggedSerializationProvider(IBsonSerializationDomain domain) { SerializationDomain = domain; }
             public IBsonSerializationDomain SerializationDomain { get; }
             public IBsonSerializer GetSerializer(Type type) => null;
+        }
+
+        private sealed class MarkerSerializer<T> : SerializerBase<T>
+        {
+        }
+
+        private class Animal { }
+
+        private class Cat : Animal { }
+
+        private class ConventionPackTarget
+        {
+            public int A { get; set; }
         }
     }
 }
