@@ -12,4 +12,4 @@ fi
 
 export DRIVER_PACKAGE_VERSION="${DRIVER_PACKAGE_VERSION}"
 ./evergreen/compile-sources.sh "$SMOKE_TESTS_PROJECT"
-CONFIGURATION=${CONFIGURATION} TEST_PROJECT_PATH="$SMOKE_TESTS_PROJECT" ./evergreen/execute-tests.sh
+TEST_PROJECT_PATH="$SMOKE_TESTS_PROJECT" ./evergreen/execute-tests.sh
