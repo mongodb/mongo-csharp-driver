@@ -5,17 +5,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net472;net6.0</TargetFrameworks>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>14.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>None</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release_CSharp_14' ">
-    <!--Do not update LangVersion to 14 in Driver-->
-    <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
   </PropertyGroup>
 
   <PropertyGroup>

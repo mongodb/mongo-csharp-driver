@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#if CSHARP_14
-
 using FluentAssertions;
 using Xunit;
 
@@ -53,5 +51,3 @@ public static class MyPocoExtensions
         }
     }
 }
-
-#endif
