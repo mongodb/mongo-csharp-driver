@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -54,10 +53,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 { "dropDatabase", 1 }
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -80,11 +80,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
-            var session = OperationTestHelper.CreateSession();
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession(), timeout: hasOperationTimeout ? TimeSpan.FromSeconds(42) : null);
+
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedWriteConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -109,11 +109,13 @@ namespace MongoDB.Driver.Core.Operations
             RequireServer.Check();
             EnsureDatabaseExists();
 
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadWriteBinding())
             {
                 var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
 
-                var result = ExecuteOperation(subject, binding, async);
+                var result = ExecuteOperation(operationContext, subject, binding, async);
 
                 result["ok"].ToBoolean().Should().BeTrue();
             }
@@ -136,8 +138,10 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var subject = new DropDatabaseOperation(_databaseNamespace, _messageEncoderSettings);
+            using var session = CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            Action action = () => ExecuteOperation(subject, null, async);
+            Action action = () => ExecuteOperation(operationContext, subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }
@@ -156,9 +160,11 @@ namespace MongoDB.Driver.Core.Operations
 
             var exception = Record.Exception(() =>
             {
+                using (var session = CreateSession())
+                using (var operationContext = new OperationContext(session))
                 using (var binding = CreateReadWriteBinding())
                 {
-                    ExecuteOperation(subject, binding, async);
+                    ExecuteOperation(operationContext, subject, binding, async);
                 }
             });
 

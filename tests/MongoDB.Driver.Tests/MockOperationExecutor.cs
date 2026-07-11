@@ -43,11 +43,6 @@ namespace MongoDB.Driver.Tests
             set { _client = value; }
         }
 
-        public int QueuedCallCount
-        {
-            get { return _calls.Count; }
-        }
-
         public void Dispose()
         {
         }
@@ -64,7 +59,6 @@ namespace MongoDB.Driver.Tests
 
         public TResult ExecuteReadOperation<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
             bool allowChannelPinning)
@@ -74,9 +68,9 @@ namespace MongoDB.Driver.Tests
                 Operation = operation,
                 CancellationToken = operationContext.CancellationToken,
                 ReadPreference = readPreference,
-                SessionId = session?.WrappedCoreSession.Id,
+                SessionId = operationContext.Session.Id,
                 Timeout = operationContext.Timeout,
-                UsedImplicitSession = session == null || session.IsImplicit
+                UsedImplicitSession = operationContext.Session.IsImplicit
             });
 
             if (_results.Count > 0)
@@ -97,14 +91,13 @@ namespace MongoDB.Driver.Tests
 
         public Task<TResult> ExecuteReadOperationAsync<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IReadOperation<TResult> operation,
             ReadPreference readPreference,
             bool allowChannelPinning)
         {
             try
             {
-                var result = ExecuteReadOperation(operationContext, session, operation, readPreference, allowChannelPinning);
+                var result = ExecuteReadOperation(operationContext, operation, readPreference, allowChannelPinning);
                 return Task.FromResult(result);
             }
             catch (Exception ex)
@@ -117,7 +110,6 @@ namespace MongoDB.Driver.Tests
 
         public TResult ExecuteWriteOperation<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             bool allowChannelPinning)
         {
@@ -125,9 +117,9 @@ namespace MongoDB.Driver.Tests
             {
                 Operation = operation,
                 CancellationToken = operationContext.CancellationToken,
-                SessionId = session?.WrappedCoreSession.Id,
+                SessionId = operationContext.Session.Id,
                 Timeout = operationContext.Timeout,
-                UsedImplicitSession = session == null || session.IsImplicit
+                UsedImplicitSession = operationContext.Session.IsImplicit
             });
 
             if (_results.Count > 0)
@@ -148,13 +140,12 @@ namespace MongoDB.Driver.Tests
 
         public Task<TResult> ExecuteWriteOperationAsync<TResult>(
             OperationContext operationContext,
-            IClientSessionHandle session,
             IWriteOperation<TResult> operation,
             bool allowChannelPinning)
         {
             try
             {
-                var result = ExecuteWriteOperation(operationContext, session, operation, allowChannelPinning);
+                var result = ExecuteWriteOperation(operationContext, operation, allowChannelPinning);
                 return Task.FromResult(result);
             }
             catch (Exception ex)

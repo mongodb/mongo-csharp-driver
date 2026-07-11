@@ -206,36 +206,34 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
         public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, context.MayUseSecondaryCriteria.EffectiveReadPreference, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var readConcern = _readConcern != null
-                ? ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern)
+                ? ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern)
                 : null;
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, _writeConcern);
             return new BsonDocument
             {
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
@@ -255,9 +253,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference, long? transactionNumber)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, ReadPreference effectiveReadPreference, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
             var operation = new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
             if (effectiveReadPreference != null)
             {

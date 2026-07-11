@@ -23,6 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -93,13 +94,14 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
                 socketReadTimeout: Timeout.InfiniteTimeSpan,
                 socketWriteTimeout: Timeout.InfiniteTimeSpan);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.OpenAsync(OperationContext.NoTimeout);
+                await subject.OpenAsync(operationContext);
             }
             else
             {
-                subject.Open(OperationContext.NoTimeout);
+                subject.Open(operationContext);
             }
 
             subject._state().Should().Be(3); // 3 - open.

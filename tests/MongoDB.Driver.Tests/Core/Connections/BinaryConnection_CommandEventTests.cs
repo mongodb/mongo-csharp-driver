@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
@@ -105,7 +106,8 @@ namespace MongoDB.Driver.Core.Connections
             _stream = new BlockingMemoryStream();
             _mockStreamFactory.Setup(f => f.CreateStreamAsync(_endPoint, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult<Stream>(_stream));
-            _subject.OpenAsync(OperationContext.NoTimeout).Wait();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            _subject.OpenAsync(operationContext).Wait();
             _capturedEvents.Clear();
 
             _operationIdDisposer = EventContext.BeginOperation();
@@ -259,7 +261,8 @@ namespace MongoDB.Driver.Core.Connections
 
         private void SendMessage(RequestCommandMessage message)
         {
-            _subject.SendMessageAsync(OperationContext.NoTimeout, message, _messageEncoderSettings).Wait();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            _subject.SendMessageAsync(operationContext, message, _messageEncoderSettings).Wait();
         }
 
         private void ReceiveMessage(ResponseCommandMessage message)
@@ -272,7 +275,8 @@ namespace MongoDB.Driver.Core.Connections
                 encoder.WriteMessage(message);
                 _stream.Position = startPosition;
             }
-            _subject.ReceiveMessageAsync(OperationContext.NoTimeout, message.ResponseTo, _messageEncoderSettings).Wait();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            _subject.ReceiveMessageAsync(operationContext, message.ResponseTo, _messageEncoderSettings).Wait();
         }
     }
 }

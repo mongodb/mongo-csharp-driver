@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.AWS;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -113,13 +114,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -191,13 +193,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -264,13 +267,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = null;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -295,9 +299,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(commandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -332,9 +337,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned an invalid sts host.");
@@ -367,9 +373,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server sent an invalid nonce.");
@@ -406,9 +413,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned unexpected fields: u.");
@@ -471,13 +479,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();

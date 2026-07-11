@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
@@ -174,8 +175,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.SetReady();
 
             // acquire all connections and return them
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var allConnections = Enumerable.Range(0, connectionsCount)
-                .Select(i => subject.AcquireConnection(OperationContext.NoTimeout))
+                .Select(i => subject.AcquireConnection(operationContext))
                 .ToArray();
 
             var connectionNotToExpire = allConnections[allConnections.Length / 2].ConnectionId;
@@ -222,9 +224,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             _capturedEvents.Clear();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.AcquireConnection(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(operationContext)) :
+                Record.Exception(() => _subject.AcquireConnection(operationContext));
 
             exception.Should().BeOfType<InvalidOperationException>();
             _capturedEvents.Next().Should().BeOfType<ConnectionPoolCheckingOutConnectionEvent>();
@@ -243,9 +246,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _capturedEvents.Clear();
             _subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.AcquireConnection(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(operationContext)) :
+                Record.Exception(() => _subject.AcquireConnection(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
 
@@ -267,9 +271,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             InitializeAndWait();
             _capturedEvents.Clear();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var connection = async ?
-                await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                _subject.AcquireConnection(OperationContext.NoTimeout);
+                await _subject.AcquireConnectionAsync(operationContext) :
+                _subject.AcquireConnection(operationContext);
 
             connection.Should().NotBeNull();
             _subject.AvailableCount.Should().Be(_settings.MaxConnections - 1);
@@ -329,9 +334,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Initialize();
             subject.SetReady();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var resultException = async ?
-                await Record.ExceptionAsync(() => subject.AcquireConnectionAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.AcquireConnection(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.AcquireConnectionAsync(operationContext)) :
+                Record.Exception(() => subject.AcquireConnection(operationContext));
 
             resultException.Should().BeOfType<MongoConnectionException>();
             subject.AvailableCount.Should().Be(maxConnections);
@@ -365,9 +371,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             List<IConnectionHandle> connections = new();
             for (int attempt = 1; attempt <= attempts; attempt++)
             {
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var connection = async ?
-                    await subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                    subject.AcquireConnection(OperationContext.NoTimeout);
+                    await subject.AcquireConnectionAsync(operationContext) :
+                    subject.AcquireConnection(operationContext);
                 ((ICheckOutReasonTracker)connection).SetCheckOutReasonIfNotAlreadySet(reason);
                 connections.Add(connection);
 
@@ -426,11 +433,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             var connections = new List<IConnection>();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
                 var connection = async ?
-                    await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                    _subject.AcquireConnection(OperationContext.NoTimeout);
+                    await _subject.AcquireConnectionAsync(operationContext) :
+                    _subject.AcquireConnection(operationContext);
                 connections.Add(connection);
             }
 
@@ -463,9 +471,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             InitializeAndWait();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var connection = async ?
-                await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                _subject.AcquireConnection(OperationContext.NoTimeout);
+                await _subject.AcquireConnectionAsync(operationContext) :
+                _subject.AcquireConnection(operationContext);
 
             _capturedEvents.Clear();
 
@@ -495,9 +504,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             InitializeAndWait();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var connection = async ?
-                await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                _subject.AcquireConnection(OperationContext.NoTimeout);
+                await _subject.AcquireConnectionAsync(operationContext) :
+                _subject.AcquireConnection(operationContext);
 
             _capturedEvents.Clear();
 
@@ -523,18 +533,19 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             InitializeAndWait();
             var connections = new List<IConnection>();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             for (int i = 0; i < _settings.MaxConnections; i++)
             {
                 var connection = async ?
-                    await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                    _subject.AcquireConnection(OperationContext.NoTimeout);
+                    await _subject.AcquireConnectionAsync(operationContext) :
+                    _subject.AcquireConnection(operationContext);
                 connections.Add(connection);
             }
             _capturedEvents.Clear();
 
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.AcquireConnection(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.AcquireConnectionAsync(operationContext)) :
+                Record.Exception(() => _subject.AcquireConnection(operationContext));
 
             exception.Should().BeOfType<TimeoutException>();
 
@@ -680,15 +691,16 @@ namespace MongoDB.Driver.Core.ConnectionPools
             InitializeAndWait();
             IConnectionHandle connection1;
             IConnectionHandle connection2;
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                connection1 = await _subject.AcquireConnectionAsync(OperationContext.NoTimeout);
-                connection2 = await _subject.AcquireConnectionAsync(OperationContext.NoTimeout);
+                connection1 = await _subject.AcquireConnectionAsync(operationContext);
+                connection2 = await _subject.AcquireConnectionAsync(operationContext);
             }
             else
             {
-                connection1 = _subject.AcquireConnection(OperationContext.NoTimeout);
-                connection2 = _subject.AcquireConnection(OperationContext.NoTimeout);
+                connection1 = _subject.AcquireConnection(operationContext);
+                connection2 = _subject.AcquireConnection(operationContext);
             }
             _capturedEvents.Clear();
 
@@ -861,9 +873,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _subject.Initialize();
             _subject.SetReady();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var connection = async ?
-                await _subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                _subject.AcquireConnection(OperationContext.NoTimeout);
+                await _subject.AcquireConnectionAsync(operationContext) :
+                _subject.AcquireConnection(operationContext);
 
             connection.IsExpired.Should().BeFalse();
             _subject.Clear(closeInUseConnections: false);
@@ -902,9 +915,10 @@ namespace MongoDB.Driver.Core.ConnectionPools
             subject.Initialize();
             subject.SetReady();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var connection = async ?
-                await subject.AcquireConnectionAsync(OperationContext.NoTimeout) :
-                subject.AcquireConnection(OperationContext.NoTimeout);
+                await subject.AcquireConnectionAsync(operationContext) :
+                subject.AcquireConnection(operationContext);
 
             connection.IsExpired.Should().BeFalse();
             var randomServiceId = ObjectId.GenerateNewId();
@@ -1604,16 +1618,17 @@ namespace MongoDB.Driver.Core.ConnectionPools
         // private methods
         private IConnection AcquireConnection(ExclusiveConnectionPool subject, bool async)
         {
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
                 return subject
-                    .AcquireConnectionAsync(OperationContext.NoTimeout)
+                    .AcquireConnectionAsync(operationContext)
                     .GetAwaiter()
                     .GetResult();
             }
             else
             {
-                return subject.AcquireConnection(OperationContext.NoTimeout);
+                return subject.AcquireConnection(operationContext);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2018-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -223,7 +223,9 @@ namespace MongoDB.Driver.Core.Operations
         public static BsonDocument CreateCommand(this EndTransactionOperation obj)
         {
             var methodInfo = typeof(EndTransactionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(OperationContext), typeof(WriteConcern)], null);
-            return (BsonDocument)methodInfo.Invoke(obj, [OperationContext.NoTimeout, obj.WriteConcern]);
+            using var session = OperationTestHelper.CreateSession();
+using var operationContext = new OperationContext(session);
+            return (BsonDocument)methodInfo.Invoke(obj, [operationContext, obj.WriteConcern]);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -123,7 +121,8 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             operation.Execute(operationContext, _binding);
         }
 
@@ -138,7 +137,8 @@ namespace MongoDB.Driver.GridFS
 
             var operation = CreateAbortOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             await operation.ExecuteAsync(operationContext, _binding).ConfigureAwait(false);
         }
 

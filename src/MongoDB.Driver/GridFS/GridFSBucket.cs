@@ -84,7 +84,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
                 var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
@@ -105,7 +106,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
                 var filesCollectionDeleteOperation = CreateDeleteFileOperation(id);
@@ -126,7 +128,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = GetSingleServerReadBinding(operationContext))
             {
@@ -140,7 +143,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
@@ -154,7 +158,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = GetSingleServerReadBinding(operationContext))
@@ -169,7 +174,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
@@ -185,7 +191,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = GetSingleServerReadBinding(operationContext))
             {
@@ -200,7 +207,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(destination, nameof(destination));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
@@ -215,7 +223,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(destination, nameof(destination));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = GetSingleServerReadBinding(operationContext))
@@ -231,7 +240,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(destination, nameof(destination));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
@@ -245,7 +255,8 @@ namespace MongoDB.Driver.GridFS
         public void Drop(CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
@@ -264,7 +275,8 @@ namespace MongoDB.Driver.GridFS
         public async Task DropAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var chunksCollectionNamespace = this.GetChunksCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
@@ -284,7 +296,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filter, nameof(filter));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSFindOptions<TFileId>();
 
             var translationOptions = _database.Client.Settings.TranslationOptions;
@@ -300,7 +313,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filter, nameof(filter));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSFindOptions<TFileId>();
 
             var translationOptions = _database.Client.Settings.TranslationOptions;
@@ -316,7 +330,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = GetSingleServerReadBinding(operationContext))
             {
@@ -330,7 +345,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull((object)id, nameof(id));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadOptions();
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
             {
@@ -344,7 +360,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = GetSingleServerReadBinding(operationContext))
@@ -359,7 +376,8 @@ namespace MongoDB.Driver.GridFS
         {
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSDownloadByNameOptions();
 
             using (var binding = await GetSingleServerReadBindingAsync(operationContext).ConfigureAwait(false))
@@ -375,7 +393,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var binding = GetSingleServerReadWriteBinding(operationContext))
@@ -391,7 +410,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(filename, nameof(filename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
@@ -407,7 +427,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             var renameOperation = CreateRenameOperation(id, newFilename);
             using (var binding = GetSingleServerReadWriteBinding(operationContext))
             {
@@ -426,7 +447,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull((object)id, nameof(id));
             Ensure.IsNotNull(newFilename, nameof(newFilename));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             var renameOperation = CreateRenameOperation(id, newFilename);
             using (var binding = await GetSingleServerReadWriteBindingAsync(operationContext).ConfigureAwait(false))
             {
@@ -446,7 +468,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
@@ -462,7 +485,8 @@ namespace MongoDB.Driver.GridFS
             Ensure.IsNotNull(filename, nameof(filename));
             Ensure.IsNotNull(source, nameof(source));
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             options = options ?? new GridFSUploadOptions();
 
             using (var sourceStream = new MemoryStream(source))
@@ -1041,7 +1065,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference);
             return new ReadBindingHandle(binding);
         }
 
@@ -1050,7 +1074,7 @@ namespace MongoDB.Driver.GridFS
             var readPreference = _options.ReadPreference ?? _database.Settings.ReadPreference;
             var selector = new ReadPreferenceServerSelector(readPreference);
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadBinding(_cluster, server.EndPoint, readPreference);
             return new ReadBindingHandle(binding);
         }
 
@@ -1058,7 +1082,7 @@ namespace MongoDB.Driver.GridFS
         {
             var selector = WritableServerSelector.Instance;
             var server = _cluster.SelectServer(operationContext, selector);
-            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadWriteBinding(server);
             return new ReadWriteBindingHandle(binding);
         }
 
@@ -1066,7 +1090,7 @@ namespace MongoDB.Driver.GridFS
         {
             var selector = WritableServerSelector.Instance;
             var server = await _cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
+            var binding = new SingleServerReadWriteBinding(server);
             return new ReadWriteBindingHandle(binding);
         }
 

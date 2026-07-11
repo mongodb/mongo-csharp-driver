@@ -77,7 +77,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             var connectionId = SetupConnection(mockConnection);
 
-            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var result = subject.Execute(operationContext, mockConnection.Object);
 
             var cachedWireProtocol = subject._cachedWireProtocol();
             cachedWireProtocol.Should().NotBeNull();
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             subject._responseHandling(CommandResponseHandling.Ignore); // will trigger the exception if the CommandUsingCommandMessageWireProtocol ctor will be called
 
             result = null;
-            var exception = Record.Exception(() => { result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object); });
+            var exception = Record.Exception(() => { result = subject.Execute(operationContext, mockConnection.Object); });
 
             if (withSameConnection)
             {
@@ -118,7 +119,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
 
                 connection
-                    .Setup(c => c.ReceiveMessage(OperationContext.NoTimeout, It.IsAny<int>(), messageEncoderSettings))
+                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
                     .Returns(commandResponse);
                 connection.SetupGet(c => c.ConnectionId).Returns(id);
                 connection
@@ -156,13 +157,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 serverApi,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
@@ -198,13 +200,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 serverApi,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
@@ -252,7 +255,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
                 .Returns(commandResponse);
 
-            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var result = subject.Execute(operationContext, mockConnection.Object);
             result.Should().Be("{ok: 1}");
         }
 
@@ -275,8 +279,8 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
-
-            var result = subject.Execute(OperationContext.NoTimeout, mockConnection.Object);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var result = subject.Execute(operationContext, mockConnection.Object);
             result.Should().BeNull();
 
             mockConnection.Verify(
@@ -309,7 +313,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 .Setup(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
                 .Returns(Task.FromResult<ResponseCommandMessage>(commandResponse));
 
-            var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var result = await subject.ExecuteAsync(operationContext, mockConnection.Object);
             result.Should().Be("{ok: 1}");
         }
 
@@ -333,7 +338,8 @@ namespace MongoDB.Driver.Core.WireProtocol
             var mockConnection = new Mock<IConnection>();
             mockConnection.Setup(c => c.Settings).Returns(() => new ConnectionSettings());
 
-            var result = await subject.ExecuteAsync(OperationContext.NoTimeout, mockConnection.Object);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var result = await subject.ExecuteAsync(operationContext, mockConnection.Object);
             result.Should().BeNull();
 
             mockConnection.Verify(c => c.ReceiveMessageAsync(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings), Times.Never);
@@ -375,13 +381,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
@@ -443,13 +450,14 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext2 = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.ExecuteAsync(OperationContext.NoTimeout, connection);
+                await subject.ExecuteAsync(operationContext2, connection);
             }
             else
             {
-                subject.Execute(OperationContext.NoTimeout, connection);
+                subject.Execute(operationContext2, connection);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))

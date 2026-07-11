@@ -32,8 +32,7 @@ namespace MongoDB.Driver.Core
             {
                 readBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
-                    session.CurrentTransaction.PinnedChannel.Fork(),
-                    session);
+                    session.CurrentTransaction.PinnedChannel.Fork());
             }
             else
             {
@@ -42,7 +41,7 @@ namespace MongoDB.Driver.Core
                     // unpin if the next operation is not under transaction
                     session.CurrentTransaction.UnpinAll();
                 }
-                readBinding = new ReadPreferenceBinding(cluster, readPreference, session);
+                readBinding = new ReadPreferenceBinding(cluster, readPreference);
             }
 
             return new ReadBindingHandle(readBinding);
@@ -57,8 +56,7 @@ namespace MongoDB.Driver.Core
             {
                 readWriteBinding = new ChannelReadWriteBinding(
                     session.CurrentTransaction.PinnedServer,
-                    session.CurrentTransaction.PinnedChannel.Fork(),
-                    session);
+                    session.CurrentTransaction.PinnedChannel.Fork());
             }
             else
             {
@@ -67,7 +65,7 @@ namespace MongoDB.Driver.Core
                     // unpin if the next operation is not under transaction
                     session.CurrentTransaction.UnpinAll();
                 }
-                readWriteBinding = new WritableServerBinding(cluster, session);
+                readWriteBinding = new WritableServerBinding(cluster);
             }
 
             return new ReadWriteBindingHandle(readWriteBinding);
@@ -85,12 +83,11 @@ namespace MongoDB.Driver.Core
 
                 effectiveChannelSource = new ChannelChannelSource(
                     channelSource.Server,
-                    channel.Fork(),
-                    channelSource.Session.Fork());
+                    channel.Fork());
             }
             else
             {
-                effectiveChannelSource = new ServerChannelSource(channelSource.Server, channelSource.Session.Fork());
+                effectiveChannelSource = new ServerChannelSource(channelSource.Server);
             }
 
             return new ChannelSourceHandle(effectiveChannelSource);
@@ -99,7 +96,7 @@ namespace MongoDB.Driver.Core
         internal static void PinChannellIfRequired(
             IChannelSourceHandle channelSource,
             IChannelHandle channel,
-            ICoreSessionHandle session)
+            ICoreSession session)
         {
             if (IsInLoadBalancedMode(channel.ConnectionDescription) &&
                 session.IsInTransaction &&

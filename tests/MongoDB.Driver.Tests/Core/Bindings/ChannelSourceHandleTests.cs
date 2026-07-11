@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
@@ -42,16 +41,6 @@ namespace MongoDB.Driver.Core.Bindings
             act.ShouldThrow<ArgumentNullException>();
         }
 
-        [Fact]
-        public void Session_should_delegate_to_reference()
-        {
-            var subject = new ChannelSourceHandle(_mockChannelSource.Object);
-
-            var result = subject.Session;
-
-            _mockChannelSource.Verify(m => m.Session, Times.Once);
-        }
-
         [Theory]
         [ParameterAttributeData]
         public async Task GetChannel_should_throw_if_disposed(
@@ -61,9 +50,10 @@ namespace MongoDB.Driver.Core.Bindings
             var subject = new ChannelSourceHandle(_mockChannelSource.Object);
             subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => subject.GetChannel(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -75,16 +65,16 @@ namespace MongoDB.Driver.Core.Bindings
             bool async)
         {
             var subject = new ChannelSourceHandle(_mockChannelSource.Object);
-
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.GetChannelAsync(OperationContext.NoTimeout);
+                await subject.GetChannelAsync(operationContext);
 
                 _mockChannelSource.Verify(s => s.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetChannel(OperationContext.NoTimeout);
+                subject.GetChannel(operationContext);
 
                 _mockChannelSource.Verify(s => s.GetChannel(It.IsAny<OperationContext>()), Times.Once);
             }

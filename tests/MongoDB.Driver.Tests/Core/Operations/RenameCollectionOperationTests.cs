@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -90,7 +89,8 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            using var operationContext = new OperationContext(session);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -114,7 +114,8 @@ namespace MongoDB.Driver.Core.Operations
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            using var operationContext = new OperationContext(session);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().Be(expectedResult);
         }
@@ -138,11 +139,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromSeconds(42), CancellationToken.None) : OperationContext.NoTimeout;
             var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
 
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            using var operationContext = new OperationContext(session, hasOperationTimeout ? TimeSpan.FromSeconds(42) : null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedWriteConcern = writeConcern?.ToBsonDocument();
             if (hasOperationTimeout)
@@ -246,8 +247,10 @@ namespace MongoDB.Driver.Core.Operations
             bool async)
         {
             var subject = new RenameCollectionOperation(_collectionNamespace, _newCollectionNamespace, _messageEncoderSettings);
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            Action action = () => ExecuteOperation(subject, null, async);
+            Action action = () => ExecuteOperation(operationContext, subject, null, async);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("binding");
         }

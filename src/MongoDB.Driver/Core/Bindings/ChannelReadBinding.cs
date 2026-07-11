@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -27,14 +27,12 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServer _server;
-        private readonly ICoreSessionHandle _session;
 
-        public ChannelReadBinding(IServer server, IChannelHandle channel, ReadPreference readPreference, ICoreSessionHandle session)
+        public ChannelReadBinding(IServer server, IChannelHandle channel, ReadPreference readPreference)
         {
             _server = Ensure.IsNotNull(server, nameof(server));
             _channel = Ensure.IsNotNull(channel, nameof(channel));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
-            _session = Ensure.IsNotNull(session, nameof(session));
         }
 
         public ReadPreference ReadPreference
@@ -42,17 +40,11 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _readPreference; }
         }
 
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
-        }
-
         public void Dispose()
         {
             if (!_disposed)
             {
                 _channel.Dispose();
-                _session.Dispose();
                 _disposed = true;
             }
         }
@@ -81,7 +73,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IChannelSourceHandle GetReadChannelSourceHelper()
         {
-            return new ChannelSourceHandle(new ChannelChannelSource(_server, _channel.Fork(), _session.Fork()));
+            return new ChannelSourceHandle(new ChannelChannelSource(_server, _channel.Fork()));
         }
 
         private void ThrowIfDisposed()

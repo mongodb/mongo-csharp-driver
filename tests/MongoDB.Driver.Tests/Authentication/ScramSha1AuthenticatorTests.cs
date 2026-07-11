@@ -23,6 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.ScramSha;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -68,13 +69,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -101,13 +103,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = null;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
@@ -133,9 +136,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(responseException);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -155,9 +159,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -180,9 +185,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -219,11 +225,12 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.Description = new ConnectionDescription(__descriptionCommandWireProtocol.ConnectionId, new HelloResult(helloResult));
 
             BsonDocument helloCommand = null;
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (useSpeculativeAuthenticate)
             {
                 // Call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(OperationContext.NoTimeout, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
+                helloCommand = subject.CustomizeInitialHelloCommand(operationContext, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
             }
             else
             {
@@ -238,11 +245,11 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, connection.Description);
+                await subject.AuthenticateAsync(operationContext, connection, connection.Description);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, connection.Description);
+                subject.Authenticate(operationContext, connection, connection.Description);
             }
 
             var expectedSentMessageCount = 3 - (useLongAuthentication ? 0 : 1) - (useSpeculativeAuthenticate ? 1 : 0);
@@ -299,13 +306,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5))

@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -189,7 +189,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateGetChunkOperation(n);
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             using (var cursor = operation.Execute(operationContext, Binding))
             {
                 var documents = cursor.ToList();
@@ -202,7 +203,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateGetChunkOperation(n);
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             using (var cursor = await operation.ExecuteAsync(operationContext, Binding).ConfigureAwait(false))
             {
                 var documents = await cursor.ToListAsync().ConfigureAwait(false);

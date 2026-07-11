@@ -626,15 +626,13 @@ public class Feature
     public void ThrowIfNotSupported(IMongoClient client, CancellationToken cancellationToken = default)
     {
         var cluster = client.GetClusterInternal();
-        // TODO: CSOT implement proper way to obtain the operationContext
-        var operationContext = new OperationContext(null, cancellationToken);
-        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-        using (var channelSource = binding.GetWriteChannelSource(operationContext))
-        using (var channel = channelSource.GetChannel(operationContext))
-        {
-            // Use WireVersion from a connection since server level value may be null
-            ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
-        }
+        using var session = NoCoreSession.NewHandle();
+        using var operationContext = new OperationContext(session, cancellationToken: cancellationToken);
+        using var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster));
+        using var channelSource = binding.GetWriteChannelSource(operationContext);
+        using var channel = channelSource.GetChannel(operationContext);
+        // Use WireVersion from a connection since server level value may be null
+        ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
     }
 
     /// <summary>
@@ -645,15 +643,13 @@ public class Feature
     public async Task ThrowIfNotSupportedAsync(IMongoClient client, CancellationToken cancellationToken = default)
     {
         var cluster = client.GetClusterInternal();
-        // TODO: CSOT implement proper way to obtain the operationContext
-        var operationContext = new OperationContext(null, cancellationToken);
-        using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, NoCoreSession.NewHandle())))
-        using (var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false))
-        using (var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
-        {
-            // Use WireVersion from a connection since server level value may be null
-            ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
-        }
+        using var session = NoCoreSession.NewHandle();
+        using var operationContext = new OperationContext(session, cancellationToken: cancellationToken);
+        using var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster));
+        using var channelSource = await binding.GetWriteChannelSourceAsync(operationContext).ConfigureAwait(false);
+        using var channel = await channelSource.GetChannelAsync(operationContext).ConfigureAwait(false);
+        // Use WireVersion from a connection since server level value may be null
+        ThrowIfNotSupported(channel.ConnectionDescription.MaxWireVersion);
     }
 
     internal bool IsSupported(int wireVersion)

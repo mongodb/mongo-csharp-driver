@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Tests
             {
                 using var failPoint = FailPoint.Configure(WritableServerSelector.Instance, failCommand, async, client.GetClusterInternal());
                 var slowServer = failPoint.Server;
-                var fastServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
+                var fastServer = client.GetClusterInternal().Servers.First(s => s.ServerId != slowServer.ServerId);
 
                 var database = client.GetDatabase(_databaseName);
                 CreateCollection();
@@ -98,8 +98,9 @@ namespace MongoDB.Driver.Tests
                 var channels = new ConcurrentBag<IChannelHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
-                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
+                    using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                    channels.Add(slowServer.GetChannel(operationContext));
+                    channels.Add(fastServer.GetChannel(operationContext));
                 });
 
                 foreach (var channel in channels)

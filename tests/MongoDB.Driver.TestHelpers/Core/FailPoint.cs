@@ -1,4 +1,4 @@
-/* Copyright 2018-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -48,8 +48,9 @@ namespace MongoDB.Driver.Core.TestHelpers
         {
             cluster ??= DriverTestConfiguration.Client.GetClusterInternal();
             DriverTestConfiguration.WaitForAllServersToBeConnected(cluster);
-            var server = cluster.SelectServer(OperationContext.NoTimeout, serverSelector);
-            var binding = new SingleServerReadWriteBinding(server, NoCoreSession.NewHandle());
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            var server = cluster.SelectServer(operationContext, serverSelector);
+            var binding = new SingleServerReadWriteBinding(server);
             if (withAsync.HasValue)
             {
                 MakeFailPointApplicationNameTestableIfConfigured(command, withAsync.Value);
@@ -58,7 +59,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             var failpoint = new FailPoint(server, binding, command);
             try
             {
-                failpoint.Configure();
+                failpoint.Configure(operationContext);
                 return failpoint;
             }
             catch
@@ -139,8 +140,8 @@ namespace MongoDB.Driver.Core.TestHelpers
         }
 
         // private methods
-        private void Configure()
-            => ExecuteCommand(_command, false);
+        private void Configure(OperationContext operationContext)
+            => ExecuteCommand(operationContext, _command, false);
 
         private void ConfigureOff()
         {
@@ -150,10 +151,11 @@ namespace MongoDB.Driver.Core.TestHelpers
                 { "configureFailPoint", name },
                 { "mode", "off" }
             };
-            ExecuteCommand(command, true);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            ExecuteCommand(operationContext, command, true);
         }
 
-        private void ExecuteCommand(BsonDocument command, bool waitForConnected)
+        private void ExecuteCommand(OperationContext operationContext, BsonDocument command, bool waitForConnected)
         {
             if (waitForConnected)
             {
@@ -171,7 +173,7 @@ namespace MongoDB.Driver.Core.TestHelpers
                 BsonDocumentSerializer.Instance,
                 new MessageEncoderSettings());
 
-            operation.Execute(OperationContext.NoTimeout, _binding);
+            operation.Execute(operationContext, _binding);
         }
     }
 }

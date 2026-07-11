@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
@@ -82,9 +83,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
             for (int i = 0; i < testData.iterations; i++)
             {
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var selectedServer = testData.async
-                    ? cluster.SelectServerAsync(OperationContext.NoTimeout, readPreferenceSelector).GetAwaiter().GetResult()
-                    : cluster.SelectServer(OperationContext.NoTimeout, readPreferenceSelector);
+                    ? cluster.SelectServerAsync(operationContext, readPreferenceSelector).GetAwaiter().GetResult()
+                    : cluster.SelectServer(operationContext, readPreferenceSelector);
 
                 selectionHistogram[selectedServer.ServerId]++;
             }

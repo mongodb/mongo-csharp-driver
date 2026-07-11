@@ -127,11 +127,11 @@ namespace MongoDB.Driver
                     }
 
                     var endSessionCommand = new BsonDocument("endSessions", new BsonArray(batch.Take(batchSize).Select(s => s.Id)));
-                    var operationContext = OperationContext.NoTimeout;
+                    using var session = NoCoreSession.NewHandle();
+                    using var operationContext = new OperationContext(session);
                     using var channel = server.GetChannel(operationContext);
                     channel.Command(
                         operationContext,
-                        NoCoreSession.Instance,
                         ReadPreference.PrimaryPreferred,
                         DatabaseNamespace.Admin,
                         endSessionCommand,

@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,36 +22,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal static class QueryHelper
     {
-        public static int CalculateFirstBatchSize(int? limit, int? batchSize)
-        {
-            int firstBatchSize;
-
-            int nonNullLimit = limit ?? 0;
-            int nonNullBatchSize = batchSize ?? 0;
-            if (nonNullLimit < 0)
-            {
-                firstBatchSize = nonNullLimit;
-            }
-            else if (nonNullLimit == 0)
-            {
-                firstBatchSize = nonNullBatchSize;
-            }
-            else if (nonNullBatchSize == 0)
-            {
-                firstBatchSize = nonNullLimit;
-            }
-            else if (nonNullLimit < nonNullBatchSize)
-            {
-                firstBatchSize = nonNullLimit;
-            }
-            else
-            {
-                firstBatchSize = nonNullBatchSize;
-            }
-
-            return firstBatchSize;
-        }
-
         public static BsonDocument CreateReadPreferenceDocument(ServerType serverType, ReadPreference readPreference, out bool secondaryOk)
         {
             secondaryOk = readPreference != null && readPreference.ReadPreferenceMode != ReadPreferenceMode.Primary;

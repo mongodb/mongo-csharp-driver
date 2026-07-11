@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -241,8 +241,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         var runCommandOperation = new CountOperation(collection.CollectionNamespace, new MessageEncoderSettings()) { ReadConcern = ReadConcern.Local, };
                         foreach (var server in cluster.Description.Servers.Where(s => s.Type == ServerType.ReplicaSetSecondary))
                         {
-                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary, session.WrappedCoreSession.Fork());
-                            runCommandOperation.Execute(OperationContext.NoTimeout, singleServerBinding);
+                            using var operationContext = new OperationContext(session.WrappedCoreSession);
+                            using var singleServerBinding = new SingleServerReadBinding(cluster, server.EndPoint, ReadPreference.Secondary);
+                            runCommandOperation.Execute(operationContext, singleServerBinding);
                         }
                     }
                 }

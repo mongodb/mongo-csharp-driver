@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,23 +31,20 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var server = new Mock<IServer>().Object;
             var channel = new Mock<IChannelHandle>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var result = new ChannelChannelSource(server, channel, session);
+            var result = new ChannelChannelSource(server, channel);
 
             result._channel().Should().BeSameAs(channel);
             result._disposed().Should().BeFalse();
             result.Server.Should().BeSameAs(server);
-            result.Session.Should().BeSameAs(session);
         }
 
         [Fact]
         public void constructor_should_throw_when_server_is_null()
         {
             var channel = new Mock<IChannelHandle>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelChannelSource(null, channel, session));
+            var exception = Record.Exception(() => new ChannelChannelSource(null, channel));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("server");
@@ -57,24 +54,11 @@ namespace MongoDB.Driver.Core.Bindings
         public void constructor_should_throw_when_channel_is_null()
         {
             var server = new Mock<IServer>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChannelChannelSource(server, null, session));
+            var exception = Record.Exception(() => new ChannelChannelSource(server, null));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("channel");
-        }
-
-        [Fact]
-        public void constructor_should_throw_when_session_is_null()
-        {
-            var server = new Mock<IServer>().Object;
-            var channel = new Mock<IChannelHandle>().Object;
-
-            var exception = Record.Exception(() => new ChannelChannelSource(server, channel, null));
-
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("session");
         }
 
         [Fact]
@@ -94,48 +78,33 @@ namespace MongoDB.Driver.Core.Bindings
             var mockServer = new Mock<IServer>();
             var subject = CreateSubject(server: mockServer.Object);
 
-            var result = subject.ServerDescription;
+            _ = subject.ServerDescription;
 
             mockServer.VerifyGet(m => m.Description, Times.Once);
-        }
-
-        [Fact]
-        public void Session_should_return_expected_result()
-        {
-            var session = new Mock<ICoreSessionHandle>().Object;
-            var subject = CreateSubject(session: session);
-
-            var result = subject.Session;
-
-            result.Should().BeSameAs(session);
         }
 
         [Fact]
         public void Dispose_should_have_expected_result()
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(channel: mockChannel.Object);
 
             subject.Dispose();
 
             subject._disposed().Should().BeTrue();
             mockChannel.Verify(m => m.Dispose(), Times.Once);
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
             var mockChannel = new Mock<IChannelHandle>();
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var subject = CreateSubject(channel: mockChannel.Object, session: mockSession.Object);
+            var subject = CreateSubject(channel: mockChannel.Object);
 
             subject.Dispose();
             subject.Dispose();
 
             mockChannel.Verify(m => m.Dispose(), Times.Once);
-            mockSession.Verify(m => m.Dispose(), Times.Once);
         }
 
         [Theory]
@@ -148,9 +117,10 @@ namespace MongoDB.Driver.Core.Bindings
             var expectedResult = new Mock<IChannelHandle>().Object;
             mockChannel.Setup(m => m.Fork()).Returns(expectedResult);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var result = async ?
-                await subject.GetChannelAsync(OperationContext.NoTimeout) :
-                subject.GetChannel(OperationContext.NoTimeout);
+                await subject.GetChannelAsync(operationContext) :
+                subject.GetChannel(operationContext);
 
             result.Should().BeSameAs(expectedResult);
             mockChannel.Verify(m => m.Fork(), Times.Once);
@@ -163,9 +133,10 @@ namespace MongoDB.Driver.Core.Bindings
         {
             var subject = CreateDisposedSubject();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => subject.GetChannel(operationContext));
 
             var e = exception.Should().BeOfType<ObjectDisposedException>().Subject;
             e.ObjectName.Should().Be(subject.GetType().FullName);
@@ -179,13 +150,8 @@ namespace MongoDB.Driver.Core.Bindings
             return subject;
         }
 
-        private ChannelChannelSource CreateSubject(IServer server = null, IChannelHandle channel = null, ICoreSessionHandle session = null)
-        {
-            return new ChannelChannelSource(
-                server ?? new Mock<IServer>().Object,
-                channel ?? new Mock<IChannelHandle>().Object,
-                session ?? new Mock<ICoreSessionHandle>().Object);
-        }
+        private ChannelChannelSource CreateSubject(IServer server = null, IChannelHandle channel = null) =>
+            new(server ?? new Mock<IServer>().Object, channel ?? new Mock<IChannelHandle>().Object);
     }
 
     internal static class ChannelChannelSourceReflector

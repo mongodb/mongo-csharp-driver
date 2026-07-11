@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ namespace MongoDB.Driver.Core.Operations
         private BsonDocument _documentResumeToken;
         private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly BsonTimestamp _initialOperationTime;
+        private readonly ICoreSessionHandle _session;
         private BsonDocument _postBatchResumeToken;
         private readonly BsonDocument _initialResumeAfter;
         private readonly BsonDocument _initialStartAfter;
@@ -58,6 +59,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="cursor">The cursor.</param>
         /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="binding">The binding.</param>
+        /// <param name="session">The session.</param>
         /// <param name="changeStreamOperation">The change stream operation.</param>
         /// <param name="aggregatePostBatchResumeToken">The post batch resume token from an aggregate command.</param>
         /// <param name="initialOperationTime">The initial operation time.</param>
@@ -69,6 +71,7 @@ namespace MongoDB.Driver.Core.Operations
             IAsyncCursor<RawBsonDocument> cursor,
             IBsonSerializer<TDocument> documentSerializer,
             IReadBinding binding,
+            ICoreSessionHandle session,
             IChangeStreamOperation<TDocument> changeStreamOperation,
             BsonDocument aggregatePostBatchResumeToken,
             BsonTimestamp initialOperationTime,
@@ -81,6 +84,7 @@ namespace MongoDB.Driver.Core.Operations
             _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _changeStreamOperation = Ensure.IsNotNull(changeStreamOperation, nameof(changeStreamOperation));
+            _session = Ensure.IsNotNull(session, nameof(session));
             _postBatchResumeToken = aggregatePostBatchResumeToken;
             _initialOperationTime = initialOperationTime;
 
@@ -99,6 +103,7 @@ namespace MongoDB.Driver.Core.Operations
                 _disposed = true;
                 _cursor.Dispose();
                 _binding.Dispose();
+                _session.Dispose();
             }
         }
 
@@ -262,7 +267,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(_session, null, cancellationToken);
             return _changeStreamOperation.Resume(operationContext, _binding);
         }
 
@@ -270,7 +275,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var operationContext = new OperationContext(_session, null, cancellationToken);
             return await _changeStreamOperation.ResumeAsync(operationContext, _binding).ConfigureAwait(false);
         }
 

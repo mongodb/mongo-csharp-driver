@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(operationContext);
                 var result = operation.Execute(operationContext, context);
 
-                binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
                 return new SingleBatchAsyncCursor<TValue>(result.Values);
             }
@@ -148,15 +148,15 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(operationContext);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
-                binding.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
                 return new SingleBatchAsyncCursor<TValue>(result.Values);
             }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern);
             return new BsonDocument
             {
                 { "distinct", _collectionNamespace.CollectionName },

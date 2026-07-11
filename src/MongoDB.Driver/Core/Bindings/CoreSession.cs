@@ -151,7 +151,14 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
+            using var sessionHandle = new NonDisposingCoreSessionHandle(this);
+            using var operationContext = new OperationContext(sessionHandle, GetTimeout(options?.Timeout), cancellationToken)
+            {
+                IsTracingEnabled = _currentTransaction.IsTracingEnabled,
+                OperationName = "abortTransaction",
+                DatabaseName = "admin",
+                CollectionName = null
+            };
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -189,7 +196,14 @@ namespace MongoDB.Driver.Core.Bindings
         {
             EnsureAbortTransactionCanBeCalled(nameof(AbortTransaction));
 
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "abortTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
+            using var sessionHandle = new NonDisposingCoreSessionHandle(this);
+            using var operationContext = new OperationContext(sessionHandle, GetTimeout(options?.Timeout), cancellationToken)
+            {
+                IsTracingEnabled = _currentTransaction.IsTracingEnabled,
+                OperationName = "abortTransaction",
+                DatabaseName = "admin",
+                CollectionName = null
+            };
             try
             {
                 if (_currentTransaction.IsEmpty)
@@ -275,8 +289,14 @@ namespace MongoDB.Driver.Core.Bindings
         void ICoreSessionInternal.CommitTransaction(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
-
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
+            using var sessionHandle = new NonDisposingCoreSessionHandle(this);
+            using var operationContext = new OperationContext(sessionHandle, GetTimeout(options?.Timeout), cancellationToken)
+            {
+                IsTracingEnabled = _currentTransaction.IsTracingEnabled,
+                OperationName = "commitTransaction",
+                DatabaseName = "admin",
+                CollectionName = null
+            };
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -304,8 +324,14 @@ namespace MongoDB.Driver.Core.Bindings
         async Task ICoreSessionInternal.CommitTransactionAsync(CommitTransactionOptions options, CancellationToken cancellationToken)
         {
             EnsureCommitTransactionCanBeCalled(nameof(CommitTransaction));
-
-            using var operationContext = new OperationContext(GetTimeout(options?.Timeout), "commitTransaction", "admin", null, _currentTransaction.IsTracingEnabled, cancellationToken);
+            using var sessionHandle = new NonDisposingCoreSessionHandle(this);
+            using var operationContext = new OperationContext(sessionHandle, GetTimeout(options?.Timeout), cancellationToken)
+            {
+                IsTracingEnabled = _currentTransaction.IsTracingEnabled,
+                OperationName = "commitTransaction",
+                DatabaseName = "admin",
+                CollectionName = null
+            };
             try
             {
                 _isCommitTransactionInProgress = true;
@@ -549,7 +575,7 @@ namespace MongoDB.Driver.Core.Bindings
             // otherwise the captured pinned-channel fork goes stale after UnpinAll.
             if (_cluster.Description.Type == ClusterType.LoadBalanced)
             {
-                return new EndTransactionReadWriteBinding(_cluster, session);
+                return new EndTransactionReadWriteBinding(_cluster);
             }
 
             return ChannelPinningHelper.CreateReadWriteBinding(_cluster, session);

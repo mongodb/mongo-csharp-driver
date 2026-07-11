@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -181,9 +181,10 @@ namespace MongoDB.Driver.Core.Servers
                 _eventLogger);
             server.Initialize();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => server.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => server.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => server.GetChannelAsync(operationContext)) :
+                Record.Exception(() => server.GetChannel(operationContext));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             mockConnectionPool.Verify(p => p.Clear(It.IsAny<ObjectId>()), Times.Once());
@@ -195,9 +196,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Initialize();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var channel = async ?
-                await _subject.GetChannelAsync(OperationContext.NoTimeout) :
-                _subject.GetChannel(OperationContext.NoTimeout);
+                await _subject.GetChannelAsync(operationContext) :
+                _subject.GetChannel(operationContext);
 
             channel.Should().NotBeNull();
         }
@@ -210,9 +212,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             IClusterableServer server = SetupServer(connectionOpenException, !connectionOpenException);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => _subject.GetChannel(operationContext));
 
             exception.Should().NotBeNull();
             server.OutstandingOperationsCount.Should().Be(0);
@@ -227,11 +230,12 @@ namespace MongoDB.Driver.Core.Servers
             IClusterableServer server = SetupServer(false, false);
 
             var channels = new List<IChannelHandle>();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             for (int i = 0; i < operationsCount; i++)
             {
                 var connection = async ?
-                    await server.GetChannelAsync(OperationContext.NoTimeout) :
-                    server.GetChannel(OperationContext.NoTimeout);
+                    await server.GetChannelAsync(operationContext) :
+                    server.GetChannel(operationContext);
                 channels.Add(connection);
             }
 
@@ -249,9 +253,10 @@ namespace MongoDB.Driver.Core.Servers
         public async Task GetChannel_should_throw_when_not_initialized(
             [Values(false, true)] bool async)
         {
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => _subject.GetChannel(operationContext));
 
             exception.Should().BeOfType<InvalidOperationException>();
         }
@@ -262,9 +267,10 @@ namespace MongoDB.Driver.Core.Servers
         {
             _subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => _subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => _subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => _subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => _subject.GetChannel(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -301,9 +307,10 @@ namespace MongoDB.Driver.Core.Servers
             var subject = new LoadBalancedServer(_clusterId, _clusterClock, _settings, _endPoint, mockConnectionPoolFactory.Object, _serverApi, _eventLogger);
             subject.Initialize();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetChannelAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetChannel(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetChannelAsync(operationContext)) :
+                Record.Exception(() => subject.GetChannel(operationContext));
 
             exception.Should().Be(openConnectionException);
             subject.Description.Type.Should().Be(ServerType.LoadBalanced);

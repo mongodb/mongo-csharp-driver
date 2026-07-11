@@ -20,6 +20,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -964,7 +965,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
                         throw _pool.CreateTimeoutException(stopwatch.Elapsed, $"Timed out waiting for in connecting queue after {stopwatch.ElapsedMilliseconds}ms.");
                     }
 
-                    return CreateOpenedInternal(new(Timeout.InfiniteTimeSpan, cancellationToken));
+                    using var session = NoCoreSession.NewHandle();
+                    using var operationContext = new OperationContext(session, Timeout.InfiniteTimeSpan, cancellationToken);
+                    return CreateOpenedInternal(operationContext);
                 }
                 catch (Exception ex)
                 {

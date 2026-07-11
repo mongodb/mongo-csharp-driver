@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -186,7 +186,9 @@ namespace MongoDB.Driver.Core.TestHelpers
                     var maxWireVersion = description.MaxWireVersion;
                     var server = (Server)result.Server;
                     var helloResult = new HelloResult(new BsonDocument { { "compressors", new BsonArray() }, { "maxWireVersion", maxWireVersion } });
-                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(OperationContext.NoTimeout));
+
+                    using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                    var mockConnection = Mock.Get(server._connectionPool().AcquireConnection(operationContext));
                     mockConnection.SetupGet(c => c.Description)
                         .Returns(new ConnectionDescription(new ConnectionId(description.ServerId, 0), helloResult));
                 }

@@ -1,4 +1,4 @@
-﻿/* Copyright 2020-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -219,7 +220,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 {
                     // Note that the Server Description Equality rule means that ServerDescriptionChangedEvents will not be published.
                     // So we use reflection to obtain the latest RTT instead.
-                    var server = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, WritableServerSelector.Instance);
+                    using var session = NoCoreSession.NewHandle();
+                    using var operationContext = new OperationContext(session);
+                    var server = client.GetClusterInternal().SelectServer(operationContext, WritableServerSelector.Instance);
                     var roundTripTimeMonitor = server._monitor()._roundTripTimeMonitor();
                     var expectedRoundTripTime = TimeSpan.FromMilliseconds(250);
                     var timeout = TimeSpan.FromSeconds(30); // should not be reached without a driver bug

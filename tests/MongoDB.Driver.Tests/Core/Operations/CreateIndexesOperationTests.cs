@@ -90,10 +90,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var requests = new[] { new CreateIndexRequest(new BsonDocument("x", 1)) };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -112,10 +113,11 @@ namespace MongoDB.Driver.Core.Operations
                 new CreateIndexRequest(new BsonDocument("y", 1))
             };
             var subject = new CreateIndexesOperation(_collectionNamespace, requests, _messageEncoderSettings);
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -136,10 +138,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 CommitQuorum = commitQuorum
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -162,10 +165,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 CommitQuorum = commitQuorum
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.FirstSupportedWireVersion);
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -191,10 +195,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -216,11 +221,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 MaxTime = TimeSpan.FromTicks(10)
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session, TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
 
-            var operationContext = new OperationContext(TimeSpan.FromMilliseconds(timeoutMs), CancellationToken.None);
-            var result = subject.CreateCommand(operationContext, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             result.Should().NotContain("maxTimeMS");
         }
@@ -237,10 +242,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 WriteConcern = writeConcern
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null);
+            var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
             var expectedResult = new BsonDocument
             {
@@ -260,10 +266,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 CommitQuorum = commitQuorum
             };
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(Feature.CreateIndexCommitQuorum.LastNotSupportedWireVersion);
+            using var operationContext = new OperationContext(session);
 
-            var exception = Record.Exception(() => subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription, null));
+            var exception = Record.Exception(() => subject.CreateCommand(operationContext, connectionDescription, null));
 
             exception.Should().BeOfType<NotSupportedException>();
         }
@@ -279,7 +286,10 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
-                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
+                using var session = OperationTestHelper.CreateSession();
+                using var operationContext = new OperationContext(session);
+
+                var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, failPoint.Binding, async));
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }

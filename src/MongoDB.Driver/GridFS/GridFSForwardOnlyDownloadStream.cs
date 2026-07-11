@@ -1,4 +1,4 @@
-﻿/* Copyright 2016-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -26,7 +25,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Shared;
 
 namespace MongoDB.Driver.GridFS
 {
@@ -213,7 +211,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateFirstBatchOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             _cursor = operation.Execute(operationContext, Binding);
             GetNextBatch(cancellationToken);
         }
@@ -222,7 +221,8 @@ namespace MongoDB.Driver.GridFS
         {
             var operation = CreateFirstBatchOperation();
             // TODO: CSOT implement proper way to obtain the operationContext
-            var operationContext = new OperationContext(null, cancellationToken);
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, null, cancellationToken);
             _cursor = await operation.ExecuteAsync(operationContext, Binding).ConfigureAwait(false);
             await GetNextBatchAsync(cancellationToken).ConfigureAwait(false);
         }

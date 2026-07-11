@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,14 +16,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
@@ -1298,17 +1296,19 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var session = CreateSession(useImplicitSession: true))
+            using (var operationContext = new OperationContext(session))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var result = ExecuteOperation(subject, channelBinding, async);
+                var result = ExecuteOperation(operationContext, subject, channelBinding, async);
 
                 result.ProcessedRequests.Should().HaveCount(5);
                 result.RequestCount.Should().Be(5);
 
-                var list = ReadAllFromCollection(channelBinding);
+                var list = ReadAllFromCollection(operationContext, channelBinding);
                 list.Should().HaveCount(3);
             }
         }
@@ -1345,16 +1345,18 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var session = CreateSession(useImplicitSession: true))
+            using (var operationContext = new OperationContext(session))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var result = ExecuteOperation(subject, channelBinding, async);
+                var result = ExecuteOperation(operationContext, subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
                 result.RequestCount.Should().Be(5);
 
-                var list = ReadAllFromCollection(channelBinding);
+                var list = ReadAllFromCollection(operationContext, channelBinding);
                 list.Should().HaveCount(1);
             }
         }
@@ -1386,16 +1388,18 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var session = CreateSession(useImplicitSession: true))
+            using (var operationContext = new OperationContext(session))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var result = ExecuteOperation(subject, channelBinding, async);
+                var result = ExecuteOperation(operationContext, subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(5);
                 result.RequestCount.Should().Be(5);
 
-                var list = ReadAllFromCollection(channelBinding);
+                var list = ReadAllFromCollection(operationContext, channelBinding);
                 list.Should().HaveCount(4);
             }
         }
@@ -1427,16 +1431,18 @@ namespace MongoDB.Driver.Core.Operations
                 WriteConcern = WriteConcern.Unacknowledged
             };
 
-            using (var readWriteBinding = CreateReadWriteBinding(useImplicitSession: true))
-            using (var channelSource = readWriteBinding.GetWriteChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, readWriteBinding.Session.Fork()))
+            using (var readWriteBinding = CreateReadWriteBinding())
+            using (var session = CreateSession(useImplicitSession: true))
+            using (var operationContext = new OperationContext(session))
+            using (var channelSource = readWriteBinding.GetWriteChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var result = ExecuteOperation(subject, channelBinding, async);
+                var result = ExecuteOperation(operationContext, subject, channelBinding, async);
                 result.ProcessedRequests.Should().HaveCount(4);
                 result.RequestCount.Should().Be(5);
 
-                var list = ReadAllFromCollection(channelBinding);
+                var list = ReadAllFromCollection(operationContext, channelBinding);
                 list.Should().HaveCount(3);
             }
         }
@@ -1566,12 +1572,13 @@ namespace MongoDB.Driver.Core.Operations
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "delete" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                using (var operationContext = new OperationContext(session))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster)))
                 {
                     var requests = requestSizes.Select(size => CreateDeleteRequest(size));
                     var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-                    var result = ExecuteOperation(operation, binding, async: false);
+                    var result = ExecuteOperation(operationContext, operation, binding, async: false);
 
                     var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
                     var actualBatchCounts = commandStartedEvents.Select(e => e.Command["deletes"].AsBsonArray.Count).ToList();
@@ -1604,13 +1611,14 @@ namespace MongoDB.Driver.Core.Operations
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "insert" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                using (var operationContext = new OperationContext(session))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster)))
                 {
                     var documents = documentSizes.Select((size, index) => CreateDocument(index + 1, size)).ToList();
                     var requests = documents.Select(d => new InsertRequest(d)).ToList();
                     var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-                    var result = ExecuteOperation(operation, binding, async: false);
+                    var result = ExecuteOperation(operationContext, operation, binding, async: false);
 
                     result.InsertedCount.Should().Be(documents.Count);
                     var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
@@ -1644,12 +1652,13 @@ namespace MongoDB.Driver.Core.Operations
                 var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update" && e.OperationId == EventContext.OperationId);
                 using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
                 using (var session = NoCoreSession.NewHandle())
-                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster, session.Fork())))
+                using (var operationContext = new OperationContext(session))
+                using (var binding = new ReadWriteBindingHandle(new WritableServerBinding(cluster)))
                 {
                     var requests = requestSizes.Select(size => CreateUpdateRequest(size));
                     var operation = new BulkMixedWriteOperation(_collectionNamespace, requests, _messageEncoderSettings);
 
-                    var result = ExecuteOperation(operation, binding, async: false);
+                    var result = ExecuteOperation(operationContext, operation, binding, async: false);
 
                     var commandStartedEvents = eventCapturer.Events.OfType<CommandStartedEvent>().ToList();
                     var actualBatchCounts = commandStartedEvents.Select(e => e.Command["updates"].AsBsonArray.Count).ToList();
@@ -1715,10 +1724,10 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{_id: 6, x: 3 }"));
         }
 
-        private List<BsonDocument> ReadAllFromCollection(IReadBinding binding)
+        private List<BsonDocument> ReadAllFromCollection(OperationContext operationContext, IReadBinding binding)
         {
             var operation = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursor = ExecuteOperation(operation, binding, false);
+            var cursor = ExecuteOperation(operationContext, operation, binding, false);
             return ReadCursorToEnd(cursor);
         }
     }

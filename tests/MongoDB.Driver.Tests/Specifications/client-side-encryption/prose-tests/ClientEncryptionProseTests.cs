@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -3679,10 +3679,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(collectionNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
-            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = new WritableServerBinding(_cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                operation.Execute(operationContext, bindingHandle);
             }
         }
 
