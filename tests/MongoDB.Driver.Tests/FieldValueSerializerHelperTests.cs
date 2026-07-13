@@ -13,13 +13,35 @@
 * limitations under the License.
 */
 
+using System;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
 {
+    public class FieldValueSerializerHelper_GetSerializerForValueTypeTests
+    {
+        [Theory]
+        [InlineData(typeof(int))]
+        [InlineData(typeof(double))]
+        [InlineData(typeof(decimal))]
+        [InlineData(typeof(Decimal128))]
+        public void GetSerializerForValueType_should_resolve_numeric_value_type_from_registry(Type valueType)
+        {
+            // field type (long) differs from every value type above, so the numeric-mismatch branch is exercised.
+            // Regression: Decimal128 is numeric but absent from StandardSerializers, so it must resolve via the registry.
+            var fieldSerializer = new Int64Serializer();
+            var registry = BsonSerializer.SerializerRegistry;
+
+            var result = FieldValueSerializerHelper.GetSerializerForValueType(fieldSerializer, registry, valueType);
+
+            result.ValueType.Should().Be(valueType);
+        }
+    }
+
     public class FieldValueSerializerHelper_IEnumerableSerializerTests
     {
         [Fact]
