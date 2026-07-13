@@ -126,7 +126,7 @@ namespace MongoDB.Driver.Core.Operations
             Ensure.IsGreaterThanOrEqualTo(backoffMax, backoffInitial, nameof(backoffMax));
 
             var j = random.NextDouble();
-            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt - 1)));
+            return (int)(j * Math.Min(backoffMax, backoffInitial * Math.Pow(backoffBase, attempt)));
         }
 
         /// <summary>

@@ -91,8 +91,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
         }
 
         [Theory]
-        [InlineData(1, 50, 0, 50)]
-        [InlineData(2, 50, 0, 100)]
+        [InlineData(1, 50, 0, 100)]
+        [InlineData(2, 50, 0, 200)]
         [InlineData(1, 10000, 0, 10000)]
         [InlineData(2, 20000, 0, 10000)]
         public void ShouldRetry_with_baseBackoffMs_should_use_it_as_backoff_base(
