@@ -159,6 +159,14 @@ namespace MongoDB.Driver.Core.Operations
                         endTransactionOperation.OnRetry(operationContext, context, ex);
                     }
 
+                    // We bail early if the backoff would exceed the CSOT deadline. The cancellation token alone does not
+                    // fire when the deadline elapses, so without this check the delay would ignore the remaining timeout.
+                    var remaining = operationContext.RemainingTimeout;
+                    if (remaining != Timeout.InfiniteTimeSpan && remaining < backoff)
+                    {
+                        throw originalException;
+                    }
+
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                     deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
