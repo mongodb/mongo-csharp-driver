@@ -516,9 +516,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null, // serverApi
                 TimeSpan.FromMilliseconds(42));
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async
-                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(OperationContext.NoTimeout, connection))
-                : Record.Exception(() => subject.Execute(OperationContext.NoTimeout, connection));
+                ? await Record.ExceptionAsync(() => subject.ExecuteAsync(operationContext, connection))
+                : Record.Exception(() => subject.Execute(operationContext, connection));
 
             var commandException = exception.Should().BeOfType<MongoCommandException>().Subject;
             commandException.Result["baseBackoffMS"].ToInt32().Should().Be(50);
