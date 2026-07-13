@@ -121,12 +121,12 @@ namespace MongoDB.Driver
         public IBsonSerializerRegistry SerializerRegistry => SerializationDomain.SerializerRegistry;
 
         /// <summary>
-        /// Gets or sets the serialization domain.
+        /// Gets the serialization domain. Inherited from the client; cannot be overridden per collection.
         /// </summary>
         internal IBsonSerializationDomain SerializationDomain
         {
             get => _serializationDomain.Value ?? BsonSerializer.DefaultSerializationDomain;
-            set
+            private set
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoCollectionSettings is frozen."); }
                 if (value == null)

@@ -43,18 +43,14 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void TestApplyDefaultValues()
         {
-            var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("FromDatabase");
-            var databaseSettings = new MongoDatabaseSettings { SerializationDomain = domain };
-            databaseSettings.ApplyDefaultValues(new MongoClientSettings());
+            var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("FromClient");
+            var clientSettings = new MongoClientSettings { SerializationDomain = domain };
+            var databaseSettings = new MongoDatabaseSettings();
+            databaseSettings.ApplyDefaultValues(clientSettings);
 
             var settings = new MongoCollectionSettings();
             settings.ApplyDefaultValues(databaseSettings);
             Assert.Same(domain, settings.SerializationDomain);
-
-            var overrideDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Collection");
-            var settingsWithOverride = new MongoCollectionSettings { SerializationDomain = overrideDomain };
-            settingsWithOverride.ApplyDefaultValues(databaseSettings);
-            Assert.Same(overrideDomain, settingsWithOverride.SerializationDomain);
         }
 
         [Fact]
@@ -81,7 +77,6 @@ namespace MongoDB.Driver.Tests
                 AssignIdOnInsert = !MongoDefaults.AssignIdOnInsert,
                 ReadConcern = ReadConcern.Majority,
                 ReadPreference = ReadPreference.Secondary,
-                SerializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Clone"),
                 WriteConcern = WriteConcern.W2
             };
             var clone = settings.Clone();
@@ -118,10 +113,6 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
             clone = settings.Clone();
             clone.ReadPreference = ReadPreference.Secondary;
-            Assert.False(clone.Equals(settings));
-
-            clone = settings.Clone();
-            clone.SerializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Other");
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -194,14 +185,6 @@ namespace MongoDB.Driver.Tests
         {
             var settings = new MongoCollectionSettings();
             Assert.Same(BsonSerializer.DefaultSerializationDomain, settings.SerializationDomain);
-
-            var serializationDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
-            settings.SerializationDomain = serializationDomain;
-            Assert.Same(serializationDomain, settings.SerializationDomain);
-
-            settings.Freeze();
-            Assert.Same(serializationDomain, settings.SerializationDomain);
-            Assert.Throws<InvalidOperationException>(() => { settings.SerializationDomain = serializationDomain; });
         }
 
         [Fact]
