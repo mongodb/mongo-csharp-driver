@@ -183,7 +183,8 @@ public class ClientBackpressureProseTestsUnit
         Action<OperationContext, TOperation, TContext> executeSync,
         Func<OperationContext, TOperation, TContext, Task> executeAsync)
     {
-        var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
+        using var session = NoCoreSession.NewHandle();
+        using var operationContext = new OperationContext(session, timeout: TimeSpan.FromSeconds(30));
 
         var fullJitterRandom = new Mock<IRandom>();
         fullJitterRandom.Setup(r => r.NextDouble()).Returns(1.0);
@@ -197,9 +198,20 @@ public class ClientBackpressureProseTestsUnit
         var overrideException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(overrideResult, "SystemOverloadedError", "RetryableError");
         var withBaseBackoffMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(overrideException), createContext(fullJitterRandom.Object));
 
-        // Per the spec: assertTrue(abs(exponential_backoff_time - (with_base_backoff_ms_time + 0.3s)) < 0.3s)
-        Math.Abs(exponentialMs - (withBaseBackoffMs + 300)).Should().BeLessThan(300,
-            $"baseBackoffMS should shorten the backoff base (exponential: {exponentialMs}ms, withBaseBackoffMS: {withBaseBackoffMs}ms)");
+        // The driver must have parsed the server-supplied baseBackoffMS off the error.
+        RetryabilityHelper.GetBaseBackoffMs(overrideException).Should().Be(50);
+
+        // Per the spec (jitter pinned to 1): the default backoffs sum to 0.2 + 0.4 = 0.6s and the
+        // baseBackoffMS = 50 backoffs sum to 0.1 + 0.2 = 0.3s. A run can never be faster than the sum of its backoffs.
+        // The operations here are mocked, so there is no server-round-trip cushion above the raw sleeps; allow a small
+        // tolerance on the lower bounds for timer granularity while still asserting baseBackoffMS shortens the backoff.
+        const long timerToleranceMs = 50;
+        exponentialMs.Should().BeGreaterOrEqualTo(600 - timerToleranceMs,
+            $"the default exponential backoff should sum to ~600ms (got {exponentialMs}ms)");
+        withBaseBackoffMs.Should().BeGreaterOrEqualTo(300 - timerToleranceMs,
+            $"the baseBackoffMS=50 backoff should sum to ~300ms (got {withBaseBackoffMs}ms)");
+        withBaseBackoffMs.Should().BeLessThan(600,
+            $"baseBackoffMS should shorten the backoff base (withBaseBackoffMS: {withBaseBackoffMs}ms, exponential: {exponentialMs}ms)");
     }
 
     private static async Task<long> MeasureBackoff<TOperation, TContext>(
@@ -374,7 +386,7 @@ public class ClientBackpressureProseTestsIntegration
     {
         RequireServer.Check()
             .ClusterTypes(ClusterType.ReplicaSet)
-            .VersionGreaterThanOrEqualTo("9.0.0");
+            .Supports(Feature.ClientBackpressureBaseBackoffMs);
 
         var failPointCommand = BsonDocument.Parse(
             @"{

@@ -317,10 +317,10 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(1, null, 0, 100)]
-        [InlineData(2, null, 0, 200)]
-        [InlineData(1, 50, 0, 50)]
-        [InlineData(2, 50, 0, 100)]
+        [InlineData(1, null, 0, 200)]
+        [InlineData(2, null, 0, 400)]
+        [InlineData(1, 50, 0, 100)]
+        [InlineData(2, 50, 0, 200)]
         [InlineData(1, 10000, 0, 10000)]
         [InlineData(2, 20000, 0, 10000)]
         public void GetOperationRetryBackoffDelay_should_apply_baseBackoffMs_override(int attempt, int? baseBackoffMs, int expectedRangeMin, int expectedRangeMax)

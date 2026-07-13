@@ -113,6 +113,11 @@ public class Feature
     public static Feature ChangeStreamSplitEventStage { get; } = new("ChangeStreamSplitEventStage", WireVersion.Server70);
 
     /// <summary>
+    /// Gets the client backpressure baseBackoffMS feature.
+    /// </summary>
+    public static Feature ClientBackpressureBaseBackoffMs { get; } = new("ClientBackpressureBaseBackoffMs", WireVersion.Server90);
+
+    /// <summary>
     /// Gets the client bulk write feature.
     /// </summary>
     public static Feature ClientBulkWrite { get; } = new("ClientBulkWrite", WireVersion.Server80);

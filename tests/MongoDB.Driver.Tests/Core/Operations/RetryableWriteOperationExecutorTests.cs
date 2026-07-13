@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var context = CreateContext(retryRequested: true, areRetryableWritesSupported: true, hasSessionId: true, isInTransaction: false);
             var result = BsonDocument.Parse($"{{ ok : 0, code : 2, baseBackoffMS : {baseBackoffMs} }}");
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
-            var operationContext = new OperationContext(null, CancellationToken.None);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var randomMock = new Mock<IRandom>();
             randomMock.Setup(r => r.NextDouble()).Returns(1.0);
 
