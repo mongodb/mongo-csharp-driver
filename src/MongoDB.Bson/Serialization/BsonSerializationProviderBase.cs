@@ -81,14 +81,14 @@ namespace MongoDB.Bson.Serialization
             var serializerTypeInfo = serializerType.GetTypeInfo();
 
             var domain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
-            var domainCtor = serializerTypeInfo.GetConstructor(
+            var serializerCtorWithDomain = serializerTypeInfo.GetConstructor(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                 binder: null,
                 types: new[] { typeof(IBsonSerializationDomain) },
                 modifiers: null);
-            if (domainCtor != null)
+            if (serializerCtorWithDomain != null)
             {
-                return (IBsonSerializer)domainCtor.Invoke(new object[] { domain });
+                return (IBsonSerializer)serializerCtorWithDomain.Invoke(new object[] { domain });
             }
 
             var constructorInfo = serializerTypeInfo.GetConstructor(new[] { typeof(IBsonSerializerRegistry) });

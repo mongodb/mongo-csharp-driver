@@ -70,7 +70,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             var actualType = value.GetType();
             if (actualType != ValueType && !args.SerializeAsNominalType)
             {
-                var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+                var actualTypeSerializer = this.LookupSerializerInSameDomain(actualType);
                 actualTypeSerializer.Serialize(context, value);
                 return;
             }

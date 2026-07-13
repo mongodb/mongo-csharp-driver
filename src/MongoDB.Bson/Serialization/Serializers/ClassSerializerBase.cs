@@ -47,7 +47,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+                    var actualTypeSerializer = this.LookupSerializerInSameDomain(actualType);
                     return (TValue)actualTypeSerializer.Deserialize(context, args);
                 }
             }
@@ -75,7 +75,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var actualTypeSerializer = this.GetSerializerForDerivedType(actualType);
+                    var actualTypeSerializer = this.LookupSerializerInSameDomain(actualType);
                     actualTypeSerializer.Serialize(context, value);
                 }
             }

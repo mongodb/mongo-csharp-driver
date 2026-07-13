@@ -50,15 +50,15 @@ namespace MongoDB.Bson.Serialization
             return serializer.Deserialize(context, args);
         }
 
-        internal static IBsonSerializer GetSerializerForDerivedType(this IBsonSerializer serializer, Type derivedType)
+        internal static IBsonSerializer LookupSerializerInSameDomain(this IBsonSerializer serializer, Type type)
         {
             if (serializer is IHasSerializationDomain domainSpecificSerializer)
             {
-                return domainSpecificSerializer.SerializationDomain.LookupSerializer(derivedType);
+                return domainSpecificSerializer.SerializationDomain.LookupSerializer(type);
             }
             else
             {
-                return BsonSerializationDomain.Default.LookupSerializer(derivedType);
+                return BsonSerializationDomain.Default.LookupSerializer(type);
             }
         }
 

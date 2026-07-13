@@ -109,14 +109,14 @@ namespace MongoDB.Bson.Serialization.Attributes
                 closedSerializerType = _serializerType;
             }
 
-            var domainCtor = closedSerializerType.GetConstructor(
+            var closedSerializerCtorWithDomain = closedSerializerType.GetConstructor(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                 binder: null,
                 types: [typeof(IBsonSerializationDomain)],
                 modifiers: null);
-            if (domainCtor != null)
+            if (closedSerializerCtorWithDomain != null)
             {
-                return (IBsonSerializer)domainCtor.Invoke([serializationDomain]);
+                return (IBsonSerializer)closedSerializerCtorWithDomain.Invoke([serializationDomain]);
             }
 
             return (IBsonSerializer)Activator.CreateInstance(closedSerializerType);

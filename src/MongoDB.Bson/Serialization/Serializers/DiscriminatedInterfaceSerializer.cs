@@ -196,7 +196,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     throw new FormatException(message);
                 }
 
-                var serializer = this.GetSerializerForDerivedType(actualType);
+                var serializer = this.LookupSerializerInSameDomain(actualType);
                 return (TInterface)serializer.Deserialize(context, args);
             }
         }
