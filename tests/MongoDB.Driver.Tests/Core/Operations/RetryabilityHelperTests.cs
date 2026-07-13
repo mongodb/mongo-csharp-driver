@@ -103,13 +103,13 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData(1, 2, 100, 10000, 0, 100)]
-        [InlineData(2, 2, 100, 10000, 0, 200)]
-        [InlineData(3, 2, 100, 10000, 0, 400)]
+        [InlineData(1, 2, 100, 10000, 0, 200)]
+        [InlineData(2, 2, 100, 10000, 0, 400)]
+        [InlineData(3, 2, 100, 10000, 0, 800)]
         [InlineData(9999, 2, 100, 10000, 0, 10000)]
-        [InlineData(1, 1.5, 100, 10000, 0, 100)]
-        [InlineData(2, 1.5, 100, 10000, 0, 150)]
-        [InlineData(3, 1.5, 100, 10000, 0, 225)]
+        [InlineData(1, 1.5, 100, 10000, 0, 150)]
+        [InlineData(2, 1.5, 100, 10000, 0, 225)]
+        [InlineData(3, 1.5, 100, 10000, 0, 337)]
         [InlineData(9999, 1.5, 100, 10000, 0, 10000)]
         public void GetRetryDelayMs_should_return_expected_result(int attempt, double backoffBase, int backoffInitial, int backoffMax, int expectedRangeMin, int expectedRangeMax)
         {

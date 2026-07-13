@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Tests
             var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
             var backoffTimeMs = await ExecuteWithTransactionAsync(1);
 
-            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 2280, 150);
 
             async Task<double> ExecuteWithTransactionAsync(double randomValue)
             {
