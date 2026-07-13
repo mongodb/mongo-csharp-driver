@@ -14,13 +14,19 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using Moq;
 using Xunit;
@@ -161,7 +167,55 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             backoff.TotalMilliseconds.Should().BeInRange(expectedRangeMinMs, expectedRangeMaxMs);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Backoff_should_honor_CSOT_deadline(bool async)
+        {
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, timeout: TimeSpan.FromMilliseconds(200));
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.NextDouble()).Returns(1.0);
+
+            // baseBackoffMS = 5000 yields a first-retry backoff clamped to MaxBackoff (~10s), far larger than the 200ms deadline.
+            var result = BsonDocument.Parse("{ ok : 0, code : 2, baseBackoffMS : 5000 }");
+            var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
+            var operationMock = new Mock<IRetryableReadOperation<int>>();
+            operationMock.Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>())).Throws(exception);
+            operationMock.Setup(o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>())).ThrowsAsync(exception);
+            var context = CreateExecutableContext(randomMock.Object);
+
+            var stopwatch = Stopwatch.StartNew();
+            var thrown = async
+                ? await Record.ExceptionAsync(() => RetryableReadOperationExecutor.ExecuteAsync(operationContext, operationMock.Object, context))
+                : Record.Exception(() => RetryableReadOperationExecutor.Execute(operationContext, operationMock.Object, context));
+            stopwatch.Stop();
+
+            // The retry loop must bail with the overload error once the backoff would exceed the remaining CSOT deadline,
+            // rather than sleeping the full backoff (regression test for the async path, which lacked this guard).
+            thrown.Should().BeOfType<MongoCommandException>();
+            stopwatch.ElapsedMilliseconds.Should().BeLessThan(1000);
+        }
+
         // private methods
+        private static RetryableReadContext CreateExecutableContext(IRandom random)
+        {
+            var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            var serverDescription = new ServerDescription(serverId, serverId.EndPoint);
+            var channel = new Mock<IChannelHandle>().Object;
+
+            var channelSource = new Mock<IChannelSourceHandle>();
+            channelSource.SetupGet(cs => cs.ServerDescription).Returns(serverDescription);
+            channelSource.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            channelSource.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
+
+            var binding = new Mock<IReadBinding>();
+            binding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource.Object);
+            binding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).ReturnsAsync(channelSource.Object);
+
+            return new RetryableReadContext(binding.Object, retryRequested: true, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false, random);
+        }
+
         private static RetryableReadContext CreateContext(bool retryRequested)
         {
             var bindingMock = new Mock<IReadBinding>();

@@ -15,10 +15,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -126,7 +128,56 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             backoff.TotalMilliseconds.Should().BeInRange(expectedRangeMinMs, expectedRangeMaxMs);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Backoff_should_honor_CSOT_deadline(bool async)
+        {
+            using var session = NoCoreSession.NewHandle();
+            using var operationContext = new OperationContext(session, timeout: TimeSpan.FromMilliseconds(200));
+            var randomMock = new Mock<IRandom>();
+            randomMock.Setup(r => r.NextDouble()).Returns(1.0);
+
+            // baseBackoffMS = 5000 yields a first-retry backoff clamped to MaxBackoff (~10s), far larger than the 200ms deadline.
+            var result = BsonDocument.Parse("{ ok : 0, code : 2, baseBackoffMS : 5000 }");
+            var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
+            var operationMock = new Mock<IRetryableWriteOperation<int>>();
+            operationMock.SetupGet(o => o.WriteConcern).Returns(WriteConcern.Acknowledged);
+            operationMock.Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableWriteContext>(), It.IsAny<int>(), It.IsAny<long?>())).Throws(exception);
+            operationMock.Setup(o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableWriteContext>(), It.IsAny<int>(), It.IsAny<long?>())).ThrowsAsync(exception);
+            var context = CreateExecutableContext(randomMock.Object);
+
+            var stopwatch = Stopwatch.StartNew();
+            var thrown = async
+                ? await Record.ExceptionAsync(() => RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operationMock.Object, context))
+                : Record.Exception(() => RetryableWriteOperationExecutor.Execute(operationContext, operationMock.Object, context));
+            stopwatch.Stop();
+
+            // The retry loop must bail with the overload error once the backoff would exceed the remaining CSOT deadline,
+            // rather than sleeping the full backoff (regression test for the async path, which lacked this guard).
+            thrown.Should().BeOfType<MongoCommandException>();
+            stopwatch.ElapsedMilliseconds.Should().BeLessThan(1000);
+        }
+
         // private methods
+        private static RetryableWriteContext CreateExecutableContext(IRandom random)
+        {
+            var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
+            var serverDescription = new ServerDescription(serverId, serverId.EndPoint);
+            var channel = new Mock<IChannelHandle>().Object;
+
+            var channelSource = new Mock<IChannelSourceHandle>();
+            channelSource.SetupGet(cs => cs.ServerDescription).Returns(serverDescription);
+            channelSource.Setup(cs => cs.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
+            channelSource.Setup(cs => cs.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
+
+            var binding = new Mock<IWriteBinding>();
+            binding.Setup(b => b.GetWriteChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource.Object);
+            binding.Setup(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).ReturnsAsync(channelSource.Object);
+
+            return new RetryableWriteContext(binding.Object, retryRequested: true, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false, random);
+        }
+
         private IWriteBinding CreateBinding(bool areRetryableWritesSupported, bool hasSessionId, bool isInTransaction)
         {
             var mockBinding = new Mock<IWriteBinding>();
