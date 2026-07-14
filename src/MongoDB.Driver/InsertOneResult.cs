@@ -95,6 +95,6 @@ public abstract class InsertOneResult
         public override bool IsAcknowledged => false;
 
         /// <inheritdoc/>
-        public override object InsertedId => throw new NotSupportedException("Only acknowledged inserts support the InsertedId property.");
+        public override object InsertedId => throw new NotSupportedException("Only acknowledged writes support the InsertedId property.");
     }
 }

@@ -102,6 +102,6 @@ public abstract class InsertManyResult
         public override bool IsAcknowledged => false;
 
         /// <inheritdoc/>
-        public override IReadOnlyDictionary<int, object> InsertedIds => throw new NotSupportedException("Only acknowledged inserts support the InsertedIds property.");
+        public override IReadOnlyDictionary<int, object> InsertedIds => throw new NotSupportedException("Only acknowledged writes support the InsertedIds property.");
     }
 }

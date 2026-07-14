@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Tests.Encryption
             mockCollection
                 .SetupSequence(c => c.InsertOneAsync(It.IsAny<BsonDocument>(), It.IsAny<InsertOneOptions>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(InsertOneResult.Unacknowledged.Instance)
-                .Throws(new Exception("test"));
+                .ThrowsAsync(new Exception("test"));
             var mockDatabase = new Mock<IMongoDatabase>();
             mockDatabase.Setup(c => c.GetCollection<BsonDocument>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>())).Returns(mockCollection.Object);
             var client = new Mock<IMongoClient>();

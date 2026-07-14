@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
@@ -24,6 +25,12 @@ namespace MongoDB.Driver.Tests
 {
     public class InsertManyResultTests
     {
+        private class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
         [Fact]
         public void Acknowledged_should_expose_the_inserted_ids()
         {
@@ -82,6 +89,33 @@ namespace MongoDB.Driver.Tests
                 { 0, (BsonValue)10 },
                 { 1, (BsonValue)20 }
             });
+        }
+
+        [Fact]
+        public void FromBulkWriteResult_should_return_the_ids_for_POCOs()
+        {
+            var serializer = BsonSerializer.LookupSerializer<Person>();
+            var people = new[]
+            {
+                new Person { Id = 5, Name = "Jo" },
+                new Person { Id = 6, Name = "Al" }
+            };
+            var bulkWriteResult = new BulkWriteResult<Person>.Acknowledged(
+                requestCount: 2,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 2,
+                modifiedCount: 0,
+                processedRequests: new[]
+                {
+                    new InsertOneModel<Person>(people[0]),
+                    new InsertOneModel<Person>(people[1])
+                },
+                upserts: Array.Empty<BulkWriteUpsert>());
+
+            var result = InsertManyResult.FromBulkWriteResult(bulkWriteResult, serializer);
+
+            result.InsertedIds.Should().Equal(new Dictionary<int, object> { { 0, 5 }, { 1, 6 } });
         }
 
         [Fact]

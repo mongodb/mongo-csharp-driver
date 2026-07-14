@@ -18,7 +18,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Core.Operations;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -78,7 +77,7 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void FromBulkWriteResult_should_return_the_clr_id_for_a_typed_document()
+        public void FromBulkWriteResult_should_return_the_id_for_POCO()
         {
             var serializer = BsonSerializer.LookupSerializer<Person>();
             var person = new Person { Id = 5, Name = "Jo" };
