@@ -2671,6 +2671,83 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void InsertOne_should_return_the_expected_result([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var document = new BsonDocument("_id", 1).Add("a", 1);
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 1,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 1,
+                modifiedCount: 0,
+                processedRequests: new[] { new InsertRequest(document) { CorrelationId = 0 } },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertOneAsync(document).GetAwaiter().GetResult()
+                : subject.InsertOne(document);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedId.Should().Be((BsonValue)1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InsertOne_should_return_the_generated_id_when_the_document_has_no_id([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var document = new BsonDocument("a", 1);
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 1,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 1,
+                modifiedCount: 0,
+                processedRequests: new[] { new InsertRequest(document) { CorrelationId = 0 } },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertOneAsync(document).GetAwaiter().GetResult()
+                : subject.InsertOne(document);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedId.Should().BeOfType<BsonObjectId>();
+            result.InsertedId.Should().Be(document["_id"]);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InsertMany_should_return_the_expected_result([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 2,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 2,
+                modifiedCount: 0,
+                processedRequests: new[]
+                {
+                    new InsertRequest(documents[0]) { CorrelationId = 0 },
+                    new InsertRequest(documents[1]) { CorrelationId = 1 }
+                },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertManyAsync(documents).GetAwaiter().GetResult()
+                : subject.InsertMany(documents);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedIds.Should().Equal(new Dictionary<int, object> { { 0, (BsonValue)1 }, { 1, (BsonValue)2 } });
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InsertMany_should_execute_a_BulkMixedOperation(
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,

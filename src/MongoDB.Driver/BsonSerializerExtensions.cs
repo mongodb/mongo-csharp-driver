@@ -19,6 +19,17 @@ namespace MongoDB.Driver
 {
     internal static class BsonSerializerExtensions
     {
+        public static object GetDocumentId<TDocument>(this IBsonSerializer<TDocument> serializer, TDocument document)
+        {
+            if (serializer is IBsonIdProvider idProvider &&
+                idProvider.GetDocumentId(document, out var id, out _, out _))
+            {
+                return id;
+            }
+
+            return null;
+        }
+
         public static object SetDocumentIdIfMissing<TDocument>(this IBsonSerializer<TDocument> serializer, object container, TDocument document)
         {
             var idProvider = serializer as IBsonIdProvider;

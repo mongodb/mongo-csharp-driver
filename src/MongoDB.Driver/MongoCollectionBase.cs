@@ -419,17 +419,17 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        public virtual void InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertOneResult InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
+            return InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual void InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertOneResult InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
+            return InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private void InsertOne(TDocument document, InsertOneOptions options, Action<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions> bulkWrite)
+        private InsertOneResult InsertOne(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull((object)document, "document");
 
@@ -442,7 +442,8 @@ namespace MongoDB.Driver
                     Comment = options.Comment,
                     Timeout = options.Timeout
                 };
-                bulkWrite(new[] { model }, bulkWriteOptions);
+                var bulkWriteResult = bulkWrite(new[] { model }, bulkWriteOptions);
+                return InsertOneResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
             }
             catch (MongoBulkWriteException<TDocument> ex)
             {
@@ -451,22 +452,22 @@ namespace MongoDB.Driver
         }
 
         [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
-        public virtual Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
+        public virtual Task<InsertOneResult> InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
         {
             return InsertOneAsync(document, null, _cancellationToken);
         }
 
-        public virtual Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertOneResult> InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task InsertOneAsync(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task> bulkWriteAsync)
+        private async Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull((object)document, "document");
 
@@ -479,7 +480,8 @@ namespace MongoDB.Driver
                     Comment = options.Comment,
                     Timeout = options.Timeout
                 };
-                await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
+                var bulkWriteResult = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
+                return InsertOneResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
             }
             catch (MongoBulkWriteException<TDocument> ex)
             {
@@ -487,17 +489,17 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertManyResult InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
+            return InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual void InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertManyResult InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
+            return InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options, Action<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions> bulkWrite)
+        private InsertManyResult InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull(documents, nameof(documents));
 
@@ -509,20 +511,21 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 Timeout = options.Timeout
             };
-            bulkWrite(models, bulkWriteOptions);
+            var bulkWriteResult = bulkWrite(models, bulkWriteOptions);
+            return InsertManyResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
         }
 
-        public virtual Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertManyResult> InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertManyResult> InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task> bulkWriteAsync)
+        private async Task<InsertManyResult> InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(documents, nameof(documents));
 
@@ -534,7 +537,8 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 Timeout = options.Timeout
             };
-            return bulkWriteAsync(models, bulkWriteOptions);
+            var bulkWriteResult = await bulkWriteAsync(models, bulkWriteOptions).ConfigureAwait(false);
+            return InsertManyResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
