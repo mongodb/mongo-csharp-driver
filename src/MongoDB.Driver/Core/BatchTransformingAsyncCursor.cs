@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
@@ -101,6 +100,14 @@ namespace MongoDB.Driver
             _disposed = true;
             _current = null;
             _wrapped.Dispose();
+        }
+
+        /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            _disposed = true;
+            _current = null;
+            await _wrapped.DisposeAsync().ConfigureAwait(false);
         }
 
         private void ThrowIfDisposed()

@@ -73,13 +73,14 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        public ValueTask DisposeAsync()
+        public async ValueTask DisposeAsync()
         {
-            // TODO: implement true async disposal (CSHARP-5630)
-            Dispose();
-
-            // TODO: convert to ValueTask.CompletedTask once we stop supporting older target frameworks
-            return default; // Equivalent to ValueTask.CompletedTask which is not available on older target frameworks.
+            if (!_disposed)
+            {
+                _disposed = true;
+                _batchEnumerator?.Dispose();
+                await _cursor.DisposeAsync().ConfigureAwait(false);
+            }
         }
 
         public bool MoveNext()

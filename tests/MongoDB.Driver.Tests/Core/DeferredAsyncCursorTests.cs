@@ -89,6 +89,47 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public async Task DisposeAsync_should_invoke_dispose_action_when_never_iterated()
+        {
+            var disposeActionCallCount = 0;
+            var subject = CreateSubject(() => disposeActionCallCount++);
+
+            await subject.DisposeAsync();
+
+            disposeActionCallCount.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_should_dispose_cursor_and_invoke_dispose_action_when_iterated()
+        {
+            var disposeActionCallCount = 0;
+            var innerCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            innerCursor.Setup(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(false);
+            var subject = new DeferredAsyncCursor<BsonDocument>(
+                () => disposeActionCallCount++,
+                _ => innerCursor.Object,
+                _ => Task.FromResult(innerCursor.Object));
+
+            await subject.MoveNextAsync(CancellationToken.None);
+            await subject.DisposeAsync();
+
+            disposeActionCallCount.Should().Be(1);
+            innerCursor.Verify(c => c.DisposeAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_should_be_idempotent()
+        {
+            var disposeActionCallCount = 0;
+            var subject = CreateSubject(() => disposeActionCallCount++);
+
+            await subject.DisposeAsync();
+            await subject.DisposeAsync();
+
+            disposeActionCallCount.Should().Be(1);
+        }
+
+        [Fact]
         public void MoveNext_should_throw_when_disposed()
         {
             var subject = CreateSubject(() => { });

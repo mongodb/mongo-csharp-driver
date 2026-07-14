@@ -108,6 +108,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                await _cursor.DisposeAsync().ConfigureAwait(false);
+                _binding.Dispose();
+                _session.Dispose();
+            }
+        }
+
+        /// <inheritdoc/>
         public BsonDocument GetResumeToken()
         {
             return

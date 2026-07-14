@@ -389,6 +389,79 @@ namespace MongoDB.Driver.Core.Operations
             VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), false);
         }
 
+        [Fact]
+        public void DisposeAsync_should_be_shielded_from_exceptions()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
+                .Throws<Exception>();
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+
+            subject.DisposeAsync().GetAwaiter().GetResult();
+        }
+
+        [Fact]
+        public void DisposeAsync_should_dispose_channel_source_when_cursor_id_is_zero()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
+
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            mockChannelSource.Verify(s => s.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_dispose_cursor_only_once()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async: true, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+            subject.DisposeAsync().GetAwaiter().GetResult();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_not_call_kill_cursors_for_zero_cursor_id()
+        {
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            mockChannelHandle
+                .Setup(c => c.ConnectionDescription)
+                .Returns(CreateConnectionDescriptionSupportingSession());
+
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
+                .ReturnsAsync(mockChannelHandle.Object);
+
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), async: true);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_send_kill_cursors_through_the_async_command_path()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async: true, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: testCursorId, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), async: false);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void GetMore_should_use_same_session(

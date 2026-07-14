@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             finally
             {
-                Dispose();
+                await DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -349,6 +349,19 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                await CloseIfNotAlreadyClosedFromDisposeAsync().ConfigureAwait(false);
+
+                _channelSource?.Dispose();
+                _session?.Dispose();
+                _disposed = true;
+            }
+            GC.SuppressFinalize(this);
+        }
+
         private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
         {
             if (!_closed)
@@ -406,6 +419,18 @@ namespace MongoDB.Driver.Core.Operations
             try
             {
                 CloseIfNotAlreadyClosed(CancellationToken.None);
+            }
+            catch
+            {
+                // ignore any exceptions from CloseIfNotAlreadyClosed when called from Dispose
+            }
+        }
+
+        private async Task CloseIfNotAlreadyClosedFromDisposeAsync()
+        {
+            try
+            {
+                await CloseIfNotAlreadyClosedAsync(CancellationToken.None).ConfigureAwait(false);
             }
             catch
             {

@@ -251,6 +251,52 @@ namespace MongoDB.Driver.Core.Operations
             mockBinding.Verify(s => s.Dispose(), Times.Once);
         }
 
+        [Fact]
+        public async Task DisposeAsync_should_set_disposed_to_true()
+        {
+            var subject = CreateSubject();
+
+            await subject.DisposeAsync();
+
+            subject._disposed().Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task DisposeAsync_should_call_DisposeAsync_on_cursor()
+        {
+            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var subject = CreateSubject(cursor: mockCursor.Object);
+
+            await subject.DisposeAsync();
+
+            mockCursor.Verify(s => s.DisposeAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_should_call_Dispose_on_binding()
+        {
+            var mockBinding = new Mock<IReadBinding>();
+            var subject = CreateSubject(binding: mockBinding.Object);
+
+            await subject.DisposeAsync();
+
+            mockBinding.Verify(s => s.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_can_be_called_more_than_once()
+        {
+            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var mockBinding = new Mock<IReadBinding>();
+            var subject = CreateSubject(cursor: mockCursor.Object, binding: mockBinding.Object);
+
+            await subject.DisposeAsync();
+            await subject.DisposeAsync();
+
+            mockCursor.Verify(s => s.DisposeAsync(), Times.Once);
+            mockBinding.Verify(s => s.Dispose(), Times.Once);
+        }
+
         [Theory]
         [InlineData("{ a : 1 }", "{ b : 2 }", "{ c : 3 }", "{ d : 4 }", "{ a : 1 }")]
         [InlineData(null, "{ b : 2 }", "{ c : 3 }", "{ d : 4 }", "{ b : 2 }")]
