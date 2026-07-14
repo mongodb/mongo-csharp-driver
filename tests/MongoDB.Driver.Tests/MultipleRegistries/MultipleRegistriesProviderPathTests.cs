@@ -117,6 +117,20 @@ public class MultipleRegistriesProviderPathTests
     }
 
     [Fact]
+    public void Provider_created_keyvaluepair_serializer_uses_custom_domain()
+    {
+        var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
+        var customSerializer = new CustomStringSerializer("_X");
+        customDomain.RegisterSerializer(customSerializer);
+
+        var kvpSerializer = (KeyValuePairSerializer<string, string>)
+            customDomain.SerializerRegistry.GetSerializer<KeyValuePair<string, string>>();
+
+        kvpSerializer.ValueSerializer.Should().BeSameAs(customSerializer);
+        kvpSerializer.KeySerializer.Should().BeSameAs(customSerializer);
+    }
+
+    [Fact]
     public void Provider_created_enumerable_serializer_uses_custom_domain()
     {
         var customDomain = BsonSerializationDomain.CreateWithDefaultConfiguration("Test");
