@@ -43,6 +43,14 @@ public class InsertManyResultTests
     }
 
     [Fact]
+    public void Acknowledged_should_throw_when_insertedIds_is_null()
+    {
+        var exception = Record.Exception(() => new InsertManyResult.Acknowledged(null));
+
+        exception.Should().BeOfType<ArgumentNullException>();
+    }
+
+    [Fact]
     public void FromBulkWriteResult_should_map_index_to_id_from_processed_requests()
     {
         var documents = new[]
