@@ -39,11 +39,35 @@ namespace MongoDB.Driver
         }
 
         [Fact]
+        public void Dispose_can_be_called_more_than_once()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            subject.Dispose();
+            subject.Dispose();
+
+            mockWrapped.Verify(c => c.Dispose(), Times.Once);
+        }
+
+        [Fact]
         public async Task DisposeAsync_should_dispose_wrapped_cursor()
         {
             var mockWrapped = new Mock<IAsyncCursor<int>>();
             var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
 
+            await subject.DisposeAsync();
+
+            mockWrapped.Verify(c => c.DisposeAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_can_be_called_more_than_once()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            await subject.DisposeAsync();
             await subject.DisposeAsync();
 
             mockWrapped.Verify(c => c.DisposeAsync(), Times.Once);
