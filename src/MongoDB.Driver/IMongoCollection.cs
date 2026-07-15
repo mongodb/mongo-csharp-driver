@@ -843,17 +843,6 @@ namespace MongoDB.Driver
         /// Inserts a single document.
         /// </summary>
         /// <param name="document">The document.</param>
-        /// <param name="_cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the insert operation.
-        /// </returns>
-        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
-        Task<InsertOneResult> InsertOneAsync(TDocument document, CancellationToken _cancellationToken);
-
-        /// <summary>
-        /// Inserts a single document.
-        /// </summary>
-        /// <param name="document">The document.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>

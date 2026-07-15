@@ -451,12 +451,6 @@ namespace MongoDB.Driver
             }
         }
 
-        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
-        public virtual Task<InsertOneResult> InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
-        {
-            return InsertOneAsync(document, null, _cancellationToken);
-        }
-
         public virtual Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));

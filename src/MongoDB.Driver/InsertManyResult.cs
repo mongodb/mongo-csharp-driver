@@ -49,7 +49,6 @@ public abstract class InsertManyResult
             return Unacknowledged.Instance;
         }
 
-        // ProcessedRequests holds the original input models, whose documents had any missing id assigned before the write.
         var processedRequests = bulkWriteResult.ProcessedRequests;
         var insertedIds = new Dictionary<int, object>(processedRequests.Count);
         for (var index = 0; index < processedRequests.Count; index++)

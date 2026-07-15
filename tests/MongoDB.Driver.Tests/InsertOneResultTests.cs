@@ -20,92 +20,91 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
-namespace MongoDB.Driver.Tests
+namespace MongoDB.Driver.Tests;
+
+public class InsertOneResultTests
 {
-    public class InsertOneResultTests
+    private class Person
     {
-        private class Person
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 
-        [Fact]
-        public void Acknowledged_should_expose_the_inserted_id()
-        {
-            var result = new InsertOneResult.Acknowledged(insertedId: 42);
+    [Fact]
+    public void Acknowledged_should_expose_the_inserted_id()
+    {
+        var result = new InsertOneResult.Acknowledged(insertedId: 42);
 
-            result.IsAcknowledged.Should().BeTrue();
-            result.InsertedId.Should().Be(42);
-        }
+        result.IsAcknowledged.Should().BeTrue();
+        result.InsertedId.Should().Be(42);
+    }
 
-        [Fact]
-        public void Unacknowledged_should_report_not_acknowledged()
-        {
-            var result = InsertOneResult.Unacknowledged.Instance;
+    [Fact]
+    public void FromBulkWriteResult_should_return_acknowledged_with_id_from_processed_request()
+    {
+        var document = new BsonDocument("_id", 7).Add("a", 1);
+        var bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(
+            requestCount: 1,
+            matchedCount: 0,
+            deletedCount: 0,
+            insertedCount: 1,
+            modifiedCount: 0,
+            processedRequests: new[] { new InsertOneModel<BsonDocument>(document) },
+            upserts: Array.Empty<BulkWriteUpsert>());
 
-            result.IsAcknowledged.Should().BeFalse();
-        }
+        var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, BsonDocumentSerializer.Instance);
 
-        [Fact]
-        public void Unacknowledged_InsertedId_should_throw()
-        {
-            var result = InsertOneResult.Unacknowledged.Instance;
+        result.IsAcknowledged.Should().BeTrue();
+        result.InsertedId.Should().Be((BsonValue)7);
+    }
 
-            var exception = Record.Exception(() => { _ = result.InsertedId; });
+    [Fact]
+    public void FromBulkWriteResult_should_return_the_id_for_POCO()
+    {
+        var serializer = BsonSerializer.LookupSerializer<Person>();
+        var person = new Person { Id = 5, Name = "Jo" };
+        var bulkWriteResult = new BulkWriteResult<Person>.Acknowledged(
+            requestCount: 1,
+            matchedCount: 0,
+            deletedCount: 0,
+            insertedCount: 1,
+            modifiedCount: 0,
+            processedRequests: new[] { new InsertOneModel<Person>(person) },
+            upserts: Array.Empty<BulkWriteUpsert>());
 
-            exception.Should().BeOfType<NotSupportedException>();
-        }
+        var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, serializer);
 
-        [Fact]
-        public void FromBulkWriteResult_should_return_acknowledged_with_id_from_processed_request()
-        {
-            var document = new BsonDocument("_id", 7).Add("a", 1);
-            var bulkWriteResult = new BulkWriteResult<BsonDocument>.Acknowledged(
-                requestCount: 1,
-                matchedCount: 0,
-                deletedCount: 0,
-                insertedCount: 1,
-                modifiedCount: 0,
-                processedRequests: new[] { new InsertOneModel<BsonDocument>(document) },
-                upserts: Array.Empty<BulkWriteUpsert>());
+        result.InsertedId.Should().Be(5);
+    }
 
-            var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, BsonDocumentSerializer.Instance);
+    [Fact]
+    public void FromBulkWriteResult_should_return_unacknowledged_when_bulk_result_is_unacknowledged()
+    {
+        var document = new BsonDocument("_id", 7);
+        var bulkWriteResult = new BulkWriteResult<BsonDocument>.Unacknowledged(
+            requestCount: 1,
+            processedRequests: new[] { new InsertOneModel<BsonDocument>(document) });
 
-            result.IsAcknowledged.Should().BeTrue();
-            result.InsertedId.Should().Be((BsonValue)7);
-        }
+        var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, BsonDocumentSerializer.Instance);
 
-        [Fact]
-        public void FromBulkWriteResult_should_return_the_id_for_POCO()
-        {
-            var serializer = BsonSerializer.LookupSerializer<Person>();
-            var person = new Person { Id = 5, Name = "Jo" };
-            var bulkWriteResult = new BulkWriteResult<Person>.Acknowledged(
-                requestCount: 1,
-                matchedCount: 0,
-                deletedCount: 0,
-                insertedCount: 1,
-                modifiedCount: 0,
-                processedRequests: new[] { new InsertOneModel<Person>(person) },
-                upserts: Array.Empty<BulkWriteUpsert>());
+        result.IsAcknowledged.Should().BeFalse();
+    }
 
-            var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, serializer);
+    [Fact]
+    public void Unacknowledged_InsertedId_should_throw()
+    {
+        var result = InsertOneResult.Unacknowledged.Instance;
 
-            result.InsertedId.Should().Be(5);
-        }
+        var exception = Record.Exception(() => { _ = result.InsertedId; });
 
-        [Fact]
-        public void FromBulkWriteResult_should_return_unacknowledged_when_bulk_result_is_unacknowledged()
-        {
-            var document = new BsonDocument("_id", 7);
-            var bulkWriteResult = new BulkWriteResult<BsonDocument>.Unacknowledged(
-                requestCount: 1,
-                processedRequests: new[] { new InsertOneModel<BsonDocument>(document) });
+        exception.Should().BeOfType<NotSupportedException>();
+    }
 
-            var result = InsertOneResult.FromBulkWriteResult(bulkWriteResult, BsonDocumentSerializer.Instance);
+    [Fact]
+    public void Unacknowledged_should_report_not_acknowledged()
+    {
+        var result = InsertOneResult.Unacknowledged.Instance;
 
-            result.IsAcknowledged.Should().BeFalse();
-        }
+        result.IsAcknowledged.Should().BeFalse();
     }
 }

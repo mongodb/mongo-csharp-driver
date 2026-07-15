@@ -48,7 +48,6 @@ public abstract class InsertOneResult
             return Unacknowledged.Instance;
         }
 
-        // ProcessedRequests holds the original input models, whose documents had any missing id assigned before the write.
         var insertOneModel = (InsertOneModel<TDocument>)bulkWriteResult.ProcessedRequests[0];
         var insertedId = documentSerializer.GetDocumentId(insertOneModel.Document);
         return new Acknowledged(insertedId);
