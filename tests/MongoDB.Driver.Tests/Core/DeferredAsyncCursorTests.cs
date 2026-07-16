@@ -71,6 +71,24 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
+        public void Dispose_should_dispose_cursor_and_stay_disposed_when_dispose_action_throws()
+        {
+            var innerCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var disposeActionCallCount = 0;
+            var subject = new DeferredAsyncCursor<BsonDocument>(
+                () => { disposeActionCallCount++; throw new InvalidOperationException(); },
+                _ => innerCursor.Object,
+                _ => Task.FromResult(innerCursor.Object));
+            subject.MoveNext(CancellationToken.None); // populate the underlying cursor
+
+            Record.Exception(() => subject.Dispose()).Should().BeOfType<InvalidOperationException>();
+            subject.Dispose(); // must not run the dispose action a second time
+
+            disposeActionCallCount.Should().Be(1);
+            innerCursor.Verify(c => c.Dispose(), Times.Once);
+        }
+
+        [Fact]
         public void MoveNext_should_throw_when_disposed()
         {
             var subject = CreateSubject(() => { });

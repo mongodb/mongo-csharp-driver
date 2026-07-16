@@ -99,10 +99,16 @@ namespace MongoDB.Driver
         {
             if (!_disposed)
             {
-                _disposeAction();
-                _cursor?.Dispose();
-                _cursor = null;
                 _disposed = true;
+                try
+                {
+                    _disposeAction();
+                }
+                finally
+                {
+                    _cursor?.Dispose();
+                    _cursor = null;
+                }
             }
         }
 
