@@ -39,6 +39,7 @@ namespace MongoDB.Driver.Encryption
         protected readonly CollectionNamespace _keyVaultNamespace;
 
         // private fields
+        private readonly IKmsConnector _kmsConnector;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
         private readonly IStreamFactory _networkStreamFactory;
         private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
@@ -49,7 +50,8 @@ namespace MongoDB.Driver.Encryption
              IMongoClient keyVaultClient,
              CollectionNamespace keyVaultNamespace,
              IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-             IReadOnlyDictionary<string, SslSettings> tlsOptions)
+             IReadOnlyDictionary<string, SslSettings> tlsOptions,
+             IKmsConnector kmsConnector)
         {
             _cryptClient = Ensure.IsNotNull(cryptClient, nameof(cryptClient));
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)); // _keyVaultClient might not be fully constructed at this point, don't call any instance methods on it yet
@@ -58,6 +60,7 @@ namespace MongoDB.Driver.Encryption
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _networkStreamFactory = new NetworkStreamFactory();
             _tlsOptions = Ensure.IsNotNull(tlsOptions, nameof(tlsOptions));
+            _kmsConnector = kmsConnector; // optional; null means connect directly to the KMS host
         }
 
         // public properties
@@ -199,6 +202,9 @@ namespace MongoDB.Driver.Encryption
             return new DnsEndPoint(host, port);
         }
 
+        private IStreamFactory GetBaseStreamFactory() =>
+            _kmsConnector != null ? new KmsConnectorStreamFactory(_kmsConnector) : _networkStreamFactory;
+
         private SslStreamSettings GetTlsStreamSettings(string kmsProvider)
         {
             if (!_tlsOptions.TryGetValue(kmsProvider, out var tlsSettings))
@@ -287,7 +293,7 @@ namespace MongoDB.Driver.Encryption
                 var endpoint = CreateKmsEndPoint(request.Endpoint);
 
                 var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, GetBaseStreamFactory());
                 using var sslStream = sslStreamFactory.CreateStream(endpoint, cancellation);
 
                 var sleepMs = request.Sleep;
@@ -331,7 +337,7 @@ namespace MongoDB.Driver.Encryption
                 var endpoint = CreateKmsEndPoint(request.Endpoint);
 
                 var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, GetBaseStreamFactory());
                 using var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false);
 
                 var sleepMs = request.Sleep;
@@ -389,6 +395,34 @@ namespace MongoDB.Driver.Encryption
 
             // private methods
             private static Socket CreateSocket() => new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+
+        private class KmsConnectorStreamFactory : IStreamFactory
+        {
+            private readonly IKmsConnector _kmsConnector;
+
+            public KmsConnectorStreamFactory(IKmsConnector kmsConnector)
+            {
+                _kmsConnector = Ensure.IsNotNull(kmsConnector, nameof(kmsConnector));
+            }
+
+            public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+            {
+                var (host, port) = GetHostAndPort(endPoint);
+                return _kmsConnector.Connect(host, port, cancellationToken);
+            }
+
+            public Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
+            {
+                var (host, port) = GetHostAndPort(endPoint);
+                return _kmsConnector.ConnectAsync(host, port, cancellationToken);
+            }
+
+            private static (string Host, int Port) GetHostAndPort(EndPoint endPoint)
+            {
+                var dnsEndPoint = (DnsEndPoint)endPoint;
+                return (dnsEndPoint.Host, dnsEndPoint.Port);
+            }
         }
     }
 }

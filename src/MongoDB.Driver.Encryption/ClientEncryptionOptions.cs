@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Encryption
     {
         // private fields
         private TimeSpan? _keyExpiration;
+        private readonly IKmsConnector _kmsConnector;
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
@@ -39,12 +40,14 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="tlsOptions">The tls options.</param>
+        /// <param name="kmsConnector">The KMS connector used to open connections to KMS hosts, for example to route KMS traffic through an HTTP proxy.</param>
         public ClientEncryptionOptions(
             IMongoClient keyVaultClient,
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
-            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, keyExpiration: null)
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IKmsConnector> kmsConnector = default)
+            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, kmsConnector, keyExpiration: null)
         {
         }
 
@@ -53,12 +56,14 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IKmsConnector> kmsConnector = default,
             Optional<TimeSpan?> keyExpiration = default)
         {
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient));
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
+            _kmsConnector = kmsConnector.WithDefault(null);
             _keyExpiration = keyExpiration.WithDefault(null);
 
             EnsureKmsProvidersAreValid(_kmsProviders);
@@ -71,6 +76,14 @@ namespace MongoDB.Driver.Encryption
         /// Gets the data encryption key cache expiration time.
         /// </summary>
         public TimeSpan? KeyExpiration => _keyExpiration;
+
+        /// <summary>
+        /// Gets the KMS connector used to open connections to KMS hosts.
+        /// </summary>
+        /// <value>
+        /// The KMS connector, or <c>null</c> to connect directly to KMS hosts.
+        /// </value>
+        public IKmsConnector KmsConnector => _kmsConnector;
 
         /// <summary>
         /// Gets the key vault client.
@@ -111,18 +124,21 @@ namespace MongoDB.Driver.Encryption
         /// <param name="keyVaultNamespace">The key vault namespace.</param>
         /// <param name="kmsProviders">The KMS providers.</param>
         /// <param name="tlsOptions">The tls options.</param>
+        /// <param name="kmsConnector">The KMS connector used to open connections to KMS hosts.</param>
         /// <returns>A new ClientEncryptionOptions instance.</returns>
         public ClientEncryptionOptions With(
             Optional<IMongoClient> keyVaultClient = default,
             Optional<CollectionNamespace> keyVaultNamespace = default,
             Optional<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>>> kmsProviders = default,
-            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
+            Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IKmsConnector> kmsConnector = default)
         {
             return new ClientEncryptionOptions(
                 keyVaultClient: keyVaultClient.WithDefault(_keyVaultClient),
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
                 kmsProviders: kmsProviders.WithDefault(_kmsProviders),
                 tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
+                kmsConnector: Optional.Create(kmsConnector.WithDefault(_kmsConnector)),
                 keyExpiration: _keyExpiration);
         }
 

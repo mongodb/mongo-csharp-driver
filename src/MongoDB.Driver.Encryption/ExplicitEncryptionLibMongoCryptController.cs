@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
             ClientEncryptionOptions clientEncryptionOptions)
             : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),
-                  clientEncryptionOptions.KeyVaultNamespace, clientEncryptionOptions.KmsProviders, clientEncryptionOptions.TlsOptions)
+                  clientEncryptionOptions.KeyVaultNamespace, clientEncryptionOptions.KmsProviders, clientEncryptionOptions.TlsOptions, clientEncryptionOptions.KmsConnector)
         {
         }
 
