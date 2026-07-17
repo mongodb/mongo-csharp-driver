@@ -1,0 +1,53 @@
+/* Copyright 2019-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.IO;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Misc;
+
+namespace MongoDB.Driver.Encryption;
+
+internal sealed class KmsConnectorStreamFactory : IStreamFactory
+{
+    private readonly IKmsConnector _kmsConnector;
+
+    public KmsConnectorStreamFactory(IKmsConnector kmsConnector)
+    {
+        _kmsConnector = Ensure.IsNotNull(kmsConnector, nameof(kmsConnector));
+    }
+
+    public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+    {
+        var (host, port) = GetHostAndPort(endPoint);
+        var stream = _kmsConnector.Connect(host, port, cancellationToken);
+        return Ensure.IsNotNull(stream, $"{nameof(IKmsConnector)}.{nameof(IKmsConnector.Connect)}");
+    }
+
+    public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
+    {
+        var (host, port) = GetHostAndPort(endPoint);
+        var stream = await _kmsConnector.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
+        return Ensure.IsNotNull(stream, $"{nameof(IKmsConnector)}.{nameof(IKmsConnector.ConnectAsync)}");
+    }
+
+    private static (string Host, int Port) GetHostAndPort(EndPoint endPoint)
+    {
+        var dnsEndPoint = (DnsEndPoint)endPoint;
+        return (dnsEndPoint.Host, dnsEndPoint.Port);
+    }
+}
