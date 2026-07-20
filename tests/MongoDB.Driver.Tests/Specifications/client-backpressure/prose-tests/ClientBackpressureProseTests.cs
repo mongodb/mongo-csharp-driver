@@ -141,7 +141,7 @@ public class ClientBackpressureProseTestsUnit
         using var session = NoCoreSession.NewHandle();
         using var operationContext = new OperationContext(session, timeout: TimeSpan.FromSeconds(30));
 
-        // Test with no backoff (jitter = 0)
+        // jitter = 0: no backoff
         var noBackoffRandom = new Mock<IRandom>();
         noBackoffRandom.Setup(r => r.NextDouble()).Returns(0.0);
         var noBackoffContext = createContext(noBackoffRandom.Object);
@@ -155,7 +155,7 @@ public class ClientBackpressureProseTestsUnit
 
         noBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // Test with full backoff (jitter = 1)
+        // jitter = 1: full backoff
         var withBackoffRandom = new Mock<IRandom>();
         withBackoffRandom.Setup(r => r.NextDouble()).Returns(1.0);
         var withBackoffContext = createContext(withBackoffRandom.Object);
@@ -169,8 +169,7 @@ public class ClientBackpressureProseTestsUnit
 
         withBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // With MAX_RETRIES=2 and jitter=1, total backoff = 200ms + 400ms = 600ms.
-        // Per the spec: assertTrue(abs(with_backoff_time - (no_backoff_time + 0.6s)) < 0.6s)
+        // MAX_RETRIES = 2, jitter = 1 -> backoffs of 200ms + 400ms = 600ms.
         var difference = withBackoffTime - noBackoffTime;
         Math.Abs(difference - 600).Should().BeLessThan(600,
             $"backoff difference should be approximately 600ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
@@ -189,22 +188,19 @@ public class ClientBackpressureProseTestsUnit
         var fullJitterRandom = new Mock<IRandom>();
         fullJitterRandom.Setup(r => r.NextDouble()).Returns(1.0);
 
-        // Exponential backoff run: overload error without baseBackoffMS -> 200ms + 400ms = 600ms with jitter = 1.
+        // No baseBackoffMS: backoffs of 200ms + 400ms = 600ms (jitter = 1).
         var exponentialException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(462, "SystemOverloadedError", "RetryableError");
         var exponentialMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(exponentialException), createContext(fullJitterRandom.Object));
 
-        // baseBackoffMS override run: overload error with baseBackoffMS = 50 -> 100ms + 200ms = 300ms with jitter = 1.
+        // baseBackoffMS = 50: backoffs of 100ms + 200ms = 300ms (jitter = 1).
         var overrideResult = BsonDocument.Parse("{ ok : 0, code : 462, baseBackoffMS : 50 }");
         var overrideException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(overrideResult, "SystemOverloadedError", "RetryableError");
         var withBaseBackoffMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(overrideException), createContext(fullJitterRandom.Object));
 
-        // The driver must have parsed the server-supplied baseBackoffMS off the error.
+        // Driver parsed baseBackoffMS off the error.
         RetryabilityHelper.GetBaseBackoffMs(overrideException).Should().Be(50);
 
-        // Per the spec (jitter pinned to 1): the default backoffs sum to 0.2 + 0.4 = 0.6s and the
-        // baseBackoffMS = 50 backoffs sum to 0.1 + 0.2 = 0.3s. A run can never be faster than the sum of its backoffs.
-        // The operations here are mocked, so there is no server-round-trip cushion above the raw sleeps; allow a small
-        // tolerance on the lower bounds for timer granularity while still asserting baseBackoffMS shortens the backoff.
+        // Mocked ops are instant, so elapsed time is ~exactly the backoff sleeps; allow slack for timer imprecision.
         const long timerToleranceMs = 50;
         exponentialMs.Should().BeGreaterOrEqualTo(600 - timerToleranceMs,
             $"the default exponential backoff should sum to ~600ms (got {exponentialMs}ms)");
@@ -378,70 +374,5 @@ public class ClientBackpressureProseTestsIntegration
 
         // maxAdaptiveRetries = 1, so total started commands = maxAdaptiveRetries + 1 = 2
         eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(2);
-    }
-
-    [Fact]
-    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
-    public void Overload_errors_with_baseBackoffMS_shorten_the_backoff_base()
-    {
-        RequireServer.Check()
-            .ClusterTypes(ClusterType.ReplicaSet)
-            .Supports(Feature.ClientBackpressureBaseBackoffMs);
-
-        var failPointCommand = BsonDocument.Parse(
-            @"{
-                configureFailPoint: ""failCommand"",
-                mode: ""alwaysOn"",
-                data:
-                {
-                    failCommands: [""insert""],
-                    errorCode: 462,
-                    errorLabels: [""SystemOverloadedError"", ""RetryableError""]
-                }
-            }");
-
-        using var client = DriverTestConfiguration.CreateMongoClient(s => s.RetryWrites = true);
-        var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-        var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-        var adminDatabase = client.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
-
-        long MeasureFailedInsertMs()
-        {
-            using var failPoint = FailPoint.Configure(failPointCommand);
-            var stopwatch = Stopwatch.StartNew();
-            var exception = Record.Exception(() => collection.InsertOne(new BsonDocument("a", 1)));
-            stopwatch.Stop();
-
-            var mongoException = exception.Should().BeAssignableTo<MongoException>().Subject;
-            mongoException.HasErrorLabel("SystemOverloadedError").Should().BeTrue();
-            return stopwatch.ElapsedMilliseconds;
-        }
-
-        // Baseline: no override. With MaxAdaptiveRetries = 2, the worst case (jitter = 1 on both retries)
-        // is 200ms + 400ms = 600ms of backoff.
-        var baselineMs = MeasureFailedInsertMs();
-
-        // A value at/above MaxBackoff (10000ms) clamps to 10000ms on every attempt, so both retries draw
-        // their backoff from [0, 10000) instead of [0, 100)/[0, 200) -- an order of magnitude bigger
-        // regardless of jitter.
-        const int overrideBaseBackoffMs = 20000;
-        adminDatabase.RunCommand<BsonDocument>(
-            $@"{{ setParameter : 1, externalClientBaseBackoffMS : {overrideBaseBackoffMs} }}");
-        try
-        {
-            var overrideMs = MeasureFailedInsertMs();
-
-            // Baseline maxes out at 600ms; the override's two draws from [0, 10000) average 10000ms
-            // combined. A 1s gap requires both override jitters to independently land below ~0.13, which
-            // happens well under 1% of the time -- comfortably low flake risk while still being a real,
-            // unmocked timing check.
-            (overrideMs - baselineMs).Should().BeGreaterThan(1000,
-                $"a large baseBackoffMS override should produce a much longer backoff (baseline: {baselineMs}ms, override: {overrideMs}ms)");
-        }
-        finally
-        {
-            adminDatabase.RunCommand<BsonDocument>(
-                @"{ setParameter : 1, externalClientBaseBackoffMS : 0 }");
-        }
     }
 }

@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
             var randomMock = new Mock<IRandom>();
             randomMock.Setup(r => r.NextDouble()).Returns(1.0);
 
-            // baseBackoffMS = 5000 yields a first-retry backoff clamped to MaxBackoff (~10s), far larger than the 200ms deadline.
+            // baseBackoffMS = 5000 -> ~10s first backoff (clamped to MaxBackoff), far larger than the 200ms deadline.
             var result = BsonDocument.Parse("{ ok : 0, code : 2, baseBackoffMS : 5000 }");
             var exception = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(result, "SystemOverloadedError", "RetryableError");
             var operationMock = new Mock<IRetryableReadOperation<int>>();
@@ -191,8 +191,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
                 : Record.Exception(() => RetryableReadOperationExecutor.Execute(operationContext, operationMock.Object, context));
             stopwatch.Stop();
 
-            // The retry loop must bail with the overload error once the backoff would exceed the remaining CSOT deadline,
-            // rather than sleeping the full backoff (regression test for the async path, which lacked this guard).
+            // Must bail with the overload error rather than sleep the full backoff past the deadline (async-path regression).
             thrown.Should().BeOfType<MongoCommandException>();
             stopwatch.ElapsedMilliseconds.Should().BeLessThan(1000);
         }
