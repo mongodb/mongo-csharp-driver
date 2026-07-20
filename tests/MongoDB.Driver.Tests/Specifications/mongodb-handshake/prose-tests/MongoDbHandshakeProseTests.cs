@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
         }
 
         [Fact]
-        // https://github.com/mongodb/specifications/pull/1953 (spec PR updating Test 9 from `backpressure: true` to `backpressure: "2"`)
+        // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/mongodb-handshake/tests/README.md#test-9-handshake-documents-include-backpressure-2
         public async Task HandshakeDocumentsIncludeBackpressureVersion()
         {
             RequireServer.Check().Authentication(authentication: false); // speculative authentication makes events asserting hard

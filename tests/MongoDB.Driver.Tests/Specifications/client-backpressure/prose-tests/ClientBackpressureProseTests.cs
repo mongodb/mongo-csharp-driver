@@ -86,7 +86,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with baseBackoffMS override base backoff)
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
     public async Task ReadExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
     {
         await AssertBaseBackoffMsOverridesBackoff(
@@ -110,7 +110,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with baseBackoffMS override base backoff)
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
     public async Task WriteExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
     {
         await AssertBaseBackoffMsOverridesBackoff(
@@ -381,7 +381,7 @@ public class ClientBackpressureProseTestsIntegration
     }
 
     [Fact]
-    // https://github.com/mongodb/specifications/pull/1953 (Test 5: overload errors with baseBackoffMS override base backoff)
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
     public void Overload_errors_with_baseBackoffMS_shorten_the_backoff_base()
     {
         RequireServer.Check()
