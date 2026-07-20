@@ -1184,7 +1184,7 @@ namespace MongoDB.Driver.Tests
                         { "$unset", nameof(B.PropB) }
                     });
 
-            var updateOptions = new UpdateOptions { IsUpsert = upsert };
+            var updateOptions = new UpdateOptions<B> { IsUpsert = upsert };
             var result = async
                 ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
                 : subject.UpdateOne(filter, pipeline, updateOptions);

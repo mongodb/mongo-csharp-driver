@@ -979,7 +979,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -992,7 +992,7 @@ namespace MongoDB.Driver
         /// The result of the replacement.
         /// </returns>
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -1005,59 +1005,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the replacement.
         /// </returns>
-        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Replaces a single document.
@@ -1071,7 +1019,59 @@ namespace MongoDB.Driver
         /// The result of the replacement.
         /// </returns>
         [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken));
+        ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
+        Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Replaces a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="replacement">The replacement.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the replacement.
+        /// </returns>
+        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
+        Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -1083,7 +1083,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -1096,7 +1096,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -1108,7 +1108,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates many documents.
@@ -1121,7 +1121,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -1133,32 +1133,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Updates a single document.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the update operation.
-        /// </returns>
-        UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Updates a single document.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="update">The update.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the update operation.
-        /// </returns>
-        Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Updates a single document.
@@ -1171,7 +1146,32 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the update operation.
         /// </returns>
-        Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Updates a single document.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="filter">The filter.</param>
+        /// <param name="update">The update.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the update operation.
+        /// </returns>
+        Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Watches changes on the collection.

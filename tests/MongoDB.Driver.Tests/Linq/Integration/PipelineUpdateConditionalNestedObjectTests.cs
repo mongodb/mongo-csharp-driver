@@ -58,7 +58,7 @@ namespace MongoDB.Driver.Tests.Linq.Integration
                 updateStages,
                 "{ $set : { Health : { $cond : { if : { $or : [{ $eq : ['$Health', null] }, { $lt : ['$Health.Timestamp', { $date : '2025-01-01T00:00:00Z' }] }] }, then : { Timestamp : { $date : '2025-01-01T00:00:00Z' }, Value : 90 }, else : '$Health' } } } }");
 
-            collection.UpdateMany(filter, update, new UpdateOptions { IsUpsert = true });
+            collection.UpdateMany(filter, update, new UpdateOptions<Device> { IsUpsert = true });
 
             var items = collection.AsQueryable().ToList();
             items.Select(i => i.Health.Value).Should().BeEquivalentTo(90, 90, 90, 75);

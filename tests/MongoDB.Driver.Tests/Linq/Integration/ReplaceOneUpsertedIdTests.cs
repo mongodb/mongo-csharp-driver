@@ -32,7 +32,7 @@ public class ReplaceOneUpsertedIdTests : LinqIntegrationTest<ReplaceOneUpsertedI
         public void ReplaceOne()
         {
             var collection = Fixture.Collection;
-            var options = new ReplaceOptions { IsUpsert = true };
+            var options = new ReplaceOptions<Data> { IsUpsert = true };
             var data = new Data { Id = 8, Text = "updated" };
 
             var result = collection.ReplaceOne(d => true, data, options);

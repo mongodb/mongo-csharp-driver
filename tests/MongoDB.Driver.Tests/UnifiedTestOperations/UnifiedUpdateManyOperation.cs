@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
-        private readonly UpdateOptions _options;
+        private readonly UpdateOptions<BsonDocument> _options;
         private readonly IClientSessionHandle _session;
         private readonly UpdateDefinition<BsonDocument> _update;
 
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
             UpdateDefinition<BsonDocument> update,
-            UpdateOptions options)
+            UpdateOptions<BsonDocument> options)
         {
             _session = session;
             _collection = collection;
@@ -104,7 +104,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var collection = _entityMap.Collections[targetCollectionId];
 
             FilterDefinition<BsonDocument> filter = null;
-            UpdateOptions options = null;
+            UpdateOptions<BsonDocument> options = null;
             IClientSessionHandle session = null;
             UpdateDefinition<BsonDocument> update = null;
 
@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 switch (argument.Name)
                 {
                     case "arrayFilters":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.ArrayFilters = argument
                             .Value
                             .AsBsonArray
@@ -126,29 +126,29 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
                         break;
                     case "collation":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "comment":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Comment = argument.Value;
                         break;
                     case "filter":
                         filter = argument.Value.AsBsonDocument;
                         break;
                     case "hint":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Hint = argument.Value;
                         break;
                     case "let":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Let = argument.Value.AsBsonDocument;
                         break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;
                     case "timeoutMS":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.Timeout = UnifiedEntityMap.ParseTimeout(argument.Value);
                         break;
                     case "update":
@@ -165,7 +165,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         }
                         break;
                     case "upsert":
-                        options ??= new UpdateOptions();
+                        options ??= new UpdateOptions<BsonDocument>();
                         options.IsUpsert = argument.Value.AsBoolean;
                         break;
                     default:
