@@ -3010,7 +3010,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions()
+            var replaceOptions = new ReplaceOptions<BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
@@ -3020,7 +3020,7 @@ namespace MongoDB.Driver
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
-            var updateOptions = new UpdateOptions
+            var updateOptions = new UpdateOptions<BsonDocument>
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Hint = hint,
@@ -3058,7 +3058,7 @@ namespace MongoDB.Driver
                 assertOperationResult(expectedBypassDocumentValidation: null, expectedLet: null);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 if (usingSession)
                 {
@@ -3086,7 +3086,7 @@ namespace MongoDB.Driver
                 assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
             }
 
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
+            void assertReplaceOneWithUpdateOptions(UpdateOptions<BsonDocument> options)
             {
                 if (usingSession)
                 {
@@ -3178,7 +3178,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions
+            var replaceOptions = new ReplaceOptions<BsonDocument>
             {
                 Collation = collation,
                 Hint = hint,
@@ -3188,7 +3188,7 @@ namespace MongoDB.Driver
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
-            var updateOptions = new UpdateOptions
+            var updateOptions = new UpdateOptions<BsonDocument>
             {
                 Collation = collation,
                 Hint = hint,
@@ -3228,7 +3228,7 @@ namespace MongoDB.Driver
                 assertException(exception);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 Exception exception;
 
@@ -3258,7 +3258,7 @@ namespace MongoDB.Driver
                 assertException(exception);
             }
 
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
+            void assertReplaceOneWithUpdateOptions(UpdateOptions<BsonDocument> options)
             {
                 Exception exception;
 
@@ -3325,7 +3325,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3398,7 +3398,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var updateOptions = new UpdateOptions
+            var updateOptions = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3484,7 +3484,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3558,7 +3558,7 @@ namespace MongoDB.Driver
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
 
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
