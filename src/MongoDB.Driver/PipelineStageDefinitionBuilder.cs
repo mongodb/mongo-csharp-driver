@@ -544,23 +544,17 @@ namespace MongoDB.Driver
 
             const string operatorName = "$facet";
             var materializedFacets = facets.ToArray();
-            var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
+
+            return new DelegatedPipelineStageDefinition<TInput, TOutput>(
                 operatorName,
                 args =>
                 {
                     ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
-                    var facetsDocument = new BsonDocument();
-                    foreach (var facet in materializedFacets)
-                    {
-                        var renderedPipeline = facet.RenderPipeline(args);
-                        facetsDocument.Add(facet.Name, renderedPipeline);
-                    }
-                    var document = new BsonDocument("$facet", facetsDocument);
+                    var facetsDocument = RenderFacets(materializedFacets, args);
+                    var document = new BsonDocument(operatorName, facetsDocument);
                     var outputSerializer = options?.OutputSerializer ?? args.SerializerRegistry.GetSerializer<TOutput>();
                     return new RenderedPipelineStageDefinition<TOutput>(operatorName, document, outputSerializer);
                 });
-
-            return stage;
         }
 
         /// <summary>
@@ -573,11 +567,22 @@ namespace MongoDB.Driver
             IEnumerable<AggregateFacet<TInput>> facets)
         {
             Ensure.IsNotNull(facets, nameof(facets));
-            var outputSerializer = new AggregateFacetResultsSerializer(
-                facets.Select(f => f.Name),
-                facets.Select(f => f.OutputSerializer ?? BsonSerializer.SerializerRegistry.GetSerializer(f.OutputType)));
-            var options = new AggregateFacetOptions<AggregateFacetResults> { OutputSerializer = outputSerializer };
-            return Facet(facets, options);
+
+            const string operatorName = "$facet";
+            var materializedFacets = facets.ToArray();
+
+            return new DelegatedPipelineStageDefinition<TInput, AggregateFacetResults>(
+                operatorName,
+                args =>
+                {
+                    ClientSideProjectionHelper.ThrowIfClientSideProjection(args.DocumentSerializer, operatorName);
+                    var facetsDocument = RenderFacets(materializedFacets, args);
+                    var document = new BsonDocument(operatorName, facetsDocument);
+                    var outputSerializer = new AggregateFacetResultsSerializer(
+                        materializedFacets.Select(f => f.Name),
+                        materializedFacets.Select(f => f.OutputSerializer ?? args.SerializerRegistry.GetSerializer(f.OutputType)));
+                    return new RenderedPipelineStageDefinition<AggregateFacetResults>(operatorName, document, outputSerializer);
+                });
         }
 
         /// <summary>
@@ -2409,6 +2414,16 @@ namespace MongoDB.Driver
         }
 
         // private methods
+        private static BsonDocument RenderFacets<TInput>(AggregateFacet<TInput>[] facets, RenderArgs<TInput> args)
+        {
+            var facetsDocument = new BsonDocument();
+            foreach (var facet in facets)
+            {
+                facetsDocument.Add(facet.Name, facet.RenderPipeline(args));
+            }
+            return facetsDocument;
+        }
+
         private static bool AreGraphLookupFromAndToTypesCompatible<TConnectFrom, TConnectTo>()
         {
             if (typeof(TConnectFrom) == typeof(TConnectTo))
@@ -2578,8 +2593,8 @@ namespace MongoDB.Driver
         }
 
         public override RenderedProjectionDefinition<TOutput> Render(RenderArgs<TInput> args) => args.RenderForFind ?
-            LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions) :
-            LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+            LinqProviderAdapter.TranslateExpressionToFindProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions) :
+            LinqProviderAdapter.TranslateExpressionToProjection(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
     }
 
     internal class SortPipelineStageDefinition<TInput> : PipelineStageDefinition<TInput, TInput>

@@ -90,7 +90,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="representation">The representation.</param>
         public KeyValuePairSerializer(BsonType representation)
-            : this(representation, BsonSerializer.SerializerRegistry)
+            : this(representation, BsonSerializationDomain.Default.SerializerRegistry)
         {
         }
 
@@ -131,6 +131,11 @@ namespace MongoDB.Bson.Serialization.Serializers
             {
                 throw new ArgumentNullException("serializerRegistry");
             }
+        }
+
+        internal KeyValuePairSerializer(IBsonSerializationDomain serializationDomain)
+            : this(BsonType.Document, serializationDomain.SerializerRegistry)
+        {
         }
 
         private KeyValuePairSerializer(BsonType representation, Lazy<IBsonSerializer<TKey>> lazyKeySerializer, Lazy<IBsonSerializer<TValue>> lazyValueSerializer)

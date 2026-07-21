@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Bson.IO
 {
@@ -24,7 +25,7 @@ namespace MongoDB.Bson.IO
     {
         // private fields
         private bool _isFrozen;
-        private int _maxSerializationDepth = BsonDefaults.MaxSerializationDepth;
+        private int _maxSerializationDepth = BsonSerializationDomain.Default.BsonDefaults.MaxSerializationDepth;
 
         // constructors
         /// <summary>

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // private fields
-        private readonly IBsonSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>> _coordinatesSerializer = BsonSerializer.LookupSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>>();
+        private readonly IBsonSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>> _coordinatesSerializer;
         private readonly GeoJsonObjectSerializerHelper<TCoordinates> _helper;
 
         // constructors
@@ -39,9 +39,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// Initializes a new instance of the <see cref="GeoJsonMultiPolygonSerializer{TCoordinates}"/> class.
         /// </summary>
         public GeoJsonMultiPolygonSerializer()
+            : this(BsonSerializer.DefaultSerializationDomain)
         {
+        }
+
+        internal GeoJsonMultiPolygonSerializer(IBsonSerializationDomain serializationDomain)
+        {
+            _coordinatesSerializer = serializationDomain.SerializerRegistry.GetSerializer<GeoJsonMultiPolygonCoordinates<TCoordinates>>();
             _helper = new GeoJsonObjectSerializerHelper<TCoordinates>
             (
+                serializationDomain,
                 "MultiPolygon",
                 new SerializerHelper.Member("coordinates", Flags.Coordinates)
             );

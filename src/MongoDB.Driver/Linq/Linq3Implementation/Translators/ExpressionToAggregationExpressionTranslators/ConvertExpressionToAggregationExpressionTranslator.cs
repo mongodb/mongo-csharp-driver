@@ -44,13 +44,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 }
 
                 var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
-                return Translate(expression, sourceType, targetType, sourceTranslation);
+                return Translate(context, expression, sourceType, targetType, sourceTranslation);
             }
 
             throw new ExpressionNotSupportedException(expression);
         }
 
-        private static TranslatedExpression Translate(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
+        private static TranslatedExpression Translate(TranslationContext context, UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (targetType == sourceType)
             {
@@ -60,12 +60,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             // from Nullable<T> must be handled before to Nullable<T>
             if (IsConvertFromNullableType(sourceType))
             {
-                return TranslateConvertFromNullableType(expression, sourceType, targetType, sourceTranslation);
+                return TranslateConvertFromNullableType(context, expression, sourceType, targetType, sourceTranslation);
             }
 
             if (IsConvertToNullableType(targetType))
             {
-                return TranslateConvertToNullableType(expression, sourceType, targetType, sourceTranslation);
+                return TranslateConvertToNullableType(context, expression, sourceType, targetType, sourceTranslation);
             }
 
             // from here on we know there are no longer any Nullable<T> types involved
@@ -97,7 +97,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (IsConvertToDerivedType(sourceType, targetType))
             {
-                return TranslateConvertToDerivedType(expression, targetType, sourceTranslation);
+                return TranslateConvertToDerivedType(context, expression, targetType, sourceTranslation);
             }
 
             var ast = sourceTranslation.Ast;
@@ -177,9 +177,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new TranslatedExpression(expression, sourceTranslation.Ast, downcastingSerializer);
         }
 
-        private static TranslatedExpression TranslateConvertToDerivedType(UnaryExpression expression, Type targetType, TranslatedExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToDerivedType(TranslationContext context, UnaryExpression expression, Type targetType, TranslatedExpression sourceTranslation)
         {
-            var serializer = BsonSerializer.LookupSerializer(targetType);
+            var serializer = context.SerializationDomain.LookupSerializer(targetType);
 
             return new TranslatedExpression(expression, sourceTranslation.Ast, serializer);
         }
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return new TranslatedExpression(expression, sourceTranslation.Ast, targetSerializer);
         }
 
-        private static TranslatedExpression TranslateConvertFromNullableType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertFromNullableType(TranslationContext context, UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (sourceType.IsNullable(out var sourceValueType))
             {
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var sourceNullableSerializer = (INullableSerializer)sourceTranslation.Serializer;
                 var sourceValueSerializer = sourceNullableSerializer.ValueSerializer;
                 var sourceValueTranslation = new TranslatedExpression(expression.Operand, sourceAst, sourceValueSerializer);
-                var convertTranslation = Translate(expression, sourceValueType, targetType, sourceValueTranslation);
+                var convertTranslation = Translate(context, expression, sourceValueType, targetType, sourceValueTranslation);
 
                 // note: we would have liked to throw a query execution error here if the value is null and the target type is not nullable but there is no way to do that in MQL
                 // so we just return null instead and the user must check for null themselves if they want to define what happens when the value is null
@@ -246,7 +246,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             throw new ExpressionNotSupportedException(expression, because: "sourceType is not nullable");
         }
 
-        private static TranslatedExpression TranslateConvertToNullableType(UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
+        private static TranslatedExpression TranslateConvertToNullableType(TranslationContext context, UnaryExpression expression, Type sourceType, Type targetType, TranslatedExpression sourceTranslation)
         {
             if (sourceType.IsNullable())
             {
@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (targetType.IsNullable(out var targetValueType))
             {
-                var convertTranslation = Translate(expression, sourceType, targetValueType, sourceTranslation);
+                var convertTranslation = Translate(context, expression, sourceType, targetValueType, sourceTranslation);
                 var nullableSerializer = NullableSerializer.Create(convertTranslation.Serializer);
                 return new TranslatedExpression(expression, convertTranslation.Ast, nullableSerializer);
             }

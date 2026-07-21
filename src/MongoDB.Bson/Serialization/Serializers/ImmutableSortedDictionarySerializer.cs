@@ -26,6 +26,19 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
     public class ImmutableSortedDictionarySerializer<TKey, TValue>: DictionaryInterfaceImplementerSerializer<ImmutableSortedDictionary<TKey, TValue>, TKey, TValue>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImmutableSortedDictionarySerializer{TKey, TValue}"/> class.
+        /// </summary>
+        public ImmutableSortedDictionarySerializer()
+            : this(BsonSerializationDomain.Default)
+        {
+        }
+
+        internal ImmutableSortedDictionarySerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
+        {
+        }
+
         /// <inheritdoc/>
         protected override ICollection<KeyValuePair<TKey, TValue>> CreateAccumulator()
         {

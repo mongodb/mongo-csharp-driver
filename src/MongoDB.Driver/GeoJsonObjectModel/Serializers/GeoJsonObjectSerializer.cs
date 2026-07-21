@@ -24,8 +24,27 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
     /// Represents a serializer for a GeoJson object.
     /// </summary>
     /// <typeparam name="TCoordinates">The type of the coordinates.</typeparam>
-    public class GeoJsonObjectSerializer<TCoordinates> : ClassSerializerBase<GeoJsonObject<TCoordinates>> where TCoordinates : GeoJsonCoordinates
+    public class GeoJsonObjectSerializer<TCoordinates> : ClassSerializerBase<GeoJsonObject<TCoordinates>>, IHasSerializationDomain where TCoordinates : GeoJsonCoordinates
     {
+        // private fields
+        private readonly IBsonSerializationDomain _serializationDomain;
+
+        // constructors
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GeoJsonObjectSerializer{TCoordinates}"/> class.
+        /// </summary>
+        public GeoJsonObjectSerializer()
+            : this(BsonSerializer.DefaultSerializationDomain)
+        {
+        }
+
+        internal GeoJsonObjectSerializer(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+        }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
+
         // protected methods
         /// <summary>
         /// Gets the actual type.

@@ -31,7 +31,7 @@ public class MqlEJsonTests
         var expression = TestHelpers.MakeLambda<MyModel, BsonDocument>(model => Mql.DeserializeEJson<string, BsonDocument>(model.StringField, null));
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType<BsonDocumentSerializer>();
@@ -43,7 +43,7 @@ public class MqlEJsonTests
         var expression = TestHelpers.MakeLambda<MyModel, BsonDocument>(model => Mql.SerializeEJson<int, BsonDocument>(model.IntField, null));
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType<BsonDocumentSerializer>();
@@ -61,7 +61,7 @@ public class MqlEJsonTests
         var outputSerializer = CreateOutputModelSerializer(customNestedSerializer);
         serializerMap.AddSerializer(expression.Body, outputSerializer);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         var memberInit = (MemberInitExpression)expression.Body;
         var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
@@ -82,7 +82,7 @@ public class MqlEJsonTests
         var outputSerializer = CreateOutputModelSerializer(customNestedSerializer);
         serializerMap.AddSerializer(expression.Body, outputSerializer);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         var memberInit = (MemberInitExpression)expression.Body;
         var memberAssignment = (MemberAssignment)memberInit.Bindings[0];
