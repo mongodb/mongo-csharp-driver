@@ -117,13 +117,19 @@ namespace MongoDB.Driver
         {
             if (!_disposed)
             {
-                _disposeAction();
-                if (_cursor != null)
-                {
-                    await _cursor.DisposeAsync().ConfigureAwait(false);
-                    _cursor = null;
-                }
                 _disposed = true;
+                try
+                {
+                    _disposeAction();
+                }
+                finally
+                {
+                    if (_cursor != null)
+                    {
+                        await _cursor.DisposeAsync().ConfigureAwait(false);
+                        _cursor = null;
+                    }
+                }
             }
         }
 

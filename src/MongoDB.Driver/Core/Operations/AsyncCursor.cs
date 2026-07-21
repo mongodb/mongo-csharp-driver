@@ -341,10 +341,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (!_disposed)
                 {
+                    _disposed = true;
                     CloseIfNotAlreadyClosedFromDispose();
                     _channelSource?.Dispose();
                     _session?.Dispose();
-                    _disposed = true;
                 }
             }
         }
@@ -353,16 +353,16 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (!_disposed)
             {
+                _disposed = true;
                 await CloseIfNotAlreadyClosedFromDisposeAsync().ConfigureAwait(false);
 
                 _channelSource?.Dispose();
                 _session?.Dispose();
-                _disposed = true;
             }
             GC.SuppressFinalize(this);
         }
 
-        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
+        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -388,7 +388,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken)
+        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -418,7 +418,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                CloseIfNotAlreadyClosed(CancellationToken.None);
+                CloseIfNotAlreadyClosed();
             }
             catch
             {
@@ -430,7 +430,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                await CloseIfNotAlreadyClosedAsync(CancellationToken.None).ConfigureAwait(false);
+                await CloseIfNotAlreadyClosedAsync().ConfigureAwait(false);
             }
             catch
             {

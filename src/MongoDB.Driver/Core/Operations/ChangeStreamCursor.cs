@@ -166,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex, _maxWireVersion))
                 {
                     var newCursor = await ResumeAsync(cancellationToken).ConfigureAwait(false);
-                    _cursor.Dispose();
+                    await _cursor.DisposeAsync().ConfigureAwait(false);
                     _cursor = newCursor;
                 }
             }

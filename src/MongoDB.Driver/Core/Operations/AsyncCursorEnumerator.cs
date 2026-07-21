@@ -69,6 +69,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _disposed = true;
                 _batchEnumerator?.Dispose();
+                _batchEnumerator = null;
                 _cursor.Dispose();
             }
         }
@@ -79,6 +80,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 _disposed = true;
                 _batchEnumerator?.Dispose();
+                _batchEnumerator = null;
                 await _cursor.DisposeAsync().ConfigureAwait(false);
             }
         }
