@@ -97,12 +97,18 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public void Dispose()
         {
-            if (_cursor != null)
+            if (!_disposed)
             {
-                _disposeAction();
-                _cursor.Dispose();
-                _cursor = null;
                 _disposed = true;
+                try
+                {
+                    _disposeAction();
+                }
+                finally
+                {
+                    _cursor?.Dispose();
+                    _cursor = null;
+                }
             }
         }
 

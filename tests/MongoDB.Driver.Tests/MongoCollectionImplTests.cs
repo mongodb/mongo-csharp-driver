@@ -25,9 +25,11 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -394,6 +396,52 @@ namespace MongoDB.Driver
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        [Trait("Category", "Integration")]
+        public async Task AggregateToCollection_should_not_leak_session_when_cursor_is_disposed_without_iterating(
+            [Values(false, true)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "aggregate");
+
+            using var client = DriverTestConfiguration.CreateMongoClient(
+                (MongoClientSettings settings) =>
+                {
+                    settings.MaxConnectionPoolSize = 1;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                });
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var outCollectionName = DriverTestConfiguration.CollectionNamespace.CollectionName + "_out";
+            database.DropCollection(collection.CollectionNamespace.CollectionName);
+            database.DropCollection(outCollectionName);
+            collection.InsertOne(new BsonDocument("_id", 1));
+
+            try
+            {
+                PipelineDefinition<BsonDocument, BsonDocument> pipeline = new[] { new BsonDocument("$out", outCollectionName) };
+
+                const int iterations = 3;
+                for (var i = 0; i < iterations; i++)
+                {
+                    var cursor = async
+                        ? await collection.AggregateAsync(pipeline)
+                        : collection.Aggregate(pipeline);
+                    cursor.Dispose(); // disposed without iterating
+                }
+
+                var lsids = eventCapturer.Events.OfType<CommandStartedEvent>().Select(e => e.Command["lsid"]).ToList();
+                lsids.Count.Should().Be(iterations);
+                lsids.Distinct().Count().Should().Be(1); // the implicit server session is returned to the pool and reused
+            }
+            finally
+            {
+                database.DropCollection(collection.CollectionNamespace.CollectionName);
+                database.DropCollection(outCollectionName);
+            }
         }
 
         [Theory]
