@@ -453,6 +453,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private void KillCursors(OperationContext operationContext)
         {
+            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
+            // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
             using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
@@ -467,6 +470,9 @@ namespace MongoDB.Driver.Core.Operations
 
         private async Task KillCursorsAsync(OperationContext operationContext)
         {
+            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
+            // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
             using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
