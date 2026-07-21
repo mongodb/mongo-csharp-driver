@@ -118,30 +118,4 @@ namespace MongoDB.Driver.Core.Clusters
             return new ClusterClock();
         }
     }
-
-    public class NoClusterClockTests
-    {
-        [Fact]
-        public void constructor_should_initialize_instance()
-        {
-            var result = new NoClusterClock();
-
-            result.ClusterTime.Should().BeNull();
-        }
-
-        [Fact]
-        public void AdvanceClusterTime_should_do_nothing()
-        {
-            var subject = new NoClusterClock();
-            var newClusterTime = new BsonDocument
-            {
-                { "xyz", 1 },
-                { "clusterTime", new BsonTimestamp(1L) }
-            };
-
-            subject.AdvanceClusterTime(newClusterTime);
-
-            subject.ClusterTime.Should().BeNull();
-        }
-    }
 }

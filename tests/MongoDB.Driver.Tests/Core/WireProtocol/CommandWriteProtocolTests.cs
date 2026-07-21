@@ -54,81 +54,138 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_use_cached_IWireProtocol_if_available([Values(false, true)] bool withSameConnection)
+        public void Execute_should_reset_streamable_state_when_connection_changes([Values(false, true)] bool withSameConnection)
         {
-            var session = NoCoreSession.Instance;
-            var responseHandling = CommandResponseHandling.Return;
-
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
-                session,
+                NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
                 null, // commandPayloads
                 null, // postWriteAction
-                responseHandling,
+                CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,
                 messageEncoderSettings,
                 null, // serverApi
-                TimeSpan.FromMilliseconds(42));
+                TimeSpan.Zero);
 
-            var mockConnection = new Mock<IConnection>();
-            var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
-            var connectionId = SetupConnection(mockConnection);
+            var connectionId1 = new ConnectionId(__serverId);
+            var connection1 = CreateConnection(connectionId1);
 
             using var operationContext = new OperationContext(NoCoreSession.NewHandle());
-            var result = subject.Execute(operationContext, mockConnection.Object);
+            subject.Execute(operationContext, connection1);
 
-            var cachedWireProtocol = subject._cachedWireProtocol();
-            cachedWireProtocol.Should().NotBeNull();
-            var cachedConnectionId = subject._cachedConnectionId();
-            cachedConnectionId.Should().NotBeNull();
-            subject._cachedConnectionId().Should().BeSameAs(connectionId);
-            result.Should().Be("{ ok : 1 }");
+            connection1.GetSentMessages().Count.Should().Be(1);
+            subject._lastConnectionId().Should().BeSameAs(connectionId1);
+            subject._moreToCome().Should().BeFalse();
 
-            commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
-            _ = SetupConnection(mockConnection, connectionId);
-            subject._responseHandling(CommandResponseHandling.Ignore); // will trigger the exception if the CommandUsingCommandMessageWireProtocol ctor will be called
-
-            result = null;
-            var exception = Record.Exception(() => { result = subject.Execute(operationContext, mockConnection.Object); });
+            // Simulate that the previous response asked us to keep streaming on the same connection.
+            subject._moreToCome(true);
 
             if (withSameConnection)
             {
-                exception.Should().BeNull();
-                subject._cachedWireProtocol().Should().BeSameAs(cachedWireProtocol);
-                subject._cachedConnectionId().Should().BeSameAs(connectionId);
-                result.Should().Be("{ ok : 1 }");
+                connection1.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1))));
+
+                subject.Execute(operationContext, connection1);
+
+                // streaming continues on the same connection: no new command message is sent, only a response is received
+                connection1.GetSentMessages().Count.Should().Be(1);
+                subject._lastConnectionId().Should().BeSameAs(connectionId1);
             }
             else
             {
-                var e = exception.Should().BeOfType<ArgumentException>().Subject;
-                e.Message.Should().StartWith("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.");
-                e.ParamName.Should().Be("responseHandling");
-                subject._cachedConnectionId().Should().NotBeSameAs(cachedWireProtocol);
-                subject._cachedConnectionId().Should().NotBeSameAs(connectionId);
-                result.Should().BeNull();
+                var connectionId2 = new ConnectionId(new ServerId(new ClusterId(IdGenerator<ClusterId>.GetNextId()), new DnsEndPoint("localhost", 27017)));
+                var connection2 = CreateConnection(connectionId2);
+
+                subject.Execute(operationContext, connection2);
+
+                // streaming state is reset for the new connection: a fresh command message is sent
+                connection2.GetSentMessages().Count.Should().Be(1);
+                subject._lastConnectionId().Should().BeSameAs(connectionId2);
+                subject._moreToCome().Should().BeFalse();
             }
 
-            ConnectionId SetupConnection(Mock<IConnection> connection, ConnectionId id = null)
+            MockConnection CreateConnection(ConnectionId connectionId)
             {
-                if (id == null || !withSameConnection)
-                {
-                    id = new ConnectionId(new ServerId(new ClusterId(IdGenerator<ClusterId>.GetNextId()), new DnsEndPoint("localhost", 27017)));
-                }
+                var connection = new MockConnection(connectionId, new ConnectionSettings(), null);
+                connection.Description = new ConnectionDescription(
+                    connectionId,
+                    new HelloResult(new BsonDocument { { "ok", 1 }, { "maxWireVersion", WireVersion.Server44 } }));
+                connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1))));
+                return connection;
+            }
+        }
 
-                connection
-                    .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), messageEncoderSettings))
-                    .Returns(commandResponse);
-                connection.SetupGet(c => c.ConnectionId).Returns(id);
-                connection
-                    .SetupGet(c => c.Description)
-                    .Returns(
-                        new ConnectionDescription(
-                            id,
-                            new HelloResult(new BsonDocument { { "ok", 1 }, { "maxWireVersion", WireVersion.Server44 } })));
-                return id;
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_gossip_the_greater_of_the_session_and_cluster_clock_cluster_time(
+            [Values(false, true)] bool async,
+            [Values("sessionHasNoClusterTime", "sessionClusterTimeIsLower", "sessionClusterTimeIsHigher")] string scenario)
+        {
+            var lowerClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(1L));
+            var higherClusterTime = new BsonDocument("clusterTime", new BsonTimestamp(2L));
+
+            // In every scenario the greater of the session's and the cluster clock's cluster time (higherClusterTime) must be gossiped.
+            var clusterClock = new ClusterClock();
+            ICoreSessionHandle session;
+            switch (scenario)
+            {
+                case "sessionHasNoClusterTime": // fresh implicit session that hasn't seen a cluster time yet
+                    clusterClock.AdvanceClusterTime(higherClusterTime);
+                    session = NoCoreSession.NewHandle(); // ClusterTime is null
+                    break;
+                case "sessionClusterTimeIsLower":
+                    clusterClock.AdvanceClusterTime(higherClusterTime);
+                    session = CreateSessionWithClusterTime(lowerClusterTime);
+                    break;
+                case "sessionClusterTimeIsHigher":
+                    clusterClock.AdvanceClusterTime(lowerClusterTime);
+                    session = CreateSessionWithClusterTime(higherClusterTime);
+                    break;
+                default:
+                    throw new NotSupportedException($"scenario {scenario} is not supported");
+            }
+
+            var connection = new MockConnection();
+            connection.Description = __connectionDescription;
+            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1))));
+
+            var subject = new CommandWireProtocol<BsonDocument>(
+                session,
+                clusterClock,
+                ReadPreference.Primary,
+                new DatabaseNamespace("test"),
+                new BsonDocument("cmd", 1),
+                commandPayloads: null,
+                postWriteAction: null,
+                CommandResponseHandling.Return,
+                BsonDocumentSerializer.Instance,
+                new MessageEncoderSettings(),
+                null, // serverApi
+                TimeSpan.Zero);
+
+            using var operationContext = new OperationContext(session);
+            if (async)
+            {
+                await subject.ExecuteAsync(operationContext, connection);
+            }
+            else
+            {
+                subject.Execute(operationContext, connection);
+            }
+
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
+
+            var command = MessageHelper.ToCommandPayload(connection.GetSentMessages()[0]);
+            command["$clusterTime"].Should().Be(higherClusterTime);
+
+            ICoreSessionHandle CreateSessionWithClusterTime(BsonDocument clusterTime)
+            {
+                var mockSession = new Mock<ICoreSessionHandle>();
+                mockSession.SetupGet(m => m.ClusterTime).Returns(clusterTime);
+                return mockSession.Object;
             }
         }
 
@@ -146,6 +203,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.EnqueueCommandResponseMessage(commandResponse);
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("getMore", 1),
@@ -187,8 +245,10 @@ namespace MongoDB.Driver.Core.WireProtocol
             connection.Description = __connectionDescription;
             var commandResponse = MessageHelper.BuildCommandResponse(CreateRawBsonDocument(new BsonDocument("ok", 1)));
             connection.EnqueueCommandResponseMessage(commandResponse);
+            var session = CreateMockSessionInTransaction();
             var subject = new CommandWireProtocol<BsonDocument>(
-                CreateMockSessionInTransaction(),
+                session,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("moreGet", 1),
@@ -200,7 +260,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 serverApi,
                 TimeSpan.FromMilliseconds(42));
 
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            using var operationContext = new OperationContext(session);
             if (async)
             {
                 await subject.ExecuteAsync(operationContext, connection);
@@ -217,12 +277,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
             MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ moreGet : 1, $db : 'test', txnNumber : NumberLong(1), autocommit : false{expectedServerApiString} }}");
 
-            ICoreSession CreateMockSessionInTransaction()
+            ICoreSessionHandle CreateMockSessionInTransaction()
             {
                 var transaction = new CoreTransaction(1, new TransactionOptions());
                 transaction.SetState(CoreTransactionState.InProgress);
 
-                var mockSession = new Mock<ICoreSession>();
+                var mockSession = new Mock<ICoreSessionHandle>();
                 mockSession.SetupGet(m => m.CurrentTransaction).Returns(transaction);
                 mockSession.SetupGet(m => m.IsInTransaction).Returns(true);
 
@@ -236,6 +296,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -266,6 +327,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -294,6 +356,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -324,6 +387,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             var messageEncoderSettings = new MessageEncoderSettings();
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("cmd", 1),
@@ -368,8 +432,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 { "find", "testCollection" }
             };
 
+            var session = CreateSnapshotSession();
             var subject = new CommandWireProtocol<BsonDocument>(
-                CreateSnapshotSession(),
+                session,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 command,
@@ -381,7 +447,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
-            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            using var operationContext = new OperationContext(session);
             if (async)
             {
                 await subject.ExecuteAsync(operationContext, connection);
@@ -403,9 +469,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             readConcernElements[0].Value.AsBsonDocument["level"].AsString
                 .Should().Be("snapshot");
 
-            ICoreSession CreateSnapshotSession()
+            ICoreSessionHandle CreateSnapshotSession()
             {
-                var mockSession = new Mock<ICoreSession>();
+                var mockSession = new Mock<ICoreSessionHandle>();
                 mockSession.SetupGet(m => m.IsSnapshot).Returns(true);
                 mockSession.SetupGet(m => m.Id).Returns(
                     new BsonDocument("id", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard)));
@@ -437,8 +503,10 @@ namespace MongoDB.Driver.Core.WireProtocol
                 { "readConcern", new BsonDocument("level", "local") }
             };
 
+            var session = CreateTransactionSession();
             var subject = new CommandWireProtocol<BsonDocument>(
-                CreateTransactionSession(),
+                session,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 command,
@@ -450,7 +518,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 null,
                 TimeSpan.FromMilliseconds(42));
 
-            using var operationContext2 = new OperationContext(NoCoreSession.NewHandle());
+            using var operationContext2 = new OperationContext(session);
             if (async)
             {
                 await subject.ExecuteAsync(operationContext2, connection);
@@ -470,12 +538,12 @@ namespace MongoDB.Driver.Core.WireProtocol
             readConcernElements.Should().HaveCount(1,
                 "readConcern should appear exactly once even when command already contains it");
 
-            ICoreSession CreateTransactionSession()
+            ICoreSessionHandle CreateTransactionSession()
             {
                 var transaction = new CoreTransaction(1, new TransactionOptions(ReadConcern.Majority));
                 transaction.SetState(CoreTransactionState.Starting);
 
-                var mockSession = new Mock<ICoreSession>();
+                var mockSession = new Mock<ICoreSessionHandle>();
                 mockSession.SetupGet(m => m.CurrentTransaction).Returns(transaction);
                 mockSession.SetupGet(m => m.IsInTransaction).Returns(true);
                 mockSession.SetupGet(m => m.Id).Returns(
@@ -502,14 +570,19 @@ namespace MongoDB.Driver.Core.WireProtocol
 
     internal static class CommandWireProtocolReflector
     {
-        public static ConnectionId _cachedConnectionId(this CommandWireProtocol<BsonDocument> commandWireProtocol)
+        public static ConnectionId _lastConnectionId(this CommandWireProtocol<BsonDocument> commandWireProtocol)
         {
-            return (ConnectionId)Reflector.GetFieldValue(commandWireProtocol, nameof(_cachedConnectionId));
+            return (ConnectionId)Reflector.GetFieldValue(commandWireProtocol, nameof(_lastConnectionId));
         }
 
-        public static IWireProtocol<BsonDocument> _cachedWireProtocol(this CommandWireProtocol<BsonDocument> commandWireProtocol)
+        public static bool _moreToCome(this CommandWireProtocol<BsonDocument> commandWireProtocol)
         {
-            return (IWireProtocol<BsonDocument>)Reflector.GetFieldValue(commandWireProtocol, nameof(_cachedWireProtocol));
+            return (bool)Reflector.GetFieldValue(commandWireProtocol, nameof(_moreToCome));
+        }
+
+        public static void _moreToCome(this CommandWireProtocol<BsonDocument> commandWireProtocol, bool moreToCome)
+        {
+            Reflector.SetFieldValue(commandWireProtocol, nameof(_moreToCome), moreToCome);
         }
 
         public static BsonDocument _command(this CommandWireProtocol<BsonDocument> commandWireProtocol)

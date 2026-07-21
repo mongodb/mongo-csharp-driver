@@ -68,7 +68,8 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(operationContext.Session),
+                operationContext.Session,
+                _server.ClusterClock,
                 readPreference,
                 databaseNamespace,
                 command,
@@ -101,7 +102,8 @@ namespace MongoDB.Driver.Core.Servers
             }
 
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(operationContext.Session),
+                operationContext.Session,
+                _server.ClusterClock,
                 readPreference,
                 databaseNamespace,
                 command,
@@ -127,11 +129,6 @@ namespace MongoDB.Driver.Core.Servers
 
                 _connection.Dispose();
             }
-        }
-
-        private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
-        {
-            return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);
         }
 
         private TResult ExecuteProtocol<TResult>(OperationContext operationContext, IWireProtocol<TResult> protocol, ICoreSession session)
