@@ -659,6 +659,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (options?.Sort != null)
+            {
+                throw new ArgumentException("UpdateMany does not support Sort option", nameof(options));
+            }
 
             options ??= new UpdateOptions<TDocument>();
             var model = new UpdateManyModel<TDocument>(filter, update)
@@ -701,6 +705,10 @@ namespace MongoDB.Driver
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (options?.Sort != null)
+            {
+                throw new ArgumentException("UpdateMany does not support Sort option", nameof(options));
+            }
 
             options ??= new UpdateOptions<TDocument>();
             var model = new UpdateManyModel<TDocument>(filter, update)
