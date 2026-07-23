@@ -28,7 +28,7 @@ namespace MongoDB.Driver
     /// Represents an asynchronous cursor.
     /// </summary>
     /// <typeparam name="TDocument">The type of the document.</typeparam>
-    public interface IAsyncCursor<out TDocument> : IDisposable
+    public interface IAsyncCursor<out TDocument> : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets the current batch of documents.
@@ -117,7 +117,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is true if the cursor contains any documents.</returns>
         public static async Task<bool> AnyAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (cursor)
+            await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
                 return batch.Any();
@@ -149,7 +149,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document.</returns>
         public static async Task<TDocument> FirstAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (cursor)
+            await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
                 return batch.First();
@@ -181,7 +181,7 @@ namespace MongoDB.Driver
         /// <returns>A task whose result is the first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (cursor)
+            await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
                 return batch.FirstOrDefault();
@@ -216,7 +216,7 @@ namespace MongoDB.Driver
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
-            using (source)
+            await using (source.ConfigureAwait(false))
             {
                 var index = 0;
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -268,7 +268,7 @@ namespace MongoDB.Driver
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
-            using (source)
+            await using (source.ConfigureAwait(false))
             {
                 var index = 0;
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
@@ -307,7 +307,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor.</returns>
         public static async Task<TDocument> SingleAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (cursor)
+            await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
                 return batch.Single();
@@ -341,7 +341,7 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            using (cursor)
+            await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
                 return batch.SingleOrDefault();
@@ -412,7 +412,7 @@ namespace MongoDB.Driver
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
-            using (source)
+            await using (source.ConfigureAwait(false))
             {
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {

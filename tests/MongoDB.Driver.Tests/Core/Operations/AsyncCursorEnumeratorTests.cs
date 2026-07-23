@@ -118,13 +118,13 @@ namespace MongoDB.Driver.Core.Operations
             if (async)
             {
                 await subject.DisposeAsync();
+                mockCursor.Verify(c => c.DisposeAsync(), Times.Once);
             }
             else
             {
                 subject.Dispose();
+                mockCursor.Verify(c => c.Dispose(), Times.Once);
             }
-
-            mockCursor.Verify(c => c.Dispose(), Times.Once);
         }
 
         [Theory]

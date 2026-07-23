@@ -119,6 +119,20 @@ namespace MongoDB.Driver
             result.Should().Be(expectedResult);
         }
 
+        [Fact]
+        public async Task ForEachAsync_should_dispose_cursor_through_the_asynchronous_path()
+        {
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var batch = new[] { new BsonDocument("_id", 1) };
+            mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true).ReturnsAsync(false);
+            mockCursor.Setup(c => c.Current).Returns(batch);
+
+            await mockCursor.Object.ForEachAsync(_ => { });
+
+            mockCursor.Verify(c => c.DisposeAsync(), Times.Once);
+            mockCursor.Verify(c => c.Dispose(), Times.Never);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Single_should_return_expected_result(
@@ -201,6 +215,40 @@ namespace MongoDB.Driver
             }
 
             action.ShouldThrow<InvalidOperationException>();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Terminal_operator_should_dispose_cursor_through_the_expected_path(
+            [Values(
+                TerminalOperator.Any,
+                TerminalOperator.First,
+                TerminalOperator.FirstOrDefault,
+                TerminalOperator.Single,
+                TerminalOperator.SingleOrDefault,
+                TerminalOperator.ToList)]
+            TerminalOperator terminalOperator,
+            [Values(false, true)] bool async)
+        {
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+            var batch = new[] { new BsonDocument("_id", 1) };
+            mockCursor.SetupSequence(c => c.MoveNext(It.IsAny<CancellationToken>())).Returns(true).Returns(false);
+            mockCursor.SetupSequence(c => c.MoveNextAsync(It.IsAny<CancellationToken>())).ReturnsAsync(true).ReturnsAsync(false);
+            mockCursor.Setup(c => c.Current).Returns(batch);
+            var cursor = mockCursor.Object;
+
+            if (async)
+            {
+                await InvokeAsync(terminalOperator, cursor);
+                mockCursor.Verify(c => c.DisposeAsync(), Times.Once);
+                mockCursor.Verify(c => c.Dispose(), Times.Never);
+            }
+            else
+            {
+                Invoke(terminalOperator, cursor);
+                mockCursor.Verify(c => c.Dispose(), Times.Once);
+                mockCursor.Verify(c => c.DisposeAsync(), Times.Never);
+            }
         }
 
         [Fact]
@@ -347,6 +395,46 @@ namespace MongoDB.Driver
                 retryRequested: false,
                 maxAdaptiveRetries: 2,
                 enableOverloadRetargeting: false);
+        }
+
+        private static void Invoke(TerminalOperator terminalOperator, IAsyncCursor<BsonDocument> cursor)
+        {
+            switch (terminalOperator)
+            {
+                case TerminalOperator.Any: cursor.Any(); break;
+                case TerminalOperator.First: cursor.First(); break;
+                case TerminalOperator.FirstOrDefault: cursor.FirstOrDefault(); break;
+                case TerminalOperator.Single: cursor.Single(); break;
+                case TerminalOperator.SingleOrDefault: cursor.SingleOrDefault(); break;
+                case TerminalOperator.ToList: cursor.ToList(); break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(terminalOperator), terminalOperator, null);
+            }
+        }
+
+        private static async Task InvokeAsync(TerminalOperator terminalOperator, IAsyncCursor<BsonDocument> cursor)
+        {
+            switch (terminalOperator)
+            {
+                case TerminalOperator.Any: await cursor.AnyAsync(); break;
+                case TerminalOperator.First: await cursor.FirstAsync(); break;
+                case TerminalOperator.FirstOrDefault: await cursor.FirstOrDefaultAsync(); break;
+                case TerminalOperator.Single: await cursor.SingleAsync(); break;
+                case TerminalOperator.SingleOrDefault: await cursor.SingleOrDefaultAsync(); break;
+                case TerminalOperator.ToList: await cursor.ToListAsync(); break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(terminalOperator), terminalOperator, null);
+            }
+        }
+
+        public enum TerminalOperator
+        {
+            Any,
+            First,
+            FirstOrDefault,
+            Single,
+            SingleOrDefault,
+            ToList
         }
     }
 }

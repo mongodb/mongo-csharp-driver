@@ -189,7 +189,7 @@ namespace MongoDB.Driver.Core.Operations
             }
             finally
             {
-                Dispose();
+                await DisposeAsync().ConfigureAwait(false);
             }
         }
 
@@ -341,15 +341,28 @@ namespace MongoDB.Driver.Core.Operations
             {
                 if (!_disposed)
                 {
+                    _disposed = true;
                     CloseIfNotAlreadyClosedFromDispose();
                     _channelSource?.Dispose();
                     _session?.Dispose();
-                    _disposed = true;
                 }
             }
         }
 
-        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken)
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                await CloseIfNotAlreadyClosedFromDisposeAsync().ConfigureAwait(false);
+
+                _channelSource?.Dispose();
+                _session?.Dispose();
+            }
+            GC.SuppressFinalize(this);
+        }
+
+        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -375,7 +388,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken)
+        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -405,7 +418,19 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                CloseIfNotAlreadyClosed(CancellationToken.None);
+                CloseIfNotAlreadyClosed();
+            }
+            catch
+            {
+                // ignore any exceptions from CloseIfNotAlreadyClosed when called from Dispose
+            }
+        }
+
+        private async Task CloseIfNotAlreadyClosedFromDisposeAsync()
+        {
+            try
+            {
+                await CloseIfNotAlreadyClosedAsync().ConfigureAwait(false);
             }
             catch
             {
