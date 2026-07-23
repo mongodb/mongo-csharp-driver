@@ -1129,9 +1129,6 @@ namespace MongoDB.Driver.Tests
             var replaceOptions = new ReplaceOptions<Person>();
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
-            var updateOptions = new UpdateOptions<Person>();
-            assertReplaceOneWithUpdateOptions(updateOptions);
-
             void assertReplaceOne()
             {
                 if (usingSession)
@@ -1188,44 +1185,6 @@ namespace MongoDB.Driver.Tests
                     {
                         IMongoCollectionExtensions.ReplaceOne(collection, filterExpression, replacement, options, cancellationToken);
                         mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-                    }
-                }
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions<Person> options)
-            {
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOneAsync(collection, session, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOne(collection, session, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOneAsync(collection, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOne(collection, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
                     }
                 }
             }

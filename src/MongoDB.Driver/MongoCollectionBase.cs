@@ -565,21 +565,9 @@ namespace MongoDB.Driver
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOne(filter, replacement, ReplaceOptions<TDocument>.From(options), (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
-        }
-
         public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
-        }
-
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOne(filter, replacement, ReplaceOptions<TDocument>.From(options), (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
         private ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
@@ -592,13 +580,9 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is ReplaceOptions<TDocument> re)
-            {
-                model.Sort = re.Sort;
-            }
 
             try
             {
@@ -623,21 +607,9 @@ namespace MongoDB.Driver
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOneAsync(filter, replacement, ReplaceOptions<TDocument>.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
-        }
-
         public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
-        }
-
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOneAsync(filter, replacement, ReplaceOptions<TDocument>.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
         private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options,
@@ -651,13 +623,9 @@ namespace MongoDB.Driver
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort
             };
-
-            if (options is ReplaceOptions<TDocument> re)
-            {
-                model.Sort = re.Sort;
-            }
 
             try
             {
