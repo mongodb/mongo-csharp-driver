@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 responseHandling != CommandResponseHandling.NoResponseExpected &&
                 responseHandling != CommandResponseHandling.ExhaustAllowed)
             {
-                throw new ArgumentException("CommandResponseHandling must be Return, NoneExpected or ExhaustAllowed.", nameof(responseHandling));
+                throw new ArgumentException("CommandResponseHandling must be Return, NoResponseExpected or ExhaustAllowed.", nameof(responseHandling));
             }
 
             _session = Ensure.IsNotNull(session, nameof(session));
@@ -473,7 +473,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 errmsg.AsString.StartsWith("Transaction numbers", StringComparison.Ordinal);
         }
 
-        private void MessageWasProbablySent(OperationContext operationContext, RequestCommandMessage message)
+        private void MessageWasProbablySent(RequestCommandMessage message)
         {
             if (!message.WasSent)
             {
@@ -493,7 +493,7 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TCommandResult ProcessResponse(OperationContext operationContext, ConnectionId connectionId, ResponseCommandMessage responseMessage)
+        private TCommandResult ProcessResponse(ConnectionId connectionId, ResponseCommandMessage responseMessage)
         {
             using (new CommandMessageDisposer(responseMessage))
             {
@@ -532,11 +532,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                     var materializedDocument = rawDocument.Materialize(binaryReaderSettings);
 
                     var commandName = _command.GetElement(0).Name;
-                    if (commandName == "$query")
-                    {
-                        commandName = _command["$query"].AsBsonDocument.GetElement(0).Name;
-                    }
-
                     var notPrimaryOrNodeIsRecoveringException = ExceptionMapper.MapNotPrimaryOrNodeIsRecovering(connectionId, _command, materializedDocument, "errmsg");
                     if (notPrimaryOrNodeIsRecoveringException != null)
                     {
@@ -625,7 +620,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    MessageWasProbablySent(operationContext, message);
+                    MessageWasProbablySent(message);
                 }
 
                 responseExpected = message.ResponseExpected; // mutable, read after sending
@@ -638,7 +633,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption
                     response = AutoDecryptFieldsIfNecessary(response, operationContext.CancellationToken);
-                    var result = ProcessResponse(operationContext, connection.ConnectionId, response);
+                    var result = ProcessResponse(connection.ConnectionId, response);
                     SaveResponseInfo(response);
                     return result;
                 }
@@ -675,7 +670,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 }
                 finally
                 {
-                    MessageWasProbablySent(operationContext, message);
+                    MessageWasProbablySent(message);
                 }
                 responseExpected = message.ResponseExpected; // mutable, read after sending
             }
@@ -687,7 +682,7 @@ namespace MongoDB.Driver.Core.WireProtocol
                 {
                     // TODO: CSOT: Propagate operationContext into Encryption
                     response = await AutoDecryptFieldsIfNecessaryAsync(response, operationContext.CancellationToken).ConfigureAwait(false);
-                    var result = ProcessResponse(operationContext, connection.ConnectionId, response);
+                    var result = ProcessResponse(connection.ConnectionId, response);
                     SaveResponseInfo(response);
                     return result;
                 }
