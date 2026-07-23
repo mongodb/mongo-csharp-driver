@@ -528,9 +528,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 subject.Execute(operationContext2, connection);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
-                .Should().BeTrue();
-
             var sentMessages = connection.GetSentMessages();
             var document = MessageHelper.ToCommandPayload(sentMessages[0]);
 
