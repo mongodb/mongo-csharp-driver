@@ -16,6 +16,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
+using Amazon.Runtime.Credentials;
 
 namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
 {
@@ -24,6 +25,7 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
         public static readonly AWSFallbackCredentialsSource Instance = new();
 
         private readonly SemaphoreSlim _lock = new(1);
+        private Amazon.Runtime.AWSCredentials _cachedCredentialsSource;
 
         public void Dispose() => _lock?.Dispose();
 
@@ -33,8 +35,8 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
             _lock.Wait(cancellationToken);
             try
             {
-                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
-                credentialsSource = FallbackCredentialsFactory.GetCredentials();
+                // resolving the credentials source walks the full provider chain, so cache it and reuse until reset
+                credentialsSource = _cachedCredentialsSource ??= DefaultAWSCredentialsIdentityResolver.GetCredentials(null);
             }
             finally
             {
@@ -51,8 +53,8 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
             await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
-                credentialsSource = FallbackCredentialsFactory.GetCredentials();
+                // resolving the credentials source walks the full provider chain, so cache it and reuse until reset
+                credentialsSource = _cachedCredentialsSource ??= await DefaultAWSCredentialsIdentityResolver.GetCredentialsAsync(null).ConfigureAwait(false);
             }
             finally
             {
@@ -69,7 +71,7 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
 
             try
             {
-                FallbackCredentialsFactory.Reset();
+                _cachedCredentialsSource = null;
             }
             finally
             {
