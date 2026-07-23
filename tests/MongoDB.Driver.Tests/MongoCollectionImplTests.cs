@@ -3058,7 +3058,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions()
+            var replaceOptions = new ReplaceOptions<BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
@@ -3067,16 +3067,6 @@ namespace MongoDB.Driver
                 Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
-
-            var updateOptions = new UpdateOptions
-            {
-                BypassDocumentValidation = bypassDocumentValidation,
-                Hint = hint,
-                Collation = collation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
 
             void assertReplaceOne()
             {
@@ -3106,7 +3096,7 @@ namespace MongoDB.Driver
                 assertOperationResult(expectedBypassDocumentValidation: null, expectedLet: null);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 if (usingSession)
                 {
@@ -3128,42 +3118,6 @@ namespace MongoDB.Driver
                     else
                     {
                         subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-                    }
-                }
-
-                assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
-            {
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
                     }
                 }
 
@@ -3226,7 +3180,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions
+            var replaceOptions = new ReplaceOptions<BsonDocument>
             {
                 Collation = collation,
                 Hint = hint,
@@ -3235,16 +3189,6 @@ namespace MongoDB.Driver
                 Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
-
-            var updateOptions = new UpdateOptions
-            {
-                Collation = collation,
-                Hint = hint,
-                BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
 
             void assertReplaceOne()
             {
@@ -3276,7 +3220,7 @@ namespace MongoDB.Driver
                 assertException(exception);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 Exception exception;
 
@@ -3300,44 +3244,6 @@ namespace MongoDB.Driver
                     else
                     {
                         exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-                    }
-                }
-
-                assertException(exception);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
-            {
-                Exception exception;
-
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
                     }
                 }
 
@@ -3373,7 +3279,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3446,7 +3352,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var updateOptions = new UpdateOptions
+            var updateOptions = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3532,7 +3438,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3606,7 +3512,7 @@ namespace MongoDB.Driver
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
 
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,

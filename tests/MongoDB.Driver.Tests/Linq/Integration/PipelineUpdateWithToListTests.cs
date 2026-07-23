@@ -53,7 +53,7 @@ public class PipelineUpdateWithToListTests : LinqIntegrationTest<PipelineUpdateW
             updateStages,
             "{ $set : { List1 : { $concatArrays : ['$List1', '$List2'] } } }");
 
-        collection.UpdateMany(filter, update, new UpdateOptions { IsUpsert = true });
+        collection.UpdateMany(filter, update, new UpdateOptions<C> { IsUpsert = true });
 
         var items = collection.AsQueryable().ToList();
         items.Single().List1.Should().BeEquivalentTo("a", "b", "c", "d");
@@ -81,7 +81,7 @@ public class PipelineUpdateWithToListTests : LinqIntegrationTest<PipelineUpdateW
             updateStages,
             "{ $set : { List1 : { $concatArrays : ['$List1', '$List2'] } } }");
 
-        collection.UpdateMany(filter, update, new UpdateOptions { IsUpsert = true });
+        collection.UpdateMany(filter, update, new UpdateOptions<C> { IsUpsert = true });
 
         var items = collection.AsQueryable().ToList();
         items.Single().List1.Should().BeEquivalentTo("a", "b", "c", "d");

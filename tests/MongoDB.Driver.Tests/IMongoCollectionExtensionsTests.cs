@@ -1126,11 +1126,8 @@ namespace MongoDB.Driver.Tests
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions();
+            var replaceOptions = new ReplaceOptions<Person>();
             assertReplaceOneWithReplaceOptions(replaceOptions);
-
-            var updateOptions = new UpdateOptions();
-            assertReplaceOneWithUpdateOptions(updateOptions);
 
             void assertReplaceOne()
             {
@@ -1139,12 +1136,12 @@ namespace MongoDB.Driver.Tests
                     if (async)
                     {
                         IMongoCollectionExtensions.ReplaceOneAsync(collection, session, filterExpression, replacement, cancellationToken: cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions)null, cancellationToken), Times.Once);
+                        mockCollection.Verify(m => m.ReplaceOneAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions<Person>)null, cancellationToken), Times.Once);
                     }
                     else
                     {
                         IMongoCollectionExtensions.ReplaceOne(collection, session, filterExpression, replacement, cancellationToken: cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions)null, cancellationToken), Times.Once);
+                        mockCollection.Verify(m => m.ReplaceOne(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions<Person>)null, cancellationToken), Times.Once);
                     }
                 }
                 else
@@ -1152,17 +1149,17 @@ namespace MongoDB.Driver.Tests
                     if (async)
                     {
                         IMongoCollectionExtensions.ReplaceOneAsync(collection, filterExpression, replacement, cancellationToken: cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions)null, cancellationToken), Times.Once);
+                        mockCollection.Verify(m => m.ReplaceOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions<Person>)null, cancellationToken), Times.Once);
                     }
                     else
                     {
                         IMongoCollectionExtensions.ReplaceOne(collection, filterExpression, replacement, cancellationToken: cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions)null, cancellationToken), Times.Once);
+                        mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, (ReplaceOptions<Person>)null, cancellationToken), Times.Once);
                     }
                 }
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<Person> options)
             {
                 if (usingSession)
                 {
@@ -1188,44 +1185,6 @@ namespace MongoDB.Driver.Tests
                     {
                         IMongoCollectionExtensions.ReplaceOne(collection, filterExpression, replacement, options, cancellationToken);
                         mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-                    }
-                }
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
-            {
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOneAsync(collection, session, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOne(collection, session, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(session, It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOneAsync(collection, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOneAsync(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        IMongoCollectionExtensions.ReplaceOne(collection, filterExpression, replacement, options, cancellationToken);
-                        mockCollection.Verify(m => m.ReplaceOne(It.IsAny<ExpressionFilterDefinition<Person>>(), replacement, options, cancellationToken), Times.Once);
-#pragma warning restore 618
                     }
                 }
             }
@@ -1242,7 +1201,7 @@ namespace MongoDB.Driver.Tests
             var session = new Mock<IClientSessionHandle>().Object;
             var filterExpression = (Expression<Func<Person, bool>>)(x => x.FirstName == "Jack");
             var update = Builders<Person>.Update.Set("FirstName", "John");
-            var options = new UpdateOptions();
+            var options = new UpdateOptions<Person>();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
@@ -1285,7 +1244,7 @@ namespace MongoDB.Driver.Tests
             var session = new Mock<IClientSessionHandle>().Object;
             var filterExpression = (Expression<Func<Person, bool>>)(x => x.FirstName == "Jack");
             var update = Builders<Person>.Update.Set("FirstName", "John");
-            var options = new UpdateOptions();
+            var options = new UpdateOptions<Person>();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 

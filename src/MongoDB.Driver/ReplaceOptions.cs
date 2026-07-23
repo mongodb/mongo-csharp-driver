@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,104 +22,43 @@ namespace MongoDB.Driver
     /// <summary>
     /// Options for replacing a single document.
     /// </summary>
-    public class ReplaceOptions
+    public sealed class ReplaceOptions<T>
     {
-        #region static
-        // public static methods
-        /// <summary>
-        /// Creates a new ReplaceOptions from an UpdateOptions.
-        /// </summary>
-        /// <param name="updateOptions">The update options.</param>
-        /// <returns>A ReplaceOptions.</returns>
-        internal static ReplaceOptions From(UpdateOptions updateOptions)
-        {
-            if (updateOptions == null)
-            {
-                return null;
-            }
-            else
-            {
-                if (updateOptions.ArrayFilters != null)
-                {
-                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
-                }
-
-                return new ReplaceOptions
-                {
-                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
-                    Collation = updateOptions.Collation,
-                    Hint = updateOptions.Hint,
-                    IsUpsert = updateOptions.IsUpsert,
-                    Let = updateOptions.Let,
-                    Timeout = updateOptions.Timeout
-                };
-            }
-        }
-        #endregion
-
-        // fields
-        private bool? _bypassDocumentValidation;
-        private Collation _collation;
-        private BsonValue _comment;
-        private BsonValue _hint;
-        private bool _isUpsert;
-        private BsonDocument _let;
-        private TimeSpan? _timeout;
-
         // properties
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.
         /// </summary>
-        public bool? BypassDocumentValidation
-        {
-            get { return _bypassDocumentValidation; }
-            set { _bypassDocumentValidation = value; }
-        }
+        public bool? BypassDocumentValidation { get; set; }
 
         /// <summary>
         /// Gets or sets the collation.
         /// </summary>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
+        public Collation Collation { get; set; }
 
         /// <summary>
         /// Gets or sets the comment.
         /// </summary>
-        public BsonValue Comment
-        {
-            get { return _comment; }
-            set { _comment = value; }
-        }
+        public BsonValue Comment { get; set; }
 
         /// <summary>
         /// Gets or sets the hint.
         /// </summary>
-        public BsonValue Hint
-        {
-            get { return _hint; }
-            set { _hint = value; }
-        }
+        public BsonValue Hint { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
         /// </summary>
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
-        }
+        public bool IsUpsert { get; set; }
 
         /// <summary>
         /// Gets or sets the let document.
         /// </summary>
-        public BsonDocument Let
-        {
-            get { return _let; }
-            set { _let = value; }
-        }
+        public BsonDocument Let { get; set; }
+
+        /// <summary>
+        /// Gets or sets the sort definition.
+        /// </summary>
+        public SortDefinition<T> Sort { get; set; }
 
         /// <summary>
         /// Gets or sets the operation timeout.
@@ -127,25 +66,8 @@ namespace MongoDB.Driver
         // TODO: CSOT: Make it public when CSOT will be ready for GA
         internal TimeSpan? Timeout
         {
-            get => _timeout;
-            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
-        }
-    }
-
-    /// <summary>
-    /// Options for replacing a single document and specifying a sort order.
-    /// </summary>
-    public sealed class ReplaceOptions<T> : ReplaceOptions
-    {
-        private SortDefinition<T> _sort;
-
-        /// <summary>
-        /// Gets or sets the sort definition.
-        /// </summary>
-        public SortDefinition<T> Sort
-        {
-            get { return _sort; }
-            set { _sort = value; }
+            get;
+            set => field = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
         }
     }
 }
