@@ -2224,29 +2224,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-#pragma warning disable 618
-            return collection.ReplaceOne(new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
-        }
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
         /// <param name="session">The session.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
@@ -2262,31 +2239,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
 
             return collection.ReplaceOne(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public static ReplaceOneResult ReplaceOne<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-#pragma warning disable 618
-            return collection.ReplaceOne(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>
@@ -2314,29 +2266,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
         /// <param name="collection">The collection.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, Expression<Func<TDocument, bool>> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-#pragma warning disable 618
-            return collection.ReplaceOneAsync(new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
-        }
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
         /// <param name="session">The session.</param>
         /// <param name="filter">The filter.</param>
         /// <param name="replacement">The replacement.</param>
@@ -2352,31 +2281,6 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(filter, nameof(filter));
 
             return collection.ReplaceOneAsync(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-        }
-
-        /// <summary>
-        /// Replaces a single document.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="collection">The collection.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="replacement">The replacement.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the replacement.
-        /// </returns>
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public static Task<ReplaceOneResult> ReplaceOneAsync<TDocument>(this IMongoCollection<TDocument> collection, IClientSessionHandle session, Expression<Func<TDocument, bool>> filter, TDocument replacement, UpdateOptions<TDocument> options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Ensure.IsNotNull(collection, nameof(collection));
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-#pragma warning disable 618
-            return collection.ReplaceOneAsync(session, new ExpressionFilterDefinition<TDocument>(filter), replacement, options, cancellationToken);
-#pragma warning restore 618
         }
 
         /// <summary>

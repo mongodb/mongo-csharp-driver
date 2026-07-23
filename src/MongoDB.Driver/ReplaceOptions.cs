@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,39 +24,6 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class ReplaceOptions<T>
     {
-        #region static
-        // public static methods
-        /// <summary>
-        /// Creates a new ReplaceOptions from an UpdateOptions.
-        /// </summary>
-        /// <param name="updateOptions">The update options.</param>
-        /// <returns>A ReplaceOptions.</returns>
-        internal static ReplaceOptions<T> From(UpdateOptions<T> updateOptions)
-        {
-            if (updateOptions == null)
-            {
-                return null;
-            }
-            else
-            {
-                if (updateOptions.ArrayFilters != null)
-                {
-                    throw new ArgumentException("ArrayFilters cannot be used with ReplaceOne.", nameof(updateOptions));
-                }
-
-                return new ReplaceOptions<T>
-                {
-                    BypassDocumentValidation = updateOptions.BypassDocumentValidation,
-                    Collation = updateOptions.Collation,
-                    Hint = updateOptions.Hint,
-                    IsUpsert = updateOptions.IsUpsert,
-                    Let = updateOptions.Let,
-                    Timeout = updateOptions.Timeout
-                };
-            }
-        }
-        #endregion
-
         // properties
         /// <summary>
         /// Gets or sets a value indicating whether to bypass document validation.

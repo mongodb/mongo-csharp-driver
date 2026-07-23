@@ -3020,16 +3020,6 @@ namespace MongoDB.Driver
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
-            var updateOptions = new UpdateOptions<BsonDocument>
-            {
-                BypassDocumentValidation = bypassDocumentValidation,
-                Hint = hint,
-                Collation = collation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
-
             void assertReplaceOne()
             {
                 if (usingSession)
@@ -3080,42 +3070,6 @@ namespace MongoDB.Driver
                     else
                     {
                         subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-                    }
-                }
-
-                assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions<BsonDocument> options)
-            {
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
                     }
                 }
 
@@ -3188,16 +3142,6 @@ namespace MongoDB.Driver
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
 
-            var updateOptions = new UpdateOptions<BsonDocument>
-            {
-                Collation = collation,
-                Hint = hint,
-                BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
-
             void assertReplaceOne()
             {
                 Exception exception;
@@ -3252,44 +3196,6 @@ namespace MongoDB.Driver
                     else
                     {
                         exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-                    }
-                }
-
-                assertException(exception);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions<BsonDocument> options)
-            {
-                Exception exception;
-
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
                     }
                 }
 
