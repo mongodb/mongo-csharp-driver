@@ -10,8 +10,8 @@ echo "Configure dotnet cli to use local manifest"
 dotnet new tool-manifest --force
 
 echo "Installing docfx tool"
-dotnet tool install docfx --version "2.74.1" --local --verbosity q
+dotnet tool install docfx --version "2.78.5" --local --verbosity q
 
 echo "Building the api-docs"
 dotnet tool run docfx metadata ./apidocs/docfx.json --property ProduceReferenceAssembly=true
-dotnet tool run docfx build ./apidocs/docfx.json -o:./artifacts/apidocs/"$PACKAGE_VERSION"
+dotnet tool run docfx build ./apidocs/docfx.json -o:./artifacts/apidocs/"$PACKAGE_VERSION" --serve
