@@ -14,4 +14,4 @@ dotnet tool install docfx --version "2.78.5" --local --verbosity q
 
 echo "Building the api-docs"
 dotnet tool run docfx metadata ./apidocs/docfx.json --property ProduceReferenceAssembly=true
-dotnet tool run docfx build ./apidocs/docfx.json -o:./artifacts/apidocs/"$PACKAGE_VERSION" --serve
+dotnet tool run docfx build ./apidocs/docfx.json -o:./artifacts/apidocs/"$PACKAGE_VERSION"
