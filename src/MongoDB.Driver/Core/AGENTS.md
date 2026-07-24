@@ -171,16 +171,16 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 ## 5. WireProtocol / OP_MSG and command messaging
 
-**Files:** `CommandWireProtocol.cs`, `CommandUsingCommandMessageWireProtocol.cs`, `CursorBatch.cs`, `Messages/`, `WireProtocolMessageEncoders/`.
+**Files:** `CommandWireProtocol.cs`, `CursorBatch.cs`, `Messages/`, `WireProtocolMessageEncoders/`.
 
 ### Command wire protocol layers
 
 - **`IWireProtocol<TResult>`** — abstract interface for a single request–response exchange.
-- **`CommandWireProtocol<T>`** — thin caching wrapper that always delegates to `CommandUsingCommandMessageWireProtocol` (OP_MSG). The legacy OP_QUERY path was removed when the minimum supported server version exceeded 3.6.
+- **`CommandWireProtocol<T>`** — sends commands as OP_MSG. It also owns the streamable state (`_moreToCome` / `_previousRequestId`) for exhaust/streaming responses, resetting it when executed against a different connection. The legacy OP_QUERY path was removed when the minimum supported server version exceeded 3.6, and the former `CommandUsingCommandMessageWireProtocol` was merged into this single class.
 
 ### OP_MSG
 
-- **`CommandUsingCommandMessageWireProtocol`** — sends commands as OP_MSG (opcode 2013).
+- **`CommandWireProtocol`** — sends commands as OP_MSG (opcode 2013).
 - **Message format:**
   - Header: flag bits, opcode, message length, request ID.
   - Payload sections:
@@ -392,7 +392,7 @@ JSON-driven SDAM and CMAP spec runners under `tests/MongoDB.Driver.Tests/Specifi
 | Server selection | `Clusters/ServerSelectors/*.cs` |
 | DNS-SRV & load balancing | `Clusters/DnsMonitor.cs`, `Clusters/LoadBalancedCluster.cs` |
 | Connection lifecycle | `Connections/BinaryConnection.cs`, `Connections/ConnectionInitializer.cs` |
-| Wire messages | `WireProtocol/CommandUsingCommandMessageWireProtocol.cs`, `WireProtocol/Messages/*.cs` |
+| Wire messages | `WireProtocol/CommandWireProtocol.cs`, `WireProtocol/Messages/*.cs` |
 | Connection pooling | `ConnectionPools/ExclusiveConnectionPool.cs` |
 | Compression | `Compression/ICompressor.cs`, `Compression/*Compressor.cs` |
 | Settings & parsing | `Configuration/ConnectionString.cs`, `Configuration/ClusterBuilder.cs` |
