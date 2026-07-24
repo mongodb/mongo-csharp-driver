@@ -16,8 +16,6 @@
 using System;
 using System.Linq;
 using FluentAssertions;
-using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
@@ -209,18 +207,15 @@ public class QueryableLeftJoinTests : LinqIntegrationTest<QueryableLeftJoinTests
         noMatch.CustomerName.Should().BeNull();
     }
 
-    // A filter chained onto the inner queryable must be honored: a row whose only candidate
-    // inner match is filtered out gets a null inner, preserving left-join semantics.
+    // A non-collection inner sequence (filtered, ordered, or limited) is not supported: translating it
+    // into a correlated $lookup pipeline would apply the operation per outer document rather than once
+    // globally, producing wrong results (CSHARP-6125). Such subqueries must be rejected until proper
+    // support is added (CSHARP-6118).
     [Fact]
-    public void LeftJoin_with_filtered_inner_queryable_should_apply_filter()
+    public void LeftJoin_with_filtered_inner_queryable_should_throw()
     {
-        // A filtered inner sequence is translated to a $lookup that combines localField/foreignField
-        // with a pipeline, which requires the concise $lookup syntax introduced in MongoDB 5.0.
-        RequireServer.Check().Supports(Feature.LookupConciseSyntax);
-
         var orders = Fixture.OrdersCollection;
 
-        // Only Alice (id=10) should participate as an inner match.
         var queryable = orders.AsQueryable()
             .LeftJoin(
                 Fixture.CustomersCollection.AsQueryable().Where(c => c.Name == "Alice"),
@@ -228,13 +223,24 @@ public class QueryableLeftJoinTests : LinqIntegrationTest<QueryableLeftJoinTests
                 c => c.Id,
                 (o, c) => new { OrderId = o.Id, CustomerName = c.Name });
 
-        var results = queryable.ToList();
-        results.Should().HaveCount(3);
+        var exception = Record.Exception(() => Translate(orders, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
 
-        // Order 2 (CustomerId=20) only matches Bob, who is filtered out of the inner source,
-        // so its inner match is null.
-        var order2 = results.Single(r => r.OrderId == 2);
-        order2.CustomerName.Should().BeNull();
+    [Fact]
+    public void LeftJoin_with_ordered_and_limited_inner_queryable_should_throw()
+    {
+        var orders = Fixture.OrdersCollection;
+
+        var queryable = orders.AsQueryable()
+            .LeftJoin(
+                Fixture.CustomersCollection.AsQueryable().OrderBy(c => c.Name).Take(4),
+                o => o.CustomerId,
+                c => c.Id,
+                (o, c) => new { OrderId = o.Id, CustomerName = c.Name });
+
+        var exception = Record.Exception(() => Translate(orders, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
     }
 
 #if NET10_0_OR_GREATER
