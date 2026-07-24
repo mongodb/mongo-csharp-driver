@@ -758,13 +758,9 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is UpdateOptions<TDocument> uo)
-            {
-                model.Sort = uo.Sort;
-            }
 
             try
             {
@@ -805,13 +801,9 @@ namespace MongoDB.Driver
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is UpdateOptions<TDocument> uo)
-            {
-                model.Sort = uo.Sort;
-            }
 
             try
             {
