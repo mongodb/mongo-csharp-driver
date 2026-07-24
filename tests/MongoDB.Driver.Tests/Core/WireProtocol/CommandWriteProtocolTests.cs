@@ -17,7 +17,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -176,8 +175,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 subject.Execute(operationContext, connection);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
-
             var command = MessageHelper.ToCommandPayload(connection.GetSentMessages()[0]);
             command["$clusterTime"].Should().Be(higherClusterTime);
 
@@ -225,8 +222,6 @@ namespace MongoDB.Driver.Core.WireProtocol
                 subject.Execute(operationContext, connection);
             }
 
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
-
             var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
             var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
@@ -269,8 +264,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 subject.Execute(operationContext, connection);
             }
-
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4)).Should().BeTrue();
 
             var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
@@ -456,9 +449,6 @@ namespace MongoDB.Driver.Core.WireProtocol
             {
                 subject.Execute(operationContext, connection);
             }
-
-            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(4))
-                .Should().BeTrue();
 
             var sentMessages = connection.GetSentMessages();
             var document = MessageHelper.ToCommandPayload(sentMessages[0]);

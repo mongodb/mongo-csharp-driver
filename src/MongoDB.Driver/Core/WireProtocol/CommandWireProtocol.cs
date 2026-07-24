@@ -177,7 +177,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(operationContext, exception, connection.Description);
+                AddErrorLabelIfRequired(exception, connection.Description);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
             catch (Exception exception)
             {
-                AddErrorLabelIfRequired(operationContext, exception, connection.Description);
+                AddErrorLabelIfRequired(exception, connection.Description);
 
                 TransactionHelper.UnpinServerIfNeededOnCommandException(_session, exception);
                 throw;
@@ -225,11 +225,11 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // private methods
-        private void AddErrorLabelIfRequired(OperationContext operationContext, Exception exception, ConnectionDescription connectionDescription)
+        private void AddErrorLabelIfRequired(Exception exception, ConnectionDescription connectionDescription)
         {
             if (exception is MongoException mongoException)
             {
-                if (ShouldAddTransientTransactionError(operationContext, mongoException))
+                if (ShouldAddTransientTransactionError(mongoException))
                 {
                     mongoException.AddErrorLabel("TransientTransactionError");
                 }
@@ -707,7 +707,7 @@ namespace MongoDB.Driver.Core.WireProtocol
             }
         }
 
-        private bool ShouldAddTransientTransactionError(OperationContext operationContext, MongoException exception)
+        private bool ShouldAddTransientTransactionError(MongoException exception)
         {
             if (_session.IsInTransaction)
             {
