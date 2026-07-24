@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
-        private readonly UpdateOptions _options;
+        private readonly UpdateOptions<BsonDocument> _options;
         private readonly IClientSessionHandle _session;
         private readonly UpdateDefinition<BsonDocument> _update;
 
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
             UpdateDefinition<BsonDocument> update,
-            UpdateOptions options)
+            UpdateOptions<BsonDocument> options)
         {
             _session = session;
             _collection = collection;
