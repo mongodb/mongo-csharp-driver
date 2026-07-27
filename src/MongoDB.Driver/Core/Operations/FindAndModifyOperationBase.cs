@@ -13,12 +13,9 @@
 * limitations under the License.
 */
 
-using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -141,26 +138,19 @@ namespace MongoDB.Driver.Core.Operations
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
         public async Task<TResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
             using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
                 var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
@@ -168,26 +158,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
+        private WriteCommandOperation<TResult> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
-            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName);
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)
-        {
-            var binaryReaderSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
-            };
-
-            using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return _resultSerializer.Deserialize(context);
-            }
+            return new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings, OperationName);
         }
     }
 }
