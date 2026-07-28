@@ -702,7 +702,7 @@ namespace MongoDB.Driver.Core.Operations
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.Pipeline.Should().Equal(expectedPipeline);
             result.ReadConcern.Should().Be(readConcern);
-            result.ResultSerializer.Should().Be(RawBsonDocumentSerializer.Instance);
+            result.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             result.RetryRequested.Should().BeFalse();
         }
 
@@ -723,9 +723,9 @@ namespace MongoDB.Driver.Core.Operations
 
     internal static class ChangeStreamOperationReflector
     {
-        public static AggregateOperation<RawBsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject)
+        public static AggregateOperation<BsonDocument> CreateAggregateOperation(this ChangeStreamOperation<BsonDocument> subject)
         {
-            return (AggregateOperation<RawBsonDocument>)Reflector.Invoke(subject, nameof(CreateAggregateOperation));
+            return (AggregateOperation<BsonDocument>)Reflector.Invoke(subject, nameof(CreateAggregateOperation));
         }
 
         public static BsonDocument CreateChangeStreamStage(this ChangeStreamOperation<ChangeStreamDocument<BsonDocument>> subject)

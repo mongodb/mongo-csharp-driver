@@ -14,8 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using System;
@@ -36,10 +34,8 @@ namespace MongoDB.Driver.Core.Operations
         private readonly IReadBinding _binding;
         private readonly IChangeStreamOperation<TDocument> _changeStreamOperation;
         private IEnumerable<TDocument> _current;
-        private IAsyncCursor<RawBsonDocument> _cursor;
+        private IAsyncCursor<TDocument> _cursor;
         private bool _disposed;
-        private BsonDocument _documentResumeToken;
-        private readonly IBsonSerializer<TDocument> _documentSerializer;
         private readonly BsonTimestamp _initialOperationTime;
         private readonly ICoreSessionHandle _session;
         private BsonDocument _postBatchResumeToken;
@@ -57,7 +53,6 @@ namespace MongoDB.Driver.Core.Operations
         /// Initializes a new instance of the <see cref="ChangeStreamCursor{TDocument}" /> class.
         /// </summary>
         /// <param name="cursor">The cursor.</param>
-        /// <param name="documentSerializer">The document serializer.</param>
         /// <param name="binding">The binding.</param>
         /// <param name="session">The session.</param>
         /// <param name="changeStreamOperation">The change stream operation.</param>
@@ -68,8 +63,7 @@ namespace MongoDB.Driver.Core.Operations
         /// <param name="initialStartAtOperationTime">The start at operation time value.</param>
         /// <param name="maxWireVersion">The maximum wire version.</param>
         public ChangeStreamCursor(
-            IAsyncCursor<RawBsonDocument> cursor,
-            IBsonSerializer<TDocument> documentSerializer,
+            IAsyncCursor<TDocument> cursor,
             IReadBinding binding,
             ICoreSessionHandle session,
             IChangeStreamOperation<TDocument> changeStreamOperation,
@@ -81,7 +75,6 @@ namespace MongoDB.Driver.Core.Operations
             int maxWireVersion)
         {
             _cursor = Ensure.IsNotNull(cursor, nameof(cursor));
-            _documentSerializer = Ensure.IsNotNull(documentSerializer, nameof(documentSerializer));
             _binding = Ensure.IsNotNull(binding, nameof(binding));
             _changeStreamOperation = Ensure.IsNotNull(changeStreamOperation, nameof(changeStreamOperation));
             _session = Ensure.IsNotNull(session, nameof(session));
@@ -124,7 +117,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             return
                 _postBatchResumeToken ??
-                _documentResumeToken ??
                 _initialStartAfter ??
                 _initialResumeAfter;
         }
@@ -176,55 +168,11 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TDocument DeserializeDocument(RawBsonDocument rawDocument)
-        {
-            using (var stream = new ByteBufferStream(rawDocument.Slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return _documentSerializer.Deserialize(context);
-            }
-        }
-
-        private IEnumerable<TDocument> DeserializeDocuments(IEnumerable<RawBsonDocument> rawDocuments)
-        {
-            var documents = new List<TDocument>();
-            RawBsonDocument lastRawDocument = null;
-
-            _postBatchResumeToken = ((ICursorBatchInfo)_cursor).PostBatchResumeToken;
-
-            foreach (var rawDocument in rawDocuments)
-            {
-                if (!rawDocument.Contains("_id"))
-                {
-                    throw new MongoClientException("Cannot provide resume functionality when the resume token is missing.");
-                }
-
-                var document = DeserializeDocument(rawDocument);
-                documents.Add(document);
-
-                lastRawDocument = rawDocument;
-            }
-
-            if (lastRawDocument != null)
-            {
-                _documentResumeToken = lastRawDocument["_id"].DeepClone().AsBsonDocument;
-            }
-
-            return documents;
-        }
-
         private ResumeValues GetResumeValues()
         {
             if (_postBatchResumeToken != null)
             {
                 return new ResumeValues { ResumeAfter = _postBatchResumeToken };
-            }
-
-            if (_documentResumeToken != null)
-            {
-                return new ResumeValues { ResumeAfter = _documentResumeToken };
             }
 
             if (_initialStartAfter != null)
@@ -249,17 +197,8 @@ namespace MongoDB.Driver.Core.Operations
         {
             if (hasMore)
             {
-                try
-                {
-                    _current = DeserializeDocuments(_cursor.Current);
-                }
-                finally
-                {
-                    foreach (var rawDocument in _cursor.Current)
-                    {
-                        rawDocument.Dispose();
-                    }
-                }
+                _current = _cursor.Current;
+                _postBatchResumeToken = ((ICursorBatchInfo)_cursor).PostBatchResumeToken;
             }
             else
             {
@@ -275,7 +214,7 @@ namespace MongoDB.Driver.Core.Operations
             _changeStreamOperation.StartAtOperationTime = resumeValues.StartAtOperationTime;
         }
 
-        private IAsyncCursor<RawBsonDocument> Resume(CancellationToken cancellationToken)
+        private IAsyncCursor<TDocument> Resume(CancellationToken cancellationToken)
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
@@ -283,7 +222,7 @@ namespace MongoDB.Driver.Core.Operations
             return _changeStreamOperation.Resume(operationContext, _binding);
         }
 
-        private async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(CancellationToken cancellationToken)
+        private async Task<IAsyncCursor<TDocument>> ResumeAsync(CancellationToken cancellationToken)
         {
             ReconfigureOperationResumeValues();
             // TODO: CSOT implement proper way to obtain the operationContext
