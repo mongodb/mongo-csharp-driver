@@ -43,12 +43,6 @@ public class Feature
     public static Feature AggregateOptionsLet { get; } = new("AggregateOptionsLet", WireVersion.Server50);
 
     /// <summary>
-    /// Gets the aggregate merge feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature AggregateMerge { get; } = new("AggregateMerge", WireVersion.Server42);
-
-    /// <summary>
     /// Gets the aggregate out on secondary feature.
     /// </summary>
     public static Feature AggregateOutOnSecondary { get; } = new("AggregateOutOnSecondary", WireVersion.Server50);
@@ -62,12 +56,6 @@ public class Feature
     /// Gets the aggregate out to a different database feature.
     /// </summary>
     public static Feature AggregateOutToDifferentDatabase { get; } = new("AggregateOutToDifferentDatabase", WireVersion.Server44);
-
-    /// <summary>
-    /// Gets the aggregate toString feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature AggregateToString { get; } = new("AggregateToString", WireVersion.Server40);
 
     /// <summary>
     /// Gets the aggregate unionWith feature.
@@ -85,24 +73,6 @@ public class Feature
     public static Feature BitwiseOperators { get; } = new("BitwiseOperators", WireVersion.Server63);
 
     /// <summary>
-    /// Gets the change stream all changes for cluster feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ChangeStreamAllChangesForCluster { get; } = new("ChangeStreamAllChangesForCluster", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the change stream for database feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ChangeStreamForDatabase { get; } = new("ChangeStreamForDatabase", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the change stream post batch resume token feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ChangeStreamPostBatchResumeToken { get; } = new("ChangeStreamPostBatchResumeToken", WireVersion.Server40);
-
-    /// <summary>
     /// Gets the change stream pre post images feature.
     /// </summary>
     public static Feature ChangeStreamPrePostImages { get; } = new("ChangeStreamPrePostImages", WireVersion.Server60);
@@ -116,12 +86,6 @@ public class Feature
     /// Gets the client bulk write feature.
     /// </summary>
     public static Feature ClientBulkWrite { get; } = new("ClientBulkWrite", WireVersion.Server80);
-
-    /// <summary>
-    /// Gets the client side encryption feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ClientSideEncryption { get; } = new("ClientSideEncryption", WireVersion.Server42);
 
     /// <summary>
     /// Gets the clustered indexes feature.
@@ -162,12 +126,6 @@ public class Feature
     /// Gets the create index commit quorum feature.
     /// </summary>
     public static Feature CreateIndexCommitQuorum { get; } = new("CreateIndexCommitQuorum", WireVersion.Server44);
-
-    /// <summary>
-    /// Gets the create indexes using insert operations feature.
-    /// </summary>
-    [Obsolete("This feature was removed in server version 4.2. This property will be removed in the next major release.")]
-    public static Feature CreateIndexesUsingInsertOperations { get; } = new("CreateIndexesUsingInsertOperations", WireVersion.Zero, WireVersion.Server42);
 
     /// <summary>
     /// Represents support for the $createObjectId operator feature.
@@ -221,12 +179,6 @@ public class Feature
     public static Feature Csfle2QEv2TextPreviewAlgorithm { get; } = new("csfle2Qev2TextPreviewAlgorithm", WireVersion.Server82);
 
     /// <summary>
-    /// Gets the $dateFromString format argument feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature DateFromStringFormatArgument { get; } = new("DateFromStringFormatArgument", WireVersion.Server40);
-
-    /// <summary>
     /// Gets the date operators added in 5.0 feature.
     /// </summary>
     public static Feature DateOperatorsNewIn50 { get; } = new("DateOperatorsNewIn50", WireVersion.Server50);
@@ -257,30 +209,6 @@ public class Feature
     public static Feature ElectionIdPriorityInSDAM { get; } = new("ElectionIdPriorityInSDAM ", WireVersion.Server60);
 
     /// <summary>
-    /// Gets the eval feature.
-    /// </summary>
-    [Obsolete("This feature was removed in server version 4.2. This property will be removed in the next major release.")]
-    public static Feature Eval { get; } = new("Eval", WireVersion.Zero, WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the fail points block connection feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature FailPointsBlockConnection { get; } = new("FailPointsBlockConnection", WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the fail points fail command feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature FailPointsFailCommand { get; } = new("FailPointsFailCommand", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the fail points fail command for sharded feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature FailPointsFailCommandForSharded { get; } = new("FailPointsFailCommandForSharded", WireVersion.Server42);
-
-    /// <summary>
     /// Gets filter limit feature.
     /// </summary>
     public static Feature FilterLimit { get; } = new("FilterLimit", WireVersion.Server60);
@@ -296,13 +224,6 @@ public class Feature
     public static Feature FindProjectionExpressions { get; } = new("FindProjectionExpressions", WireVersion.Server44);
 
     /// <summary>
-    /// Gets the geoNear command feature.
-    /// </summary>
-    ///
-    [Obsolete("This feature was removed in server version 4.2. This property will be removed in the next major release.")]
-    public static Feature GeoNearCommand { get; } = new("GeoNearCommand", WireVersion.Zero, WireVersion.Server42);
-
-    /// <summary>
     /// Gets the getField feature.
     /// </summary>
     public static Feature GetField { get; } = new("GetField", WireVersion.Server50);
@@ -311,12 +232,6 @@ public class Feature
     /// Gets the getMore comment feature.
     /// </summary>
     public static Feature GetMoreComment { get; } = new("GetMoreComment", WireVersion.Server44);
-
-    /// <summary>
-    /// Gets the group command feature.
-    /// </summary>
-    [Obsolete("This feature was removed in server version 4.2. This property will be removed in the next major release.")]
-    public static Feature GroupCommand { get; } = new("GroupCommand", WireVersion.Zero, WireVersion.Server42);
 
     /// <summary>
     /// Gets the $hash operator feature.
@@ -341,42 +256,12 @@ public class Feature
     /// <summary>
     /// Gets the hint for find and modify operations feature.
     /// </summary>
-    [Obsolete("HintForFindAndModifyFeature is Obsolete and will be removed in the next major release. Use HintForFindAndModifyOperations instead")]
-    public static HintForFindAndModifyFeature HintForFindAndModifyFeature { get; } = new("HintForFindAndModify", WireVersion.Server44);
-
-    /// <summary>
-    /// Gets the hint for find and modify operations feature.
-    /// </summary>
     public static Feature HintForFindAndModifyOperations { get; } = new("HintForFindAndModifyOperations", WireVersion.Server44);
-
-    /// <summary>
-    /// Gets the hint for update and replace operations feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature HintForUpdateAndReplaceOperations { get; } = new("HintForUpdateAndReplaceOperations", WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the keep connection pool when NotPrimary connection exception feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature KeepConnectionPoolWhenNotPrimaryConnectionException { get; } = new("KeepConnectionPoolWhenNotWritablePrimaryConnectionException", WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the keep connection pool when replSetStepDown feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature KeepConnectionPoolWhenReplSetStepDown { get; } = new("KeepConnectionPoolWhenReplSetStepDown", WireVersion.Server42);
 
     /// <summary>
     /// Gets the legacy wire protocol feature.
     /// </summary>
     public static Feature LegacyWireProtocol { get; } = new("LegacyWireProtocol", WireVersion.Zero, WireVersion.Server51);
-
-    /// <summary>
-    /// Get the list databases authorizedDatabases feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ListDatabasesAuthorizedDatabases { get; } = new("ListDatabasesAuthorizedDatabases", WireVersion.Server40);
 
     /// <summary>
     /// Gets the load balanced mode feature.
@@ -392,12 +277,6 @@ public class Feature
     /// Gets the lookup documents feature.
     /// </summary>
     public static Feature LookupDocuments { get; } = new("LookupDocuments", WireVersion.Server60);
-
-    /// <summary>
-    /// Gets the mmapv1 storage engine feature.
-    /// </summary>
-    [Obsolete("This feature was removed in server version 4.2. This property will be removed in the next major release.")]
-    public static Feature MmapV1StorageEngine { get; } = new("MmapV1StorageEngine", WireVersion.Zero, WireVersion.Server42);
 
     /// <summary>
     /// Gets the $median operator added in 7.0
@@ -425,12 +304,6 @@ public class Feature
     public static Feature RankFusionStage { get; } = new("RankFusionStage", WireVersion.Server81);
 
     /// <summary>
-    /// Gets the regex match feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature RegexMatch { get; } = new("RegexMatch", WireVersion.Server42);
-
-    /// <summary>
     /// Gets the $replaceAll feature.
     /// </summary>
     public static Feature ReplaceAll { get; } = new("ReplaceAll", WireVersion.Server44);
@@ -441,21 +314,9 @@ public class Feature
     public static Feature ReplaceAllWithRegex { get; } = new("ReplaceAllWithRegex", WireVersion.Server82);
 
     /// <summary>
-    /// Gets the $round feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature Round { get; } = new("Round", WireVersion.Server42);
-
-    /// <summary>
     /// Gets the $scoreFusion feature.
     /// </summary>
     public static Feature ScoreFusionStage { get; } = new("ScoreFusionStage", WireVersion.Server82);
-
-    /// <summary>
-    /// Gets the scram sha256 authentication feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ScramSha256Authentication { get; } = new("ScramSha256Authentication", WireVersion.Server40);
 
     /// <summary>
     /// Gets the server returns resumableChangeStream label feature.
@@ -473,12 +334,6 @@ public class Feature
     public static Feature SerializeEJsonOperator { get; } = new("SerializeEJsonOperator", WireVersion.Server83);
 
     /// <summary>
-    /// Gets the $set stage feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature SetStage { get; } = new("SetStage", WireVersion.Server42);
-
-    /// <summary>
     /// Gets the set window fields feature.
     /// </summary>
     public static Feature SetWindowFields { get; } = new("SetWindowFields", WireVersion.Server50);
@@ -487,12 +342,6 @@ public class Feature
     /// Gets the set window fields $locf feature.
     /// </summary>
     public static Feature SetWindowFieldsLocf { get; } = new("SetWindowFieldsLocf", WireVersion.Server52);
-
-    /// <summary>
-    /// Gets the sharded transactions feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ShardedTransactions { get; } = new("ShardedTransactions", WireVersion.Server42);
 
     /// <summary>
     /// Gets the $sigmoid operator feature.
@@ -539,42 +388,6 @@ public class Feature
     /// Gets the $subtype operator feature.
     /// </summary>
     public static Feature SubtypeOperator { get; } = new("SubtypeOperator", WireVersion.Server83);
-
-    /// <summary>
-    /// Gets the $toXyz conversion operators feature ($toDouble etc.).
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature ToConversionOperators { get; } = new("ToConversionOperators", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the transactions feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature Transactions { get; } = new("Transactions", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the trig operators feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature TrigOperators { get; } = new("TrigOperators", WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the trim operator feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature TrimOperator { get; } = new("TrimOperator", WireVersion.Server40);
-
-    /// <summary>
-    /// Gets the update with aggregation pipeline feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature UpdateWithAggregationPipeline { get; } = new("UpdateWithAggregationPipeline", WireVersion.Server42);
-
-    /// <summary>
-    /// Gets the wildcard indexes feature.
-    /// </summary>
-    [Obsolete("This feature is supported by all server versions supported by this driver. This property will be removed in the next major release.")]
-    public static Feature WildcardIndexes { get; } = new("WildcardIndexes", WireVersion.Server42);
 
     #endregion
 

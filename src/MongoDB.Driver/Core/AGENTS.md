@@ -38,8 +38,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
   - `WritableServerSelector` — returns only writable servers (Primaries in RS, all in Standalone/Sharded).
   - `LatencyLimitingServerSelector` — filters servers within `LocalThreshold` of the fastest server, reducing tail latency.
   - `EndPointServerSelector` — filters a specific server by endpoint (used internally for pinned connections).
-  - `DeprioritizedServersServerSelector` — deprioritizes known bad servers.
-  - `PriorityServerSelector` — `[Obsolete]`. The public, legacy form of the deprioritization filter: a standalone `public sealed` selector that takes a `deprioritizedServers` collection and removes those endpoints from the candidate set on sharded clusters. The internal replacement is `DeprioritizedServersServerSelector` (an `internal sealed` *composing* selector that wraps another `IServerSelector` and filters its output). Neither is related to replica-set priorities; `PriorityServerSelector` is slated for removal in a future release.
+  - `DeprioritizedServersServerSelector` — deprioritizes known bad servers. An `internal sealed` *composing* selector: it wraps another `IServerSelector` and filters that selector's output, removing deprioritized endpoints on sharded clusters. Despite the name, it has nothing to do with replica-set priorities.
   - `OperationsCountServerSelector` — load-balances by operation count (for load-balanced deployments).
   - `RandomServerSelector` — random tie-breaker when multiple servers are equally good.
   - `DelegateServerSelector` — wraps an arbitrary `Func<…>` for ad-hoc selection logic (rarely used in production code; useful for tests and bespoke deployments).
@@ -288,7 +287,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 - **`Ensure`** — precondition checks (NotNull, IsGreaterThanZero, etc.).
 - **`DnsClientWrapper`** — async DNS resolver. The implementation uses the `DnsClient` NuGet package (not `System.Net.Dns`) so SRV/TXT queries work consistently across platforms. Both `IDnsResolver` and `DnsClientWrapper` are `internal`; there is no public seam for plugging in a custom resolver. The interface exists so in-assembly tests (via `InternalsVisibleTo`) can substitute a fake — production code always goes through `DnsClientWrapper` from `DnsMonitor`. Past versions of this file claimed users could substitute a custom `IDnsResolver`; do not re-introduce that claim.
 - **`ExceptionMapper`** — classifies wire exceptions (network error, timeout, server error) into semantic types.
-- **`Feature`** — checks server version for feature availability (e.g., "does this server support transactions?").
+- **`Feature`** — checks server version for feature availability (e.g., "does this server support client bulk write?"). Only features whose support varies across the server versions this driver supports belong here; once the driver's minimum server version passes a feature's floor, the entry is removed rather than left as a tautology.
 - **`EnvironmentVariableProvider`** — abstraction over `Environment.GetEnvironmentVariable` for testing.
 
 ---

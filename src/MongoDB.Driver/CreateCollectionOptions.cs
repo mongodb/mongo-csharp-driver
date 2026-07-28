@@ -34,11 +34,9 @@ namespace MongoDB.Driver
         private IndexOptionDefaults _indexOptionDefaults;
         private long? _maxDocuments;
         private long? _maxSize;
-        private bool? _noPadding;
         private BsonDocument _storageEngine;
         private TimeSpan? _timeout;
         private TimeSeriesOptions _timeSeriesOptions;
-        private bool? _usePowerOf2Sizes;
         private IBsonSerializerRegistry _serializerRegistry;
         private DocumentValidationAction? _validationAction;
         private DocumentValidationLevel? _validationLevel;
@@ -120,16 +118,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets whether padding should not be used.
-        /// </summary>
-        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
-        public bool? NoPadding
-        {
-            get { return _noPadding; }
-            set { _noPadding = value; }
-        }
-
-        /// <summary>
         /// Gets or sets the serializer registry.
         /// </summary>
         public IBsonSerializerRegistry SerializerRegistry
@@ -164,16 +152,6 @@ namespace MongoDB.Driver
         {
             get { return _timeSeriesOptions; }
             set { _timeSeriesOptions = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to use power of 2 sizes.
-        /// </summary>
-        [Obsolete("This option was removed in server version 4.2. As such, this property will be removed in a later release.")]
-        public bool? UsePowerOf2Sizes
-        {
-            get { return _usePowerOf2Sizes; }
-            set { _usePowerOf2Sizes = value; }
         }
 
         /// <summary>
