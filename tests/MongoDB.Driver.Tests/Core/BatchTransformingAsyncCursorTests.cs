@@ -19,15 +19,60 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.TestHelpers;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver
 {
     public class BatchTransformingAsyncCursorTests
     {
+        [Fact]
+        public void Dispose_should_dispose_wrapped_cursor()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            subject.Dispose();
+
+            mockWrapped.Verify(c => c.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void Dispose_can_be_called_more_than_once()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            subject.Dispose();
+            subject.Dispose();
+
+            mockWrapped.Verify(c => c.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_should_dispose_wrapped_cursor()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            await subject.DisposeAsync();
+
+            mockWrapped.Verify(c => c.DisposeAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task DisposeAsync_can_be_called_more_than_once()
+        {
+            var mockWrapped = new Mock<IAsyncCursor<int>>();
+            var subject = new BatchTransformingAsyncCursor<int, int>(mockWrapped.Object, x => x);
+
+            await subject.DisposeAsync();
+            await subject.DisposeAsync();
+
+            mockWrapped.Verify(c => c.DisposeAsync(), Times.Once);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void Should_provide_back_all_results(
@@ -204,11 +249,12 @@ namespace MongoDB.Driver
             {
                 _current = null;
             }
-        }
-    }
 
-    internal static class BatchTransformingAsyncCursorReflector
-    {
-        public static IAsyncCursor<TIn> _wrapped<TIn, TOut>(this BatchTransformingAsyncCursor<TIn, TOut> obj) => (IAsyncCursor<TIn>)Reflector.GetFieldValue(obj, nameof(_wrapped));
+            public ValueTask DisposeAsync()
+            {
+                _current = null;
+                return default;
+            }
+        }
     }
 }

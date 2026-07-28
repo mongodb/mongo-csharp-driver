@@ -112,6 +112,27 @@ namespace MongoDB.Driver
             }
         }
 
+        /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                try
+                {
+                    _disposeAction();
+                }
+                finally
+                {
+                    if (_cursor != null)
+                    {
+                        await _cursor.DisposeAsync().ConfigureAwait(false);
+                        _cursor = null;
+                    }
+                }
+            }
+        }
+
         private void ThrowIfDisposed()
         {
             if (_disposed)

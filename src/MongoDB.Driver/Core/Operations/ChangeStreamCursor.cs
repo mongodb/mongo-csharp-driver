@@ -108,6 +108,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc/>
+        public async ValueTask DisposeAsync()
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                await _cursor.DisposeAsync().ConfigureAwait(false);
+                _binding.Dispose();
+                _session.Dispose();
+            }
+        }
+
+        /// <inheritdoc/>
         public BsonDocument GetResumeToken()
         {
             return
@@ -154,7 +166,7 @@ namespace MongoDB.Driver.Core.Operations
                 catch (Exception ex) when (RetryabilityHelper.IsResumableChangeStreamException(ex, _maxWireVersion))
                 {
                     var newCursor = await ResumeAsync(cancellationToken).ConfigureAwait(false);
-                    _cursor.Dispose();
+                    await _cursor.DisposeAsync().ConfigureAwait(false);
                     _cursor = newCursor;
                 }
             }

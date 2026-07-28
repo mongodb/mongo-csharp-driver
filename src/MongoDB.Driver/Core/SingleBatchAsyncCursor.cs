@@ -68,6 +68,12 @@ namespace MongoDB.Driver
             _disposed = true;
         }
 
+        public ValueTask DisposeAsync()
+        {
+            _disposed = true;
+            return default;
+        }
+
         // private methods
         private void ThrowIfDisposed()
         {
