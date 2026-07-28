@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-using FluentAssertions;
 using System.Security.Cryptography;
+using FluentAssertions;
 using Xunit;
 
 namespace MongoDB.Driver.Encryption.Tests

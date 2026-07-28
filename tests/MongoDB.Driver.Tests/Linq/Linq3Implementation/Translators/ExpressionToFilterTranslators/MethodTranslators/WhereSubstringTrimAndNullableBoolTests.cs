@@ -17,8 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.connection_monitoring_and_pooling;
 using Xunit;
 

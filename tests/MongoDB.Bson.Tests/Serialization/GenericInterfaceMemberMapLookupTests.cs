@@ -21,17 +21,17 @@ namespace MongoDB.Bson.Tests.Serialization
     // Regression test for CSHARP-708.
     public class GenericInterfaceMemberMapLookupTests
     {
-        interface IIdentity
+        private interface IIdentity
         {
             string Id { get; }
         }
 
-        class Entity : IIdentity
+        private class Entity : IIdentity
         {
             public string Id { get; set; }
         }
 
-        BsonMemberMap GetIdMemberMap<T>(BsonClassMap<T> cm)
+        private BsonMemberMap GetIdMemberMap<T>(BsonClassMap<T> cm)
             where T : class, IIdentity, new()
         {
             return cm.GetMemberMap(x => x.Id);

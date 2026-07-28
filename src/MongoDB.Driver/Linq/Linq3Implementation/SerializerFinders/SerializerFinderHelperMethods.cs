@@ -71,7 +71,7 @@ internal partial class SerializerFinderVisitor
         return nodes.Any(IsNotKnown);
     }
 
-    IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
+    private IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
     {
         if (collectionSerializer.ValueType == collectionType)
         {
@@ -101,7 +101,7 @@ internal partial class SerializerFinderVisitor
         return CreateCollectionSerializerFromItemSerializer(collectionType, itemSerializer);
     }
 
-    IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type collectionType, IBsonSerializer itemSerializer)
+    private IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type collectionType, IBsonSerializer itemSerializer)
     {
         if (itemSerializer is IUnknowableSerializer)
         {

@@ -19,7 +19,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
 {
     public interface ILoggingService
     {
-        public LoggingSettings LoggingSettings { get; }
-        public LogEntry[] Logs { get; }
+        LoggingSettings LoggingSettings { get; }
+        LogEntry[] Logs { get; }
     }
 }

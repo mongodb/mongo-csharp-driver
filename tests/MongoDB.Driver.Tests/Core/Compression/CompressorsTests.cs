@@ -14,13 +14,13 @@
 */
 
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.TestHelpers.XunitExtensions;
 using SharpCompress.IO;
 using Xunit;
 

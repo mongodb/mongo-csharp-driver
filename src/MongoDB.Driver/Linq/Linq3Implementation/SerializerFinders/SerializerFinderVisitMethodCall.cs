@@ -1578,7 +1578,7 @@ internal partial class SerializerFinderVisitor
 
         // Processes special cases where we do not have fixed list of methodInfos that we support,
         // but trying to deduce serializers based on method name and arguments
-        static Action<SerializerFinderVisitor, MethodCallExpression> CreateDynamicSerializerDeducer(MethodInfo method)
+        private static Action<SerializerFinderVisitor, MethodCallExpression> CreateDynamicSerializerDeducer(MethodInfo method)
         {
             return method.Name switch
             {

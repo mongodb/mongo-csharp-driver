@@ -79,7 +79,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
-        class NestedExpando
+        private class NestedExpando
         {
             public ObjectId Id { get; set; }
             public ExpandoObject ExtraData { get; set; }

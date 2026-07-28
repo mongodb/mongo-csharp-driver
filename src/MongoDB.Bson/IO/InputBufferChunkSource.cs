@@ -23,9 +23,9 @@ namespace MongoDB.Bson.IO
     public sealed class InputBufferChunkSource : IBsonChunkSource
     {
         // constants
-        const int DefaultMaxChunkSize = 1 * 1024 * 1024;
-        const int DefaultMaxUnpooledChunkSize = 4 * 1024;
-        const int DefaultMinChunkSize = 16 * 1024;
+        private const int DefaultMaxChunkSize = 1 * 1024 * 1024;
+        private const int DefaultMaxUnpooledChunkSize = 4 * 1024;
+        private const int DefaultMinChunkSize = 16 * 1024;
 
         // fields
         private readonly IBsonChunkSource _baseSource;

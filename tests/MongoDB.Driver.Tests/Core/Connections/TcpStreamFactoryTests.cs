@@ -14,18 +14,18 @@
 */
 
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using FluentAssertions;
-using MongoDB.Driver.Core.Configuration;
-using Xunit;
-using System.Threading.Tasks;
 using System.Reflection;
-using System.IO;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Core.Connections
 {

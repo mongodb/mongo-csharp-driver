@@ -13,13 +13,13 @@
 * limitations under the License.
 */
 
+using System;
+using System.IO;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using System;
-using System.IO;
-using System.Linq;
 using Xunit;
 
 namespace MongoDB.Driver

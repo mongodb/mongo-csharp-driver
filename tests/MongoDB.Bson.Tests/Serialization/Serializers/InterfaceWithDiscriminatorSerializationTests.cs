@@ -24,10 +24,10 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class InterfaceWithDiscriminatorSerializationTests
     {
-        interface IWhatever { }
-        class Whatever : IWhatever { }
+        private interface IWhatever { }
+        private class Whatever : IWhatever { }
 
-        class Person
+        private class Person
         {
             public IWhatever Whatever { get; set; }
         }

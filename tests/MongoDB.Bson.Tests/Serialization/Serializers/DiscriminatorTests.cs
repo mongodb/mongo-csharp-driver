@@ -72,9 +72,9 @@ namespace MongoDB.Bson.Tests.Serialization
         [BsonKnownTypes(typeof(DerivedDocument<int>))]
         [BsonKnownTypes(typeof(DerivedDocument<List<Dictionary<string, int>>>))]
         [BsonKnownTypes(typeof(DerivedDocumentDouble<int, string>))]
-        abstract class BaseDocument;
+        private abstract class BaseDocument;
 
-        class DerivedDocument<T> : BaseDocument
+        private class DerivedDocument<T> : BaseDocument
         {
             [BsonId]
             public int Id { get; set; }
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public T Value { get; set; }
         }
 
-        class DerivedDocumentDouble<T1, T2> : BaseDocument
+        private class DerivedDocumentDouble<T1, T2> : BaseDocument
         {
             [BsonId]
             public int Id { get; set; }

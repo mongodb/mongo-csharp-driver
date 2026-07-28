@@ -244,15 +244,15 @@ namespace MongoDB.Driver.Core.Connections
             result.Should().Be(expectedResult);
         }
 
-        const string awsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
-        const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
-        const string gcpEnv = "K_SERVICE";
-        const string vercelEnv = "VERCEL";
+        private const string awsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
+        private const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
+        private const string gcpEnv = "K_SERVICE";
+        private const string vercelEnv = "VERCEL";
 
-        const string awsLambdaName = "aws.lambda";
-        const string azureFuncName = "azure.func";
-        const string gcpFuncName = "gcp.func";
-        const string vercelName = "vercel";
+        private const string awsLambdaName = "aws.lambda";
+        private const string azureFuncName = "azure.func";
+        private const string gcpFuncName = "gcp.func";
+        private const string vercelName = "vercel";
 
         [Theory]
         [ParameterAttributeData]

@@ -13,23 +13,23 @@
 * limitations under the License.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -454,7 +454,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        void ProcessBatch_should_deserialize_documents(
+        private void ProcessBatch_should_deserialize_documents(
             [Values(false, true)] bool async)
         {
             var mockCursor = CreateMockCursor();
@@ -489,7 +489,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        void ProcessBatch_should_Dispose_rawDocuments(
+        private void ProcessBatch_should_Dispose_rawDocuments(
             [Values(false, true)] bool async)
         {
             var mockCursor = CreateMockCursor();
@@ -524,7 +524,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        void ProcessBatch_should_save_documentResumeToken(
+        private void ProcessBatch_should_save_documentResumeToken(
             [Values(false, true)] bool async)
         {
             var postBatchResumeToken = new BsonDocument("a", 1);
@@ -559,7 +559,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        void ProcessBatch_should_throw_when_resume_token_is_missing(
+        private void ProcessBatch_should_throw_when_resume_token_is_missing(
             [Values(false, true)] bool async)
         {
             var mockCursor = CreateMockCursor();

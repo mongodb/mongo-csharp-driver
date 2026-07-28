@@ -13,9 +13,9 @@
 * limitations under the License.
 */
 
-using ZstdSharp;
 using System.IO;
 using MongoDB.Driver.Core.Misc;
+using ZstdSharp;
 
 namespace MongoDB.Driver.Core.Compression
 {

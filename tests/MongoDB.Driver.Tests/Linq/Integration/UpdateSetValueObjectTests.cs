@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Tests.Linq.Integration
             public int Y { get; }
         }
 
-        class XSerializer : SerializerBase<X>, IBsonDocumentSerializer
+        private class XSerializer : SerializerBase<X>, IBsonDocumentSerializer
         {
             public override X Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
             {

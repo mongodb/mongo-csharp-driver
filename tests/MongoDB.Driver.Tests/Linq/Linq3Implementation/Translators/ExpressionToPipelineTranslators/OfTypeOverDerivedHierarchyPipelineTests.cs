@@ -17,8 +17,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver.Linq;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.TestHelpers;
 using Xunit;
 

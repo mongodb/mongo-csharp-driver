@@ -19,8 +19,8 @@ namespace MongoDB.Driver
 {
     internal interface IClusterSource
     {
-        public IClusterInternal Get(ClusterKey key);
-        public void Return(IClusterInternal cluster);
+        IClusterInternal Get(ClusterKey key);
+        void Return(IClusterInternal cluster);
     }
 
     internal sealed class DefaultClusterSource : IClusterSource

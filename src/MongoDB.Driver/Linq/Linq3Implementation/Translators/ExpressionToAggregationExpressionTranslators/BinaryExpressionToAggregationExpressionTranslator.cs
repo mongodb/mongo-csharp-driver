@@ -221,7 +221,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             };
         }
 
-        static bool IsConvertEnumToIntegralType(Expression expression)
+        private static bool IsConvertEnumToIntegralType(Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert)
             {
@@ -244,7 +244,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 IsAddOrSubtractExpression(expression);
         }
 
-        static bool IsEnumOrConvertEnumToIntegralType(Expression expression)
+        private static bool IsEnumOrConvertEnumToIntegralType(Expression expression)
         {
             return expression.Type.IsEnum || IsConvertEnumToIntegralType(expression);
         }

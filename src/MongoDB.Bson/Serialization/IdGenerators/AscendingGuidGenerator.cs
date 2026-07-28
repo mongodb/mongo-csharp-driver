@@ -14,8 +14,8 @@
 */
 
 using System;
-using System.Threading;
 using System.Buffers.Binary;
+using System.Threading;
 
 namespace MongoDB.Bson.Serialization.IdGenerators
 {

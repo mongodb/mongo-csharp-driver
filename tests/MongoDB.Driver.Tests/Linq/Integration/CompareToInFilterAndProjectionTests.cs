@@ -122,7 +122,7 @@ public class CompareToInFilterAndProjectionTests : LinqIntegrationTest<CompareTo
 
         public interface IIdentity<TId>
         {
-            public TId Id { get; set; }
+            TId Id { get; set; }
         }
 
         public class C : IIdentity<int>

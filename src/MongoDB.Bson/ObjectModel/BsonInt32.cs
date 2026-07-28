@@ -25,8 +25,8 @@ namespace MongoDB.Bson
     public class BsonInt32 : BsonValue, IComparable<BsonInt32>, IEquatable<BsonInt32>
     {
         #region static
-        const int __minPrecreatedValue = -100;
-        const int __maxPrecreatedValue = 100;
+        private const int __minPrecreatedValue = -100;
+        private const int __maxPrecreatedValue = 100;
         private static readonly BsonInt32[] __precreatedInstances = new BsonInt32[__maxPrecreatedValue - __minPrecreatedValue + 1];
 
         static BsonInt32()
