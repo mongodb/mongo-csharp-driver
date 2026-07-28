@@ -19,7 +19,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
