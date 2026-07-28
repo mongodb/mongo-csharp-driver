@@ -2100,9 +2100,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2166,9 +2163,6 @@ namespace MongoDB.Driver
             request.AdditionalOptions.Should().BeNull();
             request.Background.Should().Be(options.Background);
             request.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2236,9 +2230,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2303,9 +2294,6 @@ namespace MongoDB.Driver
             request1.AdditionalOptions.Should().BeNull();
             request1.Background.Should().Be(options.Background);
             request1.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request1.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2343,9 +2331,6 @@ namespace MongoDB.Driver
             request2.AdditionalOptions.Should().BeNull();
             request2.Background.Should().NotHaveValue();
             request2.Bits.Should().NotHaveValue();
-#pragma warning disable 618
-            request2.BucketSize.Should().NotHaveValue();
-#pragma warning restore 618
             request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();

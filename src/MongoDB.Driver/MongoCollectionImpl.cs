@@ -1672,9 +1672,6 @@ namespace MongoDB.Driver
                         Name = options.Name,
                         Background = options.Background,
                         Bits = options.Bits,
-#pragma warning disable 618
-                        BucketSize = options.BucketSize,
-#pragma warning restore 618
                         Collation = options.Collation,
                         DefaultLanguage = options.DefaultLanguage,
                         ExpireAfter = options.ExpireAfter,

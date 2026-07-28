@@ -166,31 +166,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Creates an index.
         /// </summary>
-        /// <param name="keys">The keys.</param>
-        /// <param name="options">The create index request options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The name of the index that was created.
-        /// </returns>
-        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
-        string CreateOne(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Creates an index.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="keys">The keys.</param>
-        /// <param name="options">The create index request options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The name of the index that was created.
-        /// </returns>
-        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
-        string CreateOne(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Creates an index.
-        /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="model">The model defining the index.</param>
         /// <param name="options">The create index operation options.</param>
@@ -218,31 +193,6 @@ namespace MongoDB.Driver
             CreateIndexModel<TDocument> model,
             CreateOneIndexOptions options = null,
             CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Creates an index.
-        /// </summary>
-        /// <param name="keys">The keys.</param>
-        /// <param name="options">The create index request options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A task whose result is the name of the index that was created.
-        /// </returns>
-        [Obsolete("Use CreateOneAsync with a CreateIndexModel instead.")]
-        Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Creates an index.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="keys">The keys.</param>
-        /// <param name="options">The create index request options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A task whose result is the name of the index that was created.
-        /// </returns>
-        [Obsolete("Use CreateOneAsyc with a CreateIndexModel instead.")]
-        Task<string> CreateOneAsync(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Creates an index.
