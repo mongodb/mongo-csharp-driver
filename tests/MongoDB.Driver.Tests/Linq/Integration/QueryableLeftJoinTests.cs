@@ -243,6 +243,41 @@ public class QueryableLeftJoinTests : LinqIntegrationTest<QueryableLeftJoinTests
         exception.Should().BeOfType<ExpressionNotSupportedException>();
     }
 
+    // The same restriction applies to an inner join (Queryable.Join). The MongoDB LINQ Join overload
+    // only accepts an IMongoCollection, so a non-collection inner can only arrive via the BCL
+    // Queryable.Join; it must be rejected for the same reason (CSHARP-6125).
+    [Fact]
+    public void Join_with_filtered_inner_queryable_should_throw()
+    {
+        var orders = Fixture.OrdersCollection;
+
+        var queryable = orders.AsQueryable()
+            .Join(
+                Fixture.CustomersCollection.AsQueryable().Where(c => c.Name == "Alice"),
+                o => o.CustomerId,
+                c => c.Id,
+                (o, c) => new { OrderId = o.Id, CustomerName = c.Name });
+
+        var exception = Record.Exception(() => Translate(orders, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
+    [Fact]
+    public void Join_with_ordered_and_limited_inner_queryable_should_throw()
+    {
+        var orders = Fixture.OrdersCollection;
+
+        var queryable = orders.AsQueryable()
+            .Join(
+                Fixture.CustomersCollection.AsQueryable().OrderBy(c => c.Name).Take(4),
+                o => o.CustomerId,
+                c => c.Id,
+                (o, c) => new { OrderId = o.Id, CustomerName = c.Name });
+
+        var exception = Record.Exception(() => Translate(orders, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
 #if NET10_0_OR_GREATER
     // A nested Enumerable.LeftJoin on an array member is routed to the aggregation-expression
     // translator (inside the Select body), not the $lookup pipeline translator. It is currently
