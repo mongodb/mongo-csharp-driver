@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
         public void ResetCache()
         {
             // No-op: DefaultAWSCredentialsIdentityResolver owns credential caching and invalidates on
-            // environment/config changes; v4 exposes no API to force a reset. Mirrors AWSInstanceCredentialsSource.
+            // environment/config changes.
         }
 
         private AWSCredentials CreateAWSCredentials(ImmutableCredentials immutableCredentials)
