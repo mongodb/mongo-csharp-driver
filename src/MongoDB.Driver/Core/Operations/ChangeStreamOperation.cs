@@ -19,7 +19,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
@@ -29,12 +28,11 @@ namespace MongoDB.Driver.Core.Operations
     internal interface IChangeStreamOperation<TResult> : IReadOperation<IChangeStreamCursor<TResult>>
     {
         BsonDocument ResumeAfter { get; set; }
-        bool? ShowExpandedEvents { get; set; }
         BsonDocument StartAfter { get; set; }
         BsonTimestamp StartAtOperationTime { get; set; }
 
-        IAsyncCursor<RawBsonDocument> Resume(OperationContext operationContext, IReadBinding binding);
-        Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(OperationContext operationContext, IReadBinding binding);
+        IAsyncCursor<TResult> Resume(OperationContext operationContext, IReadBinding binding);
+        Task<IAsyncCursor<TResult>> ResumeAsync(OperationContext operationContext, IReadBinding binding);
     }
 
     internal sealed class ChangeStreamOperation<TResult> : IChangeStreamOperation<TResult>
@@ -280,7 +278,7 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.Execute must implement IReadBindingHandle.", nameof(binding));
             }
 
-            IAsyncCursor<RawBsonDocument> cursor;
+            IAsyncCursor<TResult> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
             using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
@@ -293,7 +291,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 return new ChangeStreamCursor<TResult>(
                     cursor,
-                    _resultSerializer,
                     bindingHandle.Fork(),
                     operationContext.Session.Fork(),
                     this,
@@ -316,7 +313,7 @@ namespace MongoDB.Driver.Core.Operations
                 throw new ArgumentException("The binding value passed to ChangeStreamOperation.ExecuteAsync must implement IReadBindingHandle.", nameof(binding));
             }
 
-            IAsyncCursor<RawBsonDocument> cursor;
+            IAsyncCursor<TResult> cursor;
             ICursorBatchInfo cursorBatchInfo;
             BsonTimestamp initialOperationTime;
             using (var context = new RetryableReadContext(binding, _retryRequested, _maxAdaptiveRetries, _enableOverloadRetargeting))
@@ -329,7 +326,6 @@ namespace MongoDB.Driver.Core.Operations
 
                 return new ChangeStreamCursor<TResult>(
                     cursor,
-                    _resultSerializer,
                     bindingHandle.Fork(),
                     operationContext.Session.Fork(),
                     this,
@@ -343,7 +339,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
-        public IAsyncCursor<RawBsonDocument> Resume(OperationContext operationContext, IReadBinding binding)
+        public IAsyncCursor<TResult> Resume(OperationContext operationContext, IReadBinding binding)
         {
             using (var context = new RetryableReadContext(binding, retryRequested: false, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
@@ -352,7 +348,7 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <inheritdoc />
-        public async Task<IAsyncCursor<RawBsonDocument>> ResumeAsync(OperationContext operationContext, IReadBinding binding)
+        public async Task<IAsyncCursor<TResult>> ResumeAsync(OperationContext operationContext, IReadBinding binding)
         {
             using (var context = new RetryableReadContext(binding, retryRequested: false, _maxAdaptiveRetries, _enableOverloadRetargeting))
             {
@@ -361,15 +357,15 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private methods
-        private AggregateOperation<RawBsonDocument> CreateAggregateOperation()
+        private AggregateOperation<TResult> CreateAggregateOperation()
         {
             var changeStreamStage = CreateChangeStreamStage();
             var combinedPipeline = CreateCombinedPipeline(changeStreamStage);
 
-            AggregateOperation<RawBsonDocument> operation;
+            AggregateOperation<TResult> operation;
             if (_collectionNamespace != null)
             {
-                operation = new AggregateOperation<RawBsonDocument>(_collectionNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+                operation = new AggregateOperation<TResult>(_collectionNamespace, combinedPipeline, _resultSerializer, _messageEncoderSettings)
                 {
                     EnableOverloadRetargeting = _enableOverloadRetargeting,
                     MaxAdaptiveRetries = _maxAdaptiveRetries,
@@ -379,7 +375,7 @@ namespace MongoDB.Driver.Core.Operations
             else
             {
                 var databaseNamespace = _databaseNamespace ?? DatabaseNamespace.Admin;
-                operation = new AggregateOperation<RawBsonDocument>(databaseNamespace, combinedPipeline, RawBsonDocumentSerializer.Instance, _messageEncoderSettings)
+                operation = new AggregateOperation<TResult>(databaseNamespace, combinedPipeline, _resultSerializer, _messageEncoderSettings)
                 {
                     EnableOverloadRetargeting = _enableOverloadRetargeting,
                     MaxAdaptiveRetries = _maxAdaptiveRetries,
@@ -419,13 +415,13 @@ namespace MongoDB.Driver.Core.Operations
             return combinedPipeline;
         }
 
-        private IAsyncCursor<RawBsonDocument> ExecuteAggregateOperation(OperationContext operationContext, RetryableReadContext context)
+        private IAsyncCursor<TResult> ExecuteAggregateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var aggregateOperation = CreateAggregateOperation();
             return aggregateOperation.Execute(operationContext, context);
         }
 
-        private Task<IAsyncCursor<RawBsonDocument>> ExecuteAggregateOperationAsync(OperationContext operationContext, RetryableReadContext context)
+        private Task<IAsyncCursor<TResult>> ExecuteAggregateOperationAsync(OperationContext operationContext, RetryableReadContext context)
         {
             var aggregateOperation = CreateAggregateOperation();
             return aggregateOperation.ExecuteAsync(operationContext, context);

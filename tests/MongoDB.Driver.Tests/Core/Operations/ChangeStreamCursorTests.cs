@@ -41,18 +41,16 @@ namespace MongoDB.Driver.Core.Operations
         #endregion
 
         [Theory]
-        [InlineData("{ 'd' : '4' }", "{ 'a' : '1' }", "{ 'b' : '2' }", 3L, "{ 'c' : '3' }", null, "{ 'd' : '4' }", null)]
-        [InlineData(null, "{ 'a' : '1' }", "{ 'b' : '2' }", 3L, "{ 'c' : '3' }", null, "{ 'c' : '3' }", null)]
-        [InlineData(null, "{ 'a' : '1' }", "{ 'b' : '2' }", 3L, null, null, "{ 'b' : '2' }", null)]
-        [InlineData(null, "{ 'a' : '1' }", null, 3L, null, null, "{ 'a' : '1' }", null)]
-        [InlineData(null, null, null, 3L, null, null, null, 3L)]
-        [InlineData(null, null, null, null, null, 4L, null, 4L)]
+        [InlineData("{ 'd' : '4' }", "{ 'a' : '1' }", "{ 'b' : '2' }", 3L, null, "{ 'd' : '4' }", null)]
+        [InlineData(null, "{ 'a' : '1' }", "{ 'b' : '2' }", 3L, null, "{ 'b' : '2' }", null)]
+        [InlineData(null, "{ 'a' : '1' }", null, 3L, null, "{ 'a' : '1' }", null)]
+        [InlineData(null, null, null, 3L, null, null, 3L)]
+        [InlineData(null, null, null, null, 4L, null, 4L)]
         public void ChangeStreamOperation_should_have_expected_change_stream_operation_options_for_resume_process_after_resumable_error(
             string postBatchResumeTokenJson,
             string resumeAfterJson,
             string startAfterJson,
             object startAtOperationTimeValue,
-            string documentResumeTokenJson,
             object initialOperationTimeObj,
             string expectedResumeAfter,
             object expectedStartAtOperationTimeValue)
@@ -61,7 +59,6 @@ namespace MongoDB.Driver.Core.Operations
             var resumeAfter = resumeAfterJson != null ? BsonDocument.Parse(resumeAfterJson) : null;
             var startAfter = startAfterJson != null ? BsonDocument.Parse(startAfterJson) : null;
             var startAtOperationTime = startAtOperationTimeValue != null ? BsonTimestamp.Create(startAtOperationTimeValue) : null;
-            var documentResumeToken = documentResumeTokenJson != null ? BsonDocument.Parse(documentResumeTokenJson) : null;
             var initialOperationTime = initialOperationTimeObj != null ? BsonTimestamp.Create(initialOperationTimeObj) : null;
 
             var mockCursor = CreateMockCursor();
@@ -72,8 +69,6 @@ namespace MongoDB.Driver.Core.Operations
                 startAtOperationTime: startAtOperationTime,
                 postBatchResumeToken: postBatchResumeToken,
                 initialOperationTime: initialOperationTime);
-
-            subject._documentResumeToken(documentResumeToken);
 
             var result = subject.GetResumeValues();
 
@@ -86,7 +81,6 @@ namespace MongoDB.Driver.Core.Operations
         public void constructor_should_initialize_instance()
         {
             var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var binding = new Mock<IReadBinding>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
@@ -98,7 +92,6 @@ namespace MongoDB.Driver.Core.Operations
 
             var subject = new ChangeStreamCursor<BsonDocument>(
                 cursor,
-                documentSerializer,
                 binding,
                 session,
                 changeStreamOperation,
@@ -114,7 +107,6 @@ namespace MongoDB.Driver.Core.Operations
             subject._current().Should().BeNull();
             subject._cursor().Should().BeSameAs(cursor);
             subject._disposed().Should().BeFalse();
-            subject._documentSerializer().Should().BeSameAs(documentSerializer);
             subject._postBatchResumeToken().Should().BeSameAs(postBatchResumeToken);
             subject._initialOperationTime().Should().BeSameAs(initialOperationTime);
             subject._initialStartAfter().Should().Be(startAfter);
@@ -127,82 +119,62 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_cursor_is_null()
         {
-            var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var binding = new Mock<IReadBinding>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(null, documentSerializer, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(null, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
             var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumnetNullException.ParamName.Should().Be("cursor");
         }
 
         [Fact]
-        public void constructor_should_throw_when_documentSerializer_is_null()
-        {
-            var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            var binding = new Mock<IReadBinding>().Object;
-            var session = new Mock<ICoreSessionHandle>().Object;
-            var initialOperationTime = new BsonTimestamp(3L);
-            var postBatchResumeToken = Mock.Of<BsonDocument>();
-            var changeStreamOperation = CreateChangeStreamOperation();
-
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, null, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
-
-            var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumnetNullException.ParamName.Should().Be("documentSerializer");
-        }
-
-        [Fact]
         public void constructor_should_throw_when_binding_is_null()
         {
             var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, null, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, null, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
-            var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumnetNullException.ParamName.Should().Be("binding");
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("binding");
         }
 
         [Fact]
         public void constructor_should_throw_when_changeStreamOperation_is_null()
         {
             var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var binding = new Mock<IReadBinding>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, session, null, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, binding, session, null, postBatchResumeToken, initialOperationTime, null, null, null, __dummyMaxWireVersion));
 
-            var argumnetNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            argumnetNullException.ParamName.Should().Be("changeStreamOperation");
+            exception.Should().BeOfType<ArgumentNullException>().Subject
+                .ParamName.Should().Be("changeStreamOperation");
         }
 
         [Fact]
         public void constructor_should_throw_when_maxWireVersion_is_negative()
         {
             var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            var documentSerializer = new Mock<IBsonSerializer<BsonDocument>>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var binding = new Mock<IReadBinding>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var changeStreamOperation = CreateChangeStreamOperation();
 
-            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, -1));
+            var exception = Record.Exception(() => new ChangeStreamCursor<BsonDocument>(cursor, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, null, null, null, -1));
 
-            var argumnetNullException = exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject;
-            argumnetNullException.ParamName.Should().Be("maxWireVersion");
+            exception.Should().BeOfType<ArgumentOutOfRangeException>().Subject
+                .ParamName.Should().Be("maxWireVersion");
         }
 
         [Fact]
@@ -298,21 +270,18 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         [Theory]
-        [InlineData("{ a : 1 }", "{ b : 2 }", "{ c : 3 }", "{ d : 4 }", "{ a : 1 }")]
-        [InlineData(null, "{ b : 2 }", "{ c : 3 }", "{ d : 4 }", "{ b : 2 }")]
-        [InlineData(null, null, "{ c : 3 }", "{ d : 4 }", "{ c : 3 }")]
-        [InlineData(null, null, null, "{ d : 4 }", "{ d : 4 }")]
-        [InlineData(null, null, null, null, null)]
+        [InlineData("{ a : 1 }", "{ b : 2 }", "{ c : 3 }", "{ a : 1 }")]
+        [InlineData(null, "{ b : 2 }", "{ c : 3 }", "{ b : 2 }")]
+        [InlineData(null, null, "{ c : 3 }", "{ c : 3 }")]
+        [InlineData(null, null, null, null)]
         public void GetResumeToken_should_return_expected_result(
             string postBatchResumeTokenJson,
-            string documentResumeTokenJson,
             string startAfterJson,
             string resumeAfterJson,
             string expectedResult)
         {
             var mockCursor = CreateMockCursor();
             var postBatchResumeToken = postBatchResumeTokenJson != null ? BsonDocument.Parse(postBatchResumeTokenJson) : null;
-            var documentResumeToken = documentResumeTokenJson != null ? BsonDocument.Parse(documentResumeTokenJson) : null;
             var startAfter = startAfterJson != null ? BsonDocument.Parse(startAfterJson) : null;
             var resumeAfter = resumeAfterJson != null ? BsonDocument.Parse(resumeAfterJson) : null;
 
@@ -321,7 +290,6 @@ namespace MongoDB.Driver.Core.Operations
                 postBatchResumeToken: postBatchResumeToken,
                 startAfter: startAfter,
                 resumeAfter: resumeAfter);
-            subject._documentResumeToken(documentResumeToken);
             subject.GetResumeToken().Should().Be(expectedResult);
         }
 
@@ -462,8 +430,7 @@ namespace MongoDB.Driver.Core.Operations
             var mockResumedCursor = CreateMockCursor();
 
             // process the first batch so that we have a resume token
-            var resumeToken = BsonDocument.Parse("{ resumeToken : 1 }");
-            var firstDocument = BsonDocument.Parse("{ _id : { resumeToken : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
+            var firstDocument = BsonDocument.Parse("{ _id : { resumeToken : 1 }, operationType : 'insert', ns : { db : 'db', coll : 'coll' }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
             var firstBatch = new[] { ToRawDocument(firstDocument) };
             mockCursor.Setup(c => c.MoveNext(It.IsAny<CancellationToken>())).Returns(true);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
@@ -498,143 +465,6 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Theory]
-        [ParameterAttributeData]
-        void ProcessBatch_should_deserialize_documents(
-            [Values(false, true)] bool async)
-        {
-            var mockCursor = CreateMockCursor();
-            var mockSerializer = new Mock<IBsonSerializer<BsonDocument>>();
-            var subject = CreateSubject(cursor: mockCursor.Object, documentSerializer: mockSerializer.Object);
-            var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
-            var rawDocuments = new[] { ToRawDocument(document) };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
-            mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
-
-            bool result;
-            if (async)
-            {
-                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
-
-                result = subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
-
-                result = subject.MoveNext(cancellationToken);
-            }
-
-            result.Should().BeTrue();
-            subject.Current.Should().Equal(new[] { document });
-            mockSerializer.Verify(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>()), Times.Once);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        void ProcessBatch_should_Dispose_rawDocuments(
-            [Values(false, true)] bool async)
-        {
-            var mockCursor = CreateMockCursor();
-            var mockSerializer = new Mock<IBsonSerializer<BsonDocument>>();
-            var subject = CreateSubject(cursor: mockCursor.Object, documentSerializer: mockSerializer.Object);
-            var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
-            var rawDocument = ToRawDocument(document);
-            var rawDocuments = new[] { rawDocument };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
-            mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
-
-            bool result;
-            if (async)
-            {
-                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
-
-                result = subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
-
-                result = subject.MoveNext(cancellationToken);
-            }
-
-            var exception = Record.Exception(() => rawDocument.Contains("x"));
-            exception.Should().BeOfType<ObjectDisposedException>();
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        void ProcessBatch_should_save_documentResumeToken(
-            [Values(false, true)] bool async)
-        {
-            var postBatchResumeToken = new BsonDocument("a", 1);
-            var mockCursor = CreateMockCursor(postBatchResumeToken);
-            var mockSerializer = new Mock<IBsonSerializer<BsonDocument>>();
-            var subject = CreateSubject(cursor: mockCursor.Object, documentSerializer: mockSerializer.Object);
-            var document = BsonDocument.Parse("{ _id : { resumeAfter : 1 }, operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
-            var rawDocuments = new[] { ToRawDocument(document) };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
-            mockSerializer.Setup(s => s.Deserialize(It.IsAny<BsonDeserializationContext>(), It.IsAny<BsonDeserializationArgs>())).Returns(document);
-
-            bool result;
-            if (async)
-            {
-                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
-
-                result = subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult();
-            }
-            else
-            {
-                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
-
-                result = subject.MoveNext(cancellationToken);
-            }
-
-            subject._documentResumeToken().Should().Be("{ resumeAfter : 1 }");
-            subject._postBatchResumeToken().Should().Be(postBatchResumeToken);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        void ProcessBatch_should_throw_when_resume_token_is_missing(
-            [Values(false, true)] bool async)
-        {
-            var mockCursor = CreateMockCursor();
-            var subject = CreateSubject(cursor: mockCursor.Object);
-            var document = BsonDocument.Parse("{ operationType : \"insert\", ns : { db : \"db\", coll : \"coll\" }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
-            var rawDocuments = new[] { ToRawDocument(document) };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            mockCursor.SetupGet(c => c.Current).Returns(rawDocuments);
-
-            Exception exception;
-            if (async)
-            {
-                mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
-
-                exception = Record.Exception(() => subject.MoveNextAsync(cancellationToken).GetAwaiter().GetResult());
-            }
-            else
-            {
-                mockCursor.Setup(c => c.MoveNext(cancellationToken)).Returns(true);
-
-                exception = Record.Exception(() => subject.MoveNext(cancellationToken));
-            }
-
-            exception.Should().BeOfType<MongoClientException>();
-            exception.Message.Should().Be("Cannot provide resume functionality when the resume token is missing.");
-        }
-
         // private methods
         private ChangeStreamOperation<BsonDocument> CreateChangeStreamOperation()
         {
@@ -652,16 +482,15 @@ namespace MongoDB.Driver.Core.Operations
             return completionSource.Task;
         }
 
-        private Mock<IAsyncCursor<RawBsonDocument>> CreateMockCursor(BsonDocument postBatchResumeToken = null)
+        private Mock<IAsyncCursor<BsonDocument>> CreateMockCursor(BsonDocument postBatchResumeToken = null)
         {
             var mockBatchInfo = new Mock<ICursorBatchInfo>();
             mockBatchInfo.Setup(c => c.PostBatchResumeToken).Returns(postBatchResumeToken);
-            return mockBatchInfo.As<IAsyncCursor<RawBsonDocument>>();
+            return mockBatchInfo.As<IAsyncCursor<BsonDocument>>();
         }
 
         private ChangeStreamCursor<BsonDocument> CreateSubject(
-            IAsyncCursor<RawBsonDocument> cursor = null,
-            IBsonSerializer<BsonDocument> documentSerializer = null,
+            IAsyncCursor<BsonDocument> cursor = null,
             IReadBinding binding = null,
             ICoreSessionHandle session = null,
             IChangeStreamOperation<BsonDocument> changeStreamOperation = null,
@@ -671,12 +500,11 @@ namespace MongoDB.Driver.Core.Operations
             BsonTimestamp startAtOperationTime = null,
             BsonTimestamp initialOperationTime = null)
         {
-            cursor ??= new Mock<IAsyncCursor<RawBsonDocument>>().Object;
-            documentSerializer ??= new Mock<IBsonSerializer<BsonDocument>>().Object;
+            cursor ??= new Mock<IAsyncCursor<BsonDocument>>().Object;
             binding ??= new Mock<IReadBinding>().Object;
             session ??= new Mock<ICoreSessionHandle>().Object;
             changeStreamOperation ??= Mock.Of<IChangeStreamOperation<BsonDocument>>();
-            return new ChangeStreamCursor<BsonDocument>(cursor, documentSerializer, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, startAfter, resumeAfter, startAtOperationTime, __dummyMaxWireVersion);
+            return new ChangeStreamCursor<BsonDocument>(cursor, binding, session, changeStreamOperation, postBatchResumeToken, initialOperationTime, startAfter, resumeAfter, startAtOperationTime, __dummyMaxWireVersion);
         }
 
         private BsonDocument GenerateResumeAfterToken(bool async, bool shouldBeEmpty = false)
@@ -732,15 +560,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public static bool _disposed(this ChangeStreamCursor<BsonDocument> cursor) =>
             (bool)Reflector.GetFieldValue(cursor, nameof(_disposed));
-
-        public static IBsonSerializer<BsonDocument> _documentSerializer(this ChangeStreamCursor<BsonDocument> cursor) =>
-            (IBsonSerializer<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_documentSerializer));
-
-        public static BsonDocument _documentResumeToken<TDocument>(this IChangeStreamCursor<TDocument> cursor) =>
-            (BsonDocument)Reflector.GetFieldValue(cursor, nameof(_documentResumeToken));
-
-        public static void _documentResumeToken<TDocument>(this IChangeStreamCursor<TDocument> cursor, BsonDocument value) =>
-            Reflector.SetFieldValue(cursor, nameof(_documentResumeToken), value);
 
         public static ChangeStreamCursor<TDocument>.ResumeValues GetResumeValues<TDocument>(this IChangeStreamCursor<TDocument> cursor) =>
             (ChangeStreamCursor<TDocument>.ResumeValues)Reflector.Invoke(cursor, nameof(GetResumeValues));
