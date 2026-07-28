@@ -35,8 +35,8 @@ namespace MongoDB.Bson.Tests.IO
             public string Expected;
             public TestData(T value, string expected)
             {
-                this.Value = value;
-                this.Expected = expected;
+                Value = value;
+                Expected = expected;
             }
         }
 

@@ -191,7 +191,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerDoubleNanosecondsTests
     {
-        private const long __nanosecondsPerTick = 100;
+        private const long NanosecondsPerTick = 100;
 
         public class C : IC
         {
@@ -210,7 +210,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(-92233720368547700.0, "-92233720368547696.0")] // almost Int64.MinValue
         public void TestNanoseconds(double nanoseconds, string jsonValue)
         {
-            var ticks = (long)(nanoseconds / __nanosecondsPerTick);
+            var ticks = (long)(nanoseconds / NanosecondsPerTick);
             TimeSpanSerializerTestsHelper<C>.TestValue(ticks, jsonValue);
         }
     }
@@ -422,7 +422,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerInt32NanosecondsTests
     {
-        private const long __nanosecondsPerTick = 100;
+        private const long NanosecondsPerTick = 100;
 
         public class C : IC
         {
@@ -441,7 +441,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(-2147483600)] // almost Int32.MinValue
         public void TestNanoseconds(int nanoseconds)
         {
-            var ticks = nanoseconds / __nanosecondsPerTick;
+            var ticks = nanoseconds / NanosecondsPerTick;
             TimeSpanSerializerTestsHelper<C>.TestValue(ticks, nanoseconds.ToString());
         }
     }
@@ -659,7 +659,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerInt64NanosecondsTests
     {
-        private const long __nanosecondsPerTick = 100;
+        private const long NanosecondsPerTick = 100;
 
         public class C : IC
         {
@@ -678,7 +678,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [InlineData(-9223372036854775800, "NumberLong(\"-9223372036854775800\")")] // almost Int64.MinValue
         public void TestNanoseconds(long nanoseconds, string jsonValue)
         {
-            var ticks = nanoseconds / __nanosecondsPerTick;
+            var ticks = nanoseconds / NanosecondsPerTick;
             TimeSpanSerializerTestsHelper<C>.TestValue(ticks, jsonValue);
         }
     }

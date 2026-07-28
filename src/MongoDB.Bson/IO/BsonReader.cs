@@ -458,7 +458,7 @@ namespace MongoDB.Bson.IO
         /// </summary>
         protected void ThrowObjectDisposedException()
         {
-            throw new ObjectDisposedException(this.GetType().Name);
+            throw new ObjectDisposedException(GetType().Name);
         }
 
         /// <summary>

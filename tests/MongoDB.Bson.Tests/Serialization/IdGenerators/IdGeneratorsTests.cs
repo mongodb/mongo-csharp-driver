@@ -28,7 +28,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public int I;
             public bool Equals(S other)
             {
-                return this.I == other.I;
+                return I == other.I;
             }
         };
 

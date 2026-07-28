@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Core.Configuration
     public sealed class ConnectionString
     {
         // constants
-        private const int defaultMongoDBPort = 27017;
-        private const int defaultSrvPort = 53;
+        private const int DefaultMongoDBPort = 27017;
+        private const int DefaultSrvPort = 53;
 
         // private fields
         private readonly string _originalConnectionString;
@@ -775,10 +775,10 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ExtractHosts(Match match)
         {
-            int defaultPort = defaultMongoDBPort;
+            int defaultPort = DefaultMongoDBPort;
             if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
             {
-                defaultPort = defaultSrvPort;
+                defaultPort = DefaultSrvPort;
             }
             List<EndPoint> endPoints = new List<EndPoint>();
             foreach (Capture host in match.Groups["host"].Captures)

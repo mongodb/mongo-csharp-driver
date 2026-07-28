@@ -42,10 +42,10 @@ namespace MongoDB.Driver.Tests.Authentication
     public class ScramSha256AuthenticatorTests
     {
         // private constants
-        private const string _clientNonce = "rOprNGfwEbeRWgbNEkqO";
-        private const int _iterationCount = 4096;
-        private const string _serverNonce = "%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0";
-        private const string _serverSalt = "W22ZaJ0SNY7soEsUEjb6gQ==";
+        private const string ClientNonce = "rOprNGfwEbeRWgbNEkqO";
+        private const int IterationCount = 4096;
+        private const string ServerNonce = "%hvYDpWUa2RaTCAfuxFIlj)hNlF$k0";
+        private const string ServerSalt = "W22ZaJ0SNY7soEsUEjb6gQ==";
         private const string TestUserName = "user";
         private const string TestUserSource = "source";
         private const string TestUserPassword = "pencil";
@@ -69,11 +69,11 @@ namespace MongoDB.Driver.Tests.Authentication
          * S: v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=
         */
 
-        private static readonly string __clientRequest1 = $"n,,n=user,r={_clientNonce}";
+        private static readonly string __clientRequest1 = $"n,,n=user,r={ClientNonce}";
         private static readonly string __serverResponse1 =
-            $"r={_clientNonce}{_serverNonce},s={_serverSalt},i={_iterationCount}";
+            $"r={ClientNonce}{ServerNonce},s={ServerSalt},i={IterationCount}";
         private static readonly string __clientRequest2 =
-            $"c=biws,r={_clientNonce}{_serverNonce},p=dHzbZapWIk4jUhN+Ute9ytag9zjfMHgsqmmiz7AndVQ=";
+            $"c=biws,r={ClientNonce}{ServerNonce},p=dHzbZapWIk4jUhN+Ute9ytag9zjfMHgsqmmiz7AndVQ=";
         private static readonly string __serverResponse2 = "v=6rriTRBi23WpRR/wtup+mMhUZUn/dB5nLTJRsjl95G4=";
         private static readonly string __clientOptionalFinalRequest = "";
         private static readonly string __serverOptionalFinalResponse = "";
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)] bool async)
         {
             var serverApi = useServerApi ? new ServerApi(ServerApiVersion.V1, true, true) : null;
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, serverApi);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, serverApi);
 
             var connection = new MockConnection(__serverId);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse1)}'), done : false, ok : 1 }}"));
@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_with_loadBalancedConnection_should_use_command_wire_protocol(
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
 
             var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ conversationId : 1, payload : BinData(0,'{ToUtf8Base64(__serverResponse1)}'), done : false, ok : 1 }}"));
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values("MongoConnectionException", "MongoNotPrimaryException")] string exceptionName,
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
 
             var responseException = CoreExceptionHelper.CreateException(exceptionName);
             var connection = new MockConnection(__serverId);
@@ -199,9 +199,9 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_should_throw_when_server_provides_invalid_r_value(
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
             var poisonedSaslStart = PoisonSaslMessage(message: __clientRequest1, poison: "bluePill");
-            var poisonedSaslStartResponse = CreateSaslStartReply(poisonedSaslStart, _serverNonce, _serverSalt, _iterationCount);
+            var poisonedSaslStartResponse = CreateSaslStartReply(poisonedSaslStart, ServerNonce, ServerSalt, IterationCount);
             var poisonedSaslStartResponseMessage = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1, " +
                 $" payload: BinData(0,\"{ToUtf8Base64(poisonedSaslStartResponse)}\")," +
@@ -225,9 +225,9 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_should_throw_when_server_provides_invalid_serverSignature(
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
 
-            var saslStartReply = CreateSaslStartReply(__clientRequest1, _serverNonce, _serverSalt, _iterationCount);
+            var saslStartReply = CreateSaslStartReply(__clientRequest1, ServerNonce, ServerSalt, IterationCount);
             var poisonedSaslContinueReply = PoisonSaslMessage(message: __serverResponse2, poison: "redApple");
             var saslStartResponseMessage = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1, " +
@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)] bool useLongAuthentication,
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(
                 @"{ conversationId : 1," +
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Tests.Authentication
         public async Task Authenticate_should_use_cache(
             [Values(false, true)] bool async)
         {
-            var subject = CreateScramSha256SaslAuthenticator(_clientNonce, null);
+            var subject = CreateScramSha256SaslAuthenticator(ClientNonce, null);
 
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(
                 @"{conversationId: 1," +
@@ -405,7 +405,7 @@ namespace MongoDB.Driver.Tests.Authentication
                 var subject = CreateScramSha256SaslAuthenticator("a", serverApi: null);
                 var mockConnection = new MockConnection();
 
-                var payload1 = $"r=aa,s={_serverSalt},i=1";
+                var payload1 = $"r=aa,s={ServerSalt},i=1";
                 var serverResponse1 = $"{{ ok : 1, payload : BinData(0,\"{ToUtf8Base64(payload1)}\"), done : true, conversationId : 1 }}";
                 var serverResponseRawDocument1 = RawBsonDocumentHelper.FromJson(serverResponse1);
                 var serverResponseMessage1 = MessageHelper.BuildCommandResponse(serverResponseRawDocument1);

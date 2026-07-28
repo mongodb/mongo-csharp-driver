@@ -30,7 +30,7 @@ namespace MongoDB.Bson
     public class BsonDocument : BsonValue, IComparable<BsonDocument>, IConvertibleToBsonDocument, IEnumerable<BsonElement>, IEquatable<BsonDocument>
     {
         // constants
-        private const int __indexesThreshold = 8; // the _indexes dictionary will not be created until the document grows to contain 8 elements
+        private const int IndexesThreshold = 8; // the _indexes dictionary will not be created until the document grows to contain 8 elements
 
         // private fields
         // use a list and a dictionary because we want to preserve the order in which the elements were added
@@ -1103,7 +1103,7 @@ namespace MongoDB.Bson
         // private methods
         private void RebuildIndexes()
         {
-            if (_elements.Count < __indexesThreshold)
+            if (_elements.Count < IndexesThreshold)
             {
                 _indexes = null;
                 return;

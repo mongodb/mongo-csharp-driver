@@ -39,14 +39,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             public DummyCollection()
             {
-                this.items = new T[0];
+                items = new T[0];
             }
 
             // ICollection<T> Members
 
             public int Count
             {
-                get { return this.items.Length; }
+                get { return items.Length; }
             }
 
             bool ICollection<T>.IsReadOnly
@@ -56,9 +56,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             public void Add(T item)
             {
-                var index = this.items.Length;
-                Array.Resize(ref this.items, index + 1);
-                this.items[index] = item;
+                var index = items.Length;
+                Array.Resize(ref items, index + 1);
+                items[index] = item;
             }
 
             public void Clear()
@@ -85,14 +85,14 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             public IEnumerator<T> GetEnumerator()
             {
-                return ((IEnumerable<T>)this.items).GetEnumerator();
+                return ((IEnumerable<T>)items).GetEnumerator();
             }
 
             // IEnumerable Members
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
-                return this.GetEnumerator();
+                return GetEnumerator();
             }
 
             // IList<T> members

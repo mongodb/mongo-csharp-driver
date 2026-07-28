@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         protected ConventionBase()
         {
-            _name = GetName(this.GetType());
+            _name = GetName(GetType());
         }
 
         /// <summary>

@@ -29,8 +29,8 @@ namespace MongoDB.Bson.Tests.IO
             public string Iso;
             public Test(string json, string iso)
             {
-                this.Json = json;
-                this.Iso = iso;
+                Json = json;
+                Iso = iso;
             }
         }
 
