@@ -24,59 +24,30 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
     {
         public static readonly AWSFallbackCredentialsSource Instance = new();
 
-        private readonly SemaphoreSlim _lock = new(1);
-        private Amazon.Runtime.AWSCredentials _cachedCredentialsSource;
-
-        public void Dispose() => _lock?.Dispose();
+        public void Dispose()
+        {
+        }
 
         public AWSCredentials GetCredentials(CancellationToken cancellationToken)
         {
-            Amazon.Runtime.AWSCredentials credentialsSource;
-            _lock.Wait(cancellationToken);
-            try
-            {
-                // resolving the credentials source walks the full provider chain, so cache it and reuse until reset
-                credentialsSource = _cachedCredentialsSource ??= DefaultAWSCredentialsIdentityResolver.GetCredentials(null);
-            }
-            finally
-            {
-                _lock.Release();
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            var credentialsSource = DefaultAWSCredentialsIdentityResolver.GetCredentials(null);
             var immutableCredentials = credentialsSource.GetCredentials();
             return CreateAWSCredentials(immutableCredentials);
         }
 
         public async Task<AWSCredentials> GetCredentialsAsync(CancellationToken cancellationToken)
         {
-            Amazon.Runtime.AWSCredentials credentialsSource;
-            await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
-            try
-            {
-                // resolving the credentials source walks the full provider chain, so cache it and reuse until reset
-                credentialsSource = _cachedCredentialsSource ??= await DefaultAWSCredentialsIdentityResolver.GetCredentialsAsync(null).ConfigureAwait(false);
-            }
-            finally
-            {
-                _lock.Release();
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            var credentialsSource = await DefaultAWSCredentialsIdentityResolver.GetCredentialsAsync(null).ConfigureAwait(false);
             var immutableCredentials = await credentialsSource.GetCredentialsAsync().ConfigureAwait(false);
             return CreateAWSCredentials(immutableCredentials);
         }
 
         public void ResetCache()
         {
-            _lock.Wait();
-
-            try
-            {
-                _cachedCredentialsSource = null;
-            }
-            finally
-            {
-                _lock.Release();
-            }
+            // No-op: DefaultAWSCredentialsIdentityResolver owns credential caching and invalidates on
+            // environment/config changes; v4 exposes no API to force a reset. Mirrors AWSInstanceCredentialsSource.
         }
 
         private AWSCredentials CreateAWSCredentials(ImmutableCredentials immutableCredentials)
