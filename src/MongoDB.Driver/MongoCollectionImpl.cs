@@ -248,40 +248,6 @@ namespace MongoDB.Driver
             }
         }
 
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
-        {
-            using var session = _operationExecutor.StartImplicitSession();
-            return Count(session, filter, options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            var operation = CreateCountOperation(filter, options);
-            return ExecuteReadOperation(session, operation, options?.Timeout, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override async Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
-        {
-            using var session = _operationExecutor.StartImplicitSession();
-            return await CountAsync(session, filter, options, cancellationToken).ConfigureAwait(false);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
-        {
-            Ensure.IsNotNull(session, nameof(session));
-            Ensure.IsNotNull(filter, nameof(filter));
-
-            var operation = CreateCountOperation(filter, options);
-            return ExecuteReadOperationAsync(session, operation, options?.Timeout, cancellationToken);
-        }
-
         public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options, CancellationToken cancellationToken = default)
         {
             using var session = _operationExecutor.StartImplicitSession();
@@ -844,29 +810,6 @@ namespace MongoDB.Driver
             var renderArgs = GetRenderArgs();
 
             return new CountDocumentsOperation(_collectionNamespace, _messageEncoderSettings)
-            {
-                Collation = options.Collation,
-                Comment = options.Comment,
-                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
-                Filter = filter.Render(renderArgs),
-                Hint = options.Hint,
-                Limit = options.Limit,
-                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
-                MaxTime = options.MaxTime,
-                ReadConcern = _settings.ReadConcern,
-                RetryRequested = _database.Client.Settings.RetryReads,
-                Skip = options.Skip
-            };
-        }
-
-        private CountOperation CreateCountOperation(
-            FilterDefinition<TDocument> filter,
-            CountOptions options)
-        {
-            options ??= new CountOptions();
-            var renderArgs = GetRenderArgs();
-
-            return new CountOperation(_collectionNamespace, _messageEncoderSettings)
             {
                 Collation = options.Collation,
                 Comment = options.Comment,

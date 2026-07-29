@@ -48,15 +48,13 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check().SupportsCausalConsistency();
 
-            var events = new EventCapturer().Capture<CommandStartedEvent>(x => x.CommandName == "count");
+            var events = new EventCapturer().Capture<CommandStartedEvent>(x => x.CommandName == "aggregate");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
             {
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command.GetValue("readConcern", null).Should().BeNull();
@@ -69,16 +67,14 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count")
-                .Capture<CommandSucceededEvent>(x => x.CommandName == "count");
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate")
+                .Capture<CommandSucceededEvent>(x => x.CommandName == "aggregate");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
             {
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command.GetValue("readConcern", null).Should().BeNull();
@@ -94,7 +90,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count")
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate")
                 .Capture<CommandSucceededEvent>(x => x.CommandName == "find");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
@@ -107,11 +103,9 @@ namespace MongoDB.Driver.Tests
                 session.OperationTime.Should().Be(commandSucceededEvent.Reply.GetValue("operationTime"));
                 var operationTime = session.OperationTime;
 
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.Should().Be(operationTime);
@@ -124,7 +118,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count")
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate")
                 .Capture<CommandSucceededEvent>(x => x.CommandName == "insert");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
@@ -137,11 +131,9 @@ namespace MongoDB.Driver.Tests
                 session.OperationTime.Should().Be(commandSucceededEvent.Reply.GetValue("operationTime"));
                 var operationTime = session.OperationTime;
 
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command["readConcern"]["afterClusterTime"].AsBsonTimestamp.Should().Be(operationTime);
@@ -154,15 +146,13 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count");
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate");
             using (var client = GetClient(events))
             using (var session = client.StartSession(new ClientSessionOptions { CausalConsistency = false }))
             {
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command.Contains("readConcern").Should().BeFalse();
@@ -175,7 +165,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count");
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
             {
@@ -183,12 +173,10 @@ namespace MongoDB.Driver.Tests
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
                     .InsertOne(session, new BsonDocument("x", 1));
 
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
                     .WithReadConcern(ReadConcern.Default)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").Should().BeFalse();
@@ -201,7 +189,7 @@ namespace MongoDB.Driver.Tests
             RequireServer.Check().SupportsCausalConsistency();
 
             var events = new EventCapturer()
-                .Capture<CommandStartedEvent>(x => x.CommandName == "count");
+                .Capture<CommandStartedEvent>(x => x.CommandName == "aggregate");
             using (var client = GetClient(events))
             using (var session = client.StartSession())
             {
@@ -209,12 +197,10 @@ namespace MongoDB.Driver.Tests
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
                     .InsertOne(session, new BsonDocument("x", 1));
 
-#pragma warning disable 618
                 client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName)
                     .WithReadConcern(ReadConcern.Majority)
-                    .Count(session, FilterDefinition<BsonDocument>.Empty);
-#pragma warning restore
+                    .CountDocuments(session, FilterDefinition<BsonDocument>.Empty);
 
                 var commandStartedEvent = (CommandStartedEvent)events.Next();
                 commandStartedEvent.Command["readConcern"].AsBsonDocument.Contains("level").Should().BeTrue();
