@@ -13,14 +13,14 @@
 * limitations under the License.
 */
 
-using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Driver.Core;
-using MongoDB.Driver.Core.Events;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
+using MongoDB.Bson;
+using MongoDB.Driver.Core;
+using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Tests.JsonDrivenTests
 {

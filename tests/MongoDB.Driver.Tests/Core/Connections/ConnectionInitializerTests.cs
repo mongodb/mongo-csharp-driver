@@ -23,7 +23,6 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.ScramSha;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -31,6 +30,7 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 

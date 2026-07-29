@@ -1131,12 +1131,12 @@ namespace MongoDB.Bson
         {
             get
             {
-                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", GetType().Name);
                 throw new NotSupportedException(message);
             }
             set
             {
-                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", this.GetType().Name);
+                var message = string.Format("{0} does not support indexing by position (only BsonDocument and BsonArray do).", GetType().Name);
                 throw new NotSupportedException(message);
             }
         }
@@ -1150,12 +1150,12 @@ namespace MongoDB.Bson
         {
             get
             {
-                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", GetType().Name);
                 throw new NotSupportedException(message);
             }
             set
             {
-                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", this.GetType().Name);
+                var message = string.Format("{0} does not support indexing by name (only BsonDocument does).", GetType().Name);
                 throw new NotSupportedException(message);
             }
         }
@@ -1283,7 +1283,7 @@ namespace MongoDB.Bson
         /// <returns>A Decimal.</returns>
         public virtual decimal ToDecimal()
         {
-            var message = string.Format("{0} does not support ToDecimal.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToDecimal.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1293,7 +1293,7 @@ namespace MongoDB.Bson
         /// <returns>A Decimal128.</returns>
         public virtual Decimal128 ToDecimal128()
         {
-            var message = string.Format("{0} does not support ToDecimal128.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToDecimal128.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1303,7 +1303,7 @@ namespace MongoDB.Bson
         /// <returns>A Double.</returns>
         public virtual double ToDouble()
         {
-            var message = string.Format("{0} does not support ToDouble.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToDouble.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1313,7 +1313,7 @@ namespace MongoDB.Bson
         /// <returns>An Int32.</returns>
         public virtual int ToInt32()
         {
-            var message = string.Format("{0} does not support ToInt32.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToInt32.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1323,7 +1323,7 @@ namespace MongoDB.Bson
         /// <returns>An Int64.</returns>
         public virtual long ToInt64()
         {
-            var message = string.Format("{0} does not support ToInt64.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToInt64.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1333,7 +1333,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public virtual DateTime ToLocalTime()
         {
-            var message = string.Format("{0} does not support ToLocalTime.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToLocalTime.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1343,7 +1343,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime?.</returns>
         public virtual DateTime? ToNullableLocalTime()
         {
-            var message = string.Format("{0} does not support ToNullableLocalTime.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToNullableLocalTime.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1353,7 +1353,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime?.</returns>
         public virtual DateTime? ToNullableUniversalTime()
         {
-            var message = string.Format("{0} does not support ToNullableUniversalTime.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToNullableUniversalTime.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1363,7 +1363,7 @@ namespace MongoDB.Bson
         /// <returns>A DateTime.</returns>
         public virtual DateTime ToUniversalTime()
         {
-            var message = string.Format("{0} does not support ToUniversalTime.", this.GetType().Name);
+            var message = string.Format("{0} does not support ToUniversalTime.", GetType().Name);
             throw new NotSupportedException(message);
         }
 
@@ -1620,14 +1620,14 @@ namespace MongoDB.Bson
 
             switch (BsonType)
             {
-                case BsonType.Boolean: return Convert.ChangeType(this.AsBoolean, conversionType, provider);
-                case BsonType.DateTime: return Convert.ChangeType(this.ToUniversalTime(), conversionType, provider);
-                case BsonType.Decimal128: return Convert.ChangeType(this.AsDecimal128, conversionType, provider);
-                case BsonType.Double: return Convert.ChangeType(this.AsDouble, conversionType, provider);
-                case BsonType.Int32: return Convert.ChangeType(this.AsInt32, conversionType, provider);
-                case BsonType.Int64: return Convert.ChangeType(this.AsInt64, conversionType, provider);
-                case BsonType.ObjectId: return Convert.ChangeType(this.AsObjectId, conversionType, provider);
-                case BsonType.String: return Convert.ChangeType(this.AsString, conversionType, provider);
+                case BsonType.Boolean: return Convert.ChangeType(AsBoolean, conversionType, provider);
+                case BsonType.DateTime: return Convert.ChangeType(ToUniversalTime(), conversionType, provider);
+                case BsonType.Decimal128: return Convert.ChangeType(AsDecimal128, conversionType, provider);
+                case BsonType.Double: return Convert.ChangeType(AsDouble, conversionType, provider);
+                case BsonType.Int32: return Convert.ChangeType(AsInt32, conversionType, provider);
+                case BsonType.Int64: return Convert.ChangeType(AsInt64, conversionType, provider);
+                case BsonType.ObjectId: return Convert.ChangeType(AsObjectId, conversionType, provider);
+                case BsonType.String: return Convert.ChangeType(AsString, conversionType, provider);
                 default: throw new InvalidCastException();
             }
         }

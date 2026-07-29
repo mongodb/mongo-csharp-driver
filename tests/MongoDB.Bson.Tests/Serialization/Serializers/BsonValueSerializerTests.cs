@@ -92,8 +92,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonArray value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -202,8 +202,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonBinaryData value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -234,8 +234,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonBoolean value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -344,8 +344,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonDateTime value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -574,8 +574,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonDocument value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -771,8 +771,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonDocumentWrapper value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -907,8 +907,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonDouble value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1095,8 +1095,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonInt32 value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1244,8 +1244,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonInt64 value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1393,8 +1393,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonJavaScript value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1490,8 +1490,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonJavaScriptWithScope value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1588,8 +1588,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonMaxKey value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1686,8 +1686,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonMinKey value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1784,8 +1784,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonNull value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1888,8 +1888,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonObjectId value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -1985,8 +1985,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonRegularExpression value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -2132,8 +2132,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonString value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -2242,8 +2242,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonSymbol value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -2354,8 +2354,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonTimestamp value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }
@@ -2516,8 +2516,8 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public TestClass(BsonUndefined value)
             {
-                this.B = value;
-                this.V = value;
+                B = value;
+                V = value;
             }
 
             public BsonValue B { get; set; }

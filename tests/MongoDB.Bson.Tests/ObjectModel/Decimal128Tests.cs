@@ -14,9 +14,9 @@
 */
 
 using System;
-using FluentAssertions;
 using System.Globalization;
 using System.Threading;
+using FluentAssertions;
 using Xunit;
 
 namespace MongoDB.Bson.Tests

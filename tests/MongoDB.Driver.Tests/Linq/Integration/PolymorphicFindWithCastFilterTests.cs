@@ -248,7 +248,7 @@ public class PolymorphicFindWithCastFilterTests : Linq3IntegrationTest
 
         public AAnimal()
         {
-            this.StorageGrouping = "Animals";
+            StorageGrouping = "Animals";
         }
     }
 
@@ -259,7 +259,7 @@ public class PolymorphicFindWithCastFilterTests : Linq3IntegrationTest
 
         public Cat()
         {
-            this.StorageGrouping = "Animals";
+            StorageGrouping = "Animals";
         }
     }
 
@@ -270,7 +270,7 @@ public class PolymorphicFindWithCastFilterTests : Linq3IntegrationTest
 
         public Horse()
         {
-            this.StorageGrouping = "Animals";
+            StorageGrouping = "Animals";
         }
     }
 
@@ -281,7 +281,7 @@ public class PolymorphicFindWithCastFilterTests : Linq3IntegrationTest
 
         public Pig()
         {
-            this.StorageGrouping = "Animals";
+            StorageGrouping = "Animals";
         }
     }
 

@@ -14,8 +14,8 @@
 */
 
 using System;
-using MongoDB.Driver.Core.Clusters;
 using FluentAssertions;
+using MongoDB.Driver.Core.Clusters;
 using Xunit;
 
 

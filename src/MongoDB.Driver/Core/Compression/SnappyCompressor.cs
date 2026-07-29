@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
-using Snappier;
 using System.IO;
 using System.Threading;
 using MongoDB.Driver.Core.Misc;
+using Snappier;
 
 namespace MongoDB.Driver.Core.Compression
 {

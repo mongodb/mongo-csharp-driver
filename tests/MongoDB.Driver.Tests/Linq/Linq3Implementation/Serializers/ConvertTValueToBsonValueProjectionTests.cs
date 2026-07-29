@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
         [MemberData(nameof(Convert_to_BsonValue_from_TValue_should_work_MemberData))]
         public void Convert_to_BsonValue_from_TValue_should_work_invoker(Type valueType, int i, string valueAsJson, string projectionAsString)
         {
-            var testMethodInfo = this.GetType().GetMethod(nameof(Convert_to_BsonValue_from_TValue_should_work));
+            var testMethodInfo = GetType().GetMethod(nameof(Convert_to_BsonValue_from_TValue_should_work));
             var testMethod = testMethodInfo.MakeGenericMethod(valueType);
             testMethod.Invoke(this, new object[] { i, valueAsJson, projectionAsString });
         }

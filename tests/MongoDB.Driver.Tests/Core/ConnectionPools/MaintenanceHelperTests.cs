@@ -21,7 +21,6 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.ConnectionPools;
@@ -30,6 +29,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 

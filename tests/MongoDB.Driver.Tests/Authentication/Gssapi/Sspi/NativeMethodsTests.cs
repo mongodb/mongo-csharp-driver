@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-using Xunit;
 using MongoDB.Driver.Authentication.Gssapi.Sspi;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.Authentication.Gssapi.Sspi
 {

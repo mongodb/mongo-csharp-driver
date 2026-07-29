@@ -13,8 +13,8 @@
 * limitations under the License.
 */
 
-using MongoDB.Bson.Serialization.Serializers;
 using System;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {

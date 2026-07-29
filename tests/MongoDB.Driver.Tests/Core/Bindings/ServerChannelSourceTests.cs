@@ -17,11 +17,11 @@ using System;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.Helpers;
+using MongoDB.Driver.Core.Servers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Core.Bindings
 {

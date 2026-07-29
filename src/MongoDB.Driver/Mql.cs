@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver
 {

@@ -14,9 +14,9 @@
 */
 
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.GeoJsonObjectModel;
 using Xunit;
-using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 {

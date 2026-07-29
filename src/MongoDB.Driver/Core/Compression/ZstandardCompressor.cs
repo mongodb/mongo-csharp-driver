@@ -13,23 +13,23 @@
 * limitations under the License.
 */
 
-using ZstdSharp;
 using System.IO;
 using MongoDB.Driver.Core.Misc;
+using ZstdSharp;
 
 namespace MongoDB.Driver.Core.Compression
 {
     internal class ZstandardCompressor : ICompressor
     {
         // private constants
-        private const int _defaultCompressionLevel = 6;
+        private const int DefaultCompressionLevel = 6;
 
         // private fields
         private readonly int _compressionLevel;
 
         public ZstandardCompressor(Optional<int> compressionLevel = default)
         {
-            _compressionLevel = compressionLevel.WithDefault(_defaultCompressionLevel);
+            _compressionLevel = compressionLevel.WithDefault(DefaultCompressionLevel);
         }
 
         public CompressorType Type => CompressorType.ZStandard;

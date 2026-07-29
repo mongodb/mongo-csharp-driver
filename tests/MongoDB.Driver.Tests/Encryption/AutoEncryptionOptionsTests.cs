@@ -19,8 +19,8 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Encryption;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 

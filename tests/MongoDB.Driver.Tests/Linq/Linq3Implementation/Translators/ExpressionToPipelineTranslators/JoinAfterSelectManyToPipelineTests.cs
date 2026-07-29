@@ -102,7 +102,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public override int GetHashCode() => 0;
         }
 
-        class Movie
+        private class Movie
         {
             public int Id { get; set; }
 

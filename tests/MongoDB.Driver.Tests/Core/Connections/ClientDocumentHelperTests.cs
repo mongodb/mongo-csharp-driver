@@ -244,21 +244,21 @@ namespace MongoDB.Driver.Core.Connections
             result.Should().Be(expectedResult);
         }
 
-        const string awsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
-        const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
-        const string gcpEnv = "K_SERVICE";
-        const string vercelEnv = "VERCEL";
+        private const string AwsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
+        private const string AzureEnv = "FUNCTIONS_WORKER_RUNTIME";
+        private const string GcpEnv = "K_SERVICE";
+        private const string VercelEnv = "VERCEL";
 
-        const string awsLambdaName = "aws.lambda";
-        const string azureFuncName = "azure.func";
-        const string gcpFuncName = "gcp.func";
-        const string vercelName = "vercel";
+        private const string AwsLambdaName = "aws.lambda";
+        private const string AzureFuncName = "azure.func";
+        private const string GcpFuncName = "gcp.func";
+        private const string VercelName = "vercel";
 
         [Theory]
         [ParameterAttributeData]
         public void Prefer_vercel_over_aws_env_name_when_both_specified(
-            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
-            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
+            [Values(AwsEnv, AzureEnv, GcpEnv, VercelEnv)] string left,
+            [Values(AwsEnv, AzureEnv, GcpEnv, VercelEnv)] string right)
         {
             var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(left, right);
 
@@ -269,17 +269,17 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var expectedName = left switch
                 {
-                    awsEnv => awsLambdaName,
-                    azureEnv => azureFuncName,
-                    gcpEnv => gcpFuncName,
-                    vercelEnv => vercelName,
+                    AwsEnv => AwsLambdaName,
+                    AzureEnv => AzureFuncName,
+                    GcpEnv => GcpFuncName,
+                    VercelEnv => VercelName,
                     _ => throw new Exception($"Unexpected env {left}."),
                 };
                 clientEnvDocument["name"].Should().Be(BsonValue.Create(expectedName));
             }
-            else if ((left == awsEnv && right == vercelEnv) || (left == vercelEnv && right == awsEnv)) // exception
+            else if ((left == AwsEnv && right == VercelEnv) || (left == VercelEnv && right == AwsEnv)) // exception
             {
-                clientEnvDocument["name"].Should().Be(BsonValue.Create(vercelName));
+                clientEnvDocument["name"].Should().Be(BsonValue.Create(VercelName));
             }
             else
             {

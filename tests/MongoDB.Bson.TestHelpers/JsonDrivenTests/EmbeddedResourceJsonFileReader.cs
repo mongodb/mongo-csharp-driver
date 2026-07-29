@@ -27,7 +27,7 @@ namespace MongoDB.Bson.TestHelpers.JsonDrivenTests
     public abstract class EmbeddedResourceJsonFileReader
     {
         // protected properties
-        protected virtual Assembly Assembly => this.GetType().GetTypeInfo().Assembly;
+        protected virtual Assembly Assembly => GetType().GetTypeInfo().Assembly;
 
         protected virtual string PathPrefix { get; } = null;
         protected virtual string[] PathPrefixes { get; } = null;

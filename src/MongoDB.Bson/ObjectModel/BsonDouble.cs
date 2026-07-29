@@ -26,16 +26,16 @@ namespace MongoDB.Bson
     public class BsonDouble : BsonValue, IComparable<BsonDouble>, IEquatable<BsonDouble>
     {
         #region static
-        const int __minPrecreatedValue = -100;
-        const int __maxPrecreatedValue = 100;
-        private static readonly BsonDouble[] __precreatedInstances = new BsonDouble[__maxPrecreatedValue - __minPrecreatedValue + 1];
+        private const int MinPrecreatedValue = -100;
+        private const int MaxPrecreatedValue = 100;
+        private static readonly BsonDouble[] __precreatedInstances = new BsonDouble[MaxPrecreatedValue - MinPrecreatedValue + 1];
 
         static BsonDouble()
         {
-            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            for (var i = MinPrecreatedValue; i <= MaxPrecreatedValue; i++)
             {
                 var precreatedInstance = new BsonDouble(i);
-                var index = i - __minPrecreatedValue;
+                var index = i - MinPrecreatedValue;
                 __precreatedInstances[index] = precreatedInstance;
             }
         }
@@ -78,9 +78,9 @@ namespace MongoDB.Bson
         public static implicit operator BsonDouble(double value)
         {
             var intValue = (int)value;
-            if (intValue == value && intValue >= __minPrecreatedValue && intValue <= __maxPrecreatedValue)
+            if (intValue == value && intValue >= MinPrecreatedValue && intValue <= MaxPrecreatedValue)
             {
-                var index = intValue - __minPrecreatedValue;
+                var index = intValue - MinPrecreatedValue;
                 return __precreatedInstances[index];
             }
             return new BsonDouble(value);
@@ -358,7 +358,7 @@ namespace MongoDB.Bson
                 return _value == (double)rhsDecimal128.Value; // use == instead of Equals so NaN is handled correctly
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

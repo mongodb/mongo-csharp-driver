@@ -54,7 +54,7 @@ public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
         return [testCase];
     }
 
-    void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
+    private void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
         __unobservedExceptions.Add(unobservedException.Exception.ToString());
 }
 

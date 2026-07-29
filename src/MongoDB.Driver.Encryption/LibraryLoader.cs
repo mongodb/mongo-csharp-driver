@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
         {
             if (!Environment.Is64BitProcess)
             {
-                throw new PlatformNotSupportedException($"{this.GetType().Namespace} needs to be run in a 64-bit process.");
+                throw new PlatformNotSupportedException($"{GetType().Namespace} needs to be run in a 64-bit process.");
             }
 
             // Windows:

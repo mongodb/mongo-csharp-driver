@@ -13,10 +13,10 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
-using System;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {

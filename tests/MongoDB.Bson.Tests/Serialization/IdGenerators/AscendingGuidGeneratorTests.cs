@@ -14,10 +14,10 @@
 */
 
 using System;
+using System.Buffers.Binary;
 using System.Linq;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Xunit;
-using System.Buffers.Binary;
 
 namespace MongoDB.Bson.Tests.Serialization
 {

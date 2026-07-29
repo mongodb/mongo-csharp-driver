@@ -48,9 +48,9 @@ using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 using OperatingSystemHelper  = MongoDB.Driver.Core.Misc.OperatingSystemHelper;
 using OperatingSystemPlatform  = MongoDB.Driver.Core.Misc.OperatingSystemPlatform;
+using Reflector = MongoDB.Bson.TestHelpers.Reflector;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {

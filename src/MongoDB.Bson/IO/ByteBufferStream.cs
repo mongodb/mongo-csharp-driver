@@ -14,9 +14,9 @@
 */
 
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Text;
-using System.Buffers.Binary;
 
 namespace MongoDB.Bson.IO
 {

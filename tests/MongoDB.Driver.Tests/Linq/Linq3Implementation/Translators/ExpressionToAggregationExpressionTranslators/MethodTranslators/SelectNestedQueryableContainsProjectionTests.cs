@@ -15,9 +15,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using MongoDB.Driver.TestHelpers;
 using FluentAssertions;
 using MongoDB.Driver.Linq;
+using MongoDB.Driver.TestHelpers;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators.MethodTranslators;

@@ -25,16 +25,16 @@ namespace MongoDB.Bson
     public class BsonInt64 : BsonValue, IComparable<BsonInt64>, IEquatable<BsonInt64>
     {
         #region static
-        const long __minPrecreatedValue = -100L;
-        const long __maxPrecreatedValue = 100L;
-        private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[__maxPrecreatedValue - __minPrecreatedValue + 1];
+        private const long MinPrecreatedValue = -100L;
+        private const long MaxPrecreatedValue = 100L;
+        private static readonly BsonInt64[] __precreatedInstances = new BsonInt64[MaxPrecreatedValue - MinPrecreatedValue + 1];
 
         static BsonInt64()
         {
-            for (var i = __minPrecreatedValue; i <= __maxPrecreatedValue; i++)
+            for (var i = MinPrecreatedValue; i <= MaxPrecreatedValue; i++)
             {
                 var precreatedInstance = new BsonInt64(i);
-                var index = i - __minPrecreatedValue;
+                var index = i - MinPrecreatedValue;
                 __precreatedInstances[index] = precreatedInstance;
             }
         }
@@ -78,9 +78,9 @@ namespace MongoDB.Bson
         /// <returns>A BsonInt64.</returns>
         public static implicit operator BsonInt64(long value)
         {
-            if (value >= __minPrecreatedValue && value <= __maxPrecreatedValue)
+            if (value >= MinPrecreatedValue && value <= MaxPrecreatedValue)
             {
-                var index = value - __minPrecreatedValue;
+                var index = value - MinPrecreatedValue;
                 return __precreatedInstances[index];
             }
             return new BsonInt64(value);
@@ -394,7 +394,7 @@ namespace MongoDB.Bson
                 return _value == (long)rhsDecimal128.Value;
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

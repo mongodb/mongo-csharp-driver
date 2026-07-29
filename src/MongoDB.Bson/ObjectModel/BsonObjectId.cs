@@ -151,7 +151,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonObjectId rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return this.Value == rhs.Value;
+            return Value == rhs.Value;
         }
 
         /// <summary>
