@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)]bool async)
+        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer()
                .Capture<CommandStartedEvent>();

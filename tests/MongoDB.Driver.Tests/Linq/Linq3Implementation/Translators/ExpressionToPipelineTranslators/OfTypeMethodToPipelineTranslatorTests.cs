@@ -25,7 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-    public class OfTypeMethodToPipelineTranslatorTests: LinqIntegrationTest<OfTypeMethodToPipelineTranslatorTests.ClassFixture>
+    public class OfTypeMethodToPipelineTranslatorTests : LinqIntegrationTest<OfTypeMethodToPipelineTranslatorTests.ClassFixture>
     {
         public OfTypeMethodToPipelineTranslatorTests(ClassFixture fixture)
             : base(fixture)
@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         private void AssertTypeOf<TDocument>(IMongoCollection<Entity> collection, string expectedStage, params int[] expectedIds)
-            where TDocument: Entity
+            where TDocument : Entity
         {
             var queryable = collection
                 .AsQueryable()

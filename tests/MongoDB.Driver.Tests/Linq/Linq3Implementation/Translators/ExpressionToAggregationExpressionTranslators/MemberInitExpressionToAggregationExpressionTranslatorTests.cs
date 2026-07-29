@@ -133,7 +133,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Identifier.Should().Be(1);
         }
 
-        [Fact] public void Should_project_to_class_with_additional_parameters()
+        [Fact]
+        public void Should_project_to_class_with_additional_parameters()
         {
             CreateCollection();
             var collection = GetCollection<MyDataWithExtraField>("data");

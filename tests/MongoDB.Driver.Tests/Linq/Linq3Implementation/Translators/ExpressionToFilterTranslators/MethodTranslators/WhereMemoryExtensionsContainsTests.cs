@@ -176,7 +176,7 @@ public class WhereMemoryExtensionsContainsTests : LinqIntegrationTest<WhereMemor
 
     private Expression<Func<T, bool>> Rewrite<T>(Expression<Func<T, bool>> predicate)
     {
-        return (Expression<Func<T,bool>>)new EnumerableToMemoryExtensionsRewriter().Visit(predicate);
+        return (Expression<Func<T, bool>>)new EnumerableToMemoryExtensionsRewriter().Visit(predicate);
     }
 
     public class EnumerableToMemoryExtensionsRewriter : ExpressionVisitor

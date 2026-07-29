@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                     sourceTranslation.Ast,
                     selectorParameterSymbol.Var,
                     translatedSelector.Ast);
-                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer : translatedSelector.Serializer);
+                var serializer = NestedAsQueryableSerializer.CreateIEnumerableOrNestedAsQueryableSerializer(expression.Type, itemSerializer: translatedSelector.Serializer);
 
                 return new TranslatedExpression(expression, ast, serializer);
             }

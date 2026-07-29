@@ -1294,7 +1294,7 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("SslSettings={0};", _sslSettings);
             }
-            if(_timeout != null)
+            if (_timeout != null)
             {
                 sb.AppendFormat("Timeout={0};", _timeout);
             }

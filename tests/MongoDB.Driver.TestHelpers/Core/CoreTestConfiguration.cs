@@ -135,7 +135,7 @@ namespace MongoDB.Driver
                     }
 
                     return s;
-                });;
+                }); ;
 
             if (__connectionString.Value.Tls.HasValue &&
                 __connectionString.Value.Tls.Value &&

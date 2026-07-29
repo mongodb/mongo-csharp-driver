@@ -42,17 +42,17 @@ public class GroupFirstOrLastNestedFieldAccumulatorTests : LinqIntegrationTest<G
         var collection = Fixture.Collection;
 
         var queryable = (level, firstOrLast) switch
-            {
-                (1, 1) => collection.Aggregate().Group(x => 1, g => g.First().X),
-                (1, 2) => collection.Aggregate().Group(x => 1, g => g.Last().X),
-                (2, 1) => collection.Aggregate().Group(x => 1, g => g.First().D.Y),
-                (2, 2) => collection.Aggregate().Group(x => 1, g => g.Last().D.Y),
-                (3, 1) => collection.Aggregate().Group(x => 1, g => g.First().D.E.Z),
-                (3, 2) => collection.Aggregate().Group(x => 1, g => g.Last().D.E.Z),
-                _ => throw new ArgumentException()
-            };
+        {
+            (1, 1) => collection.Aggregate().Group(x => 1, g => g.First().X),
+            (1, 2) => collection.Aggregate().Group(x => 1, g => g.Last().X),
+            (2, 1) => collection.Aggregate().Group(x => 1, g => g.First().D.Y),
+            (2, 2) => collection.Aggregate().Group(x => 1, g => g.Last().D.Y),
+            (3, 1) => collection.Aggregate().Group(x => 1, g => g.First().D.E.Z),
+            (3, 2) => collection.Aggregate().Group(x => 1, g => g.Last().D.E.Z),
+            _ => throw new ArgumentException()
+        };
 
-        var stages = Translate(collection,queryable);
+        var stages = Translate(collection, queryable);
         AssertStages(
             stages,
             expectedGroupStage,

@@ -29,78 +29,78 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 public class DictionaryContainsKeyEnumKeyTests : LinqIntegrationTest<DictionaryContainsKeyEnumKeyTests.ClassFixture>
 {
     static DictionaryContainsKeyEnumKeyTests()
+    {
+        BsonClassMap.RegisterClassMap<Translation>(doc =>
         {
-            BsonClassMap.RegisterClassMap<Translation>(doc =>
-            {
-                doc.AutoMap();
-                doc.MapMember(a => a.Languages)
-                    .SetSerializer(
-                        new DictionaryInterfaceImplementerSerializer<Dictionary<LanguageEnum, string>>(
-                            DictionaryRepresentation.Document,
-                            new EnumSerializer<LanguageEnum>(BsonType.String),
-                            new StringSerializer()
-                    ));
-            });
-        }
-
-        public DictionaryContainsKeyEnumKeyTests(ClassFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void Where_with_ContainsKey_should_work()
-        {
-            var collection = Fixture.Collection;
-            var language = LanguageEnum.en;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Languages.ContainsKey(language));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { 'Languages.en' : { $exists : true } } }");
-
-            var result = queryable.Single();
-            result.Id.Should().Be(1);
-        }
-
-        [Fact]
-        public void Select_with_ContainsKey_should_work()
-        {
-            var collection = Fixture.Collection;
-            var language = LanguageEnum.en;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.Languages.ContainsKey(language));
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Languages.en' }, 'missing'] }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(true, false);
-        }
-
-        public class Translation
-        {
-            public int Id { get; set; }
-            public Dictionary<LanguageEnum, string> Languages { get; set; } = new();
-        }
-
-        public enum LanguageEnum
-        {
-            en,
-            nl,
-            fr,
-            de,
-            pl,
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<Translation>
-        {
-            protected override IEnumerable<Translation> InitialData =>
-            [
-                new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
-                new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } }
-            ];
-        }
+            doc.AutoMap();
+            doc.MapMember(a => a.Languages)
+                .SetSerializer(
+                    new DictionaryInterfaceImplementerSerializer<Dictionary<LanguageEnum, string>>(
+                        DictionaryRepresentation.Document,
+                        new EnumSerializer<LanguageEnum>(BsonType.String),
+                        new StringSerializer()
+                ));
+        });
     }
+
+    public DictionaryContainsKeyEnumKeyTests(ClassFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    [Fact]
+    public void Where_with_ContainsKey_should_work()
+    {
+        var collection = Fixture.Collection;
+        var language = LanguageEnum.en;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.Languages.ContainsKey(language));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { 'Languages.en' : { $exists : true } } }");
+
+        var result = queryable.Single();
+        result.Id.Should().Be(1);
+    }
+
+    [Fact]
+    public void Select_with_ContainsKey_should_work()
+    {
+        var collection = Fixture.Collection;
+        var language = LanguageEnum.en;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.Languages.ContainsKey(language));
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $ne : [{ $type : '$Languages.en' }, 'missing'] }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Should().Equal(true, false);
+    }
+
+    public class Translation
+    {
+        public int Id { get; set; }
+        public Dictionary<LanguageEnum, string> Languages { get; set; } = new();
+    }
+
+    public enum LanguageEnum
+    {
+        en,
+        nl,
+        fr,
+        de,
+        pl,
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<Translation>
+    {
+        protected override IEnumerable<Translation> InitialData =>
+        [
+            new Translation { Id = 1, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.en, "English" } } },
+                new Translation { Id = 2, Languages = new Dictionary<LanguageEnum, string> { { LanguageEnum.fr, "French" } } }
+        ];
+    }
+}

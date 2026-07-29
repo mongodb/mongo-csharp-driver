@@ -53,7 +53,7 @@ namespace MongoDB.Bson.Serialization
                 var classMap = _serializationDomain.ClassMapRegistry.LookupClassMap(type);
                 var classMapSerializerDefinition = typeof(BsonClassMapSerializer<>);
                 var classMapSerializerType = classMapSerializerDefinition.MakeGenericType(type);
-                var bindingAttr =  BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+                var bindingAttr = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
                 return (IBsonSerializer)Activator.CreateInstance(classMapSerializerType, bindingAttr, binder: null, args: [_serializationDomain, classMap], culture: null);
             }
 

@@ -154,11 +154,11 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             int? maxDocumentSize,
             RenderArgs<BsonDocument> renderArgs)
         : base(operations, maxBatchCount, maxDocumentSize)
-            {
-                Documents = operations;
-                IdsMap = idsMap;
-                RenderArgs = renderArgs;
-            }
+        {
+            Documents = operations;
+            IdsMap = idsMap;
+            RenderArgs = renderArgs;
+        }
 
         public Dictionary<int, object> IdsMap { get; }
         public new IBatchableSource<BulkWriteModel> Documents { get; }

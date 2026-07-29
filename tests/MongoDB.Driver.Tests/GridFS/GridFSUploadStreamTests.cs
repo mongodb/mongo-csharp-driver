@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             var exception = async
-                ? await Record.ExceptionAsync(() =>  bucket.UploadFromBytesAsync(fileId, fileName, content2, uploadOptions))
+                ? await Record.ExceptionAsync(() => bucket.UploadFromBytesAsync(fileId, fileName, content2, uploadOptions))
                 : Record.Exception(() => bucket.UploadFromBytes(fileId, fileName, content2, uploadOptions));
             exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>();
 

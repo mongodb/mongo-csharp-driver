@@ -30,72 +30,72 @@ public class StringIdCustomObjectIdSerializerFilterTests : LinqIntegrationTest<S
 {
     public StringIdCustomObjectIdSerializerFilterTests(ClassFixture fixture)
             : base(fixture)
+    {
+    }
+
+    [Fact]
+    public void Filter_by_Id_with_custom_serializer_should_work()
+    {
+        var collection = Fixture.Collection;
+        var id = "111111111111111111111111";
+
+        var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
+
+        var renderedFilter = filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry));
+        renderedFilter.Should().Be("{ _id : ObjectId('111111111111111111111111' ) }");
+
+        var result = collection.FindSync(filter).Single();
+        result.X.Should().Be(1);
+    }
+
+    public class RootDocument
+    {
+        [BsonSerializer(typeof(CustomStringRepresentedAsObjectIdSerializer))]
+        public string Id { get; set; }
+        public int X { get; set; }
+    }
+
+    // This custom serializer is a slightly modified version of the custom serializer in the JIRA ticket
+    // note: normally this serializer would implement IHasRepresentationSerializer
+    // but for testing purposes we deliberately chose not to implement it
+    public class CustomStringRepresentedAsObjectIdSerializer : SerializerBase<string>
+    {
+        public override string Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
-        }
-
-        [Fact]
-        public void Filter_by_Id_with_custom_serializer_should_work()
-        {
-            var collection = Fixture.Collection;
-            var id = "111111111111111111111111";
-
-            var filter = Builders<RootDocument>.Filter.Where(x => x.Id == id);
-
-            var renderedFilter = filter.Render(new(collection.DocumentSerializer, BsonSerializer.SerializerRegistry));
-            renderedFilter.Should().Be("{ _id : ObjectId('111111111111111111111111' ) }");
-
-            var result = collection.FindSync(filter).Single();
-            result.X.Should().Be(1);
-        }
-
-        public class RootDocument
-        {
-            [BsonSerializer(typeof(CustomStringRepresentedAsObjectIdSerializer))]
-            public string Id { get; set; }
-            public int X { get; set; }
-        }
-
-        // This custom serializer is a slightly modified version of the custom serializer in the JIRA ticket
-        // note: normally this serializer would implement IHasRepresentationSerializer
-        // but for testing purposes we deliberately chose not to implement it
-        public class CustomStringRepresentedAsObjectIdSerializer : SerializerBase<string>
-        {
-            public override string Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
+            BsonType type = context.Reader.GetCurrentBsonType();
+            switch (type)
             {
-                BsonType type = context.Reader.GetCurrentBsonType();
-                switch (type)
-                {
-                    case BsonType.ObjectId: return context.Reader.ReadObjectId().ToString();
-                    default:
-                        var message = $"Cannot convert a {type} to a String.";
-                        throw new NotSupportedException(message);
-                }
-            }
-
-            public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, string value)
-            {
-                context.Writer.WriteObjectId(ToObjectId(value));
-            }
-
-            private static ObjectId ToObjectId(string source)
-            {
-                if (ObjectId.TryParse(source, out ObjectId returnId))
-                {
-                    return returnId;
-                }
-                else
-                {
-                    return ObjectId.Empty;
-                }
+                case BsonType.ObjectId: return context.Reader.ReadObjectId().ToString();
+                default:
+                    var message = $"Cannot convert a {type} to a String.";
+                    throw new NotSupportedException(message);
             }
         }
 
-        public sealed class ClassFixture : MongoCollectionFixture<RootDocument>
+        public override void Serialize(BsonSerializationContext context, BsonSerializationArgs args, string value)
         {
-            protected override IEnumerable<RootDocument> InitialData =>
-            [
-                new RootDocument { Id = "111111111111111111111111", X = 1 },
-                new RootDocument { Id = "222222222222222222222222", X = 2 }
-            ];
+            context.Writer.WriteObjectId(ToObjectId(value));
+        }
+
+        private static ObjectId ToObjectId(string source)
+        {
+            if (ObjectId.TryParse(source, out ObjectId returnId))
+            {
+                return returnId;
+            }
+            else
+            {
+                return ObjectId.Empty;
+            }
         }
     }
+
+    public sealed class ClassFixture : MongoCollectionFixture<RootDocument>
+    {
+        protected override IEnumerable<RootDocument> InitialData =>
+        [
+            new RootDocument { Id = "111111111111111111111111", X = 1 },
+                new RootDocument { Id = "222222222222222222222222", X = 2 }
+        ];
+    }
+}

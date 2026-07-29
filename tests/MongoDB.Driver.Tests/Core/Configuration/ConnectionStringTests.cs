@@ -1327,7 +1327,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [ParameterAttributeData]
-        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
+        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)] int srvMaxHosts)
         {
             var subject = new ConnectionString($"mongodb+srv://cluster0.10gen.cc/?srvMaxHosts={srvMaxHosts}");
 

@@ -525,7 +525,7 @@ namespace MongoDB.Driver.Linq
         /// <param name="selector">The selector that selects a value from the input document.</param>
         /// <param name="window">The window boundaries.</param>
         /// <returns>The average rate of change within the specified window.</returns>
-        public static decimal Derivative<TInput> (this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, SetWindowFieldsWindow window = null)
+        public static decimal Derivative<TInput>(this ISetWindowFieldsPartition<TInput> partition, Func<TInput, decimal> selector, SetWindowFieldsWindow window = null)
         {
             throw new InvalidOperationException("This method is only intended to be used with SetWindowFields.");
         }

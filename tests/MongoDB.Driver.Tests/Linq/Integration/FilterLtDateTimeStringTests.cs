@@ -28,38 +28,38 @@ public class FilterLtDateTimeStringTests : LinqIntegrationTest<FilterLtDateTimeS
 {
     public FilterLtDateTimeStringTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void Project_dictionary_value_should_work()
-        {
-            var collection = Fixture.Collection;
-            Expression<Func<MeasurementDetails, object>> field = x => x.CreationDate;
-            var myValue = "2023-04-13T01:02:03Z";
-            var filter = Builders<MeasurementDetails>.Filter.Lt(field, myValue);
-
-            var find = collection.Find(filter);
-
-            var translatedFilter = TranslateFilter(collection, filter);
-            translatedFilter.Should().Be("{ CreationDate : { $lt : ISODate('2023-04-13T01:02:03Z') } }");
-
-            var results = find.ToList();
-            results.Select(r => r.Id).Should().Equal(1);
-        }
-
-        public class MeasurementDetails
-        {
-            public int Id { get; set; }
-            public DateTime CreationDate { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<MeasurementDetails>
-        {
-            protected override IEnumerable<MeasurementDetails> InitialData =>
-            [
-                new MeasurementDetails { Id = 1, CreationDate = new DateTime(2023, 04, 13, 1, 2, 2, DateTimeKind.Utc) },
-                new MeasurementDetails { Id = 2, CreationDate = new DateTime(2023, 04, 13, 1, 2, 3, DateTimeKind.Utc) }
-            ];
-        }
+    {
     }
+
+    [Fact]
+    public void Project_dictionary_value_should_work()
+    {
+        var collection = Fixture.Collection;
+        Expression<Func<MeasurementDetails, object>> field = x => x.CreationDate;
+        var myValue = "2023-04-13T01:02:03Z";
+        var filter = Builders<MeasurementDetails>.Filter.Lt(field, myValue);
+
+        var find = collection.Find(filter);
+
+        var translatedFilter = TranslateFilter(collection, filter);
+        translatedFilter.Should().Be("{ CreationDate : { $lt : ISODate('2023-04-13T01:02:03Z') } }");
+
+        var results = find.ToList();
+        results.Select(r => r.Id).Should().Equal(1);
+    }
+
+    public class MeasurementDetails
+    {
+        public int Id { get; set; }
+        public DateTime CreationDate { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<MeasurementDetails>
+    {
+        protected override IEnumerable<MeasurementDetails> InitialData =>
+        [
+            new MeasurementDetails { Id = 1, CreationDate = new DateTime(2023, 04, 13, 1, 2, 2, DateTimeKind.Utc) },
+                new MeasurementDetails { Id = 2, CreationDate = new DateTime(2023, 04, 13, 1, 2, 3, DateTimeKind.Utc) }
+        ];
+    }
+}

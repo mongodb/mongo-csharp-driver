@@ -77,8 +77,8 @@ public class WhereSubstringTrimAndNullableBoolTests : LinqIntegrationTest<WhereS
 
     public class C
     {
-        public int Id  { get; set; }
-        public string Str {  get; set; }
+        public int Id { get; set; }
+        public string Str { get; set; }
         public bool? NullableBool { get; set; }
     }
 

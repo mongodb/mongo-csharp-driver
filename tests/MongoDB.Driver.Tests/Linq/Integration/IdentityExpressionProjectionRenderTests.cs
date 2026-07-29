@@ -27,88 +27,88 @@ public class IdentityExpressionProjectionRenderTests : LinqIntegrationTest<Ident
 {
     public IdentityExpressionProjectionRenderTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void Find_with_identity_projection_should_work()
-        {
-            var collection = Fixture.Collection;
-            var projection = Builders<C>.Projection.Expression(x => x);
-
-            var find = collection
-                .Find("{}")
-                .Project(projection);
-
-            var renderedProjection = TranslateFindProjection(collection, find);
-            renderedProjection.Should().BeNull();
-
-            var result = find.Single();
-            result.Id.Should().Be(1);
-            result.X.Should().Be(2);
-        }
-
-        [Fact]
-        public void Aggregate_Project_with_identity_projection_should_work()
-        {
-            var collection = Fixture.Collection;
-            var projection = Builders<C>.Projection.Expression(x => x);
-
-            var aggregate = collection
-                .Aggregate()
-                .Project(projection);
-
-            var stages = Translate(collection, aggregate);
-            stages.Should().BeEmpty();
-
-            var result = aggregate.Single();
-            result.Id.Should().Be(1);
-            result.X.Should().Be(2);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ExpressionProjectionDefinition_with_identity_projection_Render_should_work(
-            [Values(true, false)] bool renderForFind)
-        {
-            var collection = Fixture.Collection;
-            var projection = new ExpressionProjectionDefinition<C, C>(x => x);
-            var sourceSerializer = collection.DocumentSerializer;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-
-            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
-
-            renderedProjection.Document.Should().BeNull();
-            renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void FindExpressionProjectionDefinition_with_identity_projection_Render_should_work(
-            [Values(true, false)] bool renderForFind)
-        {
-            var collection = Fixture.Collection;
-            var projection = new FindExpressionProjectionDefinition<C, C>(x => x);
-            var sourceSerializer = collection.DocumentSerializer;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-
-            var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
-
-            renderedProjection.Document.Should().BeNull();
-            renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
-        }
-
-        public class C
-        {
-            public int Id { get; set; }
-            public int X { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C { Id = 1, X = 2 }
-            ];
-        }
+    {
     }
+
+    [Fact]
+    public void Find_with_identity_projection_should_work()
+    {
+        var collection = Fixture.Collection;
+        var projection = Builders<C>.Projection.Expression(x => x);
+
+        var find = collection
+            .Find("{}")
+            .Project(projection);
+
+        var renderedProjection = TranslateFindProjection(collection, find);
+        renderedProjection.Should().BeNull();
+
+        var result = find.Single();
+        result.Id.Should().Be(1);
+        result.X.Should().Be(2);
+    }
+
+    [Fact]
+    public void Aggregate_Project_with_identity_projection_should_work()
+    {
+        var collection = Fixture.Collection;
+        var projection = Builders<C>.Projection.Expression(x => x);
+
+        var aggregate = collection
+            .Aggregate()
+            .Project(projection);
+
+        var stages = Translate(collection, aggregate);
+        stages.Should().BeEmpty();
+
+        var result = aggregate.Single();
+        result.Id.Should().Be(1);
+        result.X.Should().Be(2);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
+    public void ExpressionProjectionDefinition_with_identity_projection_Render_should_work(
+        [Values(true, false)] bool renderForFind)
+    {
+        var collection = Fixture.Collection;
+        var projection = new ExpressionProjectionDefinition<C, C>(x => x);
+        var sourceSerializer = collection.DocumentSerializer;
+        var serializerRegistry = BsonSerializer.SerializerRegistry;
+
+        var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
+
+        renderedProjection.Document.Should().BeNull();
+        renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
+    public void FindExpressionProjectionDefinition_with_identity_projection_Render_should_work(
+        [Values(true, false)] bool renderForFind)
+    {
+        var collection = Fixture.Collection;
+        var projection = new FindExpressionProjectionDefinition<C, C>(x => x);
+        var sourceSerializer = collection.DocumentSerializer;
+        var serializerRegistry = BsonSerializer.SerializerRegistry;
+
+        var renderedProjection = projection.Render(new(sourceSerializer, serializerRegistry, renderForFind: renderForFind));
+
+        renderedProjection.Document.Should().BeNull();
+        renderedProjection.ProjectionSerializer.Should().BeSameAs(sourceSerializer);
+    }
+
+    public class C
+    {
+        public int Id { get; set; }
+        public int X { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<C>
+    {
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C { Id = 1, X = 2 }
+        ];
+    }
+}

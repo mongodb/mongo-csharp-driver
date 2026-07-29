@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Core.Misc
             var bytes = new byte[] { 1, 2, 3 };
             var n = 0;
             var position = 0;
-            int ReadPartial (byte[] buffer, int offset, int count)
+            int ReadPartial(byte[] buffer, int offset, int count)
             {
                 var length = partition[n++];
                 Buffer.BlockCopy(bytes, position, buffer, offset, length);
@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_should_throw_when_end_of_stream_is_reached([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_array_should_throw_when_end_of_stream_is_reached([Values(true, false)] bool async)
         {
             var mockStream = new Mock<Stream>();
             var destination = new byte[1];
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_array_should_throw_when_buffer_is_null([Values(true, false)] bool async)
         {
             var stream = new Mock<Stream>().Object;
             byte[] destination = null;
@@ -172,8 +172,8 @@ namespace MongoDB.Driver.Core.Misc
         [Theory]
         [ParameterAttributeData]
         public async Task ReadBytes_with_byte_array_should_throw_when_offset_is_invalid(
-            [Values(true, false)]bool async,
-            [Values(-1, 3)]int offset)
+            [Values(true, false)] bool async,
+            [Values(-1, 3)] int offset)
         {
             var stream = new Mock<Stream>().Object;
             var destination = new byte[2];
@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_array_should_throw_when_stream_is_null([Values(true, false)] bool async)
         {
             Stream stream = null;
             var destination = new byte[0];
@@ -203,7 +203,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_throws_on_timeout([Values(true, false)]bool async, [Values(0, 10)]int timeout)
+        public async Task ReadBytes_with_byte_array_throws_on_timeout([Values(true, false)] bool async, [Values(0, 10)] int timeout)
         {
             var streamMock = new Mock<Stream>();
             SetupStreamRead(streamMock);
@@ -220,7 +220,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_array_throws_on_cancellation([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_array_throws_on_cancellation([Values(true, false)] bool async)
         {
             var streamMock = new Mock<Stream>();
             SetupStreamRead(streamMock);
@@ -307,7 +307,7 @@ namespace MongoDB.Driver.Core.Misc
             var destination = new ByteArrayBuffer(new byte[3], 3);
             var n = 0;
             var position = 0;
-            int ReadPartial (byte[] buffer, int offset, int count)
+            int ReadPartial(byte[] buffer, int offset, int count)
             {
                 var length = partition[n++];
                 Buffer.BlockCopy(bytes, position, buffer, offset, length);
@@ -334,7 +334,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_buffer_should_throw_when_end_of_stream_is_reached([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_buffer_should_throw_when_end_of_stream_is_reached([Values(true, false)] bool async)
         {
             var mockStream = new Mock<Stream>();
             var destination = CreateMockByteBuffer(1).Object;
@@ -352,7 +352,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)] bool async)
         {
             var stream = new Mock<Stream>().Object;
             IByteBuffer destination = null;
@@ -389,7 +389,7 @@ namespace MongoDB.Driver.Core.Misc
         [ParameterAttributeData]
         public async Task ReadBytes_with_byte_buffer_should_throw_when_offset_is_invalid(
             [Values(true, false)] bool async,
-            [Values(-1, 3)]int offset)
+            [Values(-1, 3)] int offset)
         {
             var stream = new Mock<Stream>().Object;
             var destination = CreateMockByteBuffer(2).Object;
@@ -404,7 +404,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReadBytes_with_byte_buffer_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        public async Task ReadBytes_with_byte_buffer_should_throw_when_stream_is_null([Values(true, false)] bool async)
         {
             Stream stream = null;
             var destination = new Mock<IByteBuffer>().Object;
@@ -465,7 +465,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_with_byte_array_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_array_should_throw_when_buffer_is_null([Values(true, false)] bool async)
         {
             var stream = new Mock<Stream>().Object;
             byte[] buffer = null;
@@ -501,8 +501,8 @@ namespace MongoDB.Driver.Core.Misc
         [Theory]
         [ParameterAttributeData]
         public async Task WriteBytes_with_byte_array_should_throw_when_offset_is_invalid(
-            [Values(true, false)]bool async,
-            [Values(-1, 3)]int offset)
+            [Values(true, false)] bool async,
+            [Values(-1, 3)] int offset)
         {
             var stream = new Mock<Stream>().Object;
             var source = new byte[] { 1, 2 };
@@ -517,7 +517,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_with_byte_array_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_array_should_throw_when_stream_is_null([Values(true, false)] bool async)
         {
             Stream stream = null;
             var source = new byte[] { 1, 2 };
@@ -613,7 +613,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_buffer_is_null([Values(true, false)] bool async)
         {
             var stream = new Mock<Stream>().Object;
             IByteBuffer buffer = null;
@@ -649,8 +649,8 @@ namespace MongoDB.Driver.Core.Misc
         [Theory]
         [ParameterAttributeData]
         public async Task WriteBytes_with_byte_buffer_should_throw_when_offset_is_invalid(
-            [Values(true, false)]bool async,
-            [Values(-1, 3)]int offset)
+            [Values(true, false)] bool async,
+            [Values(-1, 3)] int offset)
         {
             var stream = new Mock<Stream>().Object;
             var source = CreateMockByteBuffer(2).Object;
@@ -665,7 +665,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task WriteBytes_with_byte_buffer_should_throw_when_stream_is_null([Values(true, false)]bool async)
+        public async Task WriteBytes_with_byte_buffer_should_throw_when_stream_is_null([Values(true, false)] bool async)
         {
             Stream stream = null;
             var source = new Mock<IByteBuffer>().Object;

@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// <param name="representation">The serialization representation. 0 is used to detect representation
         /// from the enum itself.</param>
         public EnumRepresentationConvention(BsonType representation)
-            :this(representation, true)
+            : this(representation, true)
         {
         }
 

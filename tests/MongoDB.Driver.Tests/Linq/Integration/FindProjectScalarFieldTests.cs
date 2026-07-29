@@ -25,52 +25,52 @@ public class FindProjectScalarFieldTests : LinqIntegrationTest<FindProjectScalar
 {
     public FindProjectScalarFieldTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void Find_project_id_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var find = collection
-                .Find(_ => true)
-                .Project(x => x.Id);
-
-            var projection = TranslateFindProjection(collection, find);
-            projection.Should().Be("{ _id : 1 }");
-
-            var result = find.Single();
-            result.Should().Be(1);
-        }
-
-        [Fact]
-        public void Find_project_field_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var find = collection
-                .Find(_ => true)
-                .Project(x => x.X);
-
-            var projection = TranslateFindProjection(collection, find);
-            projection.Should().Be("{ X : 1, _id : 0 }");
-
-            var result = find.Single();
-            result.Should().Be(2);
-        }
-
-        public class C
-        {
-            public int Id { get; set; }
-            public int X { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C { Id = 1, X = 2 }
-            ];
-        }
+    {
     }
+
+    [Fact]
+    public void Find_project_id_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var find = collection
+            .Find(_ => true)
+            .Project(x => x.Id);
+
+        var projection = TranslateFindProjection(collection, find);
+        projection.Should().Be("{ _id : 1 }");
+
+        var result = find.Single();
+        result.Should().Be(1);
+    }
+
+    [Fact]
+    public void Find_project_field_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var find = collection
+            .Find(_ => true)
+            .Project(x => x.X);
+
+        var projection = TranslateFindProjection(collection, find);
+        projection.Should().Be("{ X : 1, _id : 0 }");
+
+        var result = find.Single();
+        result.Should().Be(2);
+    }
+
+    public class C
+    {
+        public int Id { get; set; }
+        public int X { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<C>
+    {
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C { Id = 1, X = 2 }
+        ];
+    }
+}

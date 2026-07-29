@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Search
             FieldDefinition<TDocument, TField> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
-                Equals(path, value, new EqualsSearchOperatorOptions<TDocument> { Score = score});
+                Equals(path, value, new EqualsSearchOperatorOptions<TDocument> { Score = score });
 
         /// <summary>
         /// Creates a search definition that queries for documents where an indexed field is equal
@@ -187,7 +187,7 @@ namespace MongoDB.Driver.Search
             Expression<Func<TDocument, IEnumerable<TField>>> path,
             TField value,
             SearchScoreDefinition<TDocument> score = null) =>
-                Equals(path, value, new EqualsSearchOperatorOptions<TDocument> {Score = score });
+                Equals(path, value, new EqualsSearchOperatorOptions<TDocument> { Score = score });
 
         /// <summary>
         /// Creates a search definition that queries for documents where at least one element in an indexed array field is equal

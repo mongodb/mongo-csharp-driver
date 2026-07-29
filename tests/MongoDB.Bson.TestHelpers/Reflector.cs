@@ -282,7 +282,7 @@ namespace MongoDB.Bson.TestHelpers
         {
             if (type == null)
             {
-               throw new InvalidFilterCriteriaException($"The method name {name} has not been found in {type.Name}.");
+                throw new InvalidFilterCriteriaException($"The method name {name} has not been found in {type.Name}.");
             }
 
             var methodInfo = GetMethods(type).SingleOrDefault();

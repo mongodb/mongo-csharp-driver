@@ -173,7 +173,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             }
             else
             {
-                var exception = Record.Exception(() => Translate(collection,queryable));
+                var exception = Record.Exception(() => Translate(collection, queryable));
                 exception.Should().BeOfType<ExpressionNotSupportedException>();
                 exception.Message.Should().Contain("ThenBy and ThenByDescending cannot be used when OrderBy or OrderByDescending is sorting on the entire object");
             }

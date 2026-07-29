@@ -141,8 +141,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
             switch (actualException)
             {
                 case MongoBulkWriteException<BsonDocument> bulkWriteException:
-                    actualResult =  UnifiedBulkWriteOperationResultConverter.Convert(bulkWriteException.Result);
-                break;
+                    actualResult = UnifiedBulkWriteOperationResultConverter.Convert(bulkWriteException.Result);
+                    break;
 
                 case ClientBulkWriteException clientBulkWriteException:
                     actualResult = UnifiedClientBulkWriteOperation.ConvertClientBulkWriteResult(clientBulkWriteException.PartialResult);

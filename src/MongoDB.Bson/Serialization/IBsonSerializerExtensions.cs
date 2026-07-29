@@ -132,10 +132,10 @@ namespace MongoDB.Bson.Serialization
                 case IHasDiscriminatorConvention hasDiscriminatorConvention:
                     return hasDiscriminatorConvention.DiscriminatorConvention;
                 case IHasSerializationDomain hasSerializationDomain:
-                {
-                    var serializationDomain = hasSerializationDomain.SerializationDomain;
-                    return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
-                }
+                    {
+                        var serializationDomain = hasSerializationDomain.SerializationDomain;
+                        return serializationDomain.LookupDiscriminatorConvention(serializer.ValueType);
+                    }
                 default:
                     return BsonSerializationDomain.Default.LookupDiscriminatorConvention(serializer.ValueType);
             }

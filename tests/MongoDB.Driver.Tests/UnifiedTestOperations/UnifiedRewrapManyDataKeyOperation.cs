@@ -116,7 +116,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                 case "provider": provider = option.Value.AsString; break;
                                 case "masterKey": masterKey = option.Value.AsBsonDocument; break;
                                 default: throw new FormatException($"Invalid {nameof(RewrapManyDataKeyOptions)} option argument name: '{option.Name}'.");
-                        };
+                            }
+                            ;
                         }
                         break;
                     default:

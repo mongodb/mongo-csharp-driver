@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
             var newPrimary = WaitForPrimaryChange(_testState.RecordedPrimary);
             if (newPrimary != null)
             {
-                _testState.RecordedPrimary = newPrimary ;
+                _testState.RecordedPrimary = newPrimary;
             }
             else
             {

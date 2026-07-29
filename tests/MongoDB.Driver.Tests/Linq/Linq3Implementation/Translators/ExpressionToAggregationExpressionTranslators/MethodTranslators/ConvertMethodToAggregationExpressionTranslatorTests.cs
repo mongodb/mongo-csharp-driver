@@ -35,8 +35,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
-        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(4, ByteOrder.LittleEndian, "ogIAAA==", null)]
+        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null)]
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_int_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
@@ -59,8 +59,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(4, ByteOrder.LittleEndian,"ogIAAA==", null)]
-        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null )]
+        [InlineData(4, ByteOrder.LittleEndian, "ogIAAA==", null)]
+        [InlineData(6, ByteOrder.BigEndian, "AAAAKg==", null)]
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_long_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
@@ -92,8 +92,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=", null)]
-        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null )]
+        [InlineData(3, ByteOrder.LittleEndian, "AAAAAAAA4L8=", null)]
+        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=", null)]
         [InlineData(10, ByteOrder.BigEndian, null, "MongoCommandException")]
         public void Convert_to_BsonBinaryData_from_double_should_work(int id, ByteOrder byteOrder, string expectedBase64, string expectedException)
         {
@@ -290,8 +290,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         [Theory]
-        [InlineData(3, ByteOrder.LittleEndian,"AAAAAAAA4L8=")]
-        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=" )]
+        [InlineData(3, ByteOrder.LittleEndian, "AAAAAAAA4L8=")]
+        [InlineData(5, ByteOrder.BigEndian, "wAQAAAAAAAA=")]
         public void Convert_with_byteOrder_should_be_rendered_correctly(int id, ByteOrder byteOrder, string expectedBase64)
         {
             RequireServer.Check().Supports(Feature.ConvertOperatorBinDataToFromNumeric);

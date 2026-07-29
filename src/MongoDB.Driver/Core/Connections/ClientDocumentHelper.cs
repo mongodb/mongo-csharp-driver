@@ -184,11 +184,11 @@ namespace MongoDB.Driver.Core.Connections
 
             int? GetMemoryMb(string name) =>
                 name switch
-            {
-                awsLambdaName => GetIntValue("AWS_LAMBDA_FUNCTION_MEMORY_SIZE"),
-                gcpFuncName => GetIntValue("FUNCTION_MEMORY_MB"),
-                _ => null,
-            };
+                {
+                    awsLambdaName => GetIntValue("AWS_LAMBDA_FUNCTION_MEMORY_SIZE"),
+                    gcpFuncName => GetIntValue("FUNCTION_MEMORY_MB"),
+                    _ => null,
+                };
 
             int? GetTimeoutSec(string name) =>
                 name switch

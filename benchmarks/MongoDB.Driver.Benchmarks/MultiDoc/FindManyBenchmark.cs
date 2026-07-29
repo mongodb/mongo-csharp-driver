@@ -49,7 +49,7 @@ public class FindManyBenchmark
     [Benchmark]
     public void FindManyAndEmptyCursor()
     {
-       _ = _collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
+        _ = _collection.Find(Builders<BsonDocument>.Filter.Empty).ToList();
     }
 
     [Benchmark]

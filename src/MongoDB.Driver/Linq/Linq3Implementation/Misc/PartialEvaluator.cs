@@ -332,7 +332,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 }
 
                 return result;
-             }
+            }
 
             private bool IsCustomLinqExtensionMethod(MethodInfo method)
             {

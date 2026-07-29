@@ -121,7 +121,8 @@ namespace MongoDB.Driver.Search
             var pathPrefix = _path.Render(args).AsString;
             var newArgs = args
                 .WithNewDocumentType(args.SerializerRegistry.GetSerializer<TField>())
-                with { PathRenderArgs = new(pathPrefix) };
+                with
+            { PathRenderArgs = new(pathPrefix) };
 
             return new("operator", _operator.Render(newArgs));
         }

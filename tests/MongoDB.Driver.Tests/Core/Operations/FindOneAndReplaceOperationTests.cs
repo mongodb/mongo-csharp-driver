@@ -279,7 +279,7 @@ namespace MongoDB.Driver.Core.Operations
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber);
 
@@ -306,7 +306,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -333,7 +333,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -385,7 +385,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -414,7 +414,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -459,7 +459,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -485,7 +485,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 
@@ -512,7 +512,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, null);
 

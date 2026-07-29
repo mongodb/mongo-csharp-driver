@@ -25,34 +25,34 @@ public class FilterStartsWithPartialEvaluationDeleteTests : LinqIntegrationTest<
 {
     public FilterStartsWithPartialEvaluationDeleteTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
+    {
+    }
 
-        [Fact]
-        public void Filter_expression_needing_partial_evaluation_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Filter_expression_needing_partial_evaluation_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var param = "A";
-            var result = collection.DeleteMany(mvi => mvi.Description.StartsWith(string.Format("{0}", param)));
+        var param = "A";
+        var result = collection.DeleteMany(mvi => mvi.Description.StartsWith(string.Format("{0}", param)));
 
-            result.DeletedCount.Should().Be(2);
-        }
+        result.DeletedCount.Should().Be(2);
+    }
 
-        public class Entity
-        {
-            public int Id { get; set; }
-            public string Description { get; set; }
-        }
+    public class Entity
+    {
+        public int Id { get; set; }
+        public string Description { get; set; }
+    }
 
-        public sealed class ClassFixture : MongoCollectionFixture<Entity>
-        {
-            protected override IEnumerable<Entity> InitialData =>
-            [
-                new Entity { Id = 1, Description = "Alpha" },
+    public sealed class ClassFixture : MongoCollectionFixture<Entity>
+    {
+        protected override IEnumerable<Entity> InitialData =>
+        [
+            new Entity { Id = 1, Description = "Alpha" },
                 new Entity { Id = 2, Description = "Alpha2" },
                 new Entity { Id = 3, Description = "Bravo" },
                 new Entity { Id = 4, Description = "Charlie" }
-            ];
-        }
+        ];
     }
+}

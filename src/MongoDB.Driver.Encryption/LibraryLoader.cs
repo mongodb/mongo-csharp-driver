@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Encryption
 
                 var runtimeSuffix = IsAlpine() ? $"musl-{osArchitecture}" : $"{osArchitecture}";
 
-                __suffixPaths = new []{
+                __suffixPaths = new[]{
                     $"../../runtimes/linux-{runtimeSuffix}/native/",
                     $"runtimes/linux-{runtimeSuffix}/native/",
                     string.Empty
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Encryption
 
                 if (File.Exists(osRealesePath))
                 {
-                    foreach(var line in File.ReadAllLines(osRealesePath))
+                    foreach (var line in File.ReadAllLines(osRealesePath))
                     {
                         if (line.StartsWith(prettyName))
                         {

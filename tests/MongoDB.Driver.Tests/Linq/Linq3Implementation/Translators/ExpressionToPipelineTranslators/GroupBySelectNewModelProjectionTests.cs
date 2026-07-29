@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var aggregate = collection.Aggregate()
                 .Group(
                     x => "",
-                    g => new { Count = g.Count()}
+                    g => new { Count = g.Count() }
                 )
                 .Project(
                     x => new ModelAggregated

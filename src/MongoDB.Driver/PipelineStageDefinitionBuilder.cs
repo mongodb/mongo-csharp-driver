@@ -613,7 +613,7 @@ namespace MongoDB.Driver
         internal static PipelineStageDefinition<TInput, TOutput> GeoNear<TInput, TPoint, TOutput>(
             TPoint near,
             GeoNearOptions<TInput, TOutput> options = null)
-            // where TPoint is either a GeoJsonPoint or a legacy coordinate array
+        // where TPoint is either a GeoJsonPoint or a legacy coordinate array
         {
             const string operatorName = "$geoNear";
             var stage = new DelegatedPipelineStageDefinition<TInput, TOutput>(
@@ -1297,7 +1297,7 @@ namespace MongoDB.Driver
                         {
                             IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
                             IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
-                            _ => throw new NotSupportedException( "OfType is not supported with the configured discriminator convention.")
+                            _ => throw new NotSupportedException("OfType is not supported with the configured discriminator convention.")
                         };
                     }
                     ofTypeFilter = AstSimplifier.SimplifyAndConvert(ofTypeFilter);

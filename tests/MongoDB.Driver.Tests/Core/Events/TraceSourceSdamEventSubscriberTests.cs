@@ -306,7 +306,7 @@ namespace MongoDB.Driver.Core.Events
             const string logFileName = traceSourceName + "-log";
             var @event = new ServerHeartbeatStartedEvent(
                 new ConnectionId(new ServerId(new ClusterId(), new IPEndPoint(IPAddress.Parse("1.2.3.4"), 42))),
-                awaited:  true);
+                awaited: true);
             var expectedLogMessage = $"{TraceSourceEventHelper.Label(@event.ConnectionId)}: sending heartbeat.";
             var traceSource = CreateTraceSource(logFileName, logFileName);
             var subject = new TraceSourceSdamEventSubscriber(traceSource);

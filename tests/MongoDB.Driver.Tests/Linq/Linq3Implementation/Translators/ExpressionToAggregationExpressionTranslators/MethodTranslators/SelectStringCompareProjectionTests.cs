@@ -807,7 +807,7 @@ public class SelectStringCompareProjectionTests : LinqIntegrationTest<SelectStri
     [InlineData(2, true, "{ $match : { $expr : { $eq : [{ $strcasecmp : ['$A', 'B'] }, 0] } } }", new int[] { 3, 6 })]
     [InlineData(3, true, "{ $match : { $expr : { $eq : [{ $strcasecmp : ['$A', 'B'] }, 1] } } }", new int[] { })]
     [InlineData(4, true, "{ $match : { $expr : { $ne : [{ $strcasecmp : ['$A', 'B'] }, -1] } } }", new int[] { 3, 6 })]
-    [InlineData(5, true, "{ $match : { $expr : { $ne : [{ $strcasecmp : ['$A', 'B'] }, 0] } } }", new int[] { 1, 2, 4, 5  })]
+    [InlineData(5, true, "{ $match : { $expr : { $ne : [{ $strcasecmp : ['$A', 'B'] }, 0] } } }", new int[] { 1, 2, 4, 5 })]
     [InlineData(6, true, "{ $match : { $expr : { $ne : [{ $strcasecmp : ['$A', 'B'] }, 1] } } }", new int[] { 1, 2, 3, 4, 5, 6 })]
     [InlineData(7, true, "{ $match : { $expr : { $gt : [{ $strcasecmp : ['$A', 'B'] }, -1] } } }", new int[] { 3, 6 })]
     [InlineData(8, true, "{ $match : { $expr : { $gt : [{ $strcasecmp : ['$A', 'B'] }, 0] } } }", new int[] { })]

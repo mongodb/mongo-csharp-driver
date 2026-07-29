@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
                 var valueType = __testCases[i].ValueType;
                 var valueAsJson = __testCases[i].ValueAsJson;
                 var projectionAsString = __testCases[i].Projection.ToString();
-                yield return new object[] { valueType, i, valueAsJson, projectionAsString  };
+                yield return new object[] { valueType, i, valueAsJson, projectionAsString };
             }
         }
 

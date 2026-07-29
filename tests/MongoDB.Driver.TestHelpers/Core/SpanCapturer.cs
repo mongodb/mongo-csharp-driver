@@ -44,7 +44,7 @@ namespace MongoDB.Driver.TestHelpers.Core
 
         static SpanCapturer()
         {
-            Activity.DefaultIdFormat =  ActivityIdFormat.W3C;
+            Activity.DefaultIdFormat = ActivityIdFormat.W3C;
         }
 
         public SpanCapturer()

@@ -913,14 +913,14 @@ namespace MongoDB.Driver.Tests
             public string Synopsis { get; set; }
             public int Year { get; set; }
             public NestedPlot Plot { get; set; }
-            public float[] NonNestedEmbedding  { get; set; }
+            public float[] NonNestedEmbedding { get; set; }
         }
 
         private class NestedPlot
         {
             public bool Synced { get; set; }
-            public int Rating  { get; set; }
-            public float[] PlotEmbedding  { get; set; }
+            public int Rating { get; set; }
+            public float[] PlotEmbedding { get; set; }
         }
 
         [Theory]

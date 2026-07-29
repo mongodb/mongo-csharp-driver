@@ -265,7 +265,7 @@ namespace MongoDB.Driver.Core.Operations
         [ParameterAttributeData]
         public void CreateCommand_should_return_expected_result(
             [Values(null, "{ name : 'name' }")] string let,
-            [Values(null, 100L)]long? transactionNumber)
+            [Values(null, 100L)] long? transactionNumber)
         {
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
             var subject = new FindOneAndUpdateOperation<BsonDocument>(_collectionNamespace, _filter, _update, BsonDocumentSerializer.Instance, _messageEncoderSettings)

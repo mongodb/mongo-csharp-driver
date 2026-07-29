@@ -37,9 +37,9 @@ internal class DictionaryValueCollectionSerializer<TKey, TValue> : SerializerBas
     private readonly IBsonSerializer<Dictionary<TKey, TValue>> _dictionarySerializer;
     private readonly IBsonSerializer<TValue> _wrappedValueSerializer;
 
-    public DictionaryValueCollectionSerializer(IBsonSerializer<TKey> keySerializer,  IBsonSerializer<TValue> valueSerializer)
+    public DictionaryValueCollectionSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TValue> valueSerializer)
     {
-        _dictionarySerializer = (IBsonSerializer<Dictionary<TKey, TValue>>)DictionarySerializer.Create(DictionaryRepresentation.ArrayOfDocuments,  keySerializer, valueSerializer);
+        _dictionarySerializer = (IBsonSerializer<Dictionary<TKey, TValue>>)DictionarySerializer.Create(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
         _wrappedValueSerializer = (IBsonSerializer<TValue>)KeyValuePairWrappedValueSerializer.Create(keySerializer, valueSerializer);
     }
 

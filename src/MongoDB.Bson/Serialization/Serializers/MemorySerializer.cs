@@ -341,7 +341,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                     break;
                 default:
                     throw new NotSupportedException($"Not supported memory type {typeof(TItem)}. Only primitive numeric types are supported.");
-            };
+            }
+            ;
 
             return (readItems, writeItems);
         }

@@ -72,7 +72,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors
 
         public virtual AstNode VisitAddFieldsStage(AstAddFieldsStage node)
         {
-            return  node.Update(VisitAndConvert(node.Fields));
+            return node.Update(VisitAndConvert(node.Fields));
         }
 
         public virtual AstNode VisitAllFilterOperation(AstAllFilterOperation node)

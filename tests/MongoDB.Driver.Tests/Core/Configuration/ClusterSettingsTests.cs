@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [ParameterAttributeData]
-        public void Constructor_with_valid_srvMaxHosts_should_initialize_instance([Values(0,42)]int srvMaxHosts)
+        public void Constructor_with_valid_srvMaxHosts_should_initialize_instance([Values(0, 42)] int srvMaxHosts)
         {
             var subject = new ClusterSettings(srvMaxHosts: srvMaxHosts);
 
@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [ParameterAttributeData]
-        public void With_valid_srvMaxHosts_should_return_expected_result([Values(0, 42)]int srvMaxHosts)
+        public void With_valid_srvMaxHosts_should_return_expected_result([Values(0, 42)] int srvMaxHosts)
         {
             var subject = new ClusterSettings(srvMaxHosts: 5);
 

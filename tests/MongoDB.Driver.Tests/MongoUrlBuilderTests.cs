@@ -350,7 +350,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoUrlBuilder { Server = _localhost };
 
-            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = {{ "Level", 1 }} };
+            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = { { "Level", 1 } } };
             subject.Compressors = new[] { zlibCompressor };
             var connectionString = subject.ToString();
 
@@ -717,7 +717,8 @@ namespace MongoDB.Driver.Tests
         {
             var maxConnectionIdleTime = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoUrlBuilder { Server = _localhost };
-            if (maxConnectionIdleTime != null) { built.MaxConnectionIdleTime = maxConnectionIdleTime.Value; };
+            if (maxConnectionIdleTime != null) { built.MaxConnectionIdleTime = maxConnectionIdleTime.Value; }
+            ;
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))

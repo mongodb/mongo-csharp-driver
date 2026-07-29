@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Core.Operations
             MessageEncoderSettings messageEncoderSettings)
         {
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _indexName = Ensure.IsNotNullOrEmpty(indexName , nameof(indexName));
+            _indexName = Ensure.IsNotNullOrEmpty(indexName, nameof(indexName));
             _definition = Ensure.IsNotNull(definition, nameof(definition));
             _messageEncoderSettings = Ensure.IsNotNull(messageEncoderSettings, nameof(messageEncoderSettings));
         }

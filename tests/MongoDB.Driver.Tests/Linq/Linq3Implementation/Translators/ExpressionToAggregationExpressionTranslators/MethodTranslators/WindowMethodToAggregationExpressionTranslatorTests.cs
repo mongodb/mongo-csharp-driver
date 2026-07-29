@@ -1950,7 +1950,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .SetWindowFields(
                     partitionBy: x => 1,
                     sortBy: Builders<C>.Sort.Ascending(x => x.Id),
-                    output: p => new {
+                    output: p => new
+                    {
                         Result = p.Median(x => x.Int32Field, DocumentsWindow.Create(-1, 1))
                     });
 
@@ -2579,7 +2580,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                 .SetWindowFields(
                     partitionBy: x => 1,
                     sortBy: Builders<C>.Sort.Ascending(x => x.Id),
-                    output: p => new {
+                    output: p => new
+                    {
                         Result = p.Percentile(x => x.Int32Field, new[] { 0.5 }, DocumentsWindow.Create(-1, 1))
                     });
 

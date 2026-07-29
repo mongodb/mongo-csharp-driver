@@ -119,13 +119,13 @@ namespace MongoDB.Driver
         }
 
         public OperationContext Fork() =>
-            new (Session, Clock, InitialTimestamp, Timeout, CancellationToken)
+            new(Session, Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext
             };
 
         internal OperationContext ForkWithOperationMetadata(string operationName, string databaseName, string collectionName, bool isTracingEnabled) =>
-            new (Session, Clock, InitialTimestamp, Timeout, CancellationToken)
+            new(Session, Clock, InitialTimestamp, Timeout, CancellationToken)
             {
                 RootContext = RootContext,
                 OperationName = operationName,

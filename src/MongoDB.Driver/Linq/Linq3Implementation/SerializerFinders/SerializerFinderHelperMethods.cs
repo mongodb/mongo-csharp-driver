@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
-using IOrderedEnumerableSerializer=MongoDB.Driver.Linq.Linq3Implementation.Serializers.IOrderedEnumerableSerializer;
+using IOrderedEnumerableSerializer = MongoDB.Driver.Linq.Linq3Implementation.Serializers.IOrderedEnumerableSerializer;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
@@ -165,11 +165,11 @@ internal partial class SerializerFinderVisitor
 
         if (IsNotKnown(collectionExpression2) && IsKnown(collectionExpression1, out collectionSerializer1))
         {
-             collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
+            collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
             AddNodeSerializer(collectionExpression2, collectionSerializer2);
         }
     }
-    
+
     private void DeduceCollectionAndItemSerializers(Expression collectionExpression, Expression itemExpression)
     {
         DeduceItemAndCollectionSerializers(itemExpression, collectionExpression);
@@ -216,7 +216,7 @@ internal partial class SerializerFinderVisitor
             AddNodeSerializer(expression1, expression2Serializer);
         }
 
-        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer)&&  expression1Serializer.ValueType == expression2.Type)
+        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer) && expression1Serializer.ValueType == expression2.Type)
         {
             AddNodeSerializer(expression2, expression1Serializer);
         }

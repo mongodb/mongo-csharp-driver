@@ -349,7 +349,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.Should().HaveCount(2);
             results[0].Id.Should().Be(new { GameId = "G1" });
             results[0].GameScores.Should().Equal(33, 31, 1);
-            results[1].Id.Should().Be( new { GameId = "G2" });
+            results[1].Id.Should().Be(new { GameId = "G2" });
             results[1].GameScores.Should().Equal(10);
         }
 

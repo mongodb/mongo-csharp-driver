@@ -537,7 +537,7 @@ namespace MongoDB.Driver.Encryption
             BsonDocument keyMaterial = null;
             if (dataKeyOptions?.KeyMaterial != null)
             {
-                keyMaterial = new BsonDocument("keyMaterial",  dataKeyOptions.KeyMaterial);
+                keyMaterial = new BsonDocument("keyMaterial", dataKeyOptions.KeyMaterial);
             }
             return new KmsKeyId(
                 dataKeyOptionsBytes: ToBsonIfNotNull(dataKeyDocument),

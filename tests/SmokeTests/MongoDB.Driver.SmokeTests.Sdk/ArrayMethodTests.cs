@@ -58,7 +58,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             {
                 var collection = database.GetCollection<Model>("test");
 
-                collection.InsertMany(new[] { new Model { Id = 1, Array = new[] {1, 2, 3} } });
+                collection.InsertMany(new[] { new Model { Id = 1, Array = new[] { 1, 2, 3 } } });
 
                 testCase(collection);
             }

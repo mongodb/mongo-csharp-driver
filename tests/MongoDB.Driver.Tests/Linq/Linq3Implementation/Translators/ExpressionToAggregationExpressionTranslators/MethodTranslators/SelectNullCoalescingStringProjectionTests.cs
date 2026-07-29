@@ -113,7 +113,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         [InlineData(4, "{ $project : { _v : { $literal : 5 }, _id : 0 } }", new int[] { 5, 5 })]
         [InlineData(5, "{ $project : { _v : { $ifNull : ['$NullableInt1', 6] }, _id : 0 } }", new int[] { 6, 3 })]
         [InlineData(6, "{ $project : { _v : { $ifNull : ['$NullableInt1', '$Int2'] }, _id : 0 } }", new int[] { 2, 3 })]
-         public void Coalesce_with_nullable_and_non_nullable_types_should_work(int scenario, string expectedStage, int[] expectedResults)
+        public void Coalesce_with_nullable_and_non_nullable_types_should_work(int scenario, string expectedStage, int[] expectedResults)
         {
             var collection = Fixture.Collection;
             int? constant1 = 5;

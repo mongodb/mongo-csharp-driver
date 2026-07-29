@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void Constructor_should_handle_directConnection_correctly([Values(false, true)]bool directConnection)
+        public void Constructor_should_handle_directConnection_correctly([Values(false, true)] bool directConnection)
         {
             _settings = _settings.With(directConnection: directConnection);
 

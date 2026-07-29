@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
             if (!DocumentSerializerHelper.AreMembersRepresentedAsFields(containerTranslation.Serializer, out _))
             {
-                if (member is PropertyInfo propertyInfo  && propertyInfo.Name == "Length")
+                if (member is PropertyInfo propertyInfo && propertyInfo.Name == "Length")
                 {
                     return LengthPropertyToAggregationExpressionTranslator.Translate(context, expression);
                 }
@@ -217,7 +217,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                                 var keysAst = dictionaryRepresentation switch
                                 {
                                     DictionaryRepresentation.ArrayOfDocuments => AstExpression.Map(containerAst, kvpVar, AstExpression.GetField(kvpVar, "k")),
-                                    DictionaryRepresentation.ArrayOfArrays  => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 0)),
+                                    DictionaryRepresentation.ArrayOfArrays => AstExpression.Map(containerAst, kvpVar, AstExpression.ArrayElemAt(kvpVar, 0)),
                                     _ => throw new ExpressionNotSupportedException(expression, $"Unexpected dictionary representation: {dictionaryRepresentation}")
                                 };
                                 var keysSerializer = declaringTypeDefinition == typeof(Dictionary<,>)

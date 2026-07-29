@@ -137,8 +137,8 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new Exception("Wrong number of child serializers passed.");
             }
 
-            var newKeySerializer =  (IBsonSerializer<TKey>)childSerializers[0];
-            var newValueSerializer =  (IBsonSerializer<TValue>)childSerializers[1];
+            var newKeySerializer = (IBsonSerializer<TKey>)childSerializers[0];
+            var newValueSerializer = (IBsonSerializer<TValue>)childSerializers[1];
 
             return newKeySerializer.Equals(KeySerializer) && newValueSerializer.Equals(ValueSerializer)
                 ? this

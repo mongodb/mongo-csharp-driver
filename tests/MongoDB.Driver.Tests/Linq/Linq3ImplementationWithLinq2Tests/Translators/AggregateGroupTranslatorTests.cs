@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check().Supports(Feature.MedianOperator);
 
-            var result = Group(x => x.A, g => new { Result = g.Median(x=> x.C.E.F) });
+            var result = Group(x => x.A, g => new { Result = g.Median(x => x.C.E.F) });
 
             AssertStages(
                 result.Stages,

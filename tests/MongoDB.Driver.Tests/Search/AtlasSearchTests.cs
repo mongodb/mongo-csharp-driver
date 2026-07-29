@@ -425,7 +425,7 @@ namespace MongoDB.Driver.Tests.Search
             var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
 
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid, testGuid))
                 .Single();
 
             result.Name.Should().Be("test6");
@@ -435,7 +435,7 @@ namespace MongoDB.Driver.Tests.Search
         public void EqualsNull()
         {
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestString, null))
                 .Single();
 
             result.Name.Should().Be("testNull");
@@ -579,7 +579,7 @@ namespace MongoDB.Driver.Tests.Search
                 .Aggregate()
                 .Search(
                     Builders<Movie>.Search.In(x => x.Runtime, new[] { 31, 231 }),
-                    new() { Sort = Builders<Movie>.Sort.Descending(x => x.Runtime)})
+                    new() { Sort = Builders<Movie>.Sort.Descending(x => x.Runtime) })
                 .Limit(10)
                 .ToList();
 
@@ -610,7 +610,7 @@ namespace MongoDB.Driver.Tests.Search
             };
 
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids))
+                .Search(Builders<TestClass>.Search.In(c => c.TestGuid, testGuids))
                 .Limit(10)
                 .ToList();
 
@@ -989,7 +989,7 @@ namespace MongoDB.Driver.Tests.Search
                 .ToList();
 
             baseSearchResults.Count.Should().Be(limitVal);
-            baseSearchResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            baseSearchResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             baseSearchResults[0].Title.Should().Be(titles[0]);
             baseSearchResults[1].Title.Should().Be(titles[1]);
             baseSearchResults[2].Title.Should().Be(titles[2]);
@@ -1007,7 +1007,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // Only two flower-titled docs remain after the 2nd base result.
             searchAfterResults.Count.Should().Be(2);
-            searchAfterResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            searchAfterResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             searchAfterResults[0].Title.Should().Be(titles[2]);
             searchAfterResults[1].Title.Should().Be(titles[3]);
 
@@ -1024,7 +1024,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // We only get the first 3 elements of the base search
             searchBeforeResults.Count.Should().Be(3);
-            searchBeforeResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            searchBeforeResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             // With searchBefore the results are reversed
             searchBeforeResults[0].Title.Should().Be(titles[2]);
             searchBeforeResults[1].Title.Should().Be(titles[1]);
@@ -1221,7 +1221,7 @@ namespace MongoDB.Driver.Tests.Search
             var result =
                 GetMoviesCollection<Movie>().Aggregate()
                     .Search(
-                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any}),
+                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any }),
                         indexName: "synonyms-tests")
                     .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                     .Limit(5)

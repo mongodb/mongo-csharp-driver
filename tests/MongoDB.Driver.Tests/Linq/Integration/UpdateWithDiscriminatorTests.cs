@@ -111,5 +111,5 @@ public class UpdateWithDiscriminatorTests : LinqIntegrationTest<UpdateWithDiscri
         public override bool InitializeDataBeforeEachTestCase => true;
 
         protected override IEnumerable<Animal> InitialData => null;
-     }
+    }
 }

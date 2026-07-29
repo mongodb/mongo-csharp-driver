@@ -387,7 +387,7 @@ namespace MongoDB.Driver.Core.Bindings
             var serverId = new ServerId(clusterId, endPoint);
             var maxWireVersion = WireVersion.SupportedWireVersionRange.Min;
             var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.ToServerVersion(maxWireVersion), wireVersionRange: new Range<int>(0, maxWireVersion)) };
-            var clusterDescription = new ClusterDescription(clusterId, false,  null, ClusterType.ReplicaSet, servers);
+            var clusterDescription = new ClusterDescription(clusterId, false, null, ClusterType.ReplicaSet, servers);
             var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
             return mockCluster.Object;

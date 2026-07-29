@@ -139,9 +139,9 @@ public class ObjectIdTests
 
     public static IEnumerable<object[]> ToByteSpan_TestCases()
     {
-        yield return [new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } ];
-        yield return [new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } ];
-        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 } ];
+        yield return [new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }];
+        yield return [new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }];
+        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }];
     }
 
     [Theory]

@@ -1144,7 +1144,7 @@ namespace MongoDB.Driver.Tests.Search
                 "{ phrase: { query: 'foo', path: 'x', score: { constant: { value: 1 } } } }");
 
             AssertRendered(
-                subject.Phrase("x", "foo", new SearchPhraseOptions<BsonDocument> { Score = scoreBuilder.Constant(1), Slop = 5}),
+                subject.Phrase("x", "foo", new SearchPhraseOptions<BsonDocument> { Score = scoreBuilder.Constant(1), Slop = 5 }),
                 "{ phrase: { query: 'foo', slop: 5, path: 'x', score: { constant: { value: 1 } } } }");
         }
 
@@ -1342,11 +1342,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false)),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range(t => t.StringLong, new SearchRange<long>(testLong, null, false, false)),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
@@ -1357,11 +1357,11 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range("DefaultLong", new SearchRange<long>(testLong, null, false, false)),
                 """{"range" :{ "gt" : 23, "path" : "DefaultLong" }}""");
 
             AssertRendered(
-                subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range("StringLong", new SearchRange<long>(testLong, null, false, false)),
                 """{"range":{ "gt" : "23", "path" : "StringLong" }}""");
         }
 
@@ -1374,7 +1374,7 @@ namespace MongoDB.Driver.Tests.Search
             var subjectTyped = CreateSubject<AttributesTestClass>();
 
             AssertRendered(
-                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false )),
+                subjectTyped.Range(t => t.DefaultLong, new SearchRange<long>(testLong, null, false, false)),
                 """{"range":{ "gt" : "23", "path" : "DefaultLong" }}""");
         }
 
@@ -1516,7 +1516,7 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: ['foo', 'bar'], synonyms: 'testSynonyms', path: ['x', 'y'] } }");
 
             AssertRendered(
-                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchTextOptions<BsonDocument>{ MatchCriteria = MatchCriteria.Any }),
+                subject.Text(new[] { "x", "y" }, new[] { "foo", "bar" }, new SearchTextOptions<BsonDocument> { MatchCriteria = MatchCriteria.Any }),
                 "{ text: { query: ['foo', 'bar'], matchCriteria: 'any', path: ['x', 'y'] } }");
 
             AssertRendered(
@@ -1540,7 +1540,7 @@ namespace MongoDB.Driver.Tests.Search
                 "{ text: { query: 'foo', synonyms: 'testSynonyms', path: 'x', score: { constant: { value: 1 } } } }");
 
             AssertRendered(
-                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> {Score = scoreBuilder.Constant(1), MatchCriteria = MatchCriteria.All}),
+                subject.Text("x", "foo", new SearchTextOptions<BsonDocument> { Score = scoreBuilder.Constant(1), MatchCriteria = MatchCriteria.All }),
                 "{ text: { query: 'foo', matchCriteria: 'all', path: 'x', score: { constant: { value: 1 } } } }");
         }
 
@@ -1564,7 +1564,7 @@ namespace MongoDB.Driver.Tests.Search
                 subject.Text(x => x.FirstName, "foo"),
                 "{ text: { query: 'foo', path: 'fn' } }");
             AssertRendered(
-                subject.Text(x => x.FirstName, "foo", new SearchTextOptions<Person> { MatchCriteria = MatchCriteria.All}),
+                subject.Text(x => x.FirstName, "foo", new SearchTextOptions<Person> { MatchCriteria = MatchCriteria.All }),
                 "{ text: { query: 'foo', matchCriteria: 'all', path: 'fn' } }");
             AssertRendered(
                 subject.Text("FirstName", "foo"),

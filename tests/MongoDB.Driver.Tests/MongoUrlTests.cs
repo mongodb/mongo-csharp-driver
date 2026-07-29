@@ -313,7 +313,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void TestDirectConnection([Values(false, true, null)]bool? directConnection)
+        public void TestDirectConnection([Values(false, true, null)] bool? directConnection)
         {
             var directConnectionString = directConnection.HasValue ? $"?directConnection={directConnection.Value}" : string.Empty;
             var connectionString = $"mongodb://localhost/{directConnectionString}";

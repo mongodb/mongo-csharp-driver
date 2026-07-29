@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -150,7 +150,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -178,7 +178,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -206,7 +206,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -235,7 +235,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -262,7 +262,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -292,7 +292,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -338,7 +338,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -366,7 +366,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 
@@ -393,7 +393,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription);
 

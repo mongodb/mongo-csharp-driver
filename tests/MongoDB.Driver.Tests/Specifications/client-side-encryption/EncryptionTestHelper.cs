@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         private static readonly string __allKmsProviderNames =
             CreateKmsProviderFilter("aws", "aws:name1", "aws:name2", "local", "local:name1", "local:name2", "azure", "azure:name1", "gcp", "gcp:name1", "kmip", "kmip:name1");
 
-        private static readonly ConcurrentDictionary<string,  IReadOnlyDictionary<string, object>> __kmsProviders = new();
+        private static readonly ConcurrentDictionary<string, IReadOnlyDictionary<string, object>> __kmsProviders = new();
         private const string KmsProviderFilterDelimiter = ";";
         private static readonly string __defaultMongocryptdPath = Environment.GetEnvironmentVariable("MONGODB_BINARIES") ?? "";
         private static readonly Lazy<(bool IsValid, SemanticVersion Version)> __defaultCsfleSetupState = new(IsDefaultCsfleSetupValid, isThreadSafe: true);
@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 var password = Environment.GetEnvironmentVariable("MONGO_X509_CLIENT_CERTIFICATE_PASSWORD");
                 var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(Ensure.IsNotNull(certificateFilename, nameof(certificateFilename)), Ensure.IsNotNull(password, nameof(password)));
 
-                return new SslSettings { ClientCertificates = [ clientCertificate ] };
+                return new SslSettings { ClientCertificates = [clientCertificate] };
             }
 
             return null;

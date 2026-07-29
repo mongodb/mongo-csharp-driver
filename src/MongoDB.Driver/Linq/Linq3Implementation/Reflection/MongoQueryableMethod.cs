@@ -511,9 +511,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __takeWithLong
             ]);
 
-             __standardDeviationOverloads = MethodInfoSet.Create(
-            [
-                __standardDeviationPopulationDecimal,
+            __standardDeviationOverloads = MethodInfoSet.Create(
+           [
+               __standardDeviationPopulationDecimal,
                 __standardDeviationPopulationDecimalAsync,
                 __standardDeviationPopulationDecimalWithSelector,
                 __standardDeviationPopulationDecimalWithSelectorAsync,
@@ -593,7 +593,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __standardDeviationSampleSingleAsync,
                 __standardDeviationSampleSingleWithSelector,
                 __standardDeviationSampleSingleWithSelectorAsync
-            ]);
+           ]);
 
             __standardDeviationNullableOverloads = MethodInfoSet.Create(
             [
@@ -764,7 +764,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __sumNullableSingleWithSelectorAsync,
                 __sumSingleWithSelectorAsync
             ]);
-       }
+        }
 
         // public properties
         public static MethodInfo AnyAsync => __anyAsync;

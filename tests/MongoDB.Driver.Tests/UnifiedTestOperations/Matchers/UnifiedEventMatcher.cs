@@ -441,7 +441,8 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     break;
                 default:
                     throw new Exception($"Unexpected topology type: {topologyType}.");
-            };
+            }
+            ;
         }
 
         private string GetAssertionErrorMessage(List<object> actualEvents, BsonArray expectedEventsDocuments)

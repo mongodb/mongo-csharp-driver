@@ -260,7 +260,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var subject = CreateAwsSaslAuthenticator(null, mockRandomByteGenerator.Object, mockClock.Object, null);
 
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslStartCommandResponseString));
             var saslContinueResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslContinueCommandResponseString));
             connection.EnqueueCommandResponseMessage(saslStartResponse);
@@ -302,7 +302,7 @@ namespace MongoDB.Driver.Tests.Authentication
             using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -340,7 +340,7 @@ namespace MongoDB.Driver.Tests.Authentication
             using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned an invalid sts host.");
@@ -376,7 +376,7 @@ namespace MongoDB.Driver.Tests.Authentication
             using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server sent an invalid nonce.");
@@ -416,7 +416,7 @@ namespace MongoDB.Driver.Tests.Authentication
             using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
                 await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol)) ;
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned unexpected fields: u.");
@@ -511,7 +511,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "MONGODB-AWS",

@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = GetCollection<C>();
 
             var queryable = collection.AsQueryable()
-                .Select(x => new { R = x.A.Where(i => i == 1)});
+                .Select(x => new { R = x.A.Where(i => i == 1) });
 
             var stages = Translate(collection, queryable);
             var expectedStages = new[]

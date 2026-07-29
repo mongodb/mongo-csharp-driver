@@ -25,7 +25,7 @@ using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
-    internal class ClientSideProjectionRewriter: ExpressionVisitor
+    internal class ClientSideProjectionRewriter : ExpressionVisitor
     {
         #region static
         public static (TranslatedExpression[], LambdaExpression) RewriteProjection(TranslationContext context, LambdaExpression projectionLambda, IBsonSerializer sourceSerializer)

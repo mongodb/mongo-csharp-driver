@@ -70,7 +70,7 @@ namespace MongoDB.Driver
         {
         }
 
-                /// <summary>
+        /// <summary>
         /// Initializes a new instance of the <see cref="BulkWriteUpdateOneModel{TDocument}"/> class.
         /// </summary>
         /// <param name="collectionNamespace">Collection on which the operation should be performed.</param>

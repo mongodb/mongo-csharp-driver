@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
         private sealed class Outcome
         {
             public double tolerance { get; set; }
-            public IDictionary<string, double> expected_frequencies  { get; set; }
+            public IDictionary<string, double> expected_frequencies { get; set; }
         }
 
         private sealed class TestData
@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
             public string description { get; set; }
             public int iterations { get; set; }
 
-            public OperationsCount[] mocked_topology_state { get; set;}
+            public OperationsCount[] mocked_topology_state { get; set; }
             public Outcome outcome { get; set; }
         }
 

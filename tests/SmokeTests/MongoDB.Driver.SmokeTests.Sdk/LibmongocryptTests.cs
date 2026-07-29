@@ -44,7 +44,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         [Fact]
         public void Explicit_encryption_with_libmongocrypt_package_works()
         {
-            var categories = new[] {("LogLevel:MongoDB.Client", "Trace")};
+            var categories = new[] { ("LogLevel:MongoDB.Client", "Trace") };
 
             using (var logsTracer = new LogsTraceListener())
             {

@@ -46,7 +46,7 @@ public class FileOidcCallbackTests
 
     [Theory]
     [ParameterAttributeData]
-    public async Task GetOidcAccessToken_calls_fileSystemProvider([Values(true, false)]bool async)
+    public async Task GetOidcAccessToken_calls_fileSystemProvider([Values(true, false)] bool async)
     {
         var filePath = "some-file-path";
         var fileContent = "some-content";
@@ -59,7 +59,7 @@ public class FileOidcCallbackTests
 
         var oidcCallback = new FileOidcCallback(fileSystemProviderMock.Object, filePath);
         var result = async ?
-            await oidcCallback.GetOidcAccessTokenAsync(oidcParameters, default):
+            await oidcCallback.GetOidcAccessTokenAsync(oidcParameters, default) :
             oidcCallback.GetOidcAccessToken(oidcParameters, default);
 
         result.AccessToken.Should().Be(fileContent);

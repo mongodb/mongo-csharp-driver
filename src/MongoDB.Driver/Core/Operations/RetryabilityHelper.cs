@@ -157,7 +157,7 @@ namespace MongoDB.Driver.Core.Operations
             {
                 return true;
             }
-            if (exception is MongoCursorNotFoundException or MongoConnectionPoolPausedException )
+            if (exception is MongoCursorNotFoundException or MongoConnectionPoolPausedException)
             {
                 return true;
             }

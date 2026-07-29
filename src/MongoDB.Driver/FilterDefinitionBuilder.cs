@@ -479,7 +479,7 @@ namespace MongoDB.Driver
         /// <param name="impliedElementFilter">The implied element filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FilterDefinition<TItem> impliedElementFilter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(impliedElementFilter);
         }
@@ -491,7 +491,7 @@ namespace MongoDB.Driver
         /// <param name="impliedElementFilter">The implied element filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TItem, bool>> impliedElementFilter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFilterDefinition<TItem>(impliedElementFilter));
         }
@@ -504,7 +504,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (can only be checked at runtime)
+        // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(field, filter);
         }
@@ -517,7 +517,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (can only be checked at runtime)
+        // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), filter);
         }
@@ -1966,7 +1966,7 @@ namespace MongoDB.Driver
         private readonly FilterDefinition<TItem> _filter;
 
         public ElementMatchFilterDefinition(FilterDefinition<TItem> filter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             _filter = filter;
 
@@ -1974,7 +1974,7 @@ namespace MongoDB.Driver
         }
 
         public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (checked in Render)
+        // where TField : IEnumerable<TItem> (checked in Render)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
             _filter = filter;
@@ -2247,7 +2247,7 @@ namespace MongoDB.Driver
                 }
 
                 var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
-                ofTypeFilter= discriminatorConvention switch
+                ofTypeFilter = discriminatorConvention switch
                 {
                     IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
                     IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),

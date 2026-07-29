@@ -305,7 +305,7 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateToCollectionOperation(_collectionNamespace, __pipeline, _messageEncoderSettings);
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -330,7 +330,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -356,7 +356,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -383,7 +383,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -409,7 +409,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -436,7 +436,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -463,7 +463,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -492,7 +492,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -537,7 +537,7 @@ using var operationContext = new OperationContext(session);
             }
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -564,7 +564,7 @@ using var operationContext = new OperationContext(session);
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
 
             var result = subject.CreateCommand(operationContext, connectionDescription, transactionNumber: null);
 
@@ -647,7 +647,7 @@ using var operationContext = new OperationContext(session);
             var outputDatabaseName = usingDifferentOutputDatabase ? $"{inputDatabaseName}-outputdatabase-timeseries" : inputDatabaseName;
             var outputCollectionName = $"{inputCollectionName}-outputcollection-timeseries";
 
-            pipeline.Add(new BsonDocument { {"$set", new BsonDocument { {"time", DateTime.Now } } } } );
+            pipeline.Add(new BsonDocument { { "$set", new BsonDocument { { "time", DateTime.Now } } } });
             pipeline.Add(BsonDocument.Parse($"{{ $out : {{ db : '{outputDatabaseName}', coll : '{outputCollectionName}', timeseries: {{ timeField: 'time' }} }} }}"));
 
             EnsureTestData();

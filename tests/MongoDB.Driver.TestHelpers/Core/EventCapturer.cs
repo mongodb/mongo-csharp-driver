@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core
             var index = Task.WaitAny(notifyTask, Task.Delay(timeout));
             if (index != 0)
             {
-                throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.") ;
+                throw new Exception(message != null ? message(timeout) : $"Waiting for the expected event exceeded the timeout {timeout}.");
             }
         }
 

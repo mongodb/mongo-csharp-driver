@@ -46,7 +46,7 @@ namespace MongoDB.Driver
         /// <value>
         ///   <c>true</c> if snapshot reads are requested; otherwise, <c>false</c>.
         /// </value>
-        public bool Snapshot { get; set;}
+        public bool Snapshot { get; set; }
 
         /// <summary>
         /// Gets or sets the snapshot time. If set, Snapshot must be true.

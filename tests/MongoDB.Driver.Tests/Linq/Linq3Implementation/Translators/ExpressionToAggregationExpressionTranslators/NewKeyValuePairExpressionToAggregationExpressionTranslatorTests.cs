@@ -34,7 +34,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
-            .Select(d => new KeyValuePair<string,int>("X", d.X));
+            .Select(d => new KeyValuePair<string, int>("X", d.X));
 
         var stages = Translate(collection, queryable);
         AssertStages(stages, "{ $project : { k : 'X', v : '$X', _id : 0 } }");

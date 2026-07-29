@@ -408,7 +408,7 @@ internal partial class SerializerFinderVisitor
         private static void DeduceAggregateWithSeedAndFuncMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             var sourceExpression = expression.Arguments[0];
-            var seedExpression =  expression.Arguments[1];
+            var seedExpression = expression.Arguments[1];
             var funcLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
             var funcAccumulatorParameter = funcLambda.Parameters[0];
             var funcSourceItemParameter = funcLambda.Parameters[1];
@@ -1111,7 +1111,7 @@ internal partial class SerializerFinderVisitor
         {
             var sourceExpression = expression.Arguments[0];
             var collectionSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
-            var resultSelectorLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
+            var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
 
             var collectionSelectorSourceItemParameter = collectionSelectorLambda.Parameters.Single();
             var resultSelectorSourceItemParameter = resultSelectorLambda.Parameters[0];
@@ -1202,7 +1202,7 @@ internal partial class SerializerFinderVisitor
         {
             var sourceExpression = expression.Arguments[0];
             var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
-            var predicateParameter =  predicateLambda.Parameters.Single();
+            var predicateParameter = predicateLambda.Parameters.Single();
             visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
             visitor.DeduceCollectionAndCollectionSerializers(expression, sourceExpression);
         }
@@ -1227,17 +1227,17 @@ internal partial class SerializerFinderVisitor
             var secondExpression = expression.Arguments[1];
             var resultSelectorLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[2]);
             var resultSelectorFirstParameter = resultSelectorLambda.Parameters[0];
-            var resultSelectorSecondParameter =  resultSelectorLambda.Parameters[1];
+            var resultSelectorSecondParameter = resultSelectorLambda.Parameters[1];
 
             if (visitor.IsNotKnown(resultSelectorFirstParameter) && visitor.IsKnown(firstExpression, out var firstSerializer))
             {
-                var firstItemSerializer =  ArraySerializerHelper.GetItemSerializer(firstSerializer);
+                var firstItemSerializer = ArraySerializerHelper.GetItemSerializer(firstSerializer);
                 visitor.AddNodeSerializer(resultSelectorFirstParameter, firstItemSerializer);
             }
 
             if (visitor.IsNotKnown(resultSelectorSecondParameter) && visitor.IsKnown(secondExpression, out var secondSerializer))
             {
-                var secondItemSerializer =  ArraySerializerHelper.GetItemSerializer(secondSerializer);
+                var secondItemSerializer = ArraySerializerHelper.GetItemSerializer(secondSerializer);
                 visitor.AddNodeSerializer(resultSelectorSecondParameter, secondItemSerializer);
             }
 
@@ -1426,7 +1426,7 @@ internal partial class SerializerFinderVisitor
         {
             var partitionExpression = expression.Arguments[0];
             var selectorLambda = (LambdaExpression)expression.Arguments[1];
-            DeduceWindowMethodSelectorParameterSerializer(visitor,partitionExpression, selectorLambda);
+            DeduceWindowMethodSelectorParameterSerializer(visitor, partitionExpression, selectorLambda);
             visitor.DeduceSerializers(expression, selectorLambda.Body);
         }
 
@@ -1471,7 +1471,7 @@ internal partial class SerializerFinderVisitor
 
             if (expression.Method.IsOneOf(EnumerableOrQueryableMethod.SkipWhileOrTakeWhile))
             {
-                var predicateLambda =  ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
+                var predicateLambda = ExpressionHelper.UnquoteLambdaIfQueryableMethod(expression.Method, expression.Arguments[1]);
                 var predicateParameter = predicateLambda.Parameters[0];
                 visitor.DeduceItemAndCollectionSerializers(predicateParameter, sourceExpression);
 

@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests
     public class AggregateRankFusionTests : IntegrationTest<AggregateRankFusionTests.ClassFixture>
     {
         public AggregateRankFusionTests(ClassFixture fixture)
-            : base(fixture, server =>  server.Supports(Feature.RankFusionStage))
+            : base(fixture, server => server.Supports(Feature.RankFusionStage))
         {
         }
 
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Tests
             };
 
             var result = collection.Aggregate()
-                .RankFusion(pipelines, new RankFusionOptions<SimplePerson> { ScoreDetails = true})
+                .RankFusion(pipelines, new RankFusionOptions<SimplePerson> { ScoreDetails = true })
                 .Limit(1)
                 .As<RankFusionResult>()
                 .Project<RankFusionResult>(Builders<RankFusionResult>.Projection

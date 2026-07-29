@@ -61,12 +61,12 @@ public class SelectNewArrayOfDerivedTypesProjectionTests : LinqIntegrationTest<S
 
     public sealed class Cat : Animal
     {
-        public string C {  get; set; }
+        public string C { get; set; }
     }
 
     public sealed class Dog : Animal
     {
-        public int D {  get; set; }
+        public int D { get; set; }
     }
 
     public sealed class ClassFixture : MongoCollectionFixture<C>

@@ -39,7 +39,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             var queryable = collection
                 .AsQueryable()
-                .Select(x => new {
+                .Select(x => new
+                {
                     Keys = x.Data.Select(y => y.Key),
                     Values = x.Data.Select(y => y.Value)
                 });

@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Tests.Linq.Integration
             var pipelineError = new EmptyPipelineDefinition<MyDocument>()
                 .Set(x => new MyDocument()
                 {
-                    A = new [] { 2, x.A[0] }
+                    A = new[] { 2, x.A[0] }
                 });
             var updateError = Builders<MyDocument>.Update.Pipeline(pipelineError);
 

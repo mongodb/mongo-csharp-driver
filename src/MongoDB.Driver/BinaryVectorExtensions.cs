@@ -31,7 +31,7 @@ namespace MongoDB.Driver
         /// <param name="binaryVector">The binary vector.</param>
         /// <returns>A <see cref="BsonBinaryData"/> instance.</returns>
         public static QueryVector ToQueryVector<TItem>(this BinaryVector<TItem> binaryVector)
-            where TItem  : struct =>
+            where TItem : struct =>
             binaryVector switch
             {
                 BinaryVectorFloat32 binaryVectorFloat32 => new(binaryVectorFloat32.ToBsonBinaryData()),

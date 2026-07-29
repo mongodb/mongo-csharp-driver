@@ -26,35 +26,35 @@ public class FindProjectionRenderTests : LinqIntegrationTest<FindProjectionRende
 {
     public FindProjectionRenderTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void Find_projection_render_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var fluentFind = collection.Find(a => a.Id == "1").Project(a => a.Id);
-
-            var documentSerializer = collection.DocumentSerializer;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var renderedProjection = fluentFind.Options.Projection.Render(new(documentSerializer, serializerRegistry));
-
-            var result = fluentFind.Single();
-            result.Should().Be("1");
-        }
-
-        public class A
-        {
-            public string Id { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<A>
-        {
-            protected override IEnumerable<A> InitialData =>
-            [
-                new A { Id = "1" },
-                new A { Id = "2" }
-            ];
-        }
+    {
     }
+
+    [Fact]
+    public void Find_projection_render_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var fluentFind = collection.Find(a => a.Id == "1").Project(a => a.Id);
+
+        var documentSerializer = collection.DocumentSerializer;
+        var serializerRegistry = BsonSerializer.SerializerRegistry;
+        var renderedProjection = fluentFind.Options.Projection.Render(new(documentSerializer, serializerRegistry));
+
+        var result = fluentFind.Single();
+        result.Should().Be("1");
+    }
+
+    public class A
+    {
+        public string Id { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<A>
+    {
+        protected override IEnumerable<A> InitialData =>
+        [
+            new A { Id = "1" },
+                new A { Id = "2" }
+        ];
+    }
+}

@@ -27,135 +27,135 @@ public class NestedAnyAndExistsInSelectAndWhereTests : LinqIntegrationTest<Neste
 {
     public NestedAnyAndExistsInSelectAndWhereTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
+    {
+    }
 
-        [Fact]
-        public void Select_with_Any_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Select_with_Any_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Select(a =>
-                    a.ProfilesList != null &&
-                    a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Select(a =>
+                a.ProfilesList != null &&
+                a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, false, false, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, false, false, false);
+    }
 
-        [Fact]
-        public void Select_with_Array_Exists_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Select_with_Array_Exists_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Select(a =>
-                    a.ProfilesArray != null &&
-                    Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Select(a =>
+                a.ProfilesArray != null &&
+                Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesArray', null] }, { $anyElementTrue : { $map : { input : '$ProfilesArray', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsArray', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesArray', null] }, { $anyElementTrue : { $map : { input : '$ProfilesArray', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsArray', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, false, false, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, false, false, false);
+    }
 
-        [Fact]
-        public void Select_with_List_Exists_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Select_with_List_Exists_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Select(a =>
-                    a.ProfilesList != null &&
-                    a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Select(a =>
+                a.ProfilesList != null &&
+                a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $and : [{ $ne : ['$ProfilesList', null] }, { $anyElementTrue : { $map : { input : '$ProfilesList', as : 'p', in : { $anyElementTrue : { $map : { input : '$$p.OrganizationIdsList', as : 'o', in : { $eq : ['$$o', 1] } } } } } }  }] }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, false, false, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, false, false, false);
+    }
 
-        [Fact]
-        public void Where_with_Any_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Where_with_Any_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Where(a =>
-                    a.ProfilesList != null &&
-                    a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Where(a =>
+                a.ProfilesList != null &&
+                a.ProfilesList.Any(p => p.OrganizationIdsList.Any(o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
 
-        [Fact]
-        public void Where_with_Array_Exists_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Where_with_Array_Exists_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Where(a =>
-                    a.ProfilesArray != null &&
-                    Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Where(a =>
+                a.ProfilesArray != null &&
+                Array.Exists(a.ProfilesArray, p => Array.Exists(p.OrganizationIdsArray, o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ProfilesArray : { $ne : null, $elemMatch : { OrganizationIdsArray : 1 } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { ProfilesArray : { $ne : null, $elemMatch : { OrganizationIdsArray : 1 } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
 
-        [Fact]
-        public void Where_with_List_Exists_should_work()
-        {
-            var collection = Fixture.Collection;
-            var organizationId = 1;
+    [Fact]
+    public void Where_with_List_Exists_should_work()
+    {
+        var collection = Fixture.Collection;
+        var organizationId = 1;
 
-            var queryable = collection.AsQueryable()
-                .Where(a =>
-                    a.ProfilesList != null &&
-                    a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
+        var queryable = collection.AsQueryable()
+            .Where(a =>
+                a.ProfilesList != null &&
+                a.ProfilesList.Exists(p => p.OrganizationIdsList.Exists(o => o == organizationId)));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { ProfilesList : { $ne : null, $elemMatch : { OrganizationIdsList : 1 } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
 
-        public class Account
-        {
-            public int Id { get; set; }
-            public Profile[] ProfilesArray { get; set; }
-            public List<Profile> ProfilesList { get; set; }
-        }
+    public class Account
+    {
+        public int Id { get; set; }
+        public Profile[] ProfilesArray { get; set; }
+        public List<Profile> ProfilesList { get; set; }
+    }
 
-        public class Profile
-        {
-            public int[] OrganizationIdsArray { get; set; }
-            public List<int> OrganizationIdsList { get; set; }
-        }
+    public class Profile
+    {
+        public int[] OrganizationIdsArray { get; set; }
+        public List<int> OrganizationIdsList { get; set; }
+    }
 
-        public sealed class ClassFixture : MongoCollectionFixture<Account>
-        {
-            protected override IEnumerable<Account> InitialData =>
-            [
-                new Account
+    public sealed class ClassFixture : MongoCollectionFixture<Account>
+    {
+        protected override IEnumerable<Account> InitialData =>
+        [
+            new Account
                 {
                     Id = 1,
                     ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[] { 1 } } },
@@ -179,6 +179,6 @@ public class NestedAnyAndExistsInSelectAndWhereTests : LinqIntegrationTest<Neste
                     ProfilesArray = new Profile[] { new Profile { OrganizationIdsArray = new int[0] } },
                     ProfilesList = new List<Profile> { new Profile { OrganizationIdsList = new List<int>() } }
                 }
-            ];
-        }
+        ];
     }
+}

@@ -155,7 +155,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public async Task InitializeConnection_should_acquire_connectionId_from_hello_response(
-            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue + 1, (double)int.MaxValue * 4)] object serverConnectionId,
             [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
@@ -175,7 +175,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [ParameterAttributeData]
         public async Task InitializeConnection_should_acquire_connectionId_from_hello_response_without_serverApi(
-            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue + 1, (double)int.MaxValue * 4)] object serverConnectionId,
             [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
@@ -282,7 +282,7 @@ namespace MongoDB.Driver.Core.Connections
         [ParameterAttributeData]
         public async Task InitializeConnection_without_serverApi_but_with_loadBalancing_should_send_hello([Values(false, true)] bool async)
         {
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44}, serviceId : '{ObjectId.GenerateNewId()}' }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 

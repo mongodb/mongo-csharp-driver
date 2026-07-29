@@ -28,75 +28,75 @@ public class EnumEqualityAndNumericCastWhereSelectTests : LinqIntegrationTest<En
 {
     public EnumEqualityAndNumericCastWhereSelectTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
+    {
+    }
 
-        [Fact]
-        public void Where_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Where_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Status == Status.Open);
+        var queryable = collection.AsQueryable()
+            .Where(x => x.Status == Status.Open);
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { Status : 1 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { Status : 1 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
 
-        [Fact]
-        public void Select_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Select(x => new { Result = (int)x.Version });
+        var queryable = collection.AsQueryable()
+            .Select(x => new { Result = (int)x.Version });
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Result).Should().Equal(1, 2);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Result).Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_followed_by_Select_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Where_followed_by_Select_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Status == Status.Open)
-                .Select(x => new { Result = (int)x.Version });
+        var queryable = collection.AsQueryable()
+            .Where(x => x.Status == Status.Open)
+            .Select(x => new { Result = (int)x.Version });
 
-            var stages = Translate(collection, queryable);
-            AssertStages(
-                stages,
-                "{ $match : { Status : 1 } }",
-                "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(
+            stages,
+            "{ $match : { Status : 1 } }",
+            "{ $project : { Result : { $toInt : '$Version' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Result).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Result).Should().Equal(1);
+    }
 
-        public class C
-        {
-            public int Id { get; set; }
-            public Status Status { get; set; }
-            public long Version { get; set; }
-        }
+    public class C
+    {
+        public int Id { get; set; }
+        public Status Status { get; set; }
+        public long Version { get; set; }
+    }
 
 #pragma warning disable CA1717 // Only FlagsAttribute enums should have plural names
-        public enum Status { Closed, Open };
+    public enum Status { Closed, Open };
 #pragma warning restore CA1717 // Only FlagsAttribute enums should have plural names
 
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C { Id = 1, Status = Status.Open, Version = 1L },
+    public sealed class ClassFixture : MongoCollectionFixture<C>
+    {
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C { Id = 1, Status = Status.Open, Version = 1L },
                 new C { Id = 2, Status = Status.Closed, Version = 2L }
-            ];
-        }
+        ];
     }
+}

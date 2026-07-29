@@ -41,7 +41,8 @@ namespace MongoDB.Driver.Tests.Authentication
             callback.Verify(x => x(), Times.Once);
         }
 
-        [Fact] public void Multiple_Create_calls_should_call_provided_callback_multiple_times()
+        [Fact]
+        public void Multiple_Create_calls_should_call_provided_callback_multiple_times()
         {
             var callback = new Mock<Func<IAuthenticator>>();
             var subject = new AuthenticatorFactory(callback.Object);

@@ -168,7 +168,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var expectedEndString =  ", $readPreference : { mode : 'primaryPreferred' }";
+            var expectedEndString = ", $readPreference : { mode : 'primaryPreferred' }";
             MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ saslStart : 1, mechanism : 'SCRAM-SHA-256', payload : new BinData(0, '{ToUtf8Base64(__clientRequest1)}'), options : {{ skipEmptyExchange : true }}, $db : 'source'{expectedEndString} }}");
             MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, '{ToUtf8Base64(__clientRequest2)}'), $db : 'source'{expectedEndString} }}");
         }
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Tests.Authentication
                 expectedMessages.Add(saslStartMessage);
             }
 
-            var saslContinueMessage = BsonDocument.Parse($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, '{ ToUtf8Base64(__clientRequest2)}'), '$db' : 'source' }}");
+            var saslContinueMessage = BsonDocument.Parse($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, '{ToUtf8Base64(__clientRequest2)}'), '$db' : 'source' }}");
             expectedMessages.Add(saslContinueMessage);
 
             if (useLongAuthentication)
@@ -399,7 +399,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values("da-DK", "en-US")] string name,
             [Values(false, true)] bool async)
         {
-            return SetCultureAndResetAfterTest(name, async Task() =>
+            return SetCultureAndResetAfterTest(name, async Task () =>
             {
                 // ScramSha1Authenticator will have exactly the same code paths
                 var subject = CreateScramSha256SaslAuthenticator("a", serverApi: null);
@@ -451,7 +451,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserSource, TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "SCRAM-SHA-256",

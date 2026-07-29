@@ -101,7 +101,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return false;
         }
 
-       public static bool IsZero(this AstExpression expression)
-            => expression.IsConstant(out var constant) && constant == 0; // works for all numeric BSON types
+        public static bool IsZero(this AstExpression expression)
+             => expression.IsConstant(out var constant) && constant == 0; // works for all numeric BSON types
     }
 }

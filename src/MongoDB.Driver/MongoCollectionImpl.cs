@@ -796,7 +796,7 @@ namespace MongoDB.Driver
             var deferredCursor = new DeferredAsyncCursor<TResult>(
                 () => forkedSession.Dispose(),
                 ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, options?.Timeout, ct),
-                ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary,  options?.Timeout, ct));
+                ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, options?.Timeout, ct));
             return deferredCursor;
         }
 

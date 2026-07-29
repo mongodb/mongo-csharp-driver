@@ -152,7 +152,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         bool UseZeroIdChecker { get; set; }
 
-                /// <summary>
+        /// <summary>
         /// Deserializes an object from a BsonDocument.
         /// </summary>
         /// <typeparam name="TNominalType">The nominal type of the object.</typeparam>

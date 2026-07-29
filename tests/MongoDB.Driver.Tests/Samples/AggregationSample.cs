@@ -104,9 +104,9 @@ namespace MongoDB.Driver.Tests.Samples
             var collection = database.GetCollection<ZipEntry>(__collection.CollectionNamespace.CollectionName);
 
             var queryable = from z in collection.AsQueryable()
-                           group z by z.State into g
-                           where g.Sum(x => x.Population) > 20000
-                           select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
+                            group z by z.State into g
+                            where g.Sum(x => x.Population) > 20000
+                            select new { State = g.Key, TotalPopulation = g.Sum(x => x.Population) };
 
             var stages = Linq3TestHelpers.Translate(collection, queryable);
             var expectedStages =

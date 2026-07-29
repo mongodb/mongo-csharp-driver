@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Operations
 
             var healthyOperation1 = CreateHealthyOperation(new BsonDocument("operation", 1));
             var faultyOperation2 = CreateFaultyOperation(testException);
-            var healthyOperation3= CreateHealthyOperation(new BsonDocument("operation", 3));
+            var healthyOperation3 = CreateHealthyOperation(new BsonDocument("operation", 3));
 
             var subject = new CompositeWriteOperation<BsonDocument>((healthyOperation1.Object, IsMainOperation: false), (faultyOperation2.Object, IsMainOperation: false), (healthyOperation3.Object, IsMainOperation: true));
 

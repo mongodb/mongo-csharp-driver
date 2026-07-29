@@ -31,359 +31,359 @@ public class CountPropertyOnCollectionTypesWhereAndSelectTests : LinqIntegration
 {
     public CountPropertyOnCollectionTypesWhereAndSelectTests(ClassFixture fixture)
             : base(fixture)
+    {
+    }
+
+    [Fact]
+    public void Where_BitArray_Count_should_throw()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.BitArray.Count == 1);
+
+        var exception = Record.Exception(() => Translate(collection, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
+    [Fact]
+    public void Where_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { Count : 1 } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_Dictionary_Count_should_throw()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.Dictionary.Count == 1);
+
+        var exception = Record.Exception(() => Translate(collection, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
+    [Fact]
+    public void Where_DictionaryAsArrayOfArrays_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryAsArrayOfArrays.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { DictionaryAsArrayOfArrays : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_DictionaryAsArrayOfDocuments_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryAsArrayOfDocuments.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { DictionaryAsArrayOfDocuments : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_DictionaryInterface_Count_should_throw()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryInterface.Count == 1);
+
+        var exception = Record.Exception(() => Translate(collection, queryable));
+        exception.Should().BeOfType<ExpressionNotSupportedException>();
+    }
+
+    [Fact]
+    public void Where_DictionaryInterfaceArrayOfArrays_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryInterfaceAsArrayOfArrays.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { DictionaryInterfaceAsArrayOfArrays : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_DictionaryInterfaceArrayOfDocuments_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.DictionaryInterfaceAsArrayOfDocuments.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { DictionaryInterfaceAsArrayOfDocuments : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_List_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.List.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { 'List' : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Fact]
+    public void Where_ListInterface_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x.ListInterface.Count == 1);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { 'ListInterface' : { $size : 1 } } }");
+
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
+    public void Select_BitArray_Count_should_throw(
+        [Values(false, true)] bool enableClientSideProjections)
+    {
+        var collection = Fixture.Collection;
+        var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+        var queryable = collection.AsQueryable(translationOptions)
+            .Select(x => x.BitArray.Count);
+
+        if (enableClientSideProjections)
         {
+            var stages = Translate(collection, queryable, out var outputSerializer);
+            AssertStages(stages, "{ $project : { _snippets : ['$BitArray'], _id : 0 } }");
+            outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
+
+            var results = queryable.ToList();
+            results.Should().Equal(1, 2);
         }
-
-        [Fact]
-        public void Where_BitArray_Count_should_throw()
+        else
         {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.BitArray.Count == 1);
-
             var exception = Record.Exception(() => Translate(collection, queryable));
             exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("is not represented as an array");
         }
+    }
 
-        [Fact]
-        public void Where_Count_should_work()
+    [Fact]
+    public void Select_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.Count);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : '$Count', _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
+    public void Select_Dictionary_Count_should_throw(
+        [Values(false, true)] bool enableClientSideProjections)
+    {
+        var collection = Fixture.Collection;
+        var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+        var queryable = collection.AsQueryable(translationOptions)
+            .Select(x => x.Dictionary.Count);
+
+        if (enableClientSideProjections)
         {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Count == 1);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { Count : 1 } }");
+            var stages = Translate(collection, queryable, out var outputSerializer);
+            AssertStages(stages, "{ $project : { _snippets : ['$Dictionary'], _id : 0 } }");
+            outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
             var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
+            results.Should().Equal(1, 2);
         }
-
-        [Fact]
-        public void Where_Dictionary_Count_should_throw()
+        else
         {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.Dictionary.Count == 1);
-
             var exception = Record.Exception(() => Translate(collection, queryable));
             exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("is not represented as an array");
         }
+    }
 
-        [Fact]
-        public void Where_DictionaryAsArrayOfArrays_Count_should_work()
+    [Fact]
+    public void Select_DictionaryAsArrayOfArrays_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfArrays.Count);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfArrays' }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
+
+    [Fact]
+    public void Select_DictionaryAsArrayOfDocuments_Count_should_work()
+    {
+        var collection = Fixture.Collection;
+
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryAsArrayOfDocuments.Count);
+
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfDocuments' }, _id : 0 } }");
+
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
+
+    [Theory]
+    [ParameterAttributeData]
+    public void Select_DictionaryInterface_Count_should_throw(
+        [Values(false, true)] bool enableClientSideProjections)
+    {
+        var collection = Fixture.Collection;
+        var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+
+        var queryable = collection.AsQueryable(translationOptions)
+            .Select(x => x.DictionaryInterface.Count);
+
+        if (enableClientSideProjections)
         {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.DictionaryAsArrayOfArrays.Count == 1);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { DictionaryAsArrayOfArrays : { $size : 1 } } }");
+            var stages = Translate(collection, queryable, out var outputSerializer);
+            AssertStages(stages, "{ $project : { _snippets : ['$DictionaryInterface'], _id : 0 } }");
+            outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
 
             var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
+            results.Should().Equal(1, 2);
         }
-
-        [Fact]
-        public void Where_DictionaryAsArrayOfDocuments_Count_should_work()
+        else
         {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.DictionaryAsArrayOfDocuments.Count == 1);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { DictionaryAsArrayOfDocuments : { $size : 1 } } }");
-
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
-
-        [Fact]
-        public void Where_DictionaryInterface_Count_should_throw()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Where(x => x.DictionaryInterface.Count == 1);
-
             var exception = Record.Exception(() => Translate(collection, queryable));
             exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("is not represented as an array");
         }
+    }
 
-        [Fact]
-        public void Where_DictionaryInterfaceArrayOfArrays_Count_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_DictionaryInterfaceAsArrayOfArrays_Count_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.DictionaryInterfaceAsArrayOfArrays.Count == 1);
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryInterfaceAsArrayOfArrays.Count);
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { DictionaryInterfaceAsArrayOfArrays : { $size : 1 } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryInterfaceAsArrayOfArrays' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_DictionaryInterfaceArrayOfDocuments_Count_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_DictionaryInterfaceAsArrayOfDocuments_Count_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.DictionaryInterfaceAsArrayOfDocuments.Count == 1);
+        var queryable = collection.AsQueryable()
+            .Select(x => x.DictionaryInterfaceAsArrayOfDocuments.Count);
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { DictionaryInterfaceAsArrayOfDocuments : { $size : 1 } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryInterfaceAsArrayOfDocuments' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_List_Count_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_List_Count_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.List.Count == 1);
+        var queryable = collection.AsQueryable()
+            .Select(x => x.List.Count);
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { 'List' : { $size : 1 } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$List' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_ListInterface_Count_should_work()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_ListInterface_Count_should_work()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.ListInterface.Count == 1);
+        var queryable = collection.AsQueryable()
+            .Select(x => x.ListInterface.Count);
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { 'ListInterface' : { $size : 1 } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $size : '$ListInterface' }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(1, 2);
+    }
 
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_BitArray_Count_should_throw(
-            [Values(false, true)] bool enableClientSideProjections)
-        {
-            var collection = Fixture.Collection;
-            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
+    public class C
+    {
+        public int Id { get; set; }
+        public BitArray BitArray { get; set; }
+        public int Count { get; set; }
+        public Dictionary<string, int> Dictionary { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public Dictionary<string, int> DictionaryAsArrayOfArrays { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public Dictionary<string, int> DictionaryAsArrayOfDocuments { get; set; }
+        public IDictionary<string, int> DictionaryInterface { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfArrays { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfDocuments { get; set; }
+        public List<int> List { get; set; }
+        public IList<int> ListInterface { get; set; }
+    }
 
-            var queryable = collection.AsQueryable(translationOptions)
-                .Select(x => x.BitArray.Count);
-
-            if (enableClientSideProjections)
-            {
-                var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, "{ $project : { _snippets : ['$BitArray'], _id : 0 } }");
-                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
-
-                var results = queryable.ToList();
-                results.Should().Equal(1, 2);
-            }
-            else
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("is not represented as an array");
-            }
-        }
-
-        [Fact]
-        public void Select_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : '$Count', _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_Dictionary_Count_should_throw(
-            [Values(false, true)] bool enableClientSideProjections)
-        {
-            var collection = Fixture.Collection;
-            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
-
-            var queryable = collection.AsQueryable(translationOptions)
-                .Select(x => x.Dictionary.Count);
-
-            if (enableClientSideProjections)
-            {
-                var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, "{ $project : { _snippets : ['$Dictionary'], _id : 0 } }");
-                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
-
-                var results = queryable.ToList();
-                results.Should().Equal(1, 2);
-            }
-            else
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("is not represented as an array");
-            }
-        }
-
-        [Fact]
-        public void Select_DictionaryAsArrayOfArrays_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.DictionaryAsArrayOfArrays.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfArrays' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Fact]
-        public void Select_DictionaryAsArrayOfDocuments_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.DictionaryAsArrayOfDocuments.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryAsArrayOfDocuments' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Select_DictionaryInterface_Count_should_throw(
-            [Values(false, true)] bool enableClientSideProjections)
-        {
-            var collection = Fixture.Collection;
-            var translationOptions = new ExpressionTranslationOptions { EnableClientSideProjections = enableClientSideProjections };
-
-            var queryable = collection.AsQueryable(translationOptions)
-                .Select(x => x.DictionaryInterface.Count);
-
-            if (enableClientSideProjections)
-            {
-                var stages = Translate(collection, queryable, out var outputSerializer);
-                AssertStages(stages, "{ $project : { _snippets : ['$DictionaryInterface'], _id : 0 } }");
-                outputSerializer.Should().BeAssignableTo<IClientSideProjectionDeserializer>();
-
-                var results = queryable.ToList();
-                results.Should().Equal(1, 2);
-            }
-            else
-            {
-                var exception = Record.Exception(() => Translate(collection, queryable));
-                exception.Should().BeOfType<ExpressionNotSupportedException>();
-                exception.Message.Should().Contain("is not represented as an array");
-            }
-        }
-
-        [Fact]
-        public void Select_DictionaryInterfaceAsArrayOfArrays_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.DictionaryInterfaceAsArrayOfArrays.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryInterfaceAsArrayOfArrays' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Fact]
-        public void Select_DictionaryInterfaceAsArrayOfDocuments_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.DictionaryInterfaceAsArrayOfDocuments.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$DictionaryInterfaceAsArrayOfDocuments' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Fact]
-        public void Select_List_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.List.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$List' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        [Fact]
-        public void Select_ListInterface_Count_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var queryable = collection.AsQueryable()
-                .Select(x => x.ListInterface.Count);
-
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $size : '$ListInterface' }, _id : 0 } }");
-
-            var results = queryable.ToList();
-            results.Should().Equal(1, 2);
-        }
-
-        public class C
-        {
-            public int Id { get; set; }
-            public BitArray BitArray { get; set; }
-            public int Count { get; set; }
-            public Dictionary<string, int> Dictionary { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public Dictionary<string, int> DictionaryAsArrayOfArrays { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public Dictionary<string, int> DictionaryAsArrayOfDocuments { get; set; }
-            public IDictionary<string, int> DictionaryInterface { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfArrays { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)] public IDictionary<string, int> DictionaryInterfaceAsArrayOfDocuments { get; set; }
-            public List<int> List { get; set; }
-            public IList<int> ListInterface { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<C>
-        {
-            protected override IEnumerable<C> InitialData =>
-            [
-                new C
+    public sealed class ClassFixture : MongoCollectionFixture<C>
+    {
+        protected override IEnumerable<C> InitialData =>
+        [
+            new C
                 {
                     Id = 1,
                     BitArray = new BitArray(length: 1),
@@ -411,6 +411,6 @@ public class CountPropertyOnCollectionTypesWhereAndSelectTests : LinqIntegration
                     List = new() { 1, 2 },
                     ListInterface = new List<int> { 1, 2 }
                 }
-            ];
-        }
+        ];
     }
+}

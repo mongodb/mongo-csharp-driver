@@ -141,5 +141,5 @@ namespace MongoDB.Driver.Encryption
             }
         }
         #endregion
-   }
+    }
 }
