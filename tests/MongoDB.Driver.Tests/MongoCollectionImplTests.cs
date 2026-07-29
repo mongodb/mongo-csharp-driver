@@ -94,9 +94,6 @@ namespace MongoDB.Driver
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -142,9 +139,6 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
-#pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
-#pragma warning restore 618
         }
 
         [Theory]
@@ -174,9 +168,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
 
             using var cancellationTokenSource1 = new CancellationTokenSource();
@@ -346,9 +337,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;

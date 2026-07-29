@@ -39,19 +39,5 @@ namespace MongoDB.Driver
         /// The time this server session was last used (in UTC).
         /// </value>
         DateTime? LastUsedAt { get; }
-
-        /// <summary>
-        /// Gets the next transaction number.
-        /// </summary>
-        /// <returns>The transaction number.</returns>
-        [Obsolete("Let the driver handle when to advance the transaction number.")]
-        long AdvanceTransactionNumber();
-
-        // methods
-        /// <summary>
-        /// Called by the driver when the session is used (i.e. sent to the server).
-        /// </summary>
-        [Obsolete("Let the driver handle tracking when the session was last used.")]
-        void WasUsed();
     }
 }

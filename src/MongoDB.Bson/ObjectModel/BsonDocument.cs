@@ -124,17 +124,6 @@ namespace MongoDB.Bson
         }
 
         /// <summary>
-        /// Initializes a new instance of the BsonDocument class and adds one or more elements.
-        /// </summary>
-        /// <param name="elements">One or more elements to add to the document.</param>
-        [Obsolete("Use BsonDocument(IEnumerable<BsonElement> elements) instead.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public BsonDocument(params BsonElement[] elements)
-        {
-            AddRange(elements);
-        }
-
-        /// <summary>
         /// Initializes a new instance of the BsonDocument class and creates and adds a new element.
         /// </summary>
         /// <param name="name">The name of the element to add to the document.</param>

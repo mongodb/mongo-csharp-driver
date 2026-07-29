@@ -24,8 +24,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders
         // encoder settings used by the binary encoders
         public const string BinaryDocumentFieldDecryptor = nameof(BinaryDocumentFieldDecryptor);
         public const string BinaryDocumentFieldEncryptor = nameof(BinaryDocumentFieldEncryptor);
-        [Obsolete("Configure serializers instead.")]
-        public const string GuidRepresentation = nameof(GuidRepresentation);
         public const string MaxDocumentSize = nameof(MaxDocumentSize);
         public const string MaxMessageSize = nameof(MaxMessageSize);
         public const string MaxSerializationDepth = nameof(MaxSerializationDepth);

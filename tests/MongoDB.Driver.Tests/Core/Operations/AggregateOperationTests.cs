@@ -51,9 +51,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
-#pragma warning disable 618
-            subject.UseCursor.Should().NotHaveValue();
-#pragma warning restore 618
             subject.RetryRequested.Should().BeFalse();
         }
 
@@ -110,9 +107,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.MaxAwaitTime.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.IsServerDefault.Should().BeTrue();
-#pragma warning disable 618
-            subject.UseCursor.Should().NotHaveValue();
-#pragma warning restore 618
             subject.RetryRequested.Should().BeFalse();
         }
 
@@ -285,19 +279,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.RetryRequested;
 
             result.Should().Be(value);
-        }
-
-        [Fact]
-        public void UseCursor_get_and_set_should_work()
-        {
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.UseCursor = true;
-            var result = subject.UseCursor;
-#pragma warning restore 618
-
-            result.Should().BeTrue();
         }
 
         [Fact]
@@ -883,30 +864,6 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
             {
                 ReadConcern = readConcern
-            };
-
-            var cursor = ExecuteOperation(subject, async);
-            var result = ReadCursorToEnd(cursor, async);
-
-            result.Should().NotBeNull();
-            result.Should().HaveCount(1);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_should_return_expected_result_when_UseCursor_is_set(
-            [Values(null, false, true)]
-            bool? useCursor,
-            [Values(false, true)]
-            bool async)
-        {
-            RequireServer.Check();
-            EnsureTestData();
-            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, __pipeline, __resultSerializer, _messageEncoderSettings)
-            {
-#pragma warning disable 618
-                UseCursor = useCursor
-#pragma warning restore 618
             };
 
             var cursor = ExecuteOperation(subject, async);

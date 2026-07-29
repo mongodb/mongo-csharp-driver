@@ -72,20 +72,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void AdvanceTransactionNumber_should_do_nothing()
-        {
-            Mock<ICoreServerSession> mockCoreServerSession;
-            var subject = CreateSubject(out mockCoreServerSession);
-
-#pragma warning disable 618
-            var result = subject.AdvanceTransactionNumber();
-#pragma warning restore
-
-            result.Should().Be(-1);
-            mockCoreServerSession.Verify(m => m.AdvanceTransactionNumber(), Times.Never);
-        }
-
-        [Fact]
         public void Dispose_should_not_call_coreServerSession_Dispose()
         {
             Mock<ICoreServerSession> mockCoreServerSession;
@@ -94,19 +80,6 @@ namespace MongoDB.Driver.Tests
             subject.Dispose();
 
             mockCoreServerSession.Verify(m => m.Dispose(), Times.Never);
-        }
-
-        [Fact]
-        public void WasUsed_should_do_nothing()
-        {
-            Mock<ICoreServerSession> mockCoreServerSession;
-            var subject = CreateSubject(out mockCoreServerSession);
-
-#pragma warning disable 618
-            subject.WasUsed();
-#pragma warning restore
-
-            mockCoreServerSession.Verify(m => m.WasUsed(), Times.Never);
         }
 
         // private methods

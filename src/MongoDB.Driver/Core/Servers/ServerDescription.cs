@@ -481,18 +481,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the approximate server version (only the major and minor version numbers are known).
-        /// </summary>
-        /// <value>
-        /// The server version.
-        /// </value>
-        [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion Version
-        {
-            get { return _version; }
-        }
-
-        /// <summary>
         /// Gets the wire version range.
         /// </summary>
         /// <value>
