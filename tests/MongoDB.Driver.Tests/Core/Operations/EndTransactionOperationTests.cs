@@ -224,7 +224,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             var methodInfo = typeof(EndTransactionOperation).GetMethod("CreateCommand", BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(OperationContext), typeof(WriteConcern)], null);
             using var session = OperationTestHelper.CreateSession();
-using var operationContext = new OperationContext(session);
+            using var operationContext = new OperationContext(session);
             return (BsonDocument)methodInfo.Invoke(obj, [operationContext, obj.WriteConcern]);
         }
     }

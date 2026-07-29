@@ -460,7 +460,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 // => { __agg0 : { $percentile : { input: f(x => element), p: [...], method: "approximate" } } } + "$__agg0"
                 if (IsMappedElementsField(node.Input, out var rewrittenArg))
                 {
-                    var accumulatorExpression = AstExpression.PercentileAccumulator(rewrittenArg,  node.Percentiles);
+                    var accumulatorExpression = AstExpression.PercentileAccumulator(rewrittenArg, node.Percentiles);
                     return CreateGetAccumulatorFieldExpression(accumulatorExpression);
                 }
 

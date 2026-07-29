@@ -67,7 +67,7 @@ namespace MongoDB.Driver.Core.Clusters
             Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
             _state = new InterlockedInt32(State.Initial);
             _clusterId = new ClusterId();
-            _expirableClusterDescription = new (this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
+            _expirableClusterDescription = new(this, ClusterDescription.CreateInitial(_clusterId, _settings.DirectConnection));
             _latencyLimitingServerSelector = new LatencyLimitingServerSelector(settings.LocalThreshold);
             _serverSelectionWaitQueue = new ServerSelectionWaitQueue(this);
             _serverSessionPool = new CoreServerSessionPool(this, loggerFactory?.CreateLogger<LogCategories.Client>());

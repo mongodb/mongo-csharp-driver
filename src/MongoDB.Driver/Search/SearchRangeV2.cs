@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Search
         /// <param name="value">The value.</param>
         /// <returns>Search range.</returns>
         public static SearchRangeV2<TValue> Gt<TValue>(this SearchRangeV2<TValue> searchRange, TValue value)
-            => new(min: new (value), searchRange.Max);
+            => new(min: new(value), searchRange.Max);
 
         /// <summary>
         /// Creates a greater or equal than search range.

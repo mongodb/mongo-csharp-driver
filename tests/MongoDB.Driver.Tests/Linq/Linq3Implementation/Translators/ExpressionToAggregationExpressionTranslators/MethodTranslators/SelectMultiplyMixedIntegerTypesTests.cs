@@ -68,6 +68,6 @@ public class SelectMultiplyMixedIntegerTypesTests : LinqIntegrationTest<SelectMu
     public sealed class ClassFixture : MongoCollectionFixture<C>
     {
         protected override IEnumerable<C> InitialData
-            => [ new C { Int = 1, Byte = 1 } ];
+            => [new C { Int = 1, Byte = 1 }];
     }
 }

@@ -1517,7 +1517,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return host.Length > original.Length &&
                        hostDotCount > originalDotCount &&
                        host.EndsWith(original, StringComparison.Ordinal) &&
-                       host[host.Length - original.Length -1 ] == '.';
+                       host[host.Length - original.Length - 1] == '.';
             }
 
             // We check that the returned hostname has the same domain name as original

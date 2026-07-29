@@ -54,7 +54,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestNestedExpandoRoundTrip()
         {
-            var document = new NestedExpando {Id = ObjectId.GenerateNewId(), ExtraData = new ExpandoObject()};
+            var document = new NestedExpando { Id = ObjectId.GenerateNewId(), ExtraData = new ExpandoObject() };
 
             var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = $"{{ \"_id\" : ObjectId(\"{document.Id}\"), \"ExtraData\" : {{ }} }}";
@@ -68,7 +68,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestNullNestedExpandoRoundTrip()
         {
-            var document = new NestedExpando {Id = ObjectId.GenerateNewId(), ExtraData = null};
+            var document = new NestedExpando { Id = ObjectId.GenerateNewId(), ExtraData = null };
 
             var json = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = $"{{ \"_id\" : ObjectId(\"{document.Id}\"), \"ExtraData\" : null }}";

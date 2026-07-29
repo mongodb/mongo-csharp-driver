@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Encryption
                                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         });
 
-                } );
+                });
             });
 
             var expected = new Dictionary<string, string>
@@ -280,15 +280,15 @@ namespace MongoDB.Driver.Tests.Encryption
             null,
             null,
             "")]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             null,
             KeyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             KeyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
@@ -454,15 +454,15 @@ namespace MongoDB.Driver.Tests.Encryption
             null,
             null,
             "")]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             null,
             KeyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             KeyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]

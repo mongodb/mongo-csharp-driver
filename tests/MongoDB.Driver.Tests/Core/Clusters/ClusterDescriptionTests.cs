@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Core.Clusters
         [Fact]
         public void ToString_should_return_string_representation()
         {
-            var subject = new ClusterDescription(new ClusterId(1), directConnection: false, null, ClusterType.Standalone, [ __serverDescription1 ]);
+            var subject = new ClusterDescription(new ClusterId(1), directConnection: false, null, ClusterType.Standalone, [__serverDescription1]);
             var expected = string.Format("{{ ClusterId : \"1\", Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
                 __serverDescription1.ToString());
             subject.ToString().Should().Be(expected);
@@ -307,7 +307,7 @@ namespace MongoDB.Driver.Core.Clusters
         [ParameterAttributeData]
         public void ToString_with_directConnection_should_return_string_representation([Values(true, false)] bool directConnection)
         {
-            var subject = new ClusterDescription(new ClusterId(1), directConnection, dnsMonitorException: null, ClusterType.Standalone, [__serverDescription1 ]);
+            var subject = new ClusterDescription(new ClusterId(1), directConnection, dnsMonitorException: null, ClusterType.Standalone, [__serverDescription1]);
             var directConnectionString = directConnection ? $", DirectConnection : \"true\"" : string.Empty;
             var expected = string.Format("{{ ClusterId : \"1\"{1}, Type : \"Standalone\", State : \"Disconnected\", Servers : [{0}] }}",
                 __serverDescription1.ToString(),

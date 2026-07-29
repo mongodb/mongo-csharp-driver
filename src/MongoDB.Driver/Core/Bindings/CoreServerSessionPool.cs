@@ -149,7 +149,7 @@ namespace MongoDB.Driver
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error closing server session pool for {clusterId}.", _cluster.ClusterId);
             }

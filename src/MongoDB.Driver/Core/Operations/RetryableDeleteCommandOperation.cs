@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Core.Operations
             get { return _deletes; }
         }
 
-        protected override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription,  long? transactionNumber)
+        protected override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
             var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);

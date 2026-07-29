@@ -98,7 +98,7 @@ public class ClientBulkWriteComplexIdTests : IntegrationTest<ClientBulkWriteComp
     {
         public ClassFixture()
         {
-            BsonSerializer.RegisterSerializer( new DocumentIdSerializer());
+            BsonSerializer.RegisterSerializer(new DocumentIdSerializer());
         }
 
         protected override IEnumerable<Document> InitialData => null;

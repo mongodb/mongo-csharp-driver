@@ -76,7 +76,7 @@ public class PositionalUpdateOperatorRenderingTests : Linq3IntegrationTest
     [Fact]
     public void All_positional_update_operator_update_all_elements_in_an_array_example()
     {
-        var update = Builders<Student1>.Update.Inc(s => s.Grades.AllElements(), 10) ;
+        var update = Builders<Student1>.Update.Inc(s => s.Grades.AllElements(), 10);
 
         var rendered = Render(update);
         rendered.Should().Be("{ $inc : { 'Grades.$[]' : 10 } }");
@@ -140,7 +140,7 @@ public class PositionalUpdateOperatorRenderingTests : Linq3IntegrationTest
     private class C
     {
         public int Id { get; set; }
-        public int[] A {  get; set; }
+        public int[] A { get; set; }
     }
 
     private class Student1
@@ -155,7 +155,7 @@ public class PositionalUpdateOperatorRenderingTests : Linq3IntegrationTest
 
     private class Grade2
     {
-        public int Grade { get ; set; }
+        public int Grade { get; set; }
         public int Mean { get; set; }
         public int Std { get; set; }
     }

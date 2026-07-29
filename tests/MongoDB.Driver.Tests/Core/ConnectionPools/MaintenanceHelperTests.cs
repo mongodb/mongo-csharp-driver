@@ -79,7 +79,8 @@ namespace MongoDB.Driver.Core.Tests.Core.ConnectionPools
                 for (int i = 0; i < attempts; i++)
                 {
                     StepByState(subject, random.Next(maxValue: 2)); // 0 - SetReady, 1 - Clear
-                };
+                }
+                ;
                 Thread.Sleep(random.Next(50));
                 StepByState(subject, state: 0); // 0 - SetReady, should be stopped by dispose
             }

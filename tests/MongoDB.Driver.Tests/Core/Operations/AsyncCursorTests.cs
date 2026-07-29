@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Close_should_dispose_cursor_only_once([Values(false, true)]bool async)
+        public void Close_should_dispose_cursor_only_once([Values(false, true)] bool async)
         {
             int testCursorId = 1;
             var mockChannelHandle = new Mock<IChannelHandle>();

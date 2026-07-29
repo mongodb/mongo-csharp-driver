@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests
             public string Field1 { get; set; }
         }
 
-        private class DerivedDocument : BaseDocument {}
+        private class DerivedDocument : BaseDocument { }
 
         [Fact]
         public void BsonClassMapSerializer_serialization_when_using_field_with_same_element_name_as_discriminator_should_throw()

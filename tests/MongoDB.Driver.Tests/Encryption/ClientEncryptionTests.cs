@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Tests.Encryption
             async ? await clientEncryption.DecryptAsync(value) : clientEncryption.Decrypt(value);
 
         private async ValueTask<BsonBinaryData> ExplicitEncryptAsync(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
-            async? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
+            async ? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
 
         private void ShouldBeArgumentNullException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);
     }

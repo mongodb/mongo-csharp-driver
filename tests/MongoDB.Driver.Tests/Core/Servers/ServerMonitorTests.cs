@@ -541,7 +541,7 @@ namespace MongoDB.Driver.Core.Servers
             mockRoundTripTimeMonitor = new Mock<IRoundTripTimeMonitor>();
 
             var isRttStarted = false;
-            mockRoundTripTimeMonitor.Setup(m => m.Start()).Callback(() => { isRttStarted = true; }) ;
+            mockRoundTripTimeMonitor.Setup(m => m.Start()).Callback(() => { isRttStarted = true; });
             mockRoundTripTimeMonitor.SetupGet(m => m.IsStarted).Returns(() => isRttStarted);
 
             if (captureConnectionEvents)

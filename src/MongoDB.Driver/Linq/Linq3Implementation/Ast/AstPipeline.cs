@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
             return visitor.VisitPipeline(this);
         }
 
-       public override BsonValue Render()
+        public override BsonValue Render()
         {
             return new BsonArray(_stages.Select(s => s.Render()));
         }

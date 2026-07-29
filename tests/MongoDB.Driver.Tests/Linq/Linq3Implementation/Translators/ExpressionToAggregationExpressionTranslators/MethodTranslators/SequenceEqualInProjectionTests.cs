@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             public int[] B { get; set; }
         }
 
-        public sealed class ClassFixture :  MongoCollectionFixture<C, BsonDocument>
+        public sealed class ClassFixture : MongoCollectionFixture<C, BsonDocument>
         {
             protected override IEnumerable<BsonDocument> InitialData =>
             [

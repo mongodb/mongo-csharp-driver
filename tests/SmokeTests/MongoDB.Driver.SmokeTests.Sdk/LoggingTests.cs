@@ -45,7 +45,7 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 
             if (categoryName != null)
             {
-                categories = new[] { ("LogLevel:Default", "Error"),  ($"LogLevel:{categoryName}", "Trace")};
+                categories = new[] { ("LogLevel:Default", "Error"), ($"LogLevel:{categoryName}", "Trace") };
                 expectedLogs = expectedLogs.Where(l => l.Category == categoryName).ToArray();
             }
 

@@ -643,7 +643,7 @@ namespace MongoDB.Driver.Tests
 
             Assert.Throws<ArgumentNullException>(() =>
             {
-                PipelineStageDefinitionBuilder.RankFusion(new PipelineDefinition<BsonDocument, BsonDocument>[]{null});
+                PipelineStageDefinitionBuilder.RankFusion(new PipelineDefinition<BsonDocument, BsonDocument>[] { null });
             });
 
             Assert.Throws<ArgumentNullException>(() =>

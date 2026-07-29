@@ -52,6 +52,6 @@ namespace MongoDB.Driver.Search
         public virtual BsonDocument Render(RenderArgs<TDocument> args) =>
                new(_clauseType.ToCamelCase(), RenderClause(args));
 
-        private protected virtual BsonDocument RenderClause(RenderArgs<TDocument> args) => new ();
+        private protected virtual BsonDocument RenderClause(RenderArgs<TDocument> args) => new();
     }
 }

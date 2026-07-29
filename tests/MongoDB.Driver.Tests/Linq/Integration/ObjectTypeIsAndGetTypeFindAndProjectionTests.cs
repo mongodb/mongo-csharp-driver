@@ -30,467 +30,467 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 public class ObjectTypeIsAndGetTypeFindAndProjectionTests : Linq3IntegrationTest
 {
     static ObjectTypeIsAndGetTypeFindAndProjectionTests()
+    {
+        BsonClassMap.RegisterClassMap<Activity1>(cm =>
         {
-            BsonClassMap.RegisterClassMap<Activity1>(cm =>
-            {
-                cm.AutoMap();
-                Func<Type, bool> allowedTypes = t => t == typeof(string) || t == typeof(MyActivityObject) || t == typeof(MyActivityObjectDerived);
-                var discriminatorConvention = new HierarchicalDiscriminatorConvention("_t");
-                var objectSerializer = new ObjectSerializer(discriminatorConvention, allowedTypes);
-                cm.MapMember(x => x.Object).SetSerializer(objectSerializer);
-            });
+            cm.AutoMap();
+            Func<Type, bool> allowedTypes = t => t == typeof(string) || t == typeof(MyActivityObject) || t == typeof(MyActivityObjectDerived);
+            var discriminatorConvention = new HierarchicalDiscriminatorConvention("_t");
+            var objectSerializer = new ObjectSerializer(discriminatorConvention, allowedTypes);
+            cm.MapMember(x => x.Object).SetSerializer(objectSerializer);
+        });
 
-            BsonClassMap.RegisterClassMap<ActivityObject<int>>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIsRootClass(true);
-            });
-        }
-
-        [Fact]
-        public void Find_with_object_property_GetType_comparison_to_base_class_should_work()
+        BsonClassMap.RegisterClassMap<ActivityObject<int>>(cm =>
         {
-            Implementation<MyActivityObject, int>();
+            cm.AutoMap();
+            cm.SetIsRootClass(true);
+        });
+    }
 
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-                var activityId = 1;
+    [Fact]
+    public void Find_with_object_property_GetType_comparison_to_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
 
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object.GetType() == typeof(TActivityObject) &&
-                        ((TActivityObject)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(3, 4);
-            }
-        }
-
-        [Fact]
-        public void Find_with_object_property_GetType_comparison_to_derived_class_should_work()
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
         {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object.GetType() == typeof(TActivityObject) &&
-                        ((TActivityObject)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(6);
-            }
-        }
-
-        [Fact]
-        public void Find_with_object_property_is_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object is TActivityObject &&
-                        ((TActivityObject)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(3, 4, 6);
-            }
-        }
-
-        [Fact]
-        public void Find_with_object_property_is_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object is TActivityObject &&
-                        ((TActivityObject)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(6);
-            }
-        }
-
-        [Fact]
-        public void Find_with_typed_property_GetType_comparison_to_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object.GetType() == typeof(TActivityObject) &&
-                        ((TActivityObject)(object)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(3, 4);
-            }
-        }
-
-        [Fact]
-        public void Find_with_typed_property_GetType_comparison_to_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object.GetType() == typeof(TActivityObject) &&
-                        ((TActivityObject)(object)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(6);
-            }
-        }
-
-        [Fact]
-        public void Find_with_typed_property_is_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object is TActivityObject &&
-                        ((TActivityObject)(object)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(3, 4, 6);
-            }
-        }
-
-        [Fact]
-        public void Find_with_typed_property_is_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-                var activityId = 1;
-
-                var find = collection
-                    .Find(x =>
-                        x.Object != null &&
-                        x.Object is TActivityObject &&
-                        ((TActivityObject)(object)x.Object).Id.Equals(activityId)
-                    );
-
-                var filter = TranslateFindFilter(collection, find);
-                var results = find.ToList();
-
-                filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
-                results.Select(x => x.Id).Should().Equal(6);
-            }
-        }
-
-        [Fact]
-        public void Select_with_object_property_GetType_comparison_to_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, false);
-            }
-        }
-
-        [Fact]
-        public void Select_with_object_property_GetType_comparison_to_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
-            }
-        }
-
-        [Fact]
-        public void Select_with_object_property_is_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object is TActivityObject });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, true);
-            }
-        }
-
-        [Fact]
-        public void Select_with_object_property_is_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection1();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object is TActivityObject });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
-            }
-        }
-
-        [Fact]
-        public void Select_with_typed_property_GetType_comparison_to_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, false);
-            }
-        }
-
-        [Fact]
-        public void Select_with_typed_property_GetType_comparison_to_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
-            }
-        }
-
-        [Fact]
-        public void Select_with_typed_property_is_base_class_should_work()
-        {
-            Implementation<MyActivityObject, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object is TActivityObject });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, true);
-            }
-        }
-
-        [Fact]
-        public void Select_with_typed_property_is_derived_class_should_work()
-        {
-            Implementation<MyActivityObjectDerived, int>();
-
-            void Implementation<TActivityObject, TId>()
-                where TActivityObject : ActivityObject<TId>
-                where TId : notnull, IEquatable<TId>, new()
-            {
-                var collection = GetCollection2();
-
-                var queryable = collection.AsQueryable()
-                    .Select(x => new { x.Id, R = x.Object is TActivityObject });
-
-                var stages = Translate(collection, queryable);
-                AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
-
-                var results = queryable.ToList();
-                results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
-            }
-        }
-
-        private IMongoCollection<Activity1> GetCollection1()
-        {
-            var collection = GetCollection<Activity1>("test");
-            CreateCollection(
-                collection,
-                new Activity1 { Id = 1, Object = null },
-                new Activity1 { Id = 2, Object = "abc" },
-                new Activity1 { Id = 3, Object = new MyActivityObject { Id = 1 } },
-                new Activity1 { Id = 4, Object = new MyActivityObject { Id = 1 } },
-                new Activity1 { Id = 5, Object = new MyActivityObject { Id = 2 } },
-                new Activity1 { Id = 6, Object = new MyActivityObjectDerived { Id = 1 } });
-            return collection;
-        }
-
-        private IMongoCollection<Activity2> GetCollection2()
-        {
-            var collection = GetCollection<Activity2>("test");
-            CreateCollection(
-                collection,
-                new Activity2 { Id = 1, Object = null },
-                new Activity2 { Id = 3, Object = new MyActivityObject { Id = 1 } },
-                new Activity2 { Id = 4, Object = new MyActivityObject { Id = 1 } },
-                new Activity2 { Id = 5, Object = new MyActivityObject { Id = 2 } },
-                new Activity2 { Id = 6, Object = new MyActivityObjectDerived { Id = 1 } });
-            return collection;
-        }
-
-        private class Activity1
-        {
-            public int Id { get; set; }
-            public object Object { get; set; }
-        }
-
-        private class Activity2
-        {
-            public int Id { get; set; }
-            public ActivityObject<int> Object { get; set; }
-        }
-
-        private abstract class ActivityObject<TId>
-        {
-            public abstract TId Id { get; set; }
-        }
-
-        [BsonDiscriminator(RootClass = true)]
-        [BsonKnownTypes(typeof(MyActivityObjectDerived))]
-        private class MyActivityObject : ActivityObject<int>
-        {
-            public override int Id { get; set; }
-        }
-
-        private class MyActivityObjectDerived : MyActivityObject
-        {
+            var collection = GetCollection1();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object.GetType() == typeof(TActivityObject) &&
+                    ((TActivityObject)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(3, 4);
         }
     }
+
+    [Fact]
+    public void Find_with_object_property_GetType_comparison_to_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object.GetType() == typeof(TActivityObject) &&
+                    ((TActivityObject)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(6);
+        }
+    }
+
+    [Fact]
+    public void Find_with_object_property_is_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object is TActivityObject &&
+                    ((TActivityObject)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(3, 4, 6);
+        }
+    }
+
+    [Fact]
+    public void Find_with_object_property_is_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object is TActivityObject &&
+                    ((TActivityObject)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(6);
+        }
+    }
+
+    [Fact]
+    public void Find_with_typed_property_GetType_comparison_to_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object.GetType() == typeof(TActivityObject) &&
+                    ((TActivityObject)(object)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t.0' : { $exists : false }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(3, 4);
+        }
+    }
+
+    [Fact]
+    public void Find_with_typed_property_GetType_comparison_to_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object.GetType() == typeof(TActivityObject) &&
+                    ((TActivityObject)(object)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : ['MyActivityObject', 'MyActivityObjectDerived'], 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(6);
+        }
+    }
+
+    [Fact]
+    public void Find_with_typed_property_is_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object is TActivityObject &&
+                    ((TActivityObject)(object)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObject', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(3, 4, 6);
+        }
+    }
+
+    [Fact]
+    public void Find_with_typed_property_is_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+            var activityId = 1;
+
+            var find = collection
+                .Find(x =>
+                    x.Object != null &&
+                    x.Object is TActivityObject &&
+                    ((TActivityObject)(object)x.Object).Id.Equals(activityId)
+                );
+
+            var filter = TranslateFindFilter(collection, find);
+            var results = find.ToList();
+
+            filter.Should().Be("{ Object : { $ne : null }, 'Object._t' : 'MyActivityObjectDerived', 'Object._id' : 1 }");
+            results.Select(x => x.Id).Should().Equal(6);
+        }
+    }
+
+    [Fact]
+    public void Select_with_object_property_GetType_comparison_to_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, false);
+        }
+    }
+
+    [Fact]
+    public void Select_with_object_property_GetType_comparison_to_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
+        }
+    }
+
+    [Fact]
+    public void Select_with_object_property_is_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object is TActivityObject });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, true, true, true, true);
+        }
+    }
+
+    [Fact]
+    public void Select_with_object_property_is_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection1();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object is TActivityObject });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, false, true);
+        }
+    }
+
+    [Fact]
+    public void Select_with_typed_property_GetType_comparison_to_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', 'MyActivityObject'] } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, false);
+        }
+    }
+
+    [Fact]
+    public void Select_with_typed_property_GetType_comparison_to_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object.GetType() == typeof(TActivityObject) });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $eq : ['$Object._t', ['MyActivityObject', 'MyActivityObjectDerived']] } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
+        }
+    }
+
+    [Fact]
+    public void Select_with_typed_property_is_base_class_should_work()
+    {
+        Implementation<MyActivityObject, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object is TActivityObject });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObject', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObject'] } } } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, true, true, true, true);
+        }
+    }
+
+    [Fact]
+    public void Select_with_typed_property_is_derived_class_should_work()
+    {
+        Implementation<MyActivityObjectDerived, int>();
+
+        void Implementation<TActivityObject, TId>()
+            where TActivityObject : ActivityObject<TId>
+            where TId : notnull, IEquatable<TId>, new()
+        {
+            var collection = GetCollection2();
+
+            var queryable = collection.AsQueryable()
+                .Select(x => new { x.Id, R = x.Object is TActivityObject });
+
+            var stages = Translate(collection, queryable);
+            AssertStages(stages, "{ $project : { _id : '$_id', R : { $cond : { if : { $eq : [{ $type : '$Object._t' }, 'array'] }, then : { $in : ['MyActivityObjectDerived', '$Object._t'] }, else : { $eq : ['$Object._t', 'MyActivityObjectDerived'] } } } } }");
+
+            var results = queryable.ToList();
+            results.OrderBy(x => x.Id).Select(x => x.R).Should().Equal(false, false, false, false, true);
+        }
+    }
+
+    private IMongoCollection<Activity1> GetCollection1()
+    {
+        var collection = GetCollection<Activity1>("test");
+        CreateCollection(
+            collection,
+            new Activity1 { Id = 1, Object = null },
+            new Activity1 { Id = 2, Object = "abc" },
+            new Activity1 { Id = 3, Object = new MyActivityObject { Id = 1 } },
+            new Activity1 { Id = 4, Object = new MyActivityObject { Id = 1 } },
+            new Activity1 { Id = 5, Object = new MyActivityObject { Id = 2 } },
+            new Activity1 { Id = 6, Object = new MyActivityObjectDerived { Id = 1 } });
+        return collection;
+    }
+
+    private IMongoCollection<Activity2> GetCollection2()
+    {
+        var collection = GetCollection<Activity2>("test");
+        CreateCollection(
+            collection,
+            new Activity2 { Id = 1, Object = null },
+            new Activity2 { Id = 3, Object = new MyActivityObject { Id = 1 } },
+            new Activity2 { Id = 4, Object = new MyActivityObject { Id = 1 } },
+            new Activity2 { Id = 5, Object = new MyActivityObject { Id = 2 } },
+            new Activity2 { Id = 6, Object = new MyActivityObjectDerived { Id = 1 } });
+        return collection;
+    }
+
+    private class Activity1
+    {
+        public int Id { get; set; }
+        public object Object { get; set; }
+    }
+
+    private class Activity2
+    {
+        public int Id { get; set; }
+        public ActivityObject<int> Object { get; set; }
+    }
+
+    private abstract class ActivityObject<TId>
+    {
+        public abstract TId Id { get; set; }
+    }
+
+    [BsonDiscriminator(RootClass = true)]
+    [BsonKnownTypes(typeof(MyActivityObjectDerived))]
+    private class MyActivityObject : ActivityObject<int>
+    {
+        public override int Id { get; set; }
+    }
+
+    private class MyActivityObjectDerived : MyActivityObject
+    {
+    }
+}

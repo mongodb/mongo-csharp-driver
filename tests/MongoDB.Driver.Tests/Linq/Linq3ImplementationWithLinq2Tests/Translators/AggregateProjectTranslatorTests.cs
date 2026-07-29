@@ -1401,7 +1401,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check();
 
-            var result = Project(x => new { Result = x.A.Length } );
+            var result = Project(x => new { Result = x.A.Length });
 
             result.Projection.Should().Be("{ Result: { \"$strLenCP\": \"$A\" }, _id: 0 }");
 

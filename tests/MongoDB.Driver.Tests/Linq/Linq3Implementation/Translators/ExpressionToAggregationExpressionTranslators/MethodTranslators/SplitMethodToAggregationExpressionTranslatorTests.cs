@@ -50,10 +50,10 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         exception.Should().BeOfType<ExpressionNotSupportedException>();
     }
 
-    private static char[] __singleCharsSeparator = [ ',' ];
-    private static char[] __multipleCharsSeparator = [ ',', ';' ];
-    private static string[] __singleStringsSeparator = [ "," ];
-    private static string[] __multipleStringsSeparator = [ ",", ";" ];
+    private static char[] __singleCharsSeparator = [','];
+    private static char[] __multipleCharsSeparator = [',', ';'];
+    private static string[] __singleStringsSeparator = [","];
+    private static string[] __multipleStringsSeparator = [",", ";"];
     public static IEnumerable<object[]> SupportedTestCases =
     [
 #if NETCOREAPP || NET6_0_OR_GREATER

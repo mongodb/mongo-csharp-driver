@@ -237,7 +237,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
             var stages = Translate(collection, queryable);
 
-           AssertStages(stages);
+            AssertStages(stages);
         }
 #endif
 

@@ -25,29 +25,29 @@ public class ReplaceOneUpsertedIdTests : LinqIntegrationTest<ReplaceOneUpsertedI
 {
     public ReplaceOneUpsertedIdTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
-
-        [Fact]
-        public void ReplaceOne()
-        {
-            var collection = Fixture.Collection;
-            var options = new ReplaceOptions<Data> { IsUpsert = true };
-            var data = new Data { Id = 8, Text = "updated" };
-
-            var result = collection.ReplaceOne(d => true, data, options);
-
-            result.UpsertedId.Should().Be(8);
-        }
-
-        public class Data
-        {
-            public int Id { get; set; }
-            public string Text { get; set; }
-        }
-
-        public sealed class ClassFixture : MongoCollectionFixture<Data>
-        {
-            protected override IEnumerable<Data> InitialData => null;
-        }
+    {
     }
+
+    [Fact]
+    public void ReplaceOne()
+    {
+        var collection = Fixture.Collection;
+        var options = new ReplaceOptions<Data> { IsUpsert = true };
+        var data = new Data { Id = 8, Text = "updated" };
+
+        var result = collection.ReplaceOne(d => true, data, options);
+
+        result.UpsertedId.Should().Be(8);
+    }
+
+    public class Data
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+    }
+
+    public sealed class ClassFixture : MongoCollectionFixture<Data>
+    {
+        protected override IEnumerable<Data> InitialData => null;
+    }
+}

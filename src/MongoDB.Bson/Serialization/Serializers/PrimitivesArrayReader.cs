@@ -74,7 +74,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             using var buffer = ThreadStaticBuffer.RentBuffer(array.Length);
 
             var bytes = buffer.Bytes;
-	        array.GetBytes(0, bytes, 0, array.Length);
+            array.GetBytes(0, bytes, 0, array.Length);
             var span = bytes.AsSpan();
 
             var result = new List<T>();
@@ -112,7 +112,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     case ConversionType.Decimal128ToDecimal128:
                         {
                             var lowBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index));
-                            var highBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index +  8));
+                            var highBits = BinaryPrimitives.ReadUInt64LittleEndian(span.Slice(index + 8));
                             var v = Decimal128.ToDecimal(Decimal128.FromIEEEBits(highBits, lowBits));
 
                             value = Unsafe.As<decimal, T>(ref v);

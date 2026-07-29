@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             };
         }
 
-        public AstMedianWindowExpression Update(AstExpression input,  AstWindow window)
+        public AstMedianWindowExpression Update(AstExpression input, AstWindow window)
         {
             if (input == _input && window == _window)
             {

@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __withYearMonthDayHourMinuteSecondMillisecond = ReflectionInfo.Constructor((int year, int month, int day, int hour, int minute, int second, int millisecond) => new DateTime(year, month, day, hour, minute, second, millisecond));
         }
 
-        public static ConstructorInfo WithYearMonthDay=> __withYearMonthDay;
+        public static ConstructorInfo WithYearMonthDay => __withYearMonthDay;
         public static ConstructorInfo WithYearMonthDayHourMinuteSecond => __withYearMonthDayHourMinuteSecond;
         public static ConstructorInfo WithYearMonthDayHourMinuteSecondMillisecond => __withYearMonthDayHourMinuteSecondMillisecond;
     }

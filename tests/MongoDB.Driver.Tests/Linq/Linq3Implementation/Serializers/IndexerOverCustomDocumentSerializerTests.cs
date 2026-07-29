@@ -39,7 +39,7 @@ public class IndexerOverCustomDocumentSerializerTests : LinqIntegrationTest<Inde
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
-            .Select(x => x.Property[0] );
+            .Select(x => x.Property[0]);
 
         var exception = Record.Exception(() => queryable.ToList());
         exception.Should().BeOfType<ExpressionNotSupportedException>();

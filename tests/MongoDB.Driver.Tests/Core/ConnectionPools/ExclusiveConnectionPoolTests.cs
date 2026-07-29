@@ -1091,7 +1091,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             var authenticationFailedConnection = new Mock<IConnection>();
             authenticationFailedConnection
                 .Setup(c => c.Open(It.IsAny<OperationContext>())) // an authentication exception is thrown from _connectionInitializer.InitializeConnection
-                                                                   // that in turn is called from OpenAsync
+                                                                  // that in turn is called from OpenAsync
                 .Throws(authenticationException);
             authenticationFailedConnection.SetupGet(c => c.ConnectionId).Returns(connectionId);
 
@@ -1228,7 +1228,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
                     // unblock after all in maxConnecting queue failed
                     allInQueueFailed.Wait();
                     blockEstablishmentEvent.Set();
-                };
+                }
+                ;
             });
 
             exceptions.Length.ShouldBeEquivalentTo(blockedInMaxConnecting);
@@ -1559,7 +1560,8 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
                     SpinWait.SpinUntil(() => subject._waitQueueFreeSlots() >= blockedInQueueCount);
                     blockEstablishmentEvent.Set();
-                };
+                }
+                ;
             });
 
             exceptions.Length.ShouldBeEquivalentTo(blockedInQueueCount);

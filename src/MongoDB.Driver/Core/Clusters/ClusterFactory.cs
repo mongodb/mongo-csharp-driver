@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Core.Clusters
                 return;
             }
 
-            foreach (var (host, _) in  settings.EndPoints.Select(EndPointHelper.GetHostAndPort))
+            foreach (var (host, _) in settings.EndPoints.Select(EndPointHelper.GetHostAndPort))
             {
                 if (LogIfCosmosDB(host) || LogIfDocumentDB(host))
                 {

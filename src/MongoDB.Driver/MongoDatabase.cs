@@ -673,7 +673,7 @@ namespace MongoDB.Driver
             var translationOptions = _client.Settings.TranslationOptions;
             var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
+            var pipelineDocuments = pipeline.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,

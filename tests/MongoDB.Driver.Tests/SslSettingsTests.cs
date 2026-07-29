@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(null, settings.ClientCertificates);
 
             var certificateFileName = GetTestCertificateFileName();
-            var clientCertificates = new[] {  X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password"), X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password") };
+            var clientCertificates = new[] { X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password"), X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password") };
             settings.ClientCertificates = clientCertificates;
 
             Assert.True(clientCertificates.SequenceEqual(settings.ClientCertificates));
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests
             var settings = new SslSettings
             {
                 CheckCertificateRevocation = false,
-                ClientCertificates = [ X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password") ],
+                ClientCertificates = [X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password")],
                 ClientCertificateSelectionCallback = ClientCertificateSelectionCallback,
                 EnabledSslProtocols = SslProtocols.Tls12,
                 ServerCertificateValidationCallback = ServerCertificateValidationCallback
@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests
 
             clone = settings.Clone();
             var certificateFileName = GetTestCertificateFileName();
-            clone.ClientCertificates = [ X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password") ];
+            clone.ClientCertificates = [X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password")];
             Assert.NotEqual(settings, clone);
             Assert.NotEqual(clone, settings);
 

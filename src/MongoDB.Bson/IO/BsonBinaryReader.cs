@@ -794,13 +794,13 @@ namespace MongoDB.Bson.IO
 
             if (context.ContextType == ContextType.Document)
             {
-                return GenerateDottedElementName(contexts,  nextIndex, (context.ElementName ?? "?") + "." + elementName);
+                return GenerateDottedElementName(contexts, nextIndex, (context.ElementName ?? "?") + "." + elementName);
             }
 
             if (context.ContextType == ContextType.Array)
             {
                 var indexElementName = context.ArrayIndex.ToString(NumberFormatInfo.InvariantInfo);
-                return GenerateDottedElementName(contexts,  nextIndex, indexElementName + "." + elementName);
+                return GenerateDottedElementName(contexts, nextIndex, indexElementName + "." + elementName);
             }
 
             if (nextIndex < contexts.Length)
@@ -834,7 +834,7 @@ namespace MongoDB.Bson.IO
                 throw new FormatException($"Expected size to be {_context.Size}, not {actualSize}.");
             }
 
-            _context =_contextStack.Pop();
+            _context = _contextStack.Pop();
         }
 
         private void PushContext(BsonBinaryReaderContext newContext)

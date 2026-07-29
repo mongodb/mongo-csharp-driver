@@ -552,8 +552,8 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
                 "{ $project: { Key: '$_id', FirstB: '$__agg0', _id: 0 } }");
 
             query = from p in CreateQuery()
-                        group p by p.A into g
-                        select new { g.Key, FirstB = g.Select(x => x.B).First() };
+                    group p by p.A into g
+                    select new { g.Key, FirstB = g.Select(x => x.B).First() };
 
             Assert(query,
                 2,

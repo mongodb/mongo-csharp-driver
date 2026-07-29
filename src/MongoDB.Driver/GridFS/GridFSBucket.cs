@@ -884,7 +884,7 @@ namespace MongoDB.Driver.GridFS
         private void DownloadToStreamHelper(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];
@@ -902,7 +902,7 @@ namespace MongoDB.Driver.GridFS
         private async Task DownloadToStreamHelperAsync(IReadBindingHandle binding, GridFSFileInfo<TFileId> fileInfo, Stream destination, GridFSDownloadOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var retryReads = _database.Client.Settings.RetryReads;
-            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads})
+            using (var source = new GridFSForwardOnlyDownloadStream<TFileId>(this, binding.Fork(), fileInfo) { RetryReads = retryReads })
             {
                 var count = source.Length;
                 var buffer = new byte[fileInfo.ChunkSizeBytes];

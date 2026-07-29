@@ -47,7 +47,7 @@ public class BsonEncodingBenchmark
         _writer = new BsonBinaryWriter(_stream);
         _context = BsonSerializationContext.CreateRoot(_writer);
         _document = ReadExtendedJson(BenchmarkData.FilePath);
-        _documentPoco =  BsonSerializer.Deserialize(_document, BenchmarkData.PocoType);
+        _documentPoco = BsonSerializer.Deserialize(_document, BenchmarkData.PocoType);
         _pocoSerializer = BsonSerializer.LookupSerializer(BenchmarkData.PocoType);
     }
 

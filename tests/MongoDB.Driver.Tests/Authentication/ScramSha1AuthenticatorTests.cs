@@ -331,7 +331,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserSource, TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "SCRAM-SHA-1",

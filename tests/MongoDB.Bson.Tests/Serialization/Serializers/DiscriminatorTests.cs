@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var serialized = """{ "_t" : "DerivedDocumentDouble<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""";
             var rehydrated = BsonSerializer.Deserialize<BaseDocument>(serialized);
-            rehydrated.Should().BeOfType<DerivedDocumentDouble<int,string>>();
+            rehydrated.Should().BeOfType<DerivedDocumentDouble<int, string>>();
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestSerializeGenericTypeWithTwoTypes()
         {
-            var document = new DerivedDocumentDouble<int, string> { Id = 1, Value1 = 42, Value2 = "hello"};
+            var document = new DerivedDocumentDouble<int, string> { Id = 1, Value1 = 42, Value2 = "hello" };
             var serialized = document.ToJson(typeof(BaseDocument));
             serialized.Should().Be("""{ "_t" : "DerivedDocumentDouble<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""");
         }

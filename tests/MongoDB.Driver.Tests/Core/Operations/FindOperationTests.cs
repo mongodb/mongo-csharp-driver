@@ -837,7 +837,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Execute_should_set_operation_name([Values(false, true)]bool async)
+        public async Task Execute_should_set_operation_name([Values(false, true)] bool async)
         {
             RequireServer.Check();
 

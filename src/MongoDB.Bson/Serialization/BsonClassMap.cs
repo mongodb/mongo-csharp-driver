@@ -317,7 +317,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>()=>
+        public static BsonClassMap<TClass> RegisterClassMap<TClass>() =>
             BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap<TClass>();
 
         /// <summary>
@@ -400,7 +400,7 @@ namespace MongoDB.Bson.Serialization
             return
                 GetType().Equals(obj.GetType()) &&
                 obj is BsonClassMap other &&
-                _frozen.Equals(true) &&  other._frozen.Equals(true) && // BsonClassMaps should only be equal if they are frozen
+                _frozen.Equals(true) && other._frozen.Equals(true) && // BsonClassMaps should only be equal if they are frozen
                 object.Equals(_baseClassMap, other._baseClassMap) &&
                 object.Equals(_classType, other._classType) &&
                 object.Equals(_creator, other._creator) &&

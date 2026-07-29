@@ -89,7 +89,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             var allowedTypesArray = allowedTypes.ToArray();
 
-            _allowedDeserializationTypes =  allowedTypesArray.Contains;
+            _allowedDeserializationTypes = allowedTypesArray.Contains;
             _allowedSerializationTypes = allowedTypesArray.Contains;
         }
 

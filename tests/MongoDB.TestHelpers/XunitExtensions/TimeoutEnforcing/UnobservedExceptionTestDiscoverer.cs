@@ -23,8 +23,8 @@ using Xunit.Sdk;
 namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 
 [XunitTestCaseDiscoverer("MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing.UnobservedExceptionTestDiscoverer", "MongoDB.TestHelpers")]
-public class UnobservedExceptionTrackingFactAttribute: FactAttribute
-{}
+public class UnobservedExceptionTrackingFactAttribute : FactAttribute
+{ }
 
 public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
 {

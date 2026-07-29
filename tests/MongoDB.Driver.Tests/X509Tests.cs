@@ -70,7 +70,7 @@ public class X509Tests
     private void AssertAuthenticationSucceeds(MongoClientSettings settings)
     {
         using var client = DriverTestConfiguration.CreateMongoClient(settings);
-        _ =  client.ListDatabaseNames().ToList();
+        _ = client.ListDatabaseNames().ToList();
     }
 
     private void AssertAuthenticationFails(MongoClientSettings settings, string innerExceptionMessage = null)

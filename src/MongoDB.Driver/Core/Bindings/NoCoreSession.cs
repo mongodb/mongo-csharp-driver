@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
-        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken )
+        void ICoreSessionInternal.AbortTransaction(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("NoCoreSession does not support AbortTransaction.");
         }
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Bindings
         }
 
         // TODO: CSOT: Make it public when CSOT will be ready for GA and add default value to cancellationToken parameter.
-        Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken )
+        Task ICoreSessionInternal.AbortTransactionAsync(AbortTransactionOptions options, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("NoCoreSession does not support AbortTransactionAsync.");
         }

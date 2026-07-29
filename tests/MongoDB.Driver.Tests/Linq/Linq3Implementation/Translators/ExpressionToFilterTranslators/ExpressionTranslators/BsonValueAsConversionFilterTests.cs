@@ -386,7 +386,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         {
             var documentSerializer = BsonDocumentSerializer.Instance;
             var serializerRegistry = BsonSerializer.SerializerRegistry;
-            var exception = Record.Exception(() =>filter.Render(new(documentSerializer, serializerRegistry)));
+            var exception = Record.Exception(() => filter.Render(new(documentSerializer, serializerRegistry)));
 
             exception.Should().BeOfType<TExpectedException>();
         }

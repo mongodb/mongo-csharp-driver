@@ -143,7 +143,7 @@ namespace MongoDB.Driver.Tests.Authentication
         {
             var subject = CreatePlainSaslAuthenticator(null);
 
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ conversationId : 0, payload : BinData(0,\"\"), done : true, ok : 1 }"));
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = null;
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserSource, TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "PLAIN",

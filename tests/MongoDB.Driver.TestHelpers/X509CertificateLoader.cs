@@ -26,7 +26,7 @@ public static class X509CertificateLoader
         new(certificateData.ToArray());
 
     public static X509Certificate2 LoadCertificateFromFile(string certificateFilename) =>
-        new (certificateFilename);
+        new(certificateFilename);
 
     public static X509Certificate2 LoadPkcs12FromFile(string certificateFilename, string password) =>
         new(certificateFilename, password);

@@ -335,7 +335,7 @@ internal static class Socks5Helper
             0x06 => "TTL expired",
             0x07 => "Command not supported",
             0x08 => "Address type not supported",
-            _    => $"Unassigned error (0x{code:X2})"
+            _ => $"Unassigned error (0x{code:X2})"
         };
 
         throw new IOException($"SOCKS5 {operation} failed. {message}");

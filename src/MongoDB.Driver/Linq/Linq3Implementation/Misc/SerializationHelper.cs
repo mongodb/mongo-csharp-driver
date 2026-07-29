@@ -256,7 +256,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
                 writer.WriteName("_v");
                 writer.WriteStartArray();
                 var context = BsonSerializationContext.CreateRoot(writer);
-                foreach(var value in values)
+                foreach (var value in values)
                 {
                     itemSerializer.Serialize(context, value);
                 }

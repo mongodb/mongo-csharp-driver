@@ -29,41 +29,41 @@ namespace MongoDB.Driver.Authentication.Gssapi
             switch (operatingSystemPlatform)
             {
                 case OperatingSystemPlatform.Windows:
-                {
-                    SspiSecurityCredential credential = null;
-                    try
                     {
-                        var servicePrincipalName = $"{serviceName}/{hostname}";
-                        if (!string.IsNullOrEmpty(realm))
+                        SspiSecurityCredential credential = null;
+                        try
                         {
-                            servicePrincipalName += $"@{realm}";
+                            var servicePrincipalName = $"{serviceName}/{hostname}";
+                            if (!string.IsNullOrEmpty(realm))
+                            {
+                                servicePrincipalName += $"@{realm}";
+                            }
+                            credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
+                            return new SspiSecurityContext(servicePrincipalName, credential);
                         }
-                        credential = SspiSecurityCredential.Acquire(SspiPackage.Kerberos, authorizationId, password);
-                        return new SspiSecurityContext(servicePrincipalName, credential);
+                        catch (Win32Exception)
+                        {
+                            credential?.Dispose();
+                            throw;
+                        }
                     }
-                    catch (Win32Exception)
-                    {
-                        credential?.Dispose();
-                        throw;
-                    }
-                }
                 case OperatingSystemPlatform.Linux:
-                {
-                    GssapiServicePrincipalName servicePrincipalName = null;
-                    GssapiSecurityCredential credential = null;
-                    try
                     {
-                        servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
-                        credential = GssapiSecurityCredential.Acquire(authorizationId, password);
-                        return new GssapiSecurityContext(servicePrincipalName, credential);
+                        GssapiServicePrincipalName servicePrincipalName = null;
+                        GssapiSecurityCredential credential = null;
+                        try
+                        {
+                            servicePrincipalName = GssapiServicePrincipalName.Create(serviceName, hostname, realm);
+                            credential = GssapiSecurityCredential.Acquire(authorizationId, password);
+                            return new GssapiSecurityContext(servicePrincipalName, credential);
+                        }
+                        catch (LibgssapiException)
+                        {
+                            servicePrincipalName?.Dispose();
+                            credential?.Dispose();
+                            throw;
+                        }
                     }
-                    catch (LibgssapiException)
-                    {
-                        servicePrincipalName?.Dispose();
-                        credential?.Dispose();
-                        throw;
-                    }
-                }
                 default:
                     throw new NotSupportedException($"GSSAPI is not supported on {operatingSystemPlatform}.");
             }

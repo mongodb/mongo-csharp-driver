@@ -29,115 +29,115 @@ public class DictionaryContainsValueTests : LinqIntegrationTest<DictionaryContai
 {
     public DictionaryContainsValueTests(ClassFixture fixture)
             : base(fixture)
-        {
-        }
+    {
+    }
 
-        [Fact]
-        public void Where_ContainsValue_should_work_when_representation_is_Dictionary()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Where_ContainsValue_should_work_when_representation_is_Dictionary()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.D1.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Where(x => x.D1.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { $expr : { $reduce : { input : { $objectToArray : '$D1' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { $expr : { $reduce : { input : { $objectToArray : '$D1' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1, 2);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Where_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.D2.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Where(x => x.D2.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { $expr : { $reduce : { input : '$D2', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 1] } } } } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { $expr : { $reduce : { input : '$D2', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 1] } } } } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1, 2);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Where_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Where_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Where(x => x.D3.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Where(x => x.D3.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $match : { D3 : { $elemMatch : { v : 1 } } } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $match : { D3 : { $elemMatch : { v : 1 } } } }");
 
-            var results = queryable.ToList();
-            results.Select(x => x.Id).Should().Equal(1, 2);
-        }
+        var results = queryable.ToList();
+        results.Select(x => x.Id).Should().Equal(1, 2);
+    }
 
-        [Fact]
-        public void Select_ContainsValue_should_work_when_representation_is_Dictionary()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_ContainsValue_should_work_when_representation_is_Dictionary()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Select(x => x.D1.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Select(x => x.D1.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $objectToArray : '$D1' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : { $objectToArray : '$D1' }, initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, true, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, true, false);
+    }
 
-        [Fact]
-        public void Select_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_ContainsValue_should_work_when_representation_is_ArrayOfArrays()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Select(x => x.D2.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Select(x => x.D2.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$D2', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 1] } } } } }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$D2', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : [{ $arrayElemAt : ['$$this', 1] }, 1] } } } } }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, true, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, true, false);
+    }
 
-        [Fact]
-        public void Select_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
-        {
-            var collection = Fixture.Collection;
+    [Fact]
+    public void Select_ContainsValue_should_work_when_representation_is_ArrayOfDocuments()
+    {
+        var collection = Fixture.Collection;
 
-            var queryable = collection.AsQueryable()
-                .Select(x => x.D3.ContainsValue(1));
+        var queryable = collection.AsQueryable()
+            .Select(x => x.D3.ContainsValue(1));
 
-            var stages = Translate(collection, queryable);
-            AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$D3', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } }, _id : 0 } }");
+        var stages = Translate(collection, queryable);
+        AssertStages(stages, "{ $project : { _v : { $reduce : { input : '$D3', initialValue : false, in : { $cond : { if : '$$value', then : true, else : { $eq : ['$$this.v', 1] } } } } }, _id : 0 } }");
 
-            var results = queryable.ToList();
-            results.Should().Equal(true, true, false);
-        }
+        var results = queryable.ToList();
+        results.Should().Equal(true, true, false);
+    }
 
-        public class User
-        {
-            public int Id { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.Document)]
-            public Dictionary<string, int> D1 { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
-            public Dictionary<string, int> D2 { get; set; }
-            [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
-            public Dictionary<string, int> D3 { get; set; }
-        }
+    public class User
+    {
+        public int Id { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.Document)]
+        public Dictionary<string, int> D1 { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
+        public Dictionary<string, int> D2 { get; set; }
+        [BsonDictionaryOptions(DictionaryRepresentation.ArrayOfDocuments)]
+        public Dictionary<string, int> D3 { get; set; }
+    }
 
-        public sealed class ClassFixture : MongoCollectionFixture<User>
-        {
-            protected override IEnumerable<User> InitialData =>
-            [
-                new User
+    public sealed class ClassFixture : MongoCollectionFixture<User>
+    {
+        protected override IEnumerable<User> InitialData =>
+        [
+            new User
                 {
                     Id = 1,
                     D1 = new() { { "A", 1 }, { "B", 2 } },
@@ -158,6 +158,6 @@ public class DictionaryContainsValueTests : LinqIntegrationTest<DictionaryContai
                     D2 = new() { { "A", 2 }, { "B", 3 } },
                     D3 = new() { { "A", 2 }, { "B", 3 } }
                 }
-            ];
-        }
+        ];
     }
+}

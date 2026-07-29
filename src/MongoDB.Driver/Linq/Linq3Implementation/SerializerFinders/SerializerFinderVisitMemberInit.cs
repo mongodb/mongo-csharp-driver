@@ -39,7 +39,7 @@ internal partial class SerializerFinderVisitor
             {
                 if (nodeSerializer is not IBsonDocumentSerializer documentSerializer)
                 {
-                    throw new ExpressionNotSupportedException(node, because:  $"serializer type {nodeSerializer.GetType()} does not implement IBsonDocumentSerializer interface");
+                    throw new ExpressionNotSupportedException(node, because: $"serializer type {nodeSerializer.GetType()} does not implement IBsonDocumentSerializer interface");
                 }
 
                 foreach (var binding in node.Bindings)

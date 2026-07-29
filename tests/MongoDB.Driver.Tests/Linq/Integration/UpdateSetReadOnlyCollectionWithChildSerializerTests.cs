@@ -54,7 +54,7 @@ public class UpdateSetReadOnlyCollectionWithChildSerializerTests : LinqIntegrati
 
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-        var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
+        var rendered = (BsonDocument)update.Render(new(documentSerializer, serializerRegistry));
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
 
         var filter = Builders<C>.Filter.Eq(x => x.Id, 1);
@@ -73,7 +73,7 @@ public class UpdateSetReadOnlyCollectionWithChildSerializerTests : LinqIntegrati
 
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-        var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
+        var rendered = (BsonDocument)update.Render(new(documentSerializer, serializerRegistry));
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
 
         var filter = Builders<C>.Filter.Eq(x => x.Id, 1);
@@ -92,7 +92,7 @@ public class UpdateSetReadOnlyCollectionWithChildSerializerTests : LinqIntegrati
 
         var serializerRegistry = BsonSerializer.SerializerRegistry;
         var documentSerializer = serializerRegistry.GetSerializer<C>();
-        var rendered = (BsonDocument)update.Render(new (documentSerializer, serializerRegistry));
+        var rendered = (BsonDocument)update.Render(new(documentSerializer, serializerRegistry));
         rendered.Should().Be("{ $set : { ReadOnlyCollection : ['[abc]', '[def]'] } }");
 
         var filter = Builders<C>.Filter.Eq(x => x.Id, 1);

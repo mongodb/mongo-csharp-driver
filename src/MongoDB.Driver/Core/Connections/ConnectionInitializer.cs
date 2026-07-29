@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticator);
+            return new(new ConnectionDescription(connection.ConnectionId, helloResult), authenticator);
         }
 
         public async Task<ConnectionInitializerContext> SendHelloAsync(OperationContext operationContext, IConnection connection)
@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Core.Connections
                 throw new InvalidOperationException("Driver attempted to initialize in load balancing mode, but the server does not support this mode.");
             }
 
-            return new (new ConnectionDescription(connection.ConnectionId, helloResult), authenticator);
+            return new(new ConnectionDescription(connection.ConnectionId, helloResult), authenticator);
         }
 
         // private methods

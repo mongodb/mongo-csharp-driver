@@ -609,5 +609,6 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
                     new Dog { Id = 2 },
                     new Snake { Id = 3 }
                 ];
-        }    }
+        }
+    }
 }

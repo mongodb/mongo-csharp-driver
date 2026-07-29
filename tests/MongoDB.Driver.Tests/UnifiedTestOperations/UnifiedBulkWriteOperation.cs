@@ -315,7 +315,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                         return new DeleteManyModel<BsonDocument>(filter)
                         {
-                            Collation =  collation,
+                            Collation = collation,
                             Hint = hint
                         };
                     }
@@ -325,7 +325,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
                         return new DeleteOneModel<BsonDocument>(filter)
                         {
-                            Collation =  collation,
+                            Collation = collation,
                             Hint = hint
                         };
                     }
@@ -354,7 +354,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         return new UpdateManyModel<BsonDocument>(filter, update)
                         {
                             ArrayFilters = arrayFilters,
-                            Collation =  collation,
+                            Collation = collation,
                             Hint = hint,
                             IsUpsert = isUpsert
                         };
@@ -366,7 +366,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         return new UpdateOneModel<BsonDocument>(filter, update)
                         {
                             ArrayFilters = arrayFilters,
-                            Collation =  collation,
+                            Collation = collation,
                             Hint = hint,
                             IsUpsert = isUpsert,
                             Sort = sort

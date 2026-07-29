@@ -162,8 +162,8 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData(false, false, "{ name : 'vercel' }")]
         public void CreateEnvDocument_should_return_expected_result(bool isDockerToBeDetected, bool isKubernetesToBeDetected, string expected)
         {
-            var fileSystemProviderMock  = new Mock<IFileSystemProvider>();
-            var env = new List<string>{ "VERCEL" };
+            var fileSystemProviderMock = new Mock<IFileSystemProvider>();
+            var env = new List<string> { "VERCEL" };
             if (isKubernetesToBeDetected)
             {
                 env.Add("KUBERNETES_SERVICE_HOST");
@@ -230,7 +230,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedResult = CreateClientDocument();
             if (timesCalled < 5)
             {
-                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform"};
+                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform" };
                 for (var i = 0; i < timesCalled; i++)
                 {
                     var dottedFieldName = optionalFieldNames[i];

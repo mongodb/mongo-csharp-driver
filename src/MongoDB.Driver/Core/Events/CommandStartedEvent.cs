@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Events
         /// </summary>
         public ObjectId? ServiceId
         {
-            get { return _serviceId;}
+            get { return _serviceId; }
         }
 
         /// <summary>

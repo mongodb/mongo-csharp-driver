@@ -23,48 +23,48 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-// Regression test for CSHARP-4819.
-public class ReplaceWithUsesConfiguredElementNameTests : LinqIntegrationTest<ReplaceWithUsesConfiguredElementNameTests.ClassFixture>
-{
-    public ReplaceWithUsesConfiguredElementNameTests(ClassFixture fixture)
-        : base(fixture)
+    // Regression test for CSHARP-4819.
+    public class ReplaceWithUsesConfiguredElementNameTests : LinqIntegrationTest<ReplaceWithUsesConfiguredElementNameTests.ClassFixture>
     {
+        public ReplaceWithUsesConfiguredElementNameTests(ClassFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        [Fact]
+        public void ReplaceWith_should_use_configured_element_name()
+        {
+            var collection = Fixture.Collection;
+            var stage = PipelineStageDefinitionBuilder
+                .ReplaceWith((User u) => new User { UserId = u.UserId });
+
+            var aggregate = collection.Aggregate()
+                .AppendStage(stage);
+
+            var stages = Translate(collection, aggregate);
+            AssertStages(
+                stages,
+                "{ $replaceWith : { uuid : '$uuid' } }");
+
+            var result = aggregate.Single();
+            result.Id.Should().Be(0);
+            result.UserId.Should().Be(Guid.Parse("00112233-4455-6677-8899-aabbccddeeff"));
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            [BsonElement("uuid")]
+            [BsonGuidRepresentation(GuidRepresentation.Standard)]
+            public Guid UserId { get; set; }
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<User>
+        {
+            protected override IEnumerable<User> InitialData =>
+            [
+                new User { Id = 1, UserId = Guid.Parse("00112233-4455-6677-8899-aabbccddeeff") }
+            ];
+        }
     }
-
-    [Fact]
-    public void ReplaceWith_should_use_configured_element_name()
-    {
-        var collection = Fixture.Collection;
-        var stage = PipelineStageDefinitionBuilder
-            .ReplaceWith((User u) => new User { UserId = u.UserId });
-
-        var aggregate = collection.Aggregate()
-            .AppendStage(stage);
-
-        var stages = Translate(collection, aggregate);
-        AssertStages(
-            stages,
-            "{ $replaceWith : { uuid : '$uuid' } }");
-
-        var result = aggregate.Single();
-        result.Id.Should().Be(0);
-        result.UserId.Should().Be(Guid.Parse("00112233-4455-6677-8899-aabbccddeeff"));
-    }
-
-    public class User
-    {
-        public int Id { get; set; }
-        [BsonElement("uuid")]
-        [BsonGuidRepresentation(GuidRepresentation.Standard)]
-        public Guid UserId { get; set; }
-    }
-
-    public sealed class ClassFixture : MongoCollectionFixture<User>
-    {
-        protected override IEnumerable<User> InitialData =>
-        [
-            new User { Id = 1, UserId = Guid.Parse("00112233-4455-6677-8899-aabbccddeeff") }
-        ];
-    }
-}
 }

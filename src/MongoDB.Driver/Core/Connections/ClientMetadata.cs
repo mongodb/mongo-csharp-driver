@@ -64,7 +64,7 @@ internal sealed class ClientMetadata
                 return;
             }
 
-            LibraryInfo[] updated = [..current, libraryInfo];
+            LibraryInfo[] updated = [.. current, libraryInfo];
             _libraryInfos = updated;
             _clientDocument = null;
         }

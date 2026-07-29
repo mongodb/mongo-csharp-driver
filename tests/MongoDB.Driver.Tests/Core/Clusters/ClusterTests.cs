@@ -469,7 +469,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 var selector = new DelegateServerSelector((c, s) => s);
                 var selectedServer = async ?
-                    await subject.SelectServerAsync(operationContext, selector):
+                    await subject.SelectServerAsync(operationContext, selector) :
                     subject.SelectServer(operationContext, selector);
 
                 var selectedServerPort = ((DnsEndPoint)selectedServer.EndPoint).Port;

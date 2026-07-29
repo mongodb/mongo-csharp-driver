@@ -26,7 +26,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <summary>
         /// Gets the representation.
         /// </summary>
-        BsonType Representation { get;  }
+        BsonType Representation { get; }
     }
 
     /// <summary>

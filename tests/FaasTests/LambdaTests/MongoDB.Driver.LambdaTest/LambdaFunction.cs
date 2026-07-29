@@ -99,7 +99,7 @@ namespace MongoDB.Driver.LambdaTest
 
             return new APIGatewayProxyResponse
             {
-                Body = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions { WriteIndented = true}),
+                Body = JsonSerializer.Serialize(responseBody, new JsonSerializerOptions { WriteIndented = true }),
                 StatusCode = _serverHeartbeatWasAwaited ? 502 : 200,
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
@@ -144,10 +144,10 @@ namespace MongoDB.Driver.LambdaTest
 
         private void Reset()
         {
-             _totalHeartbeatCount = 0;
-             _totalHeartbeatDurationMs = 0;
-             _totalCommandCount = 0;
-             _totalCommandDurationMs = 0;
+            _totalHeartbeatCount = 0;
+            _totalHeartbeatDurationMs = 0;
+            _totalCommandCount = 0;
+            _totalCommandDurationMs = 0;
         }
     }
 }

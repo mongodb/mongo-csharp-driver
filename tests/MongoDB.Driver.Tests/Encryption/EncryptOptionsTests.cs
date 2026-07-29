@@ -254,7 +254,7 @@ namespace MongoDB.Driver.Tests.Encryption
             AssertValues(subject, newAlgorithm, expectedKeyId: originalKeyId);
 
             subject = subject.With(keyId: newKeyId);
-            AssertValues(subject, newAlgorithm, expectedKeyId:  newKeyId);
+            AssertValues(subject, newAlgorithm, expectedKeyId: newKeyId);
 
             var fle1WithAlternateKeyNameState = 1;
             subject = CreateConfiguredSubject(state: fle1WithAlternateKeyNameState);
@@ -293,7 +293,7 @@ namespace MongoDB.Driver.Tests.Encryption
                 switch (state)
                 {
                     case 0: return new EncryptOptions(algorithm: originalAlgorithm, keyId: originalKeyId);
-                    case 1:  return new EncryptOptions(algorithm: originalAlgorithm, alternateKeyName: originalAlternateKeyName);
+                    case 1: return new EncryptOptions(algorithm: originalAlgorithm, alternateKeyName: originalAlternateKeyName);
                     case 2: return new EncryptOptions(algorithm: originalAlgorithm, keyId: originalKeyId, contentionFactor: originalContention, queryType: originalQueryType);
                     default: throw new Exception($"Unexpected state: {state}.");
                 }

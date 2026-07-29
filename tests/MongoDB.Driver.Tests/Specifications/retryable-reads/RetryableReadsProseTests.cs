@@ -106,7 +106,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 eventsWaitTimeout);
 
             eventCapturer.Events.OfType<CommandStartedEvent>().Count().Should().Be(3);
-            eventCapturer.Events.OfType<CommandFailedEvent >().Count().Should().Be(1);
+            eventCapturer.Events.OfType<CommandFailedEvent>().Count().Should().Be(1);
             eventCapturer.Events.OfType<CommandSucceededEvent>().Count().Should().Be(2);
             eventCapturer.Events.OfType<ConnectionPoolClearedEvent>().Count().Should().Be(1);
             eventCapturer.Events.OfType<ConnectionPoolCheckedOutConnectionEvent>().Count().Should().Be(3);

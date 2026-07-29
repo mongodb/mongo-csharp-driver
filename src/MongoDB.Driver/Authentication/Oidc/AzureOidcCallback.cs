@@ -38,7 +38,7 @@ namespace MongoDB.Driver.Authentication.Oidc
                 metadataUrl += $"&client_id={Uri.EscapeDataString(parameters.UserName)}";
             }
 
-            return (new Uri(metadataUrl), new [] { ("Accept", "application/json"), ("Metadata", "true") });
+            return (new Uri(metadataUrl), new[] { ("Accept", "application/json"), ("Metadata", "true") });
         }
 
         protected override OidcAccessToken ProcessHttpResponse(Stream responseStream)

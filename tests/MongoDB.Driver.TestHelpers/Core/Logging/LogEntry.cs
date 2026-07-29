@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
     {
         private readonly Lazy<string> _formatedMessage;
 
-        public DateTime Timestamp { get;  }
+        public DateTime Timestamp { get; }
         public LogLevel LogLevel { get; }
         public string Category { get; }
         public int ClusterId { get; }

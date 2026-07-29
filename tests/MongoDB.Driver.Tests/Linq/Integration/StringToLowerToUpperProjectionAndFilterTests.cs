@@ -22,237 +22,237 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 // Regression test for CSHARP-3865.
 [Trait("Category", "Integration")]
 public class StringToLowerToUpperProjectionAndFilterTests
+{
+    [Fact]
+    public void Expression_using_ToLower_should_work()
     {
-        [Fact]
-        public void Expression_using_ToLower_should_work()
+        var collection = GetCollection();
+
+        var queryable =
+            from product in collection.AsQueryable()
+            select new { Result = product.FriendlyName.ToLower() };
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
         {
-            var collection = GetCollection();
-
-            var queryable =
-                from product in collection.AsQueryable()
-                select new { Result = product.FriendlyName.ToLower() };
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
                 "{ $project : { Result : { $toLower : '$FriendlyName' }, _id : 0 } }"
             };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Expression_using_ToLowerInvariant_should_work()
-        {
-            var collection = GetCollection();
-
-            var queryable =
-                from product in collection.AsQueryable()
-                select new { Result = product.FriendlyName.ToLowerInvariant() };
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $project : { Result : { $toLower : '$FriendlyName' }, _id : 0 } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Expression_using_ToUpper_should_work()
-        {
-            var collection = GetCollection();
-
-            var queryable =
-                from product in collection.AsQueryable()
-                select new { Result = product.FriendlyName.ToUpper() };
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $project : { Result : { $toUpper : '$FriendlyName' }, _id : 0 } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Expression_using_ToUpperInvariant_should_work()
-        {
-            var collection = GetCollection();
-
-            var queryable =
-                from product in collection.AsQueryable()
-                select new { Result = product.FriendlyName.ToUpperInvariant() };
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $project : { Result : { $toUpper : '$FriendlyName' }, _id : 0 } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToLower_with_equality_operator_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToLower() == friendlyName.ToLower()
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^widget$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToLower_with_Equals_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToLower().Equals(friendlyName.ToLower())
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^widget$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToLowerInvariant_with_equality_operator_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToLowerInvariant() == friendlyName.ToLower()
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^widget$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToLowerInvariant_with_Equals_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToLowerInvariant().Equals(friendlyName.ToLower())
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^widget$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToUpper_with_equality_operator_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToUpper() == friendlyName.ToUpper()
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^WIDGET$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToUpper_with_Equals_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToUpper().Equals(friendlyName.ToUpper())
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^WIDGET$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Filter_using_ToUpperInvariant_with_equality_operator_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToUpperInvariant() == friendlyName.ToUpper()
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^WIDGET$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void ToUpperInvariant_with_Equals_should_work()
-        {
-            var collection = GetCollection();
-            var friendlyName = "Widget";
-
-            var queryable =
-                from product in collection.AsQueryable()
-                where product.FriendlyName.ToUpperInvariant().Equals(friendlyName.ToUpper())
-                select product;
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { FriendlyName : /^WIDGET$/is } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        private IMongoCollection<Product> GetCollection()
-        {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            return database.GetCollection<Product>(DriverTestConfiguration.CollectionNamespace.CollectionName);
-        }
-
-        private class Product
-        {
-            public int Id { get; set; }
-            public string FriendlyName { get; set; }
-        }
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
     }
+
+    [Fact]
+    public void Expression_using_ToLowerInvariant_should_work()
+    {
+        var collection = GetCollection();
+
+        var queryable =
+            from product in collection.AsQueryable()
+            select new { Result = product.FriendlyName.ToLowerInvariant() };
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $project : { Result : { $toLower : '$FriendlyName' }, _id : 0 } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Expression_using_ToUpper_should_work()
+    {
+        var collection = GetCollection();
+
+        var queryable =
+            from product in collection.AsQueryable()
+            select new { Result = product.FriendlyName.ToUpper() };
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $project : { Result : { $toUpper : '$FriendlyName' }, _id : 0 } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Expression_using_ToUpperInvariant_should_work()
+    {
+        var collection = GetCollection();
+
+        var queryable =
+            from product in collection.AsQueryable()
+            select new { Result = product.FriendlyName.ToUpperInvariant() };
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $project : { Result : { $toUpper : '$FriendlyName' }, _id : 0 } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToLower_with_equality_operator_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToLower() == friendlyName.ToLower()
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^widget$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToLower_with_Equals_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToLower().Equals(friendlyName.ToLower())
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^widget$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToLowerInvariant_with_equality_operator_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToLowerInvariant() == friendlyName.ToLower()
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^widget$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToLowerInvariant_with_Equals_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToLowerInvariant().Equals(friendlyName.ToLower())
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^widget$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToUpper_with_equality_operator_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToUpper() == friendlyName.ToUpper()
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^WIDGET$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToUpper_with_Equals_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToUpper().Equals(friendlyName.ToUpper())
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^WIDGET$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Filter_using_ToUpperInvariant_with_equality_operator_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToUpperInvariant() == friendlyName.ToUpper()
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^WIDGET$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void ToUpperInvariant_with_Equals_should_work()
+    {
+        var collection = GetCollection();
+        var friendlyName = "Widget";
+
+        var queryable =
+            from product in collection.AsQueryable()
+            where product.FriendlyName.ToUpperInvariant().Equals(friendlyName.ToUpper())
+            select product;
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { FriendlyName : /^WIDGET$/is } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    private IMongoCollection<Product> GetCollection()
+    {
+        var client = DriverTestConfiguration.Client;
+        var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+        return database.GetCollection<Product>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+    }
+
+    private class Product
+    {
+        public int Id { get; set; }
+        public string FriendlyName { get; set; }
+    }
+}

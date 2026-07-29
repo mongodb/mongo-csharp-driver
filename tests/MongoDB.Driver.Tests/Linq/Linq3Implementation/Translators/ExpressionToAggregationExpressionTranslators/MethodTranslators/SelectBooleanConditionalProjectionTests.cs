@@ -172,8 +172,8 @@ public class SelectBooleanConditionalProjectionTests : LinqIntegrationTest<Selec
     public class C
     {
         public int Id { get; set; }
-        public bool P  { get; set; }
-        public bool Q  { get; set; }
+        public bool P { get; set; }
+        public bool Q { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
     }

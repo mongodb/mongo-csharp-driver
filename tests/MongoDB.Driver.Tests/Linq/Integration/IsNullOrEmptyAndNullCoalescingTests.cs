@@ -22,112 +22,112 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 [Trait("Category", "Integration")]
 // Regression test for CSHARP-2708.
 public class IsNullOrEmptyAndNullCoalescingTests
+{
+    [Fact]
+    public void IsNullOrEmpty_in_aggregate_match_should_work()
     {
-        [Fact]
-        public void IsNullOrEmpty_in_aggregate_match_should_work()
+        var collection = GetCollection();
+        var subject = collection.Aggregate();
+
+        var aggregate = subject.Match(x => string.IsNullOrEmpty(x.S));
+
+        var stages = Linq3TestHelpers.Translate(collection, aggregate);
+        var expectedStages = new[]
         {
-            var collection = GetCollection();
-            var subject = collection.Aggregate();
-
-            var aggregate = subject.Match(x => string.IsNullOrEmpty(x.S));
-
-            var stages = Linq3TestHelpers.Translate(collection, aggregate);
-            var expectedStages = new[]
-            {
                 "{ $match : { S : { $in : [null, ''] } } }"
             };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void IsNullOrEmpty_with_null_coalescing_operator_in_aggregate_match_should_work()
-        {
-            var collection = GetCollection();
-            var subject = collection.Aggregate();
-
-            var aggregate = subject.Match(x => string.IsNullOrEmpty(x.S ?? ""));
-
-            var stages = Linq3TestHelpers.Translate(collection, aggregate);
-            var expectedStages = new[]
-            {
-                "{ $match : { $expr : { $in : [{ $ifNull : ['$S', ''] }, [null, '']] } } }" // requires use of $expr
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Null_coalescing_operator_in_aggregate_project_should_work()
-        {
-            var collection = GetCollection();
-            var subject = collection.Aggregate();
-
-            var aggregate = subject.Project(x => x.S ?? "");
-
-            var stages = Linq3TestHelpers.Translate(collection, aggregate);
-            var expectedStages = new[]
-            {
-                "{ $project : { _v : { $ifNull : ['$S', ''] }, _id : 0  } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void Null_coalescing_operator_in_queryable_select_should_work()
-        {
-            var collection = GetCollection();
-            var subject = collection.AsQueryable();
-
-            var queryable = subject.Select(x => x.S ?? "");
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $project : { _v : { $ifNull : ['$S', ''] }, _id : 0  } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void IsNullOrEmpty_in_queryable_where_should_work()
-        {
-            var collection = GetCollection();
-            var subject = collection.AsQueryable();
-
-            var queryable = subject.Where(x => string.IsNullOrEmpty(x.S));
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { S : { $in : [null, ''] } } }"
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        [Fact]
-        public void IsNullOrEmpty_with_null_coalescing_operator_in_queryable_where_should_work()
-        {
-            var collection = GetCollection();
-            var subject = collection.AsQueryable();
-
-            var queryable = subject.Where(x => string.IsNullOrEmpty(x.S ?? ""));
-
-            var stages = Linq3TestHelpers.Translate(collection, queryable);
-            var expectedStages = new[]
-            {
-                "{ $match : { $expr : { $in : [{ $ifNull : ['$S', ''] }, [null, '']] } } }" // requires use of $expr
-            };
-            Linq3TestHelpers.AssertStages(stages, expectedStages);
-        }
-
-        private IMongoCollection<C> GetCollection()
-        {
-            var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase("foo");
-            return database.GetCollection<C>("foo");
-        }
-
-        private class C
-        {
-            public string S { get; set; }
-        }
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
     }
+
+    [Fact]
+    public void IsNullOrEmpty_with_null_coalescing_operator_in_aggregate_match_should_work()
+    {
+        var collection = GetCollection();
+        var subject = collection.Aggregate();
+
+        var aggregate = subject.Match(x => string.IsNullOrEmpty(x.S ?? ""));
+
+        var stages = Linq3TestHelpers.Translate(collection, aggregate);
+        var expectedStages = new[]
+        {
+                "{ $match : { $expr : { $in : [{ $ifNull : ['$S', ''] }, [null, '']] } } }" // requires use of $expr
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Null_coalescing_operator_in_aggregate_project_should_work()
+    {
+        var collection = GetCollection();
+        var subject = collection.Aggregate();
+
+        var aggregate = subject.Project(x => x.S ?? "");
+
+        var stages = Linq3TestHelpers.Translate(collection, aggregate);
+        var expectedStages = new[]
+        {
+                "{ $project : { _v : { $ifNull : ['$S', ''] }, _id : 0  } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void Null_coalescing_operator_in_queryable_select_should_work()
+    {
+        var collection = GetCollection();
+        var subject = collection.AsQueryable();
+
+        var queryable = subject.Select(x => x.S ?? "");
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $project : { _v : { $ifNull : ['$S', ''] }, _id : 0  } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void IsNullOrEmpty_in_queryable_where_should_work()
+    {
+        var collection = GetCollection();
+        var subject = collection.AsQueryable();
+
+        var queryable = subject.Where(x => string.IsNullOrEmpty(x.S));
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { S : { $in : [null, ''] } } }"
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    [Fact]
+    public void IsNullOrEmpty_with_null_coalescing_operator_in_queryable_where_should_work()
+    {
+        var collection = GetCollection();
+        var subject = collection.AsQueryable();
+
+        var queryable = subject.Where(x => string.IsNullOrEmpty(x.S ?? ""));
+
+        var stages = Linq3TestHelpers.Translate(collection, queryable);
+        var expectedStages = new[]
+        {
+                "{ $match : { $expr : { $in : [{ $ifNull : ['$S', ''] }, [null, '']] } } }" // requires use of $expr
+            };
+        Linq3TestHelpers.AssertStages(stages, expectedStages);
+    }
+
+    private IMongoCollection<C> GetCollection()
+    {
+        var client = DriverTestConfiguration.Client;
+        var database = client.GetDatabase("foo");
+        return database.GetCollection<C>("foo");
+    }
+
+    private class C
+    {
+        public string S { get; set; }
+    }
+}

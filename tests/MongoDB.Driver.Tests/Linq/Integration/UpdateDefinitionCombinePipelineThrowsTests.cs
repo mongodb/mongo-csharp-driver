@@ -22,33 +22,33 @@ namespace MongoDB.Driver.Tests.Linq.Integration;
 // Regression test for CSHARP-4746.
 public class UpdateDefinitionCombinePipelineThrowsTests
 {
-        [Fact]
-        public void UpdateDefinitionBuilder_Combine_should_throw_when_PipelineUpdateDefinition_is_combined_with_another_update()
-        {
-            var pipeline = new EmptyPipelineDefinition<C>();
-            var pipelineUpdate = Builders<C>.Update.Pipeline(pipeline);
-            var setUpdate = Builders<C>.Update.Set(x => x.X, 2);
+    [Fact]
+    public void UpdateDefinitionBuilder_Combine_should_throw_when_PipelineUpdateDefinition_is_combined_with_another_update()
+    {
+        var pipeline = new EmptyPipelineDefinition<C>();
+        var pipelineUpdate = Builders<C>.Update.Pipeline(pipeline);
+        var setUpdate = Builders<C>.Update.Set(x => x.X, 2);
 
-            var exception = Record.Exception(() => new UpdateDefinitionBuilder<C>().Combine(pipelineUpdate, setUpdate));
+        var exception = Record.Exception(() => new UpdateDefinitionBuilder<C>().Combine(pipelineUpdate, setUpdate));
 
-            exception.Should().BeOfType<InvalidOperationException>();
-        }
-
-        [Fact]
-        public void UpdateDefinitionBuilder_Combine_should_throw_when_an_update_is_combined_with_a_PipelineUpdateDefinition()
-        {
-            var setUpdate = Builders<C>.Update.Set(x => x.X, 2);
-            var pipeline = new EmptyPipelineDefinition<C>();
-            var pipelineUpdate = Builders<C>.Update.Pipeline(pipeline);
-
-            var exception = Record.Exception(() => new UpdateDefinitionBuilder<C>().Combine(setUpdate, pipelineUpdate));
-
-            exception.Should().BeOfType<InvalidOperationException>();
-        }
-
-        private class C
-        {
-            public int Id { get; set; }
-            public int X { get; set; }
-        }
+        exception.Should().BeOfType<InvalidOperationException>();
     }
+
+    [Fact]
+    public void UpdateDefinitionBuilder_Combine_should_throw_when_an_update_is_combined_with_a_PipelineUpdateDefinition()
+    {
+        var setUpdate = Builders<C>.Update.Set(x => x.X, 2);
+        var pipeline = new EmptyPipelineDefinition<C>();
+        var pipelineUpdate = Builders<C>.Update.Pipeline(pipeline);
+
+        var exception = Record.Exception(() => new UpdateDefinitionBuilder<C>().Combine(setUpdate, pipelineUpdate));
+
+        exception.Should().BeOfType<InvalidOperationException>();
+    }
+
+    private class C
+    {
+        public int Id { get; set; }
+        public int X { get; set; }
+    }
+}

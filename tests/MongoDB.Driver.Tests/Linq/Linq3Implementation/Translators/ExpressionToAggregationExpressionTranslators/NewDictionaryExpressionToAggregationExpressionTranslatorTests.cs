@@ -48,7 +48,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { A : '$A', B: '$B' }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.Should().Equal(new Dictionary<string, string>{ ["A"] = "a", ["B"] = "b" });
+            result.Should().Equal(new Dictionary<string, string> { ["A"] = "a", ["B"] = "b" });
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { A : '$A', B: '$B' }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.Should().Equal(new Dictionary<string, string>{ ["A"] = "a", ["B"] = "b" });
+            result.Should().Equal(new Dictionary<string, string> { ["A"] = "a", ["B"] = "b" });
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $arrayToObject : [[{ k : '$GuidAsString', v : '$A' }]] }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.Should().Equal(new Dictionary<Guid, string>{ [Guid.Parse("3E9AE467-9705-4C17-9655-EE7730BCC2EE")] = "a" });
+            result.Should().Equal(new Dictionary<Guid, string> { [Guid.Parse("3E9AE467-9705-4C17-9655-EE7730BCC2EE")] = "a" });
         }
 
 
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $arrayToObject : { $map: { input: '$Items', as: 'i', in: { k: '$$i.P', v: '$$i.W' } } } }, _id : 0 } }");
 
             var result = queryable.Single();
-            result.Should().Equal(new Dictionary<string, string>{ ["x"] = "y" });
+            result.Should().Equal(new Dictionary<string, string> { ["x"] = "y" });
         }
 
         [Fact]

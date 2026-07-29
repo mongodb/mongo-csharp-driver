@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             var collection = Fixture.Collection;
             var queryable1 = collection.AsQueryable().GroupBy(
                 p => p.Type,
-                (k, p) => new ProductAggregation {Type = k, MaxPrice = p.Select(i => i.Price).Max()});
+                (k, p) => new ProductAggregation { Type = k, MaxPrice = p.Select(i => i.Price).Max() });
             var queryable2 = queryable1.Provider.CreateQuery<object>(queryable1.Expression);
 
             var results = queryable2.ToList();

@@ -30,10 +30,10 @@ namespace MongoDB.Driver.Core.Connections
     {
         [Theory]
         [InlineData(true, false, false, "{ hello : 1, helloOk : true, backpressure: true }")]
-        [InlineData(false, false, false,"{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true, backpressure: true }")]
-        [InlineData(false, true, false,"{ hello : 1, helloOk : true, backpressure: true }")]
-        [InlineData(true, true, false,"{ hello : 1, helloOk : true, backpressure: true }")]
-        [InlineData(false, false, true,"{ hello : 1, helloOk : true, loadBalanced : true, backpressure: true }")]
+        [InlineData(false, false, false, "{ " + OppressiveLanguageConstants.LegacyHelloCommandName + " : 1, helloOk : true, backpressure: true }")]
+        [InlineData(false, true, false, "{ hello : 1, helloOk : true, backpressure: true }")]
+        [InlineData(true, true, false, "{ hello : 1, helloOk : true, backpressure: true }")]
+        [InlineData(false, false, true, "{ hello : 1, helloOk : true, loadBalanced : true, backpressure: true }")]
         public void CreateCommand_should_return_correct_hello_command(bool useServerApiVersion, bool helloOk, bool loadBalanced, string expectedResult)
         {
             var serverApi = useServerApiVersion ? new ServerApi(ServerApiVersion.V1) : null;

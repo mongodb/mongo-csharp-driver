@@ -147,7 +147,7 @@ namespace MongoDB.Driver.Linq
         {
             expression = (Expression<Func<TDocument, bool>>)LinqExpressionPreprocessor.Preprocess(expression);
             var parameter = expression.Parameters.Single();
-            var context = TranslationContext.Create(serializationDomain, expression,  initialNode: parameter, initialSerializer: documentSerializer, translationOptions: translationOptions);
+            var context = TranslationContext.Create(serializationDomain, expression, initialNode: parameter, initialSerializer: documentSerializer, translationOptions: translationOptions);
             var filter = ExpressionToFilterTranslator.TranslateLambda(context, expression, documentSerializer, asRoot: true);
             filter = AstSimplifier.SimplifyAndConvert(filter);
 

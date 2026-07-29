@@ -274,13 +274,13 @@ namespace MongoDB.Driver.Tests
         }
 
         [Theory]
-        [InlineData(new[] {CompressorType.Snappy}, "Compressors=[snappy]")]
-        [InlineData(new[] {CompressorType.Zlib}, "Compressors=[zlib]")]
-        [InlineData(new[] {CompressorType.ZStandard}, "Compressors=[zstd]")]
-        [InlineData(new[] {CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib}, "Compressors=[zstd,snappy,zlib]")]
+        [InlineData(new[] { CompressorType.Snappy }, "Compressors=[snappy]")]
+        [InlineData(new[] { CompressorType.Zlib }, "Compressors=[zlib]")]
+        [InlineData(new[] { CompressorType.ZStandard }, "Compressors=[zstd]")]
+        [InlineData(new[] { CompressorType.ZStandard, CompressorType.Snappy, CompressorType.Zlib }, "Compressors=[zstd,snappy,zlib]")]
         public void Compressors_ToString_outputs_correct_compressors(CompressorType[] compressors, string expectedConnectionString)
         {
-            var settings = new MongoClientSettings {Compressors = compressors.Select(x => new CompressorConfiguration(x)).ToList()};
+            var settings = new MongoClientSettings { Compressors = compressors.Select(x => new CompressorConfiguration(x)).ToList() };
 
             var result = settings.ToString();
 
@@ -899,7 +899,7 @@ namespace MongoDB.Driver.Tests
 
             settings.Freeze();
             settings.LoadBalanced.Should().Be(loadBalanaced);
-            Record.Exception(() => { settings.LoadBalanced= loadBalanaced; }).Should().BeOfType<InvalidOperationException>();
+            Record.Exception(() => { settings.LoadBalanced = loadBalanaced; }).Should().BeOfType<InvalidOperationException>();
         }
 
         [Fact]
@@ -1534,7 +1534,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void TestSrvMaxHosts([Values(0, 1, 5)]int srvMaxHosts)
+        public void TestSrvMaxHosts([Values(0, 1, 5)] int srvMaxHosts)
         {
             var subject = new MongoClientSettings { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
             subject.SrvMaxHosts.Should().Be(0);

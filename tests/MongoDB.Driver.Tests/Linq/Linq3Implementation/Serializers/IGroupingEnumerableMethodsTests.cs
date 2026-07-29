@@ -390,7 +390,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
-                .Select(g => new { Id = g.Key, Result = g.Any(e => e.X >0) })
+                .Select(g => new { Id = g.Key, Result = g.Any(e => e.X > 0) })
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);
@@ -940,7 +940,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Serializers
 
             var queryable = collection.AsQueryable()
                 .GroupBy(c => c.Id)
-                .Select(g => new { Id = g.Key, Result = g.Except(new[] { new C {  Id = 1, X = 1 } }) })
+                .Select(g => new { Id = g.Key, Result = g.Except(new[] { new C { Id = 1, X = 1 } }) })
                 .OrderBy(x => x.Id);
 
             var stages = Translate(collection, queryable);

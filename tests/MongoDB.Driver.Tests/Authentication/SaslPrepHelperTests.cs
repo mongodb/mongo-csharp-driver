@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests.Authentication
         [InlineData("First character is RandALCat, but last character is not", "\u0627\u0031")]
         public void SaslPrep_throws_argument_exception_when_passed_Rfc4013_examples(string expectedError, string input)
         {
-            var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(input));
+            var exception = Record.Exception(() => SaslPrepHelper.SaslPrepStored(input));
 
             exception.Should().BeOfType<ArgumentException>().Subject.Message.Should().Be(expectedError);
         }
@@ -110,7 +110,7 @@ namespace MongoDB.Driver.Tests.Authentication
         {
             var strWithUnassignedCodepoint = $"abc{char.ConvertFromUtf32(_unassignedCodePoint.Value)}";
 
-            var exception = Record.Exception(()=>SaslPrepHelper.SaslPrepStored(strWithUnassignedCodepoint));
+            var exception = Record.Exception(() => SaslPrepHelper.SaslPrepStored(strWithUnassignedCodepoint));
 
             exception.Should().BeOfType<ArgumentException>();
             exception.Message.Should().Be("Character at position 3 is unassigned");
@@ -125,7 +125,8 @@ namespace MongoDB.Driver.Tests.Authentication
                 if (!SaslPrepHelperReflector.IsDefined(i) && !SaslPrepHelperReflector.Prohibited(i))
                 {
                     return i;
-                };
+                }
+                ;
             }
             throw new Exception("Unable to find unassigned codepoint.");
         }

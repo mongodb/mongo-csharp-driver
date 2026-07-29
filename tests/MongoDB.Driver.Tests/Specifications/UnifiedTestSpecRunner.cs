@@ -200,7 +200,7 @@ namespace MongoDB.Driver.Tests.Specifications
                 .SkipWhen(SupportedOperatingSystem.MacOS);
 #endif
 
-           Run(testCase);
+            Run(testCase);
         }
 
         [UnifiedTestsTheory("mongodb_handshake.tests.unified")]

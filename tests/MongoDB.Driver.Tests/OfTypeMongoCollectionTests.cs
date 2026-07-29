@@ -969,7 +969,7 @@ namespace MongoDB.Driver.Tests
             public int PropC;
         }
 
-        public class UpdateTestCases  : IValueGenerator
+        public class UpdateTestCases : IValueGenerator
         {
             public object[] GenerateValues() => new object[]
                 {

@@ -145,7 +145,7 @@ internal partial class SerializerFinderVisitor
                 throw new ExpressionNotSupportedException(node, because: "dictionary serializer does not implement IBsonDictionarySerializer");
             }
 
-            var keySerializer =  dictionarySerializer.KeySerializer;
+            var keySerializer = dictionarySerializer.KeySerializer;
             var valueSerializer = dictionarySerializer.ValueSerializer;
 
             return memberName switch
@@ -163,7 +163,7 @@ internal partial class SerializerFinderVisitor
                 throw new ExpressionNotSupportedException(node, because: "IDictionarySerializer does not implement IBsonDictionarySerializer");
             }
 
-            var keySerializer =  dictionarySerializer.KeySerializer;
+            var keySerializer = dictionarySerializer.KeySerializer;
             var valueSerializer = dictionarySerializer.ValueSerializer;
 
             return memberName switch

@@ -186,7 +186,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext,  connectionDescription, transactionNumber);
+            var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
             return new WriteCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings);
         }
     }

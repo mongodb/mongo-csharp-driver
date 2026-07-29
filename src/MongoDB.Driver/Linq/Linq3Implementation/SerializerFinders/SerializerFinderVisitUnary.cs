@@ -287,7 +287,7 @@ internal partial class SerializerFinderVisitor
 
             static bool IsConvertToNullableType(Type targetType, out Type valueType)
             {
-                return targetType.IsNullable(out  valueType);
+                return targetType.IsNullable(out valueType);
             }
 
             static bool IsConvertIntegralTypeToEnum(Type sourceType, Type targetType)

@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         IBsonDocumentSerializer,
         IDiscriminatedInterfaceSerializer,
         IHasSerializationDomain
-            // where TInterface is an interface
+    // where TInterface is an interface
     {
         #region static
         private static IBsonSerializer<TInterface> CreateInterfaceSerializer()
@@ -137,7 +137,7 @@ namespace MongoDB.Bson.Serialization.Serializers
             }
 
             _interfaceType = typeof(TInterface);
-            _serializationDomain =  serializationDomain;
+            _serializationDomain = serializationDomain;
             _discriminatorConvention = discriminatorConvention ?? interfaceSerializer.GetDiscriminatorConvention();
             _interfaceSerializer = interfaceSerializer;
 

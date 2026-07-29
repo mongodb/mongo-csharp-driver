@@ -202,7 +202,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         [Fact]
         public void RoundTripTimeMonitor_without_serverApi_but_with_loadBalancedConnection_should_use_hello_command_to_set_up_monitoring()
         {
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());

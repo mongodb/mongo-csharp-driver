@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var keySerializer = dictionarySerializer.KeySerializer;
                 var valueSerializer = dictionarySerializer.ValueSerializer;
 
-                var ast  = AstExpression.ObjectToArray(aggregateExpression.Ast);
+                var ast = AstExpression.ObjectToArray(aggregateExpression.Ast);
                 var arrayOfDocumentsDictionarySerializer = DictionarySerializer.Create(DictionaryRepresentation.ArrayOfDocuments, keySerializer, valueSerializer);
 
                 aggregateExpression = new TranslatedExpression(expression, ast, arrayOfDocumentsDictionarySerializer);

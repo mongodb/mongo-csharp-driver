@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Encryption
     {
         internal static KmsProviderRegistry CreateDefaultInstance()
         {
-            var registry =  new KmsProviderRegistry();
+            var registry = new KmsProviderRegistry();
             registry.Register(GcpKmsProvider.ProviderName, () => GcpKmsProvider.Instance);
             registry.Register(AzureKmsProvider.ProviderName, () => AzureKmsProvider.Instance);
             return registry;

@@ -483,7 +483,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageSingleWithSelector => __averageSingleWithSelector;
         public static MethodInfo Bottom => __bottom;
         public static MethodInfo BottomN => __bottomN;
-        public static MethodInfo BottomNWithComputedN  => __bottomNWithComputedN;
+        public static MethodInfo BottomNWithComputedN => __bottomNWithComputedN;
         public static MethodInfo Cast => __cast;
         public static MethodInfo Concat => __concat;
         public static MethodInfo Contains => __contains;

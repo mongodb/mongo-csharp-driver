@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public AstCondExpression(AstExpression @if, AstExpression @then, AstExpression @else)
         {
             _if = Ensure.IsNotNull(@if, nameof(@if));
-            _then =Ensure.IsNotNull(@then, nameof(@then));
+            _then = Ensure.IsNotNull(@then, nameof(@then));
             _else = Ensure.IsNotNull(@else, nameof(@else));
         }
 

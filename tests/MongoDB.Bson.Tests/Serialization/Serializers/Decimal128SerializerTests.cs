@@ -132,8 +132,8 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         public static IEnumerable<object[]> SerializeSpecialValuesData()
         {
             return from bsonType in new[] { BsonType.Int64, BsonType.Int32 }
-                from val in new [] { Decimal128.PositiveInfinity, Decimal128.NegativeInfinity, Decimal128.QNaN }
-                select new object[] { bsonType, val };
+                   from val in new[] { Decimal128.PositiveInfinity, Decimal128.NegativeInfinity, Decimal128.QNaN }
+                   select new object[] { bsonType, val };
         }
 
         [Theory]

@@ -31,7 +31,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     public class ElementAppendingSerializerTests
     {
-        public class C { public int X { get; set;  } }
+        public class C { public int X { get; set; } }
         public class CSerializer1 : SerializerBase<C> { }
         public class CSerializer2 : SerializerBase<C> { }
 

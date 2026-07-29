@@ -1087,7 +1087,7 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0}&", JsonConvert.ToString(_retryWrites.Value));
             }
-            if(!string.IsNullOrEmpty(_proxyHost))
+            if (!string.IsNullOrEmpty(_proxyHost))
             {
                 query.AppendFormat("proxyHost={0}&", _proxyHost);
             }

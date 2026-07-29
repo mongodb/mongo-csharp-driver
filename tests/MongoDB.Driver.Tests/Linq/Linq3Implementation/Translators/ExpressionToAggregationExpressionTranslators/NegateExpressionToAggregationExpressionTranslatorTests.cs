@@ -25,7 +25,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToAggregationExpressionTranslators
 {
-    public class NegateExpressionToAggregationExpressionTranslatorTests: LinqIntegrationTest<NegateExpressionToAggregationExpressionTranslatorTests.ClassFixture>
+    public class NegateExpressionToAggregationExpressionTranslatorTests : LinqIntegrationTest<NegateExpressionToAggregationExpressionTranslatorTests.ClassFixture>
     {
         public NegateExpressionToAggregationExpressionTranslatorTests(ClassFixture fixture)
             : base(fixture)

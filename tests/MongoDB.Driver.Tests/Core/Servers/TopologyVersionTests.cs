@@ -182,7 +182,7 @@ namespace MongoDB.Driver.Core.Servers
         {
             var processId = ObjectId.Empty;
             var counter = 31L;
-            var topologyVersionDocument = new BsonDocument {{"processId", processId}, {"counter", counter}};
+            var topologyVersionDocument = new BsonDocument { { "processId", processId }, { "counter", counter } };
 
             TopologyVersion subject = TopologyVersion.FromBsonDocument(topologyVersionDocument);
 

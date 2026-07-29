@@ -84,7 +84,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData(0)]
         [InlineData(int.MaxValue)]
-        [InlineData((long)int.MaxValue+1)]
+        [InlineData((long)int.MaxValue + 1)]
         public void LongLocalValue_should_be_what_was_specified_in_the_constructor(long localValue)
         {
             var subject = new ConnectionId(__serverId, localValue);
@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Connections
         [Theory]
         [InlineData(0)]
         [InlineData(int.MaxValue)]
-        [InlineData((long)int.MaxValue+1)]
+        [InlineData((long)int.MaxValue + 1)]
         public void WithServerValue_should_set_the_server_value_and_leave_the_LocalValue_alone(long serverValue)
         {
             var subject = new ConnectionId(__serverId, 10)

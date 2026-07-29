@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Authentication.AWS.SaslSteps
 {
     internal sealed class AWSLastSaslStep : ISaslStep
     {
-        private static readonly ISet<string> __serverResponseExpectedNames = new HashSet<string>(new []{ "h", "s" });
+        private static readonly ISet<string> __serverResponseExpectedNames = new HashSet<string>(new[] { "h", "s" });
 
         private readonly IClock _clock;
         private readonly IAWSCredentialsSource _credentialsSource;

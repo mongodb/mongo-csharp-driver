@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
         }
 
         private static SelectTestCase CreateSelectTestCase(
-            Expression<Func<C, bool>>  projection,
+            Expression<Func<C, bool>> projection,
             string expectedStage,
             params int[] expectedResults)
         {

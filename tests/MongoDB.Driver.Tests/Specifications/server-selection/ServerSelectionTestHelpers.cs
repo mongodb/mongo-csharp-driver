@@ -38,16 +38,16 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
         private enum ServerTypeTest
         {
-           RSPrimary = ServerType.ReplicaSetPrimary,
-           RSSecondary = ServerType.ReplicaSetSecondary,
-           RSArbiter = ServerType.ReplicaSetArbiter,
-           RSGhost = ServerType.ReplicaSetGhost,
-           RSOther = ServerType.ReplicaSetOther,
-           Mongos = ServerType.ShardRouter,
-           Standalone = ServerType.Standalone,
-           Unknown = ServerType.Unknown,
-           PossiblePrimary = ServerType.Unknown,
-           LoadBalancer = ServerType.LoadBalanced
+            RSPrimary = ServerType.ReplicaSetPrimary,
+            RSSecondary = ServerType.ReplicaSetSecondary,
+            RSArbiter = ServerType.ReplicaSetArbiter,
+            RSGhost = ServerType.ReplicaSetGhost,
+            RSOther = ServerType.ReplicaSetOther,
+            Mongos = ServerType.ShardRouter,
+            Standalone = ServerType.Standalone,
+            Unknown = ServerType.Unknown,
+            PossiblePrimary = ServerType.Unknown,
+            LoadBalancer = ServerType.LoadBalanced
         }
 
         public enum ServerTagTest

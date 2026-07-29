@@ -503,7 +503,8 @@ namespace MongoDB.Driver.Core.WireProtocol
                 if (_messageEncoderSettings != null)
                 {
                     binaryReaderSettings.Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict);
-                };
+                }
+                ;
 
                 BsonValue clusterTime;
                 if (rawDocument.TryGetValue("$clusterTime", out clusterTime))

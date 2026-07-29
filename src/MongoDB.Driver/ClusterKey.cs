@@ -162,7 +162,7 @@ namespace MongoDB.Driver
         public bool LoadBalanced => _loadBalanced;
         public TimeSpan LocalThreshold { get { return _localThreshold; } }
         public LoggingSettings LoggingSettings { get { return _loggingSettings; } }
-        public int MaxConnecting{ get { return _maxConnecting; } }
+        public int MaxConnecting { get { return _maxConnecting; } }
         public TimeSpan MaxConnectionIdleTime { get { return _maxConnectionIdleTime; } }
         public TimeSpan MaxConnectionLifeTime { get { return _maxConnectionLifeTime; } }
         public int MaxConnectionPoolSize { get { return _maxConnectionPoolSize; } }

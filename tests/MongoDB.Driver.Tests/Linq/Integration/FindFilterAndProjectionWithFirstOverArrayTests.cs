@@ -65,7 +65,7 @@ public class FindFilterAndProjectionWithFirstOverArrayTests : LinqIntegrationTes
                     chain.Parts
                         .First(p => p.Refs.Any(j => jobIds.Contains(j.id)))
                         .Refs.First(j => jobIds.Contains(j.id)).id
-                });;
+                }); ;
 
         var projectionTranslation = TranslateFindProjection(collection, find);
 
