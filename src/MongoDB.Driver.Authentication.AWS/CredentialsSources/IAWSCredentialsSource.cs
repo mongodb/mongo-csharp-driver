@@ -13,18 +13,15 @@
 * limitations under the License.
 */
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
 {
-    internal interface IAWSCredentialsSource : IDisposable
+    internal interface IAWSCredentialsSource
     {
         AWSCredentials GetCredentials(CancellationToken cancellationToken);
 
         Task<AWSCredentials> GetCredentialsAsync(CancellationToken cancellationToken);
-
-        void ResetCache();
     }
 }

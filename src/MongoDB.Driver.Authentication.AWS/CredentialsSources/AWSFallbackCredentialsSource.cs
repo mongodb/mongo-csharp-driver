@@ -24,10 +24,6 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
     {
         public static readonly AWSFallbackCredentialsSource Instance = new();
 
-        public void Dispose()
-        {
-        }
-
         public AWSCredentials GetCredentials(CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -42,12 +38,6 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
             var credentialsSource = await DefaultAWSCredentialsIdentityResolver.GetCredentialsAsync(null).ConfigureAwait(false);
             var immutableCredentials = await credentialsSource.GetCredentialsAsync().ConfigureAwait(false);
             return CreateAWSCredentials(immutableCredentials);
-        }
-
-        public void ResetCache()
-        {
-            // No-op: DefaultAWSCredentialsIdentityResolver owns credential caching and invalidates on
-            // environment/config changes.
         }
 
         private AWSCredentials CreateAWSCredentials(ImmutableCredentials immutableCredentials)

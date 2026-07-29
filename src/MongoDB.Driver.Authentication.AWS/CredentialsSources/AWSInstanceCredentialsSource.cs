@@ -27,18 +27,10 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
             _credentials = credentials;
         }
 
-        public void Dispose()
-        {
-        }
-
         public AWSCredentials GetCredentials(CancellationToken cancellationToken)
             => _credentials;
 
         public Task<AWSCredentials> GetCredentialsAsync(CancellationToken cancellationToken)
             => Task.FromResult(_credentials);
-
-        public void ResetCache()
-        {
-        }
     }
 }
