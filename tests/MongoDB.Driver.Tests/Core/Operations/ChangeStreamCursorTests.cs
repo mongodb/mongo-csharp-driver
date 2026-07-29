@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_initialize_instance()
         {
-            var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
+            var cursor = new Mock<IAsyncCursor<BsonDocument>>().Object;
             var binding = new Mock<IReadBinding>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_binding_is_null()
         {
-            var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
+            var cursor = new Mock<IAsyncCursor<BsonDocument>>().Object;
             var session = new Mock<ICoreSessionHandle>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
@@ -149,7 +149,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_changeStreamOperation_is_null()
         {
-            var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
+            var cursor = new Mock<IAsyncCursor<BsonDocument>>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var binding = new Mock<IReadBinding>().Object;
@@ -164,7 +164,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void constructor_should_throw_when_maxWireVersion_is_negative()
         {
-            var cursor = new Mock<IAsyncCursor<RawBsonDocument>>().Object;
+            var cursor = new Mock<IAsyncCursor<BsonDocument>>().Object;
             var initialOperationTime = new BsonTimestamp(3L);
             var postBatchResumeToken = Mock.Of<BsonDocument>();
             var binding = new Mock<IReadBinding>().Object;
@@ -190,7 +190,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Dispose_should_call_Dispose_on_cursor()
         {
-            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var subject = CreateSubject(cursor: mockCursor.Object);
 
             subject.Dispose();
@@ -212,7 +212,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var mockBinding = new Mock<IReadBinding>();
             var subject = CreateSubject(cursor: mockCursor.Object, binding: mockBinding.Object);
 
@@ -236,7 +236,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public async Task DisposeAsync_should_call_DisposeAsync_on_cursor()
         {
-            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var subject = CreateSubject(cursor: mockCursor.Object);
 
             await subject.DisposeAsync();
@@ -258,7 +258,7 @@ namespace MongoDB.Driver.Core.Operations
         [Fact]
         public async Task DisposeAsync_can_be_called_more_than_once()
         {
-            var mockCursor = new Mock<IAsyncCursor<RawBsonDocument>>();
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
             var mockBinding = new Mock<IReadBinding>();
             var subject = CreateSubject(cursor: mockCursor.Object, binding: mockBinding.Object);
 
@@ -431,7 +431,7 @@ namespace MongoDB.Driver.Core.Operations
 
             // process the first batch so that we have a resume token
             var firstDocument = BsonDocument.Parse("{ _id : { resumeToken : 1 }, operationType : 'insert', ns : { db : 'db', coll : 'coll' }, documentKey : { _id : 1 }, fullDocument : { _id : 1 } }");
-            var firstBatch = new[] { ToRawDocument(firstDocument) };
+            var firstBatch = new[] { firstDocument };
             mockCursor.Setup(c => c.MoveNext(It.IsAny<CancellationToken>())).Returns(true);
             mockCursor.SetupGet(c => c.Current).Returns(firstBatch);
             subject.MoveNext(CancellationToken.None);
@@ -533,15 +533,6 @@ namespace MongoDB.Driver.Core.Operations
                 return enumerator.Current.ResumeToken;
             }
         }
-
-        private RawBsonDocument ToRawDocument(BsonDocument document)
-        {
-            using (var reader = new BsonDocumentReader(document))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return RawBsonDocumentSerializer.Instance.Deserialize(context);
-            }
-        }
     }
 
     internal static class ChangeStreamCursorReflector
@@ -555,8 +546,8 @@ namespace MongoDB.Driver.Core.Operations
         public static IEnumerable<BsonDocument> _current(this ChangeStreamCursor<BsonDocument> cursor) =>
             (IEnumerable<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_current));
 
-        public static IAsyncCursor<RawBsonDocument> _cursor(this ChangeStreamCursor<BsonDocument> cursor) =>
-            (IAsyncCursor<RawBsonDocument>)Reflector.GetFieldValue(cursor, nameof(_cursor));
+        public static IAsyncCursor<BsonDocument> _cursor(this ChangeStreamCursor<BsonDocument> cursor) =>
+            (IAsyncCursor<BsonDocument>)Reflector.GetFieldValue(cursor, nameof(_cursor));
 
         public static bool _disposed(this ChangeStreamCursor<BsonDocument> cursor) =>
             (bool)Reflector.GetFieldValue(cursor, nameof(_disposed));
