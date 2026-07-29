@@ -322,38 +322,6 @@ namespace MongoDB.Driver
             return _wrappedCollection.FindOneAndUpdateAsync(session, CombineFilters(filter), AdjustUpdateDefinition(update, options?.IsUpsert ?? false), options, cancellationToken);
         }
 
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduce(map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduce(session, map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduceAsync(map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduceAsync(session, map, reduce, options, cancellationToken);
-        }
-
         // private methods
         private FilterDefinition<TDocument> CombineFilters(FilterDefinition<TDocument> filter)
         {

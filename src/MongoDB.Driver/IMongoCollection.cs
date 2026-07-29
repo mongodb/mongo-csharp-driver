@@ -909,60 +909,6 @@ namespace MongoDB.Driver
         Task<InsertManyResult> InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A cursor.</returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A cursor.
-        /// </returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is a cursor.
-        /// </returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
         /// Returns a filtered collection that appears to contain only documents of the derived type.
         /// All operations using this filtered collection will automatically use discriminators as necessary.
         /// </summary>
