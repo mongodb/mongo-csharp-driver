@@ -41,4 +41,4 @@ jobs:
         if: failure() && steps.verify.outcome == 'failure'
         run: |
           echo "::error::Formatting or code style issues found. Run 'dotnet format CSharpDriver.sln' locally and commit the result."
-          echo "Naming violations (IDE1006) cannot be fixed automatically and need a manual rename."
+          echo "Some violations cannot be fixed automatically and have to be corrected by hand."

@@ -100,7 +100,7 @@ dotnet format CSharpDriver.sln --verify-no-changes
 dotnet format CSharpDriver.sln
 ```
 
-Naming violations are the one thing `dotnet format` cannot fix for you; those need a manual rename.
+Some violations cannot be fixed automatically by `dotnet format` and have to be corrected by hand.
 
 Scoping the check to a single project is quicker than running it over the whole solution:
 
