@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
 using Xunit;
 
@@ -208,6 +209,38 @@ namespace MongoDB.Driver.Tests.Encryption
             updated.StringOptions.Should().BeSameAs(newStringOptions);
             updated.Algorithm.Should().Be(subject.Algorithm);
             updated.KeyId.Should().Be(subject.KeyId);
+        }
+
+        [Fact]
+        public void StringOptions_should_render_all_query_type_options()
+        {
+            var subject = new StringOptions(
+                caseSensitive: true,
+                diacriticSensitive: false,
+                prefixOptions: new PrefixOptions(10, 2),
+                substringOptions: new SubstringOptions(20, 10, 2),
+                suffixOptions: new SuffixOptions(8, 3));
+
+            var result = subject.CreateDocument();
+
+            result.Should().Be(BsonDocument.Parse(@"
+                {
+                    caseSensitive : true,
+                    diacriticSensitive : false,
+                    prefix : { strMaxQueryLength : 10, strMinQueryLength : 2 },
+                    substring : { strMaxLength : 20, strMaxQueryLength : 10, strMinQueryLength : 2 },
+                    suffix : { strMaxQueryLength : 8, strMinQueryLength : 3 }
+                }"));
+        }
+
+        [Fact]
+        public void StringOptions_should_omit_query_type_options_that_are_not_set()
+        {
+            var subject = new StringOptions(caseSensitive: false, diacriticSensitive: true);
+
+            var result = subject.CreateDocument();
+
+            result.Should().Be(BsonDocument.Parse("{ caseSensitive : false, diacriticSensitive : true }"));
         }
 
         [Fact]

@@ -572,9 +572,6 @@ namespace MongoDB.Driver.Encryption
                 stringOptions: stringOptions);
         }
 
-        // internal methods
-        internal BsonDocument GetStringOptionsDocument() => _stringOptions?.CreateDocument();
-
         // private methods
         private void EnsureThatOptionsAreValid()
         {
