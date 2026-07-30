@@ -43,16 +43,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                if (_session == null)
-                {
-                    _collection.InsertOne(_document, _options, cancellationToken);
-                }
-                else
-                {
-                    _collection.InsertOne(_session, _document, _options, cancellationToken);
-                }
+                var result = _session == null
+                    ? _collection.InsertOne(_document, _options, cancellationToken)
+                    : _collection.InsertOne(_session, _document, _options, cancellationToken);
 
-                return OperationResult.FromResult(new BsonDocument("insertedId", _document["_id"]));
+                return OperationResult.FromResult(CreateResult(result));
             }
             catch (Exception exception)
             {
@@ -64,21 +59,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                if (_session == null)
-                {
-                    await _collection.InsertOneAsync(_document, _options, cancellationToken);
-                }
-                else
-                {
-                    await _collection.InsertOneAsync(_session, _document, _options, cancellationToken);
-                }
+                var result = _session == null
+                    ? await _collection.InsertOneAsync(_document, _options, cancellationToken)
+                    : await _collection.InsertOneAsync(_session, _document, _options, cancellationToken);
 
-                return OperationResult.FromResult(new BsonDocument("insertedId", _document["_id"]));
+                return OperationResult.FromResult(CreateResult(result));
             }
             catch (Exception exception)
             {
                 return OperationResult.FromException(exception);
             }
+        }
+
+        private static BsonDocument CreateResult(InsertOneResult result)
+        {
+            return result.IsAcknowledged
+                ? new BsonDocument("insertedId", BsonValue.Create(result.InsertedId))
+                : null;
         }
     }
 

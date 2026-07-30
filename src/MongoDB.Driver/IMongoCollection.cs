@@ -822,38 +822,10 @@ namespace MongoDB.Driver
         /// <param name="document">The document.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Inserts a single document.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="document">The document.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        void InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Inserts a single document.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="_cancellationToken">The cancellation token.</param>
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
-        Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken);
-
-        /// <summary>
-        /// Inserts a single document.
-        /// </summary>
-        /// <param name="document">The document.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The result of the insert operation.
-        /// </returns>
-        Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        InsertOneResult InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts a single document.
@@ -865,24 +837,30 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        InsertOneResult InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Inserts many documents.
+        /// Inserts a single document.
         /// </summary>
-        /// <param name="documents">The documents.</param>
+        /// <param name="document">The document.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
-        /// Inserts many documents.
+        /// Inserts a single document.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="documents">The documents.</param>
+        /// <param name="document">The document.</param>
         /// <param name="options">The options.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        void InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task<InsertOneResult> InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts many documents.
@@ -893,7 +871,7 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        InsertManyResult InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Inserts many documents.
@@ -905,7 +883,30 @@ namespace MongoDB.Driver
         /// <returns>
         /// The result of the insert operation.
         /// </returns>
-        Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+        InsertManyResult InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Inserts many documents.
+        /// </summary>
+        /// <param name="documents">The documents.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task<InsertManyResult> InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Inserts many documents.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="documents">The documents.</param>
+        /// <param name="options">The options.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>
+        /// The result of the insert operation.
+        /// </returns>
+        Task<InsertManyResult> InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Executes a map-reduce command.

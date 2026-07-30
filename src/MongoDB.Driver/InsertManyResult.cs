@@ -1,0 +1,105 @@
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using System.Collections.Generic;
+using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Core.Misc;
+
+namespace MongoDB.Driver;
+
+/// <summary>
+/// The result of an insert many operation.
+/// </summary>
+public abstract class InsertManyResult
+{
+    private protected InsertManyResult()
+    {
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the result is acknowledged.
+    /// </summary>
+    public abstract bool IsAcknowledged { get; }
+
+    /// <summary>
+    /// Gets a map from the index of the inserted document to its id. If IsAcknowledged is false, this will throw an exception.
+    /// </summary>
+    public abstract IReadOnlyDictionary<int, object> InsertedIds { get; }
+
+    internal static InsertManyResult FromBulkWriteResult<TDocument>(
+        BulkWriteResult<TDocument> bulkWriteResult,
+        IBsonSerializer<TDocument> documentSerializer)
+    {
+        if (!bulkWriteResult.IsAcknowledged)
+        {
+            return Unacknowledged.Instance;
+        }
+
+        var processedRequests = bulkWriteResult.ProcessedRequests;
+        var insertedIds = new Dictionary<int, object>(processedRequests.Count);
+        for (var index = 0; index < processedRequests.Count; index++)
+        {
+            var insertOneModel = (InsertOneModel<TDocument>)processedRequests[index];
+            insertedIds[index] = documentSerializer.GetDocumentId(insertOneModel.Document);
+        }
+
+        return new Acknowledged(insertedIds);
+    }
+
+    /// <summary>
+    /// The result of an acknowledged insert many operation.
+    /// </summary>
+    public sealed class Acknowledged : InsertManyResult
+    {
+        private readonly IReadOnlyDictionary<int, object> _insertedIds;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Acknowledged"/> class.
+        /// </summary>
+        /// <param name="insertedIds">A map from the index of the inserted document to its id.</param>
+        public Acknowledged(IReadOnlyDictionary<int, object> insertedIds)
+        {
+            _insertedIds = Ensure.IsNotNull(insertedIds, nameof(insertedIds));
+        }
+
+        /// <inheritdoc/>
+        public override bool IsAcknowledged => true;
+
+        /// <inheritdoc/>
+        public override IReadOnlyDictionary<int, object> InsertedIds => _insertedIds;
+    }
+
+    /// <summary>
+    /// The result of an unacknowledged insert many operation.
+    /// </summary>
+    public sealed class Unacknowledged : InsertManyResult
+    {
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        public static Unacknowledged Instance { get; } = new Unacknowledged();
+
+        private Unacknowledged()
+        {
+        }
+
+        /// <inheritdoc/>
+        public override bool IsAcknowledged => false;
+
+        /// <inheritdoc/>
+        public override IReadOnlyDictionary<int, object> InsertedIds => throw new NotSupportedException("Only acknowledged writes support the InsertedIds property.");
+    }
+}
