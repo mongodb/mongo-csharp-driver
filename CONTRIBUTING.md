@@ -89,6 +89,27 @@ Restrict to one target with `--framework`:
 dotnet test --framework net10.0
 ```
 
+### Formatting and code style
+
+Formatting and code style come from `.editorconfig`. Most of it is reported by your IDE as you type, and some of it fails the build — but a few rules can only be checked by `dotnet format`, so CI runs it on every pull request.
+
+Check your changes, and fix them:
+
+```zsh
+dotnet format CSharpDriver.sln --verify-no-changes
+dotnet format CSharpDriver.sln
+```
+
+Naming violations are the one thing `dotnet format` cannot fix for you; those need a manual rename.
+
+To have this checked automatically before every push, enable the repo's git hooks. This is a one-time setting per clone — git does not enable committed hooks by itself:
+
+```zsh
+git config core.hooksPath .githooks
+```
+
+The hook only checks the `.cs` files you are pushing, and it skips branches that are not currently checked out. Because it runs `dotnet format`, the first run on a fresh clone also restores packages and so takes noticeably longer than later ones. Use `git push --no-verify` to skip it.
+
 ## Submit a PR
 
 Push your branch to your fork once all tests pass. [Squash multiple commits into one](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together) and rebase on the latest upstream first (use the "Sync fork" button on your fork's page).

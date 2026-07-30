@@ -1,0 +1,40 @@
+name: Format
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+
+concurrency:
+  group: format-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: dotnet format
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Verify formatting and code style
+        id: verify
+        run: dotnet format CSharpDriver.sln --verify-no-changes
+
+      - name: Show how to fix
+        if: failure() && steps.verify.outcome == 'failure'
+        run: |
+          echo "::error::Formatting or code style issues found. Run 'dotnet format CSharpDriver.sln' locally and commit the result."
+          echo "To have this checked before every push, enable the repo's git hooks once:"
+          echo "  git config core.hooksPath .githooks"
