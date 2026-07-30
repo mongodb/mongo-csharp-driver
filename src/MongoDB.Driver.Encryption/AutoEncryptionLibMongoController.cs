@@ -19,6 +19,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver.Encryption
@@ -181,7 +182,7 @@ namespace MongoDB.Driver.Encryption
             var database = _metadataClient.GetDatabase(databaseName);
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var options = new ListCollectionsOptions { Filter = filter };
             var cursor = database.ListCollections(options, cancellationToken);
@@ -200,7 +201,7 @@ namespace MongoDB.Driver.Encryption
             var database = _metadataClient.GetDatabase(databaseName);
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var options = new ListCollectionsOptions { Filter = filter };
             var cursor = await database.ListCollectionsAsync(options, cancellationToken).ConfigureAwait(false);
@@ -213,7 +214,7 @@ namespace MongoDB.Driver.Encryption
             var database = _mongocryptdClient.Value.GetDatabase(databaseName);
             using var binary = context.GetOperation();
             var commandBytes = binary.ToArray();
-            using var commandDocument = new RawBsonDocument(commandBytes);
+            var commandDocument = BsonSerializer.Deserialize<BsonDocument>(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
 
             BsonDocument response = null;
@@ -238,7 +239,7 @@ namespace MongoDB.Driver.Encryption
             var database = _mongocryptdClient.Value.GetDatabase(databaseName);
             using var binary = context.GetOperation();
             var commandBytes = binary.ToArray();
-            using var commandDocument = new RawBsonDocument(commandBytes);
+            var commandDocument = BsonSerializer.Deserialize<BsonDocument>(commandBytes);
             var command = new BsonDocumentCommand<BsonDocument>(commandDocument);
 
             BsonDocument response = null;

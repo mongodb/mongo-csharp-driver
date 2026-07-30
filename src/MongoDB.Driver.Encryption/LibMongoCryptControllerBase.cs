@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -237,7 +238,7 @@ namespace MongoDB.Driver.Encryption
         {
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = _keyVaultCollection.Value.FindSync(filter, cancellationToken: cancellationToken);
             var results = cursor.ToList(cancellationToken);
@@ -267,7 +268,7 @@ namespace MongoDB.Driver.Encryption
         {
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = await _keyVaultCollection.Value.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
             var results = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
