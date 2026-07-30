@@ -16,6 +16,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
+using Amazon.Runtime.Credentials;
 
 namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
 {
@@ -23,58 +24,20 @@ namespace MongoDB.Driver.Authentication.AWS.CredentialsSources
     {
         public static readonly AWSFallbackCredentialsSource Instance = new();
 
-        private readonly SemaphoreSlim _lock = new(1);
-
-        public void Dispose() => _lock?.Dispose();
-
         public AWSCredentials GetCredentials(CancellationToken cancellationToken)
         {
-            Amazon.Runtime.AWSCredentials credentialsSource;
-            _lock.Wait(cancellationToken);
-            try
-            {
-                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
-                credentialsSource = FallbackCredentialsFactory.GetCredentials();
-            }
-            finally
-            {
-                _lock.Release();
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            var credentialsSource = DefaultAWSCredentialsIdentityResolver.GetCredentials(null);
             var immutableCredentials = credentialsSource.GetCredentials();
             return CreateAWSCredentials(immutableCredentials);
         }
 
         public async Task<AWSCredentials> GetCredentialsAsync(CancellationToken cancellationToken)
         {
-            Amazon.Runtime.AWSCredentials credentialsSource;
-            await _lock.WaitAsync(cancellationToken).ConfigureAwait(false);
-            try
-            {
-                // returns cached credentials source immediately. Only if cached source unavailable, makes quite heavy steps
-                credentialsSource = FallbackCredentialsFactory.GetCredentials();
-            }
-            finally
-            {
-                _lock.Release();
-            }
-
+            cancellationToken.ThrowIfCancellationRequested();
+            var credentialsSource = await DefaultAWSCredentialsIdentityResolver.GetCredentialsAsync(null).ConfigureAwait(false);
             var immutableCredentials = await credentialsSource.GetCredentialsAsync().ConfigureAwait(false);
             return CreateAWSCredentials(immutableCredentials);
-        }
-
-        public void ResetCache()
-        {
-            _lock.Wait();
-
-            try
-            {
-                FallbackCredentialsFactory.Reset();
-            }
-            finally
-            {
-                _lock.Release();
-            }
         }
 
         private AWSCredentials CreateAWSCredentials(ImmutableCredentials immutableCredentials)

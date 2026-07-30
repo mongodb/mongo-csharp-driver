@@ -14,8 +14,6 @@
 */
 
 using System;
-using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -63,106 +61,6 @@ namespace MongoDB.Driver.Tests.Communication.Security
             var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_ENABLED") != null;
             var awsContainerUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") ?? Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
             (awsContainerUri != null).Should().Be(isEcs);
-        }
-
-        [Fact]
-        public void AwsSdk_should_support_all_required_handlers()
-        {
-            var credentialsGeneratorsDelegatesEnumerator = FallbackCredentialsFactory.CredentialsGenerators.GetEnumerator();
-
-            // AppConfigAWSCredentials
-            AWSCredentials credentials = null;
-            if (Type.GetType("Amazon.Runtime.AppConfigAWSCredentials, AWSSDK.Core", throwOnError: false) != null) // app.config/web.config does not present on windows
-            {
-                var appConfigAWSCredentialsException = Record.Exception(() => RunTestCase());
-                // app.config/web.config case is based on ConfigurationManager. This is not configured for this test
-                appConfigAWSCredentialsException.Message.Should().Contain("The app.config/web.config files for the application did not contain credential information");
-            }
-
-            // AssumeRoleWithWebIdentityCredentials.FromEnvironmentVariables()
-            var exception = Record.Exception(() => RunTestCase());
-            if (Environment.GetEnvironmentVariable("AWS_WEB_IDENTITY_TOKEN_FILE") != null)
-            {
-                // aws-web-identity-credentials is configured
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<AssumeRoleWithWebIdentityCredentials>();
-            }
-            else
-            {
-                // otherwise fail
-                exception.Message.Should().Contain("webIdentityTokenFile");
-            }
-
-            // GetAWSCredentials (Profile)
-            exception = Record.Exception(() => RunTestCase());
-            if (IsWithAwsProfileOnMachine())
-            {
-                // current machine contains configured aws profile, which may include:
-                // 1. BasicAWSCredentials (aws_access_key_id and aws_secret_access_key)
-                // 2. SessionAWSCredentials (aws_access_key_id, aws_secret_access_key, aws_session_token)
-                exception.Should().BeNull();
-                credentials.Should().Match(x => x is BasicAWSCredentials || x is SessionAWSCredentials);
-            }
-            else
-            {
-                // otherwise fail
-                exception.Message.Should().Contain("Credential").And.Subject.Should().Contain("profile");
-            }
-
-            // EnvironmentVariablesAWSCredentials
-            exception = Record.Exception(() => RunTestCase());
-            if (Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") != null && Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY") != null)
-            {
-                // environment variables code path
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<EnvironmentVariablesAWSCredentials>();
-            }
-            else
-            {
-                // otherwise fail
-                exception.Message.Should().Contain("The environment variables").And.Subject.Contains("were not set with AWS credentials");
-            }
-
-            // ECSEC2CredentialsWrapper
-            exception = Record.Exception(() => RunTestCase());
-            if (Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") != null || Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI") != null)
-            {
-                exception.Should().BeNull();
-                credentials.Should().BeOfType<ECSTaskCredentials>();
-            }
-            else
-            {
-                exception.Should().BeNull();
-                credentials.GetType().Name.Should().Contain("DefaultInstanceProfileAWSCredentials"); // EC2 case
-            }
-
-            credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeFalse(); // no more handlers
-
-            bool IsWithAwsProfileOnMachine()
-            {
-                var credentialProfileChain = new CredentialProfileStoreChain();
-                if (credentialProfileChain.TryGetProfile(Environment.GetEnvironmentVariable("AWS_PROFILE") ?? "default", out var profile))
-                {
-                    try
-                    {
-                        _ = profile.GetAWSCredentials(credentialProfileChain);
-                        return true;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                }
-
-                return false;
-            }
-
-            void RunTestCase()
-            {
-                credentials = null;
-                credentialsGeneratorsDelegatesEnumerator.MoveNext().Should().BeTrue();
-                credentials = credentialsGeneratorsDelegatesEnumerator.Current();
-            }
         }
     }
 }

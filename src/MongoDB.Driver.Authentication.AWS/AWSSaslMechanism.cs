@@ -141,7 +141,6 @@ namespace MongoDB.Driver.Authentication.AWS
 
         public bool TryHandleAuthenticationException(MongoException exception, ISaslStep step, SaslConversation conversation, ConnectionDescription description, out ISaslStep nextStep)
         {
-            _credentialsSource.ResetCache();
             nextStep = null;
             return false;
         }
