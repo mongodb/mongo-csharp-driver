@@ -20,14 +20,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      # Actions are pinned to commit SHAs rather than tags: a tag can be
+      # repointed by its owner, which would run unreviewed code here.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
-      # Pinned to an exact patch: dotnet format's output can change between SDK
-      # patches, so a floating version could fail on main without any code
-      # change. Bumping this may require a one-off reformat.
-      - uses: actions/setup-dotnet@v4
+      # The SDK is pinned to an exact patch too: dotnet format's output can
+      # change between SDK patches, so a floating version could fail on main
+      # without any code change. Bumping it may require a one-off reformat.
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
         with:
           dotnet-version: '10.0.302'
 
