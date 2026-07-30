@@ -24,9 +24,12 @@ jobs:
         with:
           persist-credentials: false
 
+      # Pinned to an exact patch: dotnet format's output can change between SDK
+      # patches, so a floating version could fail on main without any code
+      # change. Bumping this may require a one-off reformat.
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.302'
 
       - name: Verify formatting and code style
         id: verify
