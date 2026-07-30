@@ -39,5 +39,4 @@ jobs:
         if: failure() && steps.verify.outcome == 'failure'
         run: |
           echo "::error::Formatting or code style issues found. Run 'dotnet format CSharpDriver.sln' locally and commit the result."
-          echo "To have this checked before every push, enable the repo's git hooks once:"
-          echo "  git config core.hooksPath .githooks"
+          echo "Naming violations (IDE1006) cannot be fixed automatically and need a manual rename."
