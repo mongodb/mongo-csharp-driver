@@ -32,11 +32,6 @@ internal static class EncryptionOptionsExtensions
     public static BsonDocument CreateDocument(this StringOptions stringOptions) =>
         CreateStringOptionsDocument(stringOptions.CaseSensitive, stringOptions.DiacriticSensitive, stringOptions.PrefixOptions, stringOptions.SubstringOptions, stringOptions.SuffixOptions);
 
-#pragma warning disable CS0618 // TextOptions is the deprecated alias for StringOptions.
-    public static BsonDocument CreateDocument(this TextOptions textOptions) =>
-        CreateStringOptionsDocument(textOptions.CaseSensitive, textOptions.DiacriticSensitive, textOptions.PrefixOptions, textOptions.SubstringOptions, textOptions.SuffixOptions);
-#pragma warning restore CS0618
-
     private static BsonDocument CreateStringOptionsDocument(
         bool caseSensitive,
         bool diacriticSensitive,

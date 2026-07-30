@@ -176,11 +176,6 @@ namespace MongoDB.Driver.Tests.Encryption
         // String algorithm
         [InlineData(EncryptionAlgorithm.String, "String")]
         [InlineData("String", "String")]
-        // TextPreview is a deprecated alias and is translated to the String algorithm
-#pragma warning disable CS0618
-        [InlineData(EncryptionAlgorithm.TextPreview, "String")]
-#pragma warning restore CS0618
-        [InlineData("TextPreview", "String")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
@@ -213,23 +208,6 @@ namespace MongoDB.Driver.Tests.Encryption
             updated.StringOptions.Should().BeSameAs(newStringOptions);
             updated.Algorithm.Should().Be(subject.Algorithm);
             updated.KeyId.Should().Be(subject.KeyId);
-        }
-
-        [Fact]
-        public void With_textOptions_should_create_new_instance_with_updated_textOptions()
-        {
-#pragma warning disable CS0618 // intentionally exercising the deprecated TextOptions API
-            var originalTextOptions = new TextOptions(true, true, prefixOptions: new PrefixOptions(10, 2));
-            var newTextOptions = new TextOptions(false, false, substringOptions: new SubstringOptions(10, 8, 2));
-
-            var subject = new EncryptOptions(algorithm: EncryptionAlgorithm.TextPreview, keyId: Guid.NewGuid(), textOptions: originalTextOptions);
-
-            var updated = subject.With(textOptions: newTextOptions);
-
-            updated.TextOptions.Should().BeSameAs(newTextOptions);
-            updated.Algorithm.Should().Be(subject.Algorithm);
-            updated.KeyId.Should().Be(subject.KeyId);
-#pragma warning restore CS0618
         }
 
         [Fact]
