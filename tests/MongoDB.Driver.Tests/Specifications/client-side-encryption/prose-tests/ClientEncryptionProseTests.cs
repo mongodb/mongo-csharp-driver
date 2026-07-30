@@ -947,7 +947,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             RequireEnvironment.Check().KmsProvider("aws");
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
-            var caCertificate = LoadProxyCaCertificateOrSkip();
+            var caCertificate = LoadProxyCaCertificate();
 
             ResetProxyMetrics(HttpsProxyPort, useTls: true, caCertificate);
 
@@ -4234,13 +4234,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using var httpClient = CreateProxyHttpClient(useTls ? caCertificate : null);
             var body = httpClient.GetStringAsync(ProxyUrl(port, useTls, "metrics")).GetAwaiter().GetResult();
 
-            // The proxy reports metrics as one "key value" pair per line; find the connect_count line
-            // rather than assuming its position.
-            var line = body.Split('\n')
-                .Select(l => l.Trim())
-                .FirstOrDefault(l => l.StartsWith("connect_count ", StringComparison.Ordinal));
-            line.Should().NotBeNull("proxy /metrics response should contain a connect_count line, but was:\n{0}", body);
-            return int.Parse(line.Split(' ')[1], CultureInfo.InvariantCulture);
+            // The proxy's /metrics response starts with "connect_count <N>" as its first line
+            var connectCount = body.Split('\n')[0].Split(' ')[1];
+            return int.Parse(connectCount, CultureInfo.InvariantCulture);
         }
 
         private static string ProxyUrl(int port, bool useTls, string path) =>
@@ -4260,25 +4256,31 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             return new HttpClient(handler);
         }
 
-        private static X509Certificate2 LoadProxyCaCertificateOrSkip()
+        private static X509Certificate2 LoadProxyCaCertificate()
         {
             var caFile = Environment.GetEnvironmentVariable("CSFLE_TLS_CA_FILE");
             if (string.IsNullOrEmpty(caFile))
             {
-                throw new SkipException("CSFLE_TLS_CA_FILE environment variable is not set.");
+                throw new InvalidOperationException("CSFLE_TLS_CA_FILE is not set while KMS_MOCK_SERVERS_ENABLED is; the proxy test environment is misconfigured.");
             }
 
             if (!File.Exists(caFile))
             {
-                throw new SkipException($"Proxy CA file was not found at {caFile}.");
+                throw new FileNotFoundException($"Proxy CA file was not found at {caFile}.", caFile);
             }
 
             var pem = File.ReadAllText(caFile);
             const string header = "-----BEGIN CERTIFICATE-----";
             const string footer = "-----END CERTIFICATE-----";
-            var start = pem.IndexOf(header, StringComparison.Ordinal) + header.Length;
-            var end = pem.IndexOf(footer, StringComparison.Ordinal);
-            var base64 = pem.Substring(start, end - start).Replace("\r", "").Replace("\n", "").Trim();
+            var headerIndex = pem.IndexOf(header, StringComparison.Ordinal);
+            var footerIndex = pem.IndexOf(footer, StringComparison.Ordinal);
+            if (headerIndex < 0 || footerIndex <= headerIndex)
+            {
+                throw new FormatException($"Proxy CA file {caFile} is not a valid PEM certificate.");
+            }
+
+            var start = headerIndex + header.Length;
+            var base64 = pem.Substring(start, footerIndex - start).Replace("\r", "").Replace("\n", "").Trim();
             return LoadCertificate(Convert.FromBase64String(base64));
         }
 
@@ -4309,7 +4311,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var elements = chain.ChainElements;
             var root = elements[elements.Count - 1].Certificate;
-            return root.Thumbprint == caCertificate.Thumbprint;
+            return string.Equals(root.Thumbprint, caCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase);
         }
 
         private sealed class HttpConnectProxyKmsConnector : IKmsConnector
