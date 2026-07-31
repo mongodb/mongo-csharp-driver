@@ -42,7 +42,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task ReadExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableReadOperation<int>>();
@@ -64,7 +64,7 @@ public class ClientBackpressureProseTestsUnit
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
-    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-1-operation-retry-uses-exponential-backoff
     public async Task WriteExecute_should_apply_backoff_when_backpressure_errors_occurs(bool async)
     {
         var operationMock = new Mock<IRetryableWriteOperation<int>>();
@@ -84,6 +84,55 @@ public class ClientBackpressureProseTestsUnit
             async (operationContext, context) => await RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operationMock.Object, context));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
+    public async Task ReadExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
+    {
+        await AssertBaseBackoffMsOverridesBackoff(
+            async,
+            random => CreateRetryableReadContext(random),
+            exception =>
+            {
+                var operationMock = new Mock<IRetryableReadOperation<int>>();
+                operationMock
+                    .Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()))
+                    .Throws(exception);
+                operationMock
+                    .Setup(o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableReadContext>(), It.IsAny<int>(), It.IsAny<long?>()))
+                    .ThrowsAsync(exception);
+                return operationMock.Object;
+            },
+            (operationContext, operation, context) => RetryableReadOperationExecutor.Execute(operationContext, operation, context),
+            (operationContext, operation, context) => RetryableReadOperationExecutor.ExecuteAsync(operationContext, operation, context));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-5-overload-errors-with-basebackoffms-override-base-backoff
+    public async Task WriteExecute_should_use_baseBackoffMs_as_backoff_base(bool async)
+    {
+        await AssertBaseBackoffMsOverridesBackoff(
+            async,
+            random => CreateRetryableWriteContext(random),
+            exception =>
+            {
+                var operationMock = new Mock<IRetryableWriteOperation<int>>();
+                operationMock.SetupGet(o => o.WriteConcern).Returns(WriteConcern.Acknowledged);
+                operationMock
+                    .Setup(o => o.ExecuteAttempt(It.IsAny<OperationContext>(), It.IsAny<RetryableWriteContext>(), It.IsAny<int>(), It.IsAny<long?>()))
+                    .Throws(exception);
+                operationMock
+                    .Setup(o => o.ExecuteAttemptAsync(It.IsAny<OperationContext>(), It.IsAny<RetryableWriteContext>(), It.IsAny<int>(), It.IsAny<long?>()))
+                    .ThrowsAsync(exception);
+                return operationMock.Object;
+            },
+            (operationContext, operation, context) => RetryableWriteOperationExecutor.Execute(operationContext, operation, context),
+            (operationContext, operation, context) => RetryableWriteOperationExecutor.ExecuteAsync(operationContext, operation, context));
+    }
+
     private async Task AssertBackoffBehavior<TContext>(
         bool async,
         Func<IRandom, TContext> createContext,
@@ -92,7 +141,7 @@ public class ClientBackpressureProseTestsUnit
     {
         var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
 
-        // Test with no backoff (jitter = 0)
+        // jitter = 0: no backoff
         var noBackoffRandom = new Mock<IRandom>();
         noBackoffRandom.Setup(r => r.NextDouble()).Returns(0.0);
         var noBackoffContext = createContext(noBackoffRandom.Object);
@@ -106,7 +155,7 @@ public class ClientBackpressureProseTestsUnit
 
         noBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // Test with full backoff (jitter = 1)
+        // jitter = 1: full backoff
         var withBackoffRandom = new Mock<IRandom>();
         withBackoffRandom.Setup(r => r.NextDouble()).Returns(1.0);
         var withBackoffContext = createContext(withBackoffRandom.Object);
@@ -120,11 +169,62 @@ public class ClientBackpressureProseTestsUnit
 
         withBackoffException.Should().NotBeNull().And.BeOfType<MongoCommandException>();
 
-        // With MAX_RETRIES=2 and jitter=1, total backoff = 100ms + 200ms = 300ms.
-        // Per the spec: assertTrue(abs(with_backoff_time - (no_backoff_time + 0.3s)) < 0.3s)
+        // MAX_RETRIES = 2, jitter = 1 -> backoffs of 200ms + 400ms = 600ms.
         var difference = withBackoffTime - noBackoffTime;
-        Math.Abs(difference - 300).Should().BeLessThan(300,
-            $"backoff difference should be approximately 300ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
+        Math.Abs(difference - 600).Should().BeLessThan(600,
+            $"backoff difference should be approximately 600ms, got {difference}ms (noBackoff: {noBackoffTime}ms, withBackoff: {withBackoffTime}ms)");
+    }
+
+    private async Task AssertBaseBackoffMsOverridesBackoff<TOperation, TContext>(
+        bool async,
+        Func<IRandom, TContext> createContext,
+        Func<Exception, TOperation> createOperation,
+        Action<OperationContext, TOperation, TContext> executeSync,
+        Func<OperationContext, TOperation, TContext, Task> executeAsync)
+    {
+        var operationContext = new OperationContext(TimeSpan.FromSeconds(30), CancellationToken.None);
+
+        var fullJitterRandom = new Mock<IRandom>();
+        fullJitterRandom.Setup(r => r.NextDouble()).Returns(1.0);
+
+        // No baseBackoffMS: backoffs of 200ms + 400ms = 600ms (jitter = 1).
+        var exponentialException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(462, "SystemOverloadedError", "RetryableError");
+        var exponentialMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(exponentialException), createContext(fullJitterRandom.Object));
+
+        // baseBackoffMS = 50: backoffs of 100ms + 200ms = 300ms (jitter = 1).
+        var overrideResult = BsonDocument.Parse("{ ok : 0, code : 462, baseBackoffMS : 50 }");
+        var overrideException = CoreExceptionHelper.CreateMongoCommandExceptionWithLabels(overrideResult, "SystemOverloadedError", "RetryableError");
+        var withBaseBackoffMs = await MeasureBackoff(async, executeSync, executeAsync, operationContext, createOperation(overrideException), createContext(fullJitterRandom.Object));
+
+        // Driver parsed baseBackoffMS off the error.
+        RetryabilityHelper.GetBaseBackoffMs(overrideException).Should().Be(50);
+
+        // Mocked ops are instant, so elapsed time is ~exactly the backoff sleeps; allow slack for timer imprecision.
+        const long timerToleranceMs = 50;
+        exponentialMs.Should().BeGreaterOrEqualTo(600 - timerToleranceMs,
+            $"the default exponential backoff should sum to ~600ms (got {exponentialMs}ms)");
+        withBaseBackoffMs.Should().BeGreaterOrEqualTo(300 - timerToleranceMs,
+            $"the baseBackoffMS=50 backoff should sum to ~300ms (got {withBaseBackoffMs}ms)");
+        withBaseBackoffMs.Should().BeLessThan(600,
+            $"baseBackoffMS should shorten the backoff base (withBaseBackoffMS: {withBaseBackoffMs}ms, exponential: {exponentialMs}ms)");
+    }
+
+    private static async Task<long> MeasureBackoff<TOperation, TContext>(
+        bool async,
+        Action<OperationContext, TOperation, TContext> executeSync,
+        Func<OperationContext, TOperation, TContext, Task> executeAsync,
+        OperationContext operationContext,
+        TOperation operation,
+        TContext context)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var exception = async
+            ? await Record.ExceptionAsync(() => executeAsync(operationContext, operation, context))
+            : Record.Exception(() => executeSync(operationContext, operation, context));
+        stopwatch.Stop();
+
+        exception.Should().NotBeNull().And.BeOfType<MongoCommandException>();
+        return stopwatch.ElapsedMilliseconds;
     }
 
     private static RetryableReadContext CreateRetryableReadContext(IRandom random, int maxAdaptiveRetries = 2)
@@ -197,7 +297,7 @@ public class ClientBackpressureProseTestsUnit
 public class ClientBackpressureProseTestsIntegration
 {
     [Fact]
-    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-3-overload-errors-are-retried-a-maximum-of-max_retries-times
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-3-overload-errors-are-retried-a-maximum-of-max_retries-times
     public void Overload_errors_are_retried_a_maximum_of_MAX_RETRIES_times()
     {
         RequireServer.Check()
@@ -240,7 +340,7 @@ public class ClientBackpressureProseTestsIntegration
     }
 
     [Fact]
-    // https://github.com/mongodb/specifications/blob/7039e69945d463a14b1b727d16db063e21f48f53/source/client-backpressure/tests/README.md#test-4-overload-errors-are-retried-a-maximum-of-maxadaptiveretries-times-when-configured
+    // https://github.com/mongodb/specifications/blob/b00d61ca19da7d7e25836ec56930048a8d1de501/source/client-backpressure/tests/README.md#test-4-overload-errors-are-retried-a-maximum-of-maxadaptiveretries-times-when-configured
     public void Overload_errors_are_retried_a_maximum_of_maxAdaptiveRetries_times_when_configured()
     {
         RequireServer.Check()
