@@ -42,10 +42,10 @@ namespace MongoDB.Driver
         /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <param name="representaion">The representation.</param>
+        /// <param name="representation">The representation.</param>
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <returns>The value</returns>
-        public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        public static TValue Constant<TValue>(TValue value, BsonType representation)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
