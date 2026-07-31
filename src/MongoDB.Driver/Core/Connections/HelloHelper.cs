@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Core.Connections
                 { "topologyVersion", () => topologyVersion.ToBsonDocument(), topologyVersion != null },
                 { "maxAwaitTimeMS", () => (long)maxAwaitTime.Value.TotalMilliseconds, maxAwaitTime.HasValue },
                 { "loadBalanced", true, loadBalanced },
-                { "backpressure", true }
+                { "backpressure", "2" }
             };
         }
 
