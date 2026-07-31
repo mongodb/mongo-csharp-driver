@@ -2,6 +2,8 @@ name: Format
 
 on:
   pull_request:
+    branches:
+      - main
     types:
       - opened
       - reopened
