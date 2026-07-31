@@ -560,6 +560,7 @@ namespace MongoDB.Driver.Core.WireProtocol
 
             var subject = new CommandWireProtocol<BsonDocument>(
                 NoCoreSession.Instance,
+                null,
                 ReadPreference.Primary,
                 new DatabaseNamespace("test"),
                 new BsonDocument("insert", "testCollection"),
