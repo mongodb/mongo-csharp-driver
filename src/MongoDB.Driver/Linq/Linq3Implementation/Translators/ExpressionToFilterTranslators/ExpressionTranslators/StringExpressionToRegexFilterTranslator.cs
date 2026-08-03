@@ -565,8 +565,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     var anyOfExpression = arguments[0];
                     anyOf = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
                 }
-                else
-                if (method.IsOneOf(StringMethod.IndexOfWithCharOverloads))
+                else if (method.IsOneOf(StringMethod.IndexOfWithCharOverloads))
                 {
                     var valueExpression = arguments[0];
                     var value = valueExpression.GetConstantValue<char>(containingExpression: expression);
