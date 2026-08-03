@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Encryption;
 
 /// <summary>
 /// Opens the transport connection used to reach a KMS host. When supplied via
-/// ClientEncryptionOptions or <see cref="AutoEncryptionOptions"/>, the driver
+/// <c>ClientEncryptionOptions</c> or <see cref="AutoEncryptionOptions"/>, the driver
 /// invokes this instead of opening a direct TCP connection to the KMS host, then wraps the
 /// returned stream in TLS using the KMS provider's configured TLS options.
 /// The primary use case is routing KMS traffic through an HTTP proxy via HTTPS CONNECT.

@@ -947,7 +947,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             RequireEnvironment.Check().KmsProvider("aws");
             RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
-            var caCertificate = LoadProxyCaCertificate();
+            using var caCertificate = LoadProxyCaCertificate();
 
             ResetProxyMetrics(HttpsProxyPort, useTls: true, caCertificate);
 
@@ -4356,20 +4356,20 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             public async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken)
             {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await socket.ConnectAsync("127.0.0.1", _proxyPort).ConfigureAwait(false);
+                await socket.ConnectAsync("127.0.0.1", _proxyPort);
                 Stream stream = new NetworkStream(socket, ownsSocket: true);
                 try
                 {
                     if (_useTls)
                     {
                         var sslStream = CreateProxySslStream(stream);
-                        await sslStream.AuthenticateAsClientAsync("127.0.0.1").ConfigureAwait(false);
+                        await sslStream.AuthenticateAsClientAsync("127.0.0.1");
                         stream = sslStream;
                     }
 
                     var request = Encoding.ASCII.GetBytes(BuildConnectRequest(host, port));
-                    await stream.WriteAsync(request, 0, request.Length, cancellationToken).ConfigureAwait(false);
-                    EnsureConnectSucceeded(await ReadConnectResponseAsync(stream, cancellationToken).ConfigureAwait(false));
+                    await stream.WriteAsync(request, 0, request.Length, cancellationToken);
+                    EnsureConnectSucceeded(await ReadConnectResponseAsync(stream, cancellationToken));
                     return stream;
                 }
                 catch
@@ -4377,7 +4377,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 #if NETFRAMEWORK
                     stream.Dispose();
 #else
-                    await stream.DisposeAsync().ConfigureAwait(false);
+                    await stream.DisposeAsync();
 #endif
                     throw;
                 }
@@ -4420,7 +4420,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 var builder = new StringBuilder();
                 var buffer = new byte[1];
-                while (await stream.ReadAsync(buffer, 0, 1, cancellationToken).ConfigureAwait(false) != 0)
+                while (await stream.ReadAsync(buffer, 0, 1, cancellationToken) != 0)
                 {
                     builder.Append((char)buffer[0]);
                     if (EndsWithHeaderTerminator(builder))
@@ -4487,7 +4487,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                     throw new IOException("Simulated transient network error.");
                 }
 
-                return await _inner.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
+                return await _inner.ConnectAsync(host, port, cancellationToken);
             }
         }
     }
