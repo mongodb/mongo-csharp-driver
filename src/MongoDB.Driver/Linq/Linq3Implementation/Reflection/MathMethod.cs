@@ -69,7 +69,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         static MathMethod()
         {
             // initialize methods before sets of methods
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
             __acosh = ReflectionInfo.Method((double d) => Math.Acosh(d));
             __asinh = ReflectionInfo.Method((double d) => Math.Asinh(d));
             __atanh = ReflectionInfo.Method((double d) => Math.Atanh(d));

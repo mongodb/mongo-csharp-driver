@@ -135,7 +135,7 @@ namespace MongoDB.Bson
         /// <returns>A hex string.</returns>
         public static string ToHexString(byte[] bytes)
         {
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(bytes);
             return Convert.ToHexString(bytes).ToLowerInvariant();
 #else

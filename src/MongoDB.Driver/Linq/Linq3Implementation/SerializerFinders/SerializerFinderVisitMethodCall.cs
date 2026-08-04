@@ -188,7 +188,7 @@ internal partial class SerializerFinderVisitor
             RegisterSerializerDeducers(EnumerableOrQueryableMethod.Zip, DeduceZipSerializers);
 
             // KeyValuePairMethod
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
             RegisterSerializerDeducer(KeyValuePairMethod.Create, DeduceKeyValuePairCreateMethodSerializers);
 #endif
 
@@ -611,7 +611,7 @@ internal partial class SerializerFinderVisitor
             }
         }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
         private static void DeduceKeyValuePairCreateMethodSerializers(SerializerFinderVisitor visitor, MethodCallExpression expression)
         {
             if (visitor.IsAnyNotKnown(expression.Arguments) && visitor.IsKnown(expression, out var nodeSerializer))

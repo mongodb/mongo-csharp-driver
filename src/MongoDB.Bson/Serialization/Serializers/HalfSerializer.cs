@@ -19,7 +19,7 @@ using MongoDB.Bson.Serialization.Options;
 
 namespace MongoDB.Bson.Serialization.Serializers
 {
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
     /// <summary>
     /// Represents a serializer for Halfs.
     /// </summary>

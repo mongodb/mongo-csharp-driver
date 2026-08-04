@@ -1944,7 +1944,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : NumberLong(0), 'S' : '#S' }";
             expected = expected.Replace("#D", "-1.7976931348623157E+308");
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
             expected = expected.Replace("#S", "-3.4028235E+38");
 #else
             expected = expected.Replace("#S", "-3.40282347E+38");
@@ -2047,7 +2047,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var expected = "{ 'D' : #D, 'I' : 0, 'L' : NumberLong(0), 'S' : '#S' }";
             expected = expected.Replace("#D", "1.7976931348623157E+308");
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
             expected = expected.Replace("#S", "3.4028235E+38");
 #else
             expected = expected.Replace("#S", "3.40282347E+38");

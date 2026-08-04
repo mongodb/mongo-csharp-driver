@@ -289,7 +289,7 @@ namespace MongoDB.Bson
         // internal static methods
         internal static long CalculateRandomValue()
         {
-#if NET472_OR_GREATER
+#if NET472
             var seed = (int)DateTime.UtcNow.Ticks ^ GetMachineHash() ^ GetPid();
             var random = new Random(seed);
 #else
@@ -538,7 +538,7 @@ namespace MongoDB.Bson
         /// <returns>A string representation of the value.</returns>
         public override string ToString()
         {
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
             return string.Create(24, this, static (span, input) => input.ToCharSpan(span));
 #else
             var c = new char[24];
