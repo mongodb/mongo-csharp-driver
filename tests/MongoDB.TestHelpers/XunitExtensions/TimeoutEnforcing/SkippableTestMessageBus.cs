@@ -22,7 +22,7 @@ namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing
 {
     internal sealed class SkippableTestMessageBus : IMessageBus
     {
-        private readonly static string __skippableExceptionName = typeof(SkipException).FullName;
+        private static readonly string __skippableExceptionName = typeof(SkipException).FullName;
 
         private readonly IMessageBus _messageBus;
         private int _skippedCount;

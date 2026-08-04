@@ -115,7 +115,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonBoolean.</param>
         /// <returns>A BsonBoolean or null.</returns>
-        public new static BsonBoolean Create(object value)
+        public static new BsonBoolean Create(object value)
         {
             if (value == null)
             {
