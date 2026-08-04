@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -35,14 +36,19 @@ internal sealed class KmsConnectorStreamFactory : IStreamFactory
     {
         var (host, port) = GetHostAndPort(endPoint);
         var stream = _kmsConnector.Connect(host, port, cancellationToken);
-        return Ensure.IsNotNull(stream, $"{nameof(IKmsConnector)}.{nameof(IKmsConnector.Connect)}");
+        return EnsureConnectResult(stream, nameof(IKmsConnector.Connect));
     }
 
     public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
     {
         var (host, port) = GetHostAndPort(endPoint);
         var stream = await _kmsConnector.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
-        return Ensure.IsNotNull(stream, $"{nameof(IKmsConnector)}.{nameof(IKmsConnector.ConnectAsync)}");
+        return EnsureConnectResult(stream, nameof(IKmsConnector.ConnectAsync));
+    }
+
+    private static Stream EnsureConnectResult(Stream stream, string methodName)
+    {
+        return stream ?? throw new InvalidOperationException($"{nameof(IKmsConnector)}.{methodName} returned null.");
     }
 
     private static (string Host, int Port) GetHostAndPort(EndPoint endPoint)

@@ -146,7 +146,7 @@ namespace MongoDB.Driver
         /// Gets the KMS connector used to open connections to KMS hosts.
         /// </summary>
         /// <value>
-        /// The KMS connector to connect directly to KMS hosts.
+        /// The KMS connector used to open connections to KMS hosts.
         /// </value>
         public IKmsConnector KmsConnector => _kmsConnector;
 

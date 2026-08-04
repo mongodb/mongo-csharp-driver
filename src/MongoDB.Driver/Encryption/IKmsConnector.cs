@@ -26,6 +26,12 @@ namespace MongoDB.Driver.Encryption;
 /// returned stream in TLS using the KMS provider's configured TLS options.
 /// The primary use case is routing KMS traffic through an HTTP proxy via HTTPS CONNECT.
 /// </summary>
+/// <remarks>
+/// Both <see cref="Connect"/> and <see cref="ConnectAsync"/> must be implemented, even if the
+/// application only uses one of the driver's sync or async encryption APIs: the driver calls
+/// whichever method matches the API used for the operation in progress. An implementation that
+/// only supports one direction can have the other throw.
+/// </remarks>
 public interface IKmsConnector
 {
     /// <summary>
@@ -34,7 +40,7 @@ public interface IKmsConnector
     /// <param name="host">The KMS hostname (for example, <c>kms.us-east-1.amazonaws.com</c>).</param>
     /// <param name="port">The KMS port.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS.</returns>
+    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
     Stream Connect(string host, int port, CancellationToken cancellationToken);
 
     /// <summary>
@@ -43,6 +49,6 @@ public interface IKmsConnector
     /// <param name="host">The KMS hostname (for example, <c>kms.us-east-1.amazonaws.com</c>).</param>
     /// <param name="port">The KMS port.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS.</returns>
+    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
     Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken);
 }
