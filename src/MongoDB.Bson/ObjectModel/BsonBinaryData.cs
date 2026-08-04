@@ -140,7 +140,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonBinaryData.</param>
         /// <returns>A BsonBinaryData or null.</returns>
-        public new static BsonBinaryData Create(object value)
+        public static new BsonBinaryData Create(object value)
         {
             if (value == null)
             {
