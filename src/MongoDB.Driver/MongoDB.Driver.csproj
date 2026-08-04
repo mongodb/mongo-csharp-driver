@@ -22,14 +22,12 @@
     <PackageReference Include="SharpCompress" Version="0.48.1" />
     <PackageReference Include="Snappier" Version="1.3.1" />
     <PackageReference Include="ZstdSharp.Port" Version="0.7.3" />
-    <PackageReference Include="System.Buffers" Version="4.6.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.1" />
-  </ItemGroup>
-
+  <!-- Polyfills that are only needed on .NET Framework; the types they provide are in-box on .NET 6.0 and later. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+    <PackageReference Include="System.Buffers" Version="4.6.1" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="6.0.1" />
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
@@ -41,5 +39,15 @@
   <PropertyGroup>
     <NoWarn>NU5100</NoWarn>
   </PropertyGroup>
+
+  <!-- An empty netstandard2.0 asset group, so NuGet considers this package directly
+       compatible with netstandard2.0 and never applies AssetTargetFallback to it. Without
+       it, a .NET Standard or pre-6.0 .NET Core project is silently given lib/net472 with
+       only warning NU1701; with it, no assemblies resolve and MongoDB.Bson's guard reports
+       MONGO1001 instead. Compatibility is computed per package, so MongoDB.Bson's guard
+       does not cover this one. See src/MongoDB.Bson/build/MongoDB.Bson.targets. -->
+  <ItemGroup>
+    <None Include="..\MongoDB.Shared\EmptyPackageAssetPlaceholder\_._" Pack="true" PackagePath="buildTransitive\netstandard2.0" />
+  </ItemGroup>
 
 </Project>

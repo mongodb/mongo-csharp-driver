@@ -56,7 +56,7 @@ public class SplitMethodToAggregationExpressionTranslatorTests
     private static string[] __multipleStringsSeparator = [",", ";"];
     public static IEnumerable<object[]> SupportedTestCases =
     [
-#if NETCOREAPP || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // string.Split(char, StringSplitOptions.None).
         [
             TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(',', StringSplitOptions.None)),
@@ -136,7 +136,7 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         ],
         // TODO: Missed cases when StringSplitOptions.TrimEntries. Currently, it is silently ignored. Need jira ticket for that.
 
-#if NETCOREAPP || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // string.Split(string, StringSplitOptions.None).
         [
             TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(",", StringSplitOptions.None)),

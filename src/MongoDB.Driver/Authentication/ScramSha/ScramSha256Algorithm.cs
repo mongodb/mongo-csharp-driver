@@ -64,11 +64,16 @@ namespace MongoDB.Driver.Authentication.ScramSha
             {
                 Utf8Encodings.Strict.GetBytes(passwordChars, 0, passwordChars.Length, passwordBytes, 0);
 
+                // 32 is the length of output of a sha-256 hmac
+#if NET6_0_OR_GREATER
+                // The Rfc2898DeriveBytes constructors are obsolete (SYSLIB0060) from .NET 10 on.
+                return Rfc2898DeriveBytes.Pbkdf2(passwordBytes, salt, iterations, HashAlgorithmName.SHA256, 32);
+#else
                 using (var deriveBytes = new Rfc2898DeriveBytes(passwordBytes, salt, iterations, HashAlgorithmName.SHA256))
                 {
-                    // 32 is the length of output of a sha-256 hmac
                     return deriveBytes.GetBytes(32);
                 }
+#endif
             }
             finally
             {

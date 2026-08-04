@@ -29,15 +29,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     {
         [Theory]
         [InlineData("$acos", 1.0, 0.0)]
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
         [InlineData("$acosh", 1.0, 0.0)]
 #endif
         [InlineData("$asin", 0.0, 0.0)]
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
         [InlineData("$asinh", 0.0, 0.0)]
 #endif
         [InlineData("$atan", 0.0, 0.0)]
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
         [InlineData("$atanh", 0.0, 0.0)]
 #endif
         [InlineData("$cos", 0.0, 1.0)]
@@ -55,15 +55,15 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             Expression<Func<C, double>> projection = trigOperator switch
             {
                 "$acos" => x => Math.Acos(x.X),
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
                 "$acosh" => x => Math.Acosh(x.X),
 #endif
                 "$asin" => x => Math.Asin(x.X),
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
                 "$asinh" => x => Math.Asinh(x.X),
 #endif
                 "$atan" => x => Math.Atan(x.X),
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
                 "$atanh" => x => Math.Atanh(x.X),
 #endif
                 "$cos" => x => Math.Cos(x.X),

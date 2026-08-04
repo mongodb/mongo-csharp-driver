@@ -16,7 +16,7 @@ Build the code and run the tests locally before submitting a pull request. This 
 
 ### Install the .NET SDKs
 
-The driver and tests are multi-targeted across .NET Core 3.1, .NET 6, and .NET 10 (plus .NET Framework 4.7.2 on Windows). Install the [.NET 10 SDK](https://dotnet.microsoft.com/download) to build; running the full test suite also needs the .NET 6 and .NET Core 3.1 runtimes, or you can [test a single target](#single-target-runs).
+The driver and tests are multi-targeted across .NET 6, .NET 8, and .NET 10 (plus .NET Framework 4.7.2 on Windows). Install the [.NET 10 SDK](https://dotnet.microsoft.com/download) to build; running the full test suite also needs the .NET 6 and .NET 8 runtimes, or you can [test a single target](#single-target-runs).
 
 ### Install git
 
@@ -81,7 +81,6 @@ dotnet test
 `dotnet test` runs every target by default. Note:
 
 - The .NET Framework target cannot be used on Mac or Linux.
-- Targets before .NET 6 cannot be used on ARM64.
 
 Restrict to one target with `--framework`:
 

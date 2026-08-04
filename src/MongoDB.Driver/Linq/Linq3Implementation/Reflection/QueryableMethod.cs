@@ -264,7 +264,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IQueryable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Take(source, count));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
             __takeLast = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.TakeLast(source, count));
 #endif
             __takeWhile = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => Queryable.TakeWhile(source, predicate));

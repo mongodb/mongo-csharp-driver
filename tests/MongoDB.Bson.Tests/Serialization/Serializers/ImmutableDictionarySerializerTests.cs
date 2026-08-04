@@ -41,7 +41,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             reader.ReadEndDocument();
 
             var expectedResult = ImmutableDictionary.CreateRange(
-                new [] {
+                new[] {
                     KeyValuePair.Create("1", 1),
                     KeyValuePair.Create("2", 2),
                     KeyValuePair.Create("3", 3),
@@ -96,7 +96,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         {
             var subject = new ImmutableDictionarySerializer<string, int>();
             var value = ImmutableDictionary.CreateRange(
-                new [] {
+                new[] {
                     KeyValuePair.Create("1", 1),
                     KeyValuePair.Create("2", 2),
                     KeyValuePair.Create("3", 3),

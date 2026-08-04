@@ -13,7 +13,7 @@
 * limitations under the License.
 */
 
-#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
 
 using System;
 using System.Collections.Generic;

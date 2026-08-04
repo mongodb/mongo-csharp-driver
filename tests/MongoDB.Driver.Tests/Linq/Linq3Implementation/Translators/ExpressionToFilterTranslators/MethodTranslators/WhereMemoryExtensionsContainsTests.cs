@@ -28,7 +28,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.MethodTranslators;
 
-#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
 // Regression test for CSHARP-5749.
 public class WhereMemoryExtensionsContainsTests : LinqIntegrationTest<WhereMemoryExtensionsContainsTests.ClassFixture>
 {

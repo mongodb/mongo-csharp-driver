@@ -144,7 +144,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         static StringMethod()
         {
             // initialize methods before sets of methods
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
             __containsWithChar = ReflectionInfo.Method((string s, char value) => s.Contains(value));
             __containsWithCharAndComparisonType = ReflectionInfo.Method((string s, char value, StringComparison comparisonType) => s.Contains(value, comparisonType));
             __containsWithStringAndComparisonType = ReflectionInfo.Method((string s, string value, StringComparison comparisonType) => s.Contains(value, comparisonType));
@@ -198,7 +198,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __isNullOrWhiteSpace = ReflectionInfo.Method((string value) => string.IsNullOrWhiteSpace(value));
             __replaceWithChars = ReflectionInfo.Method((string s, char oldChar, char newChar) => s.Replace(oldChar, newChar));
             __replaceWithString = ReflectionInfo.Method((string s, string oldValue, string newValue) => s.Replace(oldValue, newValue));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
             __splitWithCharAndOptions = ReflectionInfo.Method((string s, char separator, StringSplitOptions options) => s.Split(separator, options));
             __splitWithCharAndCountAndOptions = ReflectionInfo.Method((string s, char separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
 #else
@@ -209,7 +209,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             __splitWithCharsAndCount = ReflectionInfo.Method((string s, char[] separator, int count) => s.Split(separator, count));
             __splitWithCharsAndCountAndOptions = ReflectionInfo.Method((string s, char[] separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
             __splitWithCharsAndOptions = ReflectionInfo.Method((string s, char[] separator, StringSplitOptions options) => s.Split(separator, options));
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
             __splitWithStringAndOptions = ReflectionInfo.Method((string s, string separator, StringSplitOptions options) => s.Split(separator, options));
             __splitWithStringAndCountAndOptions = ReflectionInfo.Method((string s, string separator, int count, StringSplitOptions options) => s.Split(separator, count, options));
 #else

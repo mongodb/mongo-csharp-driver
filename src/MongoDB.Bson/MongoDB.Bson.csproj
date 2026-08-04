@@ -10,7 +10,8 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!-- Polyfills that are only needed on .NET Framework; the types they provide are in-box on .NET 6.0 and later. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>
@@ -19,6 +20,12 @@
     <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />
     <Compile Include="..\MongoDB.Shared\Hasher.cs" Link="Shared\Hasher.cs" />
     <Compile Include="..\MongoDB.Shared\SequenceComparer.cs" Link="Shared\SequenceComparer.cs" />
+  </ItemGroup>
+
+  <!-- Guards against NuGet's AssetTargetFallback silently selecting the net472 assets
+       for a .NET Standard or pre-6.0 .NET Core project. See build/MongoDB.Bson.targets. -->
+  <ItemGroup>
+    <None Include="build\MongoDB.Bson.targets" Pack="true" PackagePath="buildTransitive\netstandard2.0" />
   </ItemGroup>
 
 </Project>

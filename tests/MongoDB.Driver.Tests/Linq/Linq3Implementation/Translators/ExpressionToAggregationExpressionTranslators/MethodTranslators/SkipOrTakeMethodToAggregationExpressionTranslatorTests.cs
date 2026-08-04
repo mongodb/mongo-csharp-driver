@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results[3].Should().Equal(1, 2);
         }
 
-#if NETCOREAPP || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [Fact]
         public void Enumerable_TakeLast_should_work()
         {

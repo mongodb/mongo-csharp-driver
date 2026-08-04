@@ -19,7 +19,7 @@ using System.Net;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
-#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+#if NET6_0_OR_GREATER
 using System.Net.Sockets;
 #endif
 
@@ -237,7 +237,7 @@ public static class MongoTelemetry
                 tags.Add(ServerPortAttribute, (long)dnsEndPoint.Port);
                 tags.Add(NetworkTransportAttribute, "tcp");
                 break;
-#if NET5_0_OR_GREATER || NETCOREAPP3_0_OR_GREATER
+#if NET6_0_OR_GREATER
             case UnixDomainSocketEndPoint unixEndPoint:
                 tags.Add(NetworkTransportAttribute, "unix");
                 tags.Add(ServerAddressAttribute, unixEndPoint.ToString());

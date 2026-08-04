@@ -5,7 +5,7 @@ The C# driver for MongoDB.
 
 ## Tech Stack
 - .NET library projects producing NuGet packages
-- Multi-targeted to various .NET versions from .NET Framework 4.7.2 up
+- Multi-targeted to `net472`, `net6.0`, `net8.0`, and `net10.0` (see `src/Directory.Build.props`)
 - xUnit + FluentAssertions for testing
 
 ## Project Structure
