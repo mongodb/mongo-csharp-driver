@@ -1,4 +1,4 @@
-/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -34,26 +34,24 @@ internal sealed class KmsConnectorStreamFactory : IStreamFactory
 
     public Stream CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
     {
-        var (host, port) = GetHostAndPort(endPoint);
-        var stream = _kmsConnector.Connect(host, port, cancellationToken);
+        var stream = _kmsConnector.Connect(CreateConnectionContext(endPoint), cancellationToken);
         return EnsureConnectResult(stream, nameof(IKmsConnector.Connect));
     }
 
     public async Task<Stream> CreateStreamAsync(EndPoint endPoint, CancellationToken cancellationToken)
     {
-        var (host, port) = GetHostAndPort(endPoint);
-        var stream = await _kmsConnector.ConnectAsync(host, port, cancellationToken).ConfigureAwait(false);
+        var stream = await _kmsConnector.ConnectAsync(CreateConnectionContext(endPoint), cancellationToken).ConfigureAwait(false);
         return EnsureConnectResult(stream, nameof(IKmsConnector.ConnectAsync));
+    }
+
+    private static KmsConnectionContext CreateConnectionContext(EndPoint endPoint)
+    {
+        var dnsEndPoint = (DnsEndPoint)endPoint;
+        return new KmsConnectionContext(dnsEndPoint.Host, dnsEndPoint.Port);
     }
 
     private static Stream EnsureConnectResult(Stream stream, string methodName)
     {
         return stream ?? throw new InvalidOperationException($"{nameof(IKmsConnector)}.{methodName} returned null.");
-    }
-
-    private static (string Host, int Port) GetHostAndPort(EndPoint endPoint)
-    {
-        var dnsEndPoint = (DnsEndPoint)endPoint;
-        return (dnsEndPoint.Host, dnsEndPoint.Port);
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright 2019-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -37,18 +37,16 @@ public interface IKmsConnector
     /// <summary>
     /// Opens a connection to the specified KMS host.
     /// </summary>
-    /// <param name="host">The KMS hostname (for example, <c>kms.us-east-1.amazonaws.com</c>).</param>
-    /// <param name="port">The KMS port.</param>
+    /// <param name="context">Describes the KMS host to connect to.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
-    Stream Connect(string host, int port, CancellationToken cancellationToken);
+    Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken);
 
     /// <summary>
     /// Opens a connection to the specified KMS host.
     /// </summary>
-    /// <param name="host">The KMS hostname (for example, <c>kms.us-east-1.amazonaws.com</c>).</param>
-    /// <param name="port">The KMS port.</param>
+    /// <param name="context">Describes the KMS host to connect to.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
-    Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken);
+    Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken);
 }

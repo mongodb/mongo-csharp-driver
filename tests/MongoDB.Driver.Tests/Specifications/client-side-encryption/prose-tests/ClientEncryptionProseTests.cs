@@ -4327,7 +4327,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 _caCertificate = caCertificate;
             }
 
-            public Stream Connect(string host, int port, CancellationToken cancellationToken)
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
             {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.Connect("127.0.0.1", _proxyPort);
@@ -4341,7 +4341,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         stream = sslStream;
                     }
 
-                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(host, port));
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
                     stream.Write(request, 0, request.Length);
                     EnsureConnectSucceeded(ReadConnectResponse(stream));
                     return stream;
@@ -4353,7 +4353,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 }
             }
 
-            public async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken)
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
             {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 await socket.ConnectAsync("127.0.0.1", _proxyPort);
@@ -4367,7 +4367,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         stream = sslStream;
                     }
 
-                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(host, port));
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
                     await stream.WriteAsync(request, 0, request.Length, cancellationToken);
                     EnsureConnectSucceeded(await ReadConnectResponseAsync(stream, cancellationToken));
                     return stream;
@@ -4449,10 +4449,10 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 _message = message;
             }
 
-            public Stream Connect(string host, int port, CancellationToken cancellationToken) =>
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken) =>
                 throw new InvalidOperationException(_message);
 
-            public Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken) =>
+            public Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken) =>
                 throw new InvalidOperationException(_message);
         }
 
@@ -4470,24 +4470,24 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             public int InvocationCount => _invocationCount;
 
-            public Stream Connect(string host, int port, CancellationToken cancellationToken)
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
             {
                 if (Interlocked.Increment(ref _invocationCount) == 1)
                 {
                     throw new IOException("Simulated transient network error.");
                 }
 
-                return _inner.Connect(host, port, cancellationToken);
+                return _inner.Connect(context, cancellationToken);
             }
 
-            public async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken)
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
             {
                 if (Interlocked.Increment(ref _invocationCount) == 1)
                 {
                     throw new IOException("Simulated transient network error.");
                 }
 
-                return await _inner.ConnectAsync(host, port, cancellationToken);
+                return await _inner.ConnectAsync(context, cancellationToken);
             }
         }
     }
