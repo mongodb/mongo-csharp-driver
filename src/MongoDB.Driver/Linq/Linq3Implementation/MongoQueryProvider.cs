@@ -42,6 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         // public properties
+        public abstract IMongoClient Client { get; }
         public abstract CollectionNamespace CollectionNamespace { get; }
         public abstract BsonDocument[] LoggedStages { get; }
         public AggregateOptions Options => _options;
@@ -102,6 +103,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation
         }
 
         // public properties
+        public override IMongoClient Client => (_database ?? _collection?.Database)?.Client;
         public IMongoCollection<TDocument> Collection => _collection;
         public override CollectionNamespace CollectionNamespace => _collection == null ? null : _collection.CollectionNamespace;
         public IMongoDatabase Database => _database;
