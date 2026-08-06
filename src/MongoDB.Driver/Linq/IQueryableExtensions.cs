@@ -27,6 +27,23 @@ namespace MongoDB.Driver.Linq
     {
 
         /// <summary>
+        /// Gets the client that owns the collection or database the source is querying.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns>The client.</returns>
+        public static IMongoClient GetClient(this IQueryable source)
+        {
+            Ensure.IsNotNull(source, nameof(source));
+            var provider = source.Provider as IMongoQueryProviderInternal;
+            if (provider == null)
+            {
+                throw new ArgumentException("The source argument must be a MongoDB IQueryable.", nameof(source));
+            }
+
+            return provider.Client;
+        }
+
+        /// <summary>
         /// Gets the most recently logged stages.
         /// </summary>
         /// <typeparam name="TSource">The type of the source documents.</typeparam>
