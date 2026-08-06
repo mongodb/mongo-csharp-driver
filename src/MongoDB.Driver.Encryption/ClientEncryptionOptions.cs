@@ -26,6 +26,7 @@ namespace MongoDB.Driver.Encryption
     {
         // private fields
         private TimeSpan? _keyExpiration;
+        private IKmsConnector _kmsConnector;
         private readonly IMongoClient _keyVaultClient;
         private readonly CollectionNamespace _keyVaultNamespace;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
@@ -44,7 +45,7 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default)
-            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, keyExpiration: null)
+            : this(keyVaultClient, keyVaultNamespace, kmsProviders, tlsOptions, kmsConnector: null, keyExpiration: null)
         {
         }
 
@@ -53,12 +54,14 @@ namespace MongoDB.Driver.Encryption
             CollectionNamespace keyVaultNamespace,
             IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
+            Optional<IKmsConnector> kmsConnector = default,
             Optional<TimeSpan?> keyExpiration = default)
         {
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient));
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
+            _kmsConnector = kmsConnector.WithDefault(null);
             _keyExpiration = keyExpiration.WithDefault(null);
 
             EnsureKmsProvidersAreValid(_kmsProviders);
@@ -71,6 +74,14 @@ namespace MongoDB.Driver.Encryption
         /// Gets the data encryption key cache expiration time.
         /// </summary>
         public TimeSpan? KeyExpiration => _keyExpiration;
+
+        /// <summary>
+        /// Gets the KMS connector used to open connections to KMS hosts.
+        /// </summary>
+        /// <value>
+        /// The KMS connector used to open connections to KMS hosts.
+        /// </value>
+        public IKmsConnector KmsConnector => _kmsConnector;
 
         /// <summary>
         /// Gets the key vault client.
@@ -123,6 +134,7 @@ namespace MongoDB.Driver.Encryption
                 keyVaultNamespace: keyVaultNamespace.WithDefault(_keyVaultNamespace),
                 kmsProviders: kmsProviders.WithDefault(_kmsProviders),
                 tlsOptions: Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
+                kmsConnector: Optional.Create(_kmsConnector),
                 keyExpiration: _keyExpiration);
         }
 
@@ -134,6 +146,16 @@ namespace MongoDB.Driver.Encryption
         public void SetKeyExpiration(TimeSpan? keyExpiration)
         {
             _keyExpiration = keyExpiration;
+        }
+
+        /// <summary>
+        /// Sets the KMS connector used to open connections to KMS hosts. If not set, the driver connects
+        /// directly to the KMS host.
+        /// </summary>
+        /// <param name="kmsConnector">The KMS connector used to open connections to KMS hosts.</param>
+        public void SetKmsConnector(IKmsConnector kmsConnector)
+        {
+            _kmsConnector = kmsConnector;
         }
 
         private static void EnsureKmsProvidersAreValid(IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders)

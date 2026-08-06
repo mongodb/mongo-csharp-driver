@@ -36,6 +36,7 @@ namespace MongoDB.Driver
         private readonly bool _bypassAutoEncryption;
         private readonly bool? _bypassQueryAnalysis;
         private TimeSpan? _keyExpiration;
+        private IKmsConnector _kmsConnector;
         private readonly IReadOnlyDictionary<string, BsonDocument> _encryptedFieldsMap;
         private readonly IReadOnlyDictionary<string, object> _extraOptions;
         private readonly IMongoClient _keyVaultClient;
@@ -67,7 +68,7 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions = default,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap = default,
             Optional<bool?> bypassQueryAnalysis = default)
-            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, keyExpiration: null)
+            :this(keyVaultNamespace, kmsProviders, bypassAutoEncryption, extraOptions, keyVaultClient, schemaMap, tlsOptions, encryptedFieldsMap, bypassQueryAnalysis, kmsConnector: null, keyExpiration: null)
         {
         }
 
@@ -81,6 +82,7 @@ namespace MongoDB.Driver
             Optional<IReadOnlyDictionary<string, SslSettings>> tlsOptions,
             Optional<IReadOnlyDictionary<string, BsonDocument>> encryptedFieldsMap,
             Optional<bool?> bypassQueryAnalysis,
+            Optional<IKmsConnector> kmsConnector,
             Optional<TimeSpan?> keyExpiration)
         {
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
@@ -89,6 +91,7 @@ namespace MongoDB.Driver
             _bypassQueryAnalysis = bypassQueryAnalysis.WithDefault(null);
             _keyExpiration = keyExpiration.WithDefault(null);
             _extraOptions = extraOptions.WithDefault(null);
+            _kmsConnector = kmsConnector.WithDefault(null);
             _keyVaultClient = keyVaultClient.WithDefault(null);
             _schemaMap = schemaMap.WithDefault(null);
             _tlsOptions = tlsOptions.WithDefault(new Dictionary<string, SslSettings>());
@@ -136,6 +139,14 @@ namespace MongoDB.Driver
         /// as it is an error to load more that one crypt_shared dynamic library simultaneously in a single operating system process.
         /// </remarks>
         public IReadOnlyDictionary<string, object> ExtraOptions => _extraOptions;
+
+        /// <summary>
+        /// Gets the KMS connector used to open connections to KMS hosts.
+        /// </summary>
+        /// <value>
+        /// The KMS connector used to open connections to KMS hosts.
+        /// </value>
+        public IKmsConnector KmsConnector => _kmsConnector;
 
         /// <summary>
         /// Gets the key vault client.
@@ -188,6 +199,16 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Sets the KMS connector used to open connections to KMS hosts. If not set, the driver connects
+        /// directly to the KMS host.
+        /// </summary>
+        /// <param name="kmsConnector">The KMS connector used to open connections to KMS hosts.</param>
+        public void SetKmsConnector(IKmsConnector kmsConnector)
+        {
+            _kmsConnector = kmsConnector;
+        }
+
+        /// <summary>
         /// Returns a new instance of the <see cref="AutoEncryptionOptions"/> class.
         /// </summary>
         /// <param name="keyVaultNamespace">The keyVault namespace.</param>
@@ -221,6 +242,7 @@ namespace MongoDB.Driver
                 Optional.Create(tlsOptions.WithDefault(_tlsOptions)),
                 Optional.Create(encryptedFieldsMap.WithDefault(_encryptedFieldsMap)),
                 Optional.Create(bypassQueryAnalysis.WithDefault(_bypassQueryAnalysis)),
+                Optional.Create(_kmsConnector),
                 _keyExpiration);
         }
 
@@ -235,6 +257,7 @@ namespace MongoDB.Driver
                 _bypassQueryAnalysis == rhs._bypassQueryAnalysis &&
                 _keyExpiration == rhs._keyExpiration &&
                 ExtraOptionsEquals(_extraOptions, rhs._extraOptions) &&
+                object.ReferenceEquals(_kmsConnector, rhs._kmsConnector) &&
                 object.ReferenceEquals(_keyVaultClient, rhs._keyVaultClient) &&
                 _keyVaultNamespace.Equals(rhs._keyVaultNamespace) &&
                 KmsProvidersEqualityHelper.Equals(_kmsProviders, rhs._kmsProviders) &&
@@ -251,6 +274,7 @@ namespace MongoDB.Driver
                 .Hash(_bypassQueryAnalysis)
                 .Hash(_keyExpiration)
                 .HashElements(_extraOptions)
+                .Hash(_kmsConnector)
                 .Hash(_keyVaultClient)
                 .Hash(_keyVaultNamespace)
                 .HashElements(_kmsProviders)

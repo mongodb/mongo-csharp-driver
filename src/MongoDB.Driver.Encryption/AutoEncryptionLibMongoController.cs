@@ -65,7 +65,7 @@ namespace MongoDB.Driver.Encryption
             IMongoClient metadataClient,
             CryptClient cryptClient,
             AutoEncryptionOptions autoEncryptionOptions)
-            : base(cryptClient, keyVaultClient, autoEncryptionOptions.KeyVaultNamespace, autoEncryptionOptions.KmsProviders, autoEncryptionOptions.TlsOptions)
+            : base(cryptClient, keyVaultClient, autoEncryptionOptions.KeyVaultNamespace, autoEncryptionOptions.KmsProviders, autoEncryptionOptions.TlsOptions, autoEncryptionOptions.KmsConnector)
         {
             _internalClient = internalClient; // can be null
             _metadataClient = metadataClient; // can be null
