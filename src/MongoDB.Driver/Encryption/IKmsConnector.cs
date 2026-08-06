@@ -1,0 +1,52 @@
+/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace MongoDB.Driver.Encryption;
+
+/// <summary>
+/// Opens the transport connection used to reach a KMS host. When supplied via
+/// <c>ClientEncryptionOptions</c> or <see cref="AutoEncryptionOptions"/>, the driver
+/// invokes this instead of opening a direct TCP connection to the KMS host, then wraps the
+/// returned stream in TLS using the KMS provider's configured TLS options.
+/// The primary use case is routing KMS traffic through an HTTP proxy via HTTPS CONNECT.
+/// </summary>
+/// <remarks>
+/// Both <see cref="Connect"/> and <see cref="ConnectAsync"/> must be implemented, even if the
+/// application only uses one of the driver's sync or async encryption APIs: the driver calls
+/// whichever method matches the API used for the operation in progress. An implementation that
+/// only supports one direction can have the other throw.
+/// </remarks>
+public interface IKmsConnector
+{
+    /// <summary>
+    /// Opens a connection to the specified KMS host.
+    /// </summary>
+    /// <param name="context">Describes the KMS host to connect to.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
+    Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Opens a connection to the specified KMS host.
+    /// </summary>
+    /// <param name="context">Describes the KMS host to connect to.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A stream connected to the KMS host. The driver wraps this stream in TLS. Must not be null.</returns>
+    Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken);
+}

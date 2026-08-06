@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -907,6 +908,148 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 var decrypted = ExplicitDecrypt(testCaseClientEncryption, encrypted, async);
                 decrypted.Should().Be(BsonValue.Create(value));
             }
+        }
+
+        // KMS Connect Callback prose tests (prose test 28).
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#28-kms-connect-callback
+        // Case 5 (callback receives timeout) is omitted because it requires CSOT, which the C# driver does not implement
+
+        // Case 1: plain HTTP proxy. The connector tunnels KMS traffic through the plain HTTP proxy on
+        // port 9004; the driver still negotiates TLS end-to-end with the KMS host through the tunnel.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-1-plain-http-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_via_plain_http_proxy([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            GetProxyConnectCount(HttpProxyPort, useTls: false).Should().BeGreaterOrEqualTo(1);
+        }
+
+        // Case 2: HTTPS proxy. Two independent TLS layers are in play: the connector's client-to-proxy
+        // TLS (verified against the proxy CA) and the driver's client-to-KMS TLS carried through the
+        // CONNECT tunnel (verified against the real KMS host). Success confirms the KMS host - not the
+        // proxy - was verified.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-2-https-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_via_https_proxy([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            using var caCertificate = LoadProxyCaCertificate();
+
+            ResetProxyMetrics(HttpsProxyPort, useTls: true, caCertificate);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpsProxyPort, useTls: true, caCertificate);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            GetProxyConnectCount(HttpsProxyPort, useTls: true, caCertificate).Should().BeGreaterOrEqualTo(1);
+        }
+
+        // Case 3: full auto encryption pipeline via proxy. Exercises encrypt-on-insert and
+        // decrypt-on-find with KMS traffic routed through the proxy.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-3-full-auto-encryption-pipeline-via-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_full_auto_encryption_pipeline([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            var schema = new BsonDocument
+            {
+                { "bsonType", "object" },
+                {
+                    "properties",
+                    new BsonDocument("encrypted_string", new BsonDocument("encrypt", new BsonDocument
+                    {
+                        { "keyId", new BsonArray { new BsonBinaryData(dataKeyId, GuidRepresentation.Standard) } },
+                        { "bsonType", "string" },
+                        { "algorithm", "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic" }
+                    }))
+                }
+            };
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var clientEncrypted = ConfigureClientEncrypted(
+                schemaMap: new BsonDocument(__collCollectionNamespace.FullName, schema),
+                kmsProviderFilter: "aws",
+                autoEncryptionOptionsConfigurator: options => options.With(kmsConnector: Optional.Create<IKmsConnector>(connector)));
+
+            var encryptedCollection = GetCollection(clientEncrypted, __collCollectionNamespace);
+            Insert(encryptedCollection, async, new BsonDocument { { "_id", 1 }, { "encrypted_string", "hello" } });
+
+            var decrypted = Find(encryptedCollection, new BsonDocument("_id", 1), async).Single();
+            decrypted["encrypted_string"].AsString.Should().Be("hello");
+
+            var stillEncrypted = Find(GetCollection(client, __collCollectionNamespace), new BsonDocument("_id", 1), async).Single();
+            stillEncrypted["encrypted_string"].BsonType.Should().Be(BsonType.Binary);
+
+            // Exactly one KMS request is expected since the decrypted key is cached; more than one would indicate a DEK caching regression.
+            GetProxyConnectCount(HttpProxyPort, useTls: false).Should().Be(1);
+        }
+
+        // Case 4: Error. A connector that fails with a non-network error must surface the error to the caller
+        // rather than having it swallowed by the KMS retry path.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-4-error
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_error_propagates([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            using var client = ConfigureClient();
+            var connector = new FailingKmsConnector("Test Error");
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async));
+
+            exception.Should().NotBeNull();
+            GetExceptionChain(exception).Should().Contain(e => e.Message.Contains("Test Error"));
+        }
+
+        // Case 6: Retry. A connector that fails with a network error must be retried.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-6-retry
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_retries_after_network_error([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var client = ConfigureClient();
+            var connector = new RetryOnceKmsConnector(new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null));
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            connector.InvocationCount.Should().BeGreaterThan(1);
         }
 
         [Theory]
@@ -4048,6 +4191,304 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             public ObjectId Id { get; set; }
             public string Name { get; set; }
             public string Ssn { get; set; }
+        }
+
+        // KMS Connect Callback helpers (prose test 28)
+        private const int HttpProxyPort = 9004;
+        private const int HttpsProxyPort = 9005;
+
+        private static BsonDocument AwsMasterKey() => new BsonDocument
+        {
+            { "region", "us-east-1" },
+            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+        };
+
+        private ClientEncryption CreateAwsClientEncryptionWithConnector(IMongoClient client, IKmsConnector kmsConnector)
+        {
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders("aws");
+            var clientEncryptionOptions = new ClientEncryptionOptions(
+                keyVaultClient: client,
+                keyVaultNamespace: __keyVaultCollectionNamespace,
+                kmsProviders: kmsProviders,
+                kmsConnector: Optional.Create(kmsConnector));
+            return new ClientEncryption(clientEncryptionOptions);
+        }
+
+        private static IEnumerable<Exception> GetExceptionChain(Exception exception)
+        {
+            for (var current = exception; current != null; current = current.InnerException)
+            {
+                yield return current;
+            }
+        }
+
+        private static void ResetProxyMetrics(int port, bool useTls, X509Certificate2 caCertificate = null)
+        {
+            using var httpClient = CreateProxyHttpClient(useTls ? caCertificate : null);
+            using var response = httpClient.PostAsync(ProxyUrl(port, useTls, "reset"), content: null).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+        }
+
+        private static int GetProxyConnectCount(int port, bool useTls, X509Certificate2 caCertificate = null)
+        {
+            using var httpClient = CreateProxyHttpClient(useTls ? caCertificate : null);
+            var body = httpClient.GetStringAsync(ProxyUrl(port, useTls, "metrics")).GetAwaiter().GetResult();
+
+            // The proxy's /metrics response starts with "connect_count <N>" as its first line
+            var connectCount = body.Split('\n')[0].Split(' ')[1];
+            return int.Parse(connectCount, CultureInfo.InvariantCulture);
+        }
+
+        private static string ProxyUrl(int port, bool useTls, string path) =>
+            $"{(useTls ? "https" : "http")}://127.0.0.1:{port}/{path}";
+
+        private static HttpClient CreateProxyHttpClient(X509Certificate2 caCertificate)
+        {
+            if (caCertificate == null)
+            {
+                return new HttpClient();
+            }
+
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (request, cert, chain, errors) => ValidateAgainstCa(cert, caCertificate)
+            };
+            return new HttpClient(handler);
+        }
+
+        private static X509Certificate2 LoadProxyCaCertificate()
+        {
+            var caFile = Environment.GetEnvironmentVariable("CSFLE_TLS_CA_FILE");
+            if (string.IsNullOrEmpty(caFile))
+            {
+                throw new InvalidOperationException("CSFLE_TLS_CA_FILE is not set while KMS_MOCK_SERVERS_ENABLED is; the proxy test environment is misconfigured.");
+            }
+
+            if (!File.Exists(caFile))
+            {
+                throw new FileNotFoundException($"Proxy CA file was not found at {caFile}.", caFile);
+            }
+
+            var pem = File.ReadAllText(caFile);
+            const string header = "-----BEGIN CERTIFICATE-----";
+            const string footer = "-----END CERTIFICATE-----";
+            var headerIndex = pem.IndexOf(header, StringComparison.Ordinal);
+            var footerIndex = pem.IndexOf(footer, StringComparison.Ordinal);
+            if (headerIndex < 0 || footerIndex <= headerIndex)
+            {
+                throw new FormatException($"Proxy CA file {caFile} is not a valid PEM certificate.");
+            }
+
+            var start = headerIndex + header.Length;
+            var base64 = pem.Substring(start, footerIndex - start).Replace("\r", "").Replace("\n", "").Trim();
+            return LoadCertificate(Convert.FromBase64String(base64));
+        }
+
+        private static X509Certificate2 LoadCertificate(byte[] rawData)
+        {
+#if NET9_0_OR_GREATER
+            return X509CertificateLoader.LoadCertificate(rawData);
+#else
+            return new X509Certificate2(rawData);
+#endif
+        }
+
+        private static bool ValidateAgainstCa(X509Certificate2 certificate, X509Certificate2 caCertificate)
+        {
+            using var chain = new X509Chain();
+            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+            chain.ChainPolicy.ExtraStore.Add(caCertificate);
+
+            // Build must succeed - it validates expiry, signatures, and chain integrity.
+            // AllowUnknownCertificateAuthority only forgives the CA being absent from the machine trust
+            // store; the thumbprint check then confirms the chain terminates at our expected CA rather
+            // than any other root.
+            if (!chain.Build(certificate))
+            {
+                return false;
+            }
+
+            var elements = chain.ChainElements;
+            var root = elements[elements.Count - 1].Certificate;
+            return string.Equals(root.Thumbprint, caCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private sealed class HttpConnectProxyKmsConnector : IKmsConnector
+        {
+            private readonly X509Certificate2 _caCertificate;
+            private readonly int _proxyPort;
+            private readonly bool _useTls;
+
+            public HttpConnectProxyKmsConnector(int proxyPort, bool useTls, X509Certificate2 caCertificate)
+            {
+                _proxyPort = proxyPort;
+                _useTls = useTls;
+                _caCertificate = caCertificate;
+            }
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.Connect("127.0.0.1", _proxyPort);
+                Stream stream = new NetworkStream(socket, ownsSocket: true);
+                try
+                {
+                    if (_useTls)
+                    {
+                        var sslStream = CreateProxySslStream(stream);
+                        sslStream.AuthenticateAsClient("127.0.0.1");
+                        stream = sslStream;
+                    }
+
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
+                    stream.Write(request, 0, request.Length);
+                    EnsureConnectSucceeded(ReadConnectResponse(stream));
+                    return stream;
+                }
+                catch
+                {
+                    stream.Dispose();
+                    throw;
+                }
+            }
+
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await socket.ConnectAsync("127.0.0.1", _proxyPort);
+                Stream stream = new NetworkStream(socket, ownsSocket: true);
+                try
+                {
+                    if (_useTls)
+                    {
+                        var sslStream = CreateProxySslStream(stream);
+                        await sslStream.AuthenticateAsClientAsync("127.0.0.1");
+                        stream = sslStream;
+                    }
+
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
+                    await stream.WriteAsync(request, 0, request.Length, cancellationToken);
+                    EnsureConnectSucceeded(await ReadConnectResponseAsync(stream, cancellationToken));
+                    return stream;
+                }
+                catch
+                {
+#if NETFRAMEWORK
+                    stream.Dispose();
+#else
+                    await stream.DisposeAsync();
+#endif
+                    throw;
+                }
+            }
+
+            private SslStream CreateProxySslStream(Stream inner) =>
+                new(inner, leaveInnerStreamOpen: false,
+                    (sender, cert, chain, errors) => ValidateAgainstCa(LoadCertificate(cert.Export(X509ContentType.Cert)), _caCertificate));
+
+            private static string BuildConnectRequest(string host, int port) =>
+                $"CONNECT {host}:{port} HTTP/1.1\r\nHost: {host}:{port}\r\n\r\n";
+
+            private static void EnsureConnectSucceeded(string response)
+            {
+                if (!response.StartsWith("HTTP/1.1 200", StringComparison.Ordinal))
+                {
+                    throw new IOException($"Unexpected proxy CONNECT response: {response}");
+                }
+            }
+
+            // Reads the CONNECT response headers up to and including the terminating CRLFCRLF,
+            // one byte at a time so no bytes of the tunnelled TLS stream are consumed.
+            private static string ReadConnectResponse(Stream stream)
+            {
+                var builder = new StringBuilder();
+                int b;
+                while ((b = stream.ReadByte()) != -1)
+                {
+                    builder.Append((char)b);
+                    if (EndsWithHeaderTerminator(builder))
+                    {
+                        break;
+                    }
+                }
+
+                return builder.ToString();
+            }
+
+            private static async Task<string> ReadConnectResponseAsync(Stream stream, CancellationToken cancellationToken)
+            {
+                var builder = new StringBuilder();
+                var buffer = new byte[1];
+                while (await stream.ReadAsync(buffer, 0, 1, cancellationToken) != 0)
+                {
+                    builder.Append((char)buffer[0]);
+                    if (EndsWithHeaderTerminator(builder))
+                    {
+                        break;
+                    }
+                }
+
+                return builder.ToString();
+            }
+
+            private static bool EndsWithHeaderTerminator(StringBuilder builder)
+            {
+                var n = builder.Length;
+                return n >= 4 &&
+                    builder[n - 4] == '\r' && builder[n - 3] == '\n' && builder[n - 2] == '\r' && builder[n - 1] == '\n';
+            }
+        }
+
+        private sealed class FailingKmsConnector : IKmsConnector
+        {
+            private readonly string _message;
+
+            public FailingKmsConnector(string message)
+            {
+                _message = message;
+            }
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken) =>
+                throw new InvalidOperationException(_message);
+
+            public Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken) =>
+                throw new InvalidOperationException(_message);
+        }
+
+        // Fails with a network error on its first invocation, then delegates to the wrapped connector.
+        // Exercises the driver's KMS retry re-invoking kmsConnectCallback after a transient failure.
+        private sealed class RetryOnceKmsConnector : IKmsConnector
+        {
+            private readonly IKmsConnector _inner;
+            private int _invocationCount;
+
+            public RetryOnceKmsConnector(IKmsConnector inner)
+            {
+                _inner = inner;
+            }
+
+            public int InvocationCount => _invocationCount;
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                if (Interlocked.Increment(ref _invocationCount) == 1)
+                {
+                    throw new IOException("Simulated transient network error.");
+                }
+
+                return _inner.Connect(context, cancellationToken);
+            }
+
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                if (Interlocked.Increment(ref _invocationCount) == 1)
+                {
+                    throw new IOException("Simulated transient network error.");
+                }
+
+                return await _inner.ConnectAsync(context, cancellationToken);
+            }
         }
     }
 
