@@ -418,7 +418,10 @@ namespace MongoDB.Driver.Encryption.Tests
         [Theory]
         [InlineData("aws")]
         [InlineData("azure")]
-#if NETCOREAPP3_0
+        // GCP requires RSA signing, which SigningRSAESPKCSCallback does not support on .NET Framework
+        // (it throws PlatformNotSupportedException there). Was previously guarded by an #if NETCOREAPP3_0
+        // that no target framework ever defined, so this case never ran at all.
+#if !NET472
         [InlineData("gcp")]
 #endif
         [InlineData("kmip")]

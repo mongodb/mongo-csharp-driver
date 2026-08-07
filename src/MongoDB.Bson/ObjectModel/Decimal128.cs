@@ -259,7 +259,7 @@ namespace MongoDB.Bson
             return new Decimal128(value);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Performs an explicit conversion from <see cref="Half"/> to <see cref="Decimal128"/>.
         /// </summary>
@@ -385,7 +385,7 @@ namespace MongoDB.Bson
             return Decimal128.ToSingle(value);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Performs an explicit conversion from <see cref="Decimal128"/> to <see cref="Half"/>.
         /// </summary>
@@ -990,7 +990,7 @@ namespace MongoDB.Bson
             }
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts the value of the specified <see cref="Decimal128"/> to the equivalent <see cref="Half"/>.
         /// </summary>
@@ -1508,7 +1508,7 @@ namespace MongoDB.Bson
             _lowBits = decimal128Value.GetIEEELowBits();
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Initializes a new instance of the <see cref="Decimal128"/> struct.
         /// </summary>

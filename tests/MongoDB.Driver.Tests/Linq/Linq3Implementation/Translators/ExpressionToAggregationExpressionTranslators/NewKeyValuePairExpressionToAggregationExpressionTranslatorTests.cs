@@ -44,7 +44,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         result.Value.Should().Be(42);
     }
 
-#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
     [Fact]
     public void KeyValuePair_Create_should_translate()
     {

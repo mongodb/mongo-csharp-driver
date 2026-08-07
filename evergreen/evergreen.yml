@@ -686,6 +686,7 @@ functions:
             SSL="ssl" \
             TOPOLOGY="${TOPOLOGY}" \
             MONGODB_URI="${MONGODB_URI}" \
+            FRAMEWORK=${FRAMEWORK} \
             OCSP_TLS_SHOULD_SUCCEED="${OCSP_TLS_SHOULD_SUCCEED}" \
               evergreen/run-tests.sh
           echo "Skipping certificate removal..."
@@ -1101,11 +1102,11 @@ tasks:
             FRAMEWORK: net472
         - func: run-unit-tests
 
-    - name: unit-tests-netstandard21
+    - name: unit-tests-net80
       commands:
         - func: configure-framework
           vars:
-            FRAMEWORK: netstandard2.1
+            FRAMEWORK: net8.0
         - func: run-unit-tests
 
     - name: unit-tests-net60
@@ -1131,15 +1132,6 @@ tasks:
             FRAMEWORK: net472
         - func: run-tests
 
-    - name: test-netstandard21
-      commands:
-        - func: setup-csfle-secrets
-        - func: bootstrap-mongo-orchestration
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-tests
-
     - name: test-net60
       commands:
         - func: setup-csfle-secrets
@@ -1147,6 +1139,15 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: run-tests
+
+    - name: test-net100
+      commands:
+        - func: setup-csfle-secrets
+        - func: bootstrap-mongo-orchestration
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-tests
 
     - name: test-csfle-with-mongocryptd-net472
@@ -1158,15 +1159,6 @@ tasks:
             FRAMEWORK: net472
         - func: run-csfle-with-mongocryptd-tests
 
-    - name: test-csfle-with-mongocryptd-netstandard21
-      commands:
-        - func: setup-csfle-secrets
-        - func: bootstrap-mongo-orchestration
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-csfle-with-mongocryptd-tests
-
     - name: test-csfle-with-mongocryptd-net60
       commands:
         - func: setup-csfle-secrets
@@ -1174,6 +1166,15 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: run-csfle-with-mongocryptd-tests
+
+    - name: test-csfle-with-mongocryptd-net100
+      commands:
+        - func: setup-csfle-secrets
+        - func: bootstrap-mongo-orchestration
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-csfle-with-mongocryptd-tests
 
     - name: test-csfle-with-mocked-kms-tls-net472
@@ -1186,16 +1187,6 @@ tasks:
             FRAMEWORK: net472
         - func: run-csfle-with-mocked-kms-tests
 
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
-      commands:
-        - func: setup-csfle-secrets
-        - func: start-cse-servers
-        - func: bootstrap-mongo-orchestration
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-csfle-with-mocked-kms-tests
-
     - name: test-csfle-with-mocked-kms-tls-net60
       commands:
         - func: setup-csfle-secrets
@@ -1206,17 +1197,15 @@ tasks:
             FRAMEWORK: net6.0
         - func: run-csfle-with-mocked-kms-tests
 
-    - name: test-load-balancer-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net100
       commands:
+        - func: setup-csfle-secrets
+        - func: start-cse-servers
         - func: bootstrap-mongo-orchestration
-          vars:
-            LOAD_BALANCER: 'true'
-        - func: run-load-balancer
         - func: configure-framework
           vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-load-balancer-tests
-        - func: stop-load-balancer
+            FRAMEWORK: net10.0
+        - func: run-csfle-with-mocked-kms-tests
 
     - name: test-load-balancer-net60
       commands:
@@ -1227,6 +1216,18 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: run-load-balancer-tests
+        - func: stop-load-balancer
+
+    - name: test-load-balancer-net100
+      commands:
+        - func: bootstrap-mongo-orchestration
+          vars:
+            LOAD_BALANCER: 'true'
+        - func: run-load-balancer
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-load-balancer-tests
         - func: stop-load-balancer
 
@@ -1245,18 +1246,18 @@ tasks:
             FRAMEWORK: net472
         - func: run-gssapi-auth-tests
 
-    - name: test-gssapi-netstandard21
-      commands:
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-gssapi-auth-tests
-
     - name: test-gssapi-net60
       commands:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: run-gssapi-auth-tests
+
+    - name: test-gssapi-net100
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-gssapi-auth-tests
 
     - name: test-socks5-proxy-net472
@@ -1268,22 +1269,22 @@ tasks:
             FRAMEWORK: net472
         - func: run-socks5-proxy-tests
 
-    - name: test-socks5-proxy-netstandard21
-      commands:
-        - func: bootstrap-mongo-orchestration
-        - func: setup-socks5-proxy
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard21
-        - func: run-socks5-proxy-tests
-
     - name: test-socks5-proxy-net60
       commands:
         - func: bootstrap-mongo-orchestration
         - func: setup-socks5-proxy
         - func: configure-framework
           vars:
-            FRAMEWORK: net60
+            FRAMEWORK: net6.0
+        - func: run-socks5-proxy-tests
+
+    - name: test-socks5-proxy-net100
+      commands:
+        - func: bootstrap-mongo-orchestration
+        - func: setup-socks5-proxy
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-socks5-proxy-tests
 
     - name: plain-auth-tests
@@ -1327,19 +1328,6 @@ tasks:
           vars:
             REQUIRE_API_VERSION: true
 
-    - name: stable-api-tests-netstandard21
-      commands:
-        - func: setup-csfle-secrets
-        - func: bootstrap-mongo-orchestration
-          vars:
-            REQUIRE_API_VERSION: true
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netstandard2.1
-        - func: run-tests
-          vars:
-            REQUIRE_API_VERSION: true
-
     - name: stable-api-tests-net60
       commands:
         - func: setup-csfle-secrets
@@ -1349,6 +1337,19 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: run-tests
+          vars:
+            REQUIRE_API_VERSION: true
+
+    - name: stable-api-tests-net100
+      commands:
+        - func: setup-csfle-secrets
+        - func: bootstrap-mongo-orchestration
+          vars:
+            REQUIRE_API_VERSION: true
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
         - func: run-tests
           vars:
             REQUIRE_API_VERSION: true
@@ -1645,29 +1646,6 @@ tasks:
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
-    - name: test-smoke-tests-netcoreapp31
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
-      commands:
-        - func: configure-framework
-          vars:
-            FRAMEWORK: netcoreapp3.1
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-
-    - name: test-smoke-tests-net50
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
-      commands:
-        - func: configure-framework
-          vars:
-            FRAMEWORK: net5.0
-            DOTNET_SDK_VERSION: 5.0
-        - func: bootstrap-mongo-orchestration
-        - func: run-smoke-tests
-
     - name: test-smoke-tests-net60
       depends_on:
         - name: push-packages-myget
@@ -1676,7 +1654,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
-            DOTNET_SDK_VERSION: 6.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1688,7 +1665,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
-            DOTNET_SDK_VERSION: 8.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1700,7 +1676,6 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
-            DOTNET_SDK_VERSION: 10.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -1891,7 +1866,12 @@ tasks:
             SCRIPT: |
               ${PREPARE_SHELL}
               DOTNET_SDK_PATH="${DOTNET_ROOT}" bash ./evergreen/install-dependencies.sh
-              DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
+              # CSHARP-6117: netcoreapp3.1 can no longer restore the driver package (the netstandard2.1
+              # asset is gone). This value REQUIRES a matching change in mongodb/mongo-csharp-analyzer:
+              # its tests/MongoDB.Analyzer.Tests csproj targets netcoreapp3.1;net472 and its
+              # evergreen/install-dependencies.sh installs only the 3.1 runtime, so `dotnet test
+              # --framework net8.0` fails until net8.0 is added there. Land that change first.
+              DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=net8.0 bash ./evergreen/run-tests.sh
 
     - name: test-efcore
       commands:
@@ -2056,22 +2036,6 @@ axes:
         display_name: Zstandard
         variables:
            COMPRESSOR: "zstd"
-
-  - id: target_framework
-    display_name: Target .net framework
-    values:
-      - id: "net472"
-        display_name: net472
-        variables:
-          FRAMEWORK: net472
-      - id: "netstandard21"
-        display_name: netstandard2.1
-        variables:
-          FRAMEWORK: netstandard2.1
-      - id: "net60"
-        display_name: net6.0
-        variables:
-          FRAMEWORK: net6.0
 
 task_groups:
   - name: testazurekms-task-group
@@ -2416,7 +2380,7 @@ buildvariants:
     OS: "windows-64"
   tasks:
     - name: unit-tests-net472
-    - name: unit-tests-netstandard21
+    - name: unit-tests-net80
     - name: unit-tests-net60
     - name: unit-tests-net100
 
@@ -2426,7 +2390,7 @@ buildvariants:
   expansions:
     OS: "ubuntu-2004"
   tasks:
-    - name: unit-tests-netstandard21
+    - name: unit-tests-net80
     - name: unit-tests-net60
     - name: unit-tests-net100
 
@@ -2436,7 +2400,7 @@ buildvariants:
   expansions:
     OS: "macos-14"
   tasks:
-    - name: unit-tests-netstandard21
+    - name: unit-tests-net80
     - name: unit-tests-net60
     - name: unit-tests-net100
 
@@ -2456,8 +2420,8 @@ buildvariants:
     - windows-2022-latest-small
   tasks:
     - name: stable-api-tests-net472
-    - name: stable-api-tests-netstandard21
     - name: stable-api-tests-net60
+    - name: stable-api-tests-net100
 
 # Secure tests
 - matrix_name: "secure-tests-windows"
@@ -2466,8 +2430,8 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "secure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
@@ -2475,29 +2439,24 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
-  rules:
-    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
-      then:
-        remove_tasks:
-          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
+    - name: test-net100
 
 - matrix_name: "secure-tests-linux-2004"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "secure-tests-linux-2204"
   matrix_spec: { version: ["rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2204" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 # Unsecure tests
 - matrix_name: "unsecure-tests-windows"
@@ -2506,8 +2465,8 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "unsecure-tests-macOS"
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
@@ -2515,29 +2474,24 @@ buildvariants:
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
-  rules:
-    - if: { version: "*", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
-      then:
-        remove_tasks:
-          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
+    - name: test-net100
 
 - matrix_name: "unsecure-tests-linux-2004"
   matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2004" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "unsecure-tests-linux-2204"
   matrix_spec: { version: ["rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2204" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 # Compression tests
 - matrix_name: "tests-compression-windows"
@@ -2546,8 +2500,8 @@ buildvariants:
   tags: ["tests-variant"]
   tasks:
     - name: test-net472
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "tests-compression-macOS"
   matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
@@ -2555,29 +2509,24 @@ buildvariants:
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
-  rules:
-    - if: { compressor : "*", auth: "*", ssl: "*", version: "*", topology: "*", os: "macos-14-arm64" }
-      then:
-        remove_tasks:
-          - test-netstandard21 # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
+    - name: test-net100
 
 - matrix_name: "tests-compression-linux-2004"
   matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 - matrix_name: "tests-compression-linux-2204"
   matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["rapid", "latest"], topology: "standalone", os: "ubuntu-2204" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
-    - name: test-netstandard21
     - name: test-net60
+    - name: test-net100
 
 # Auth tests
 - matrix_name: plain-auth-tests
@@ -2649,16 +2598,16 @@ buildvariants:
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
-    - name: test-gssapi-netstandard21
     - name: test-gssapi-net60
+    - name: test-gssapi-net100
 
 - name: gssapi-auth-tests-linux
   run_on:
     - ubuntu2004-test
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
-    - name: test-gssapi-netstandard21
     - name: test-gssapi-net60
+    - name: test-gssapi-net100
 
 - matrix_name: "x509-tests"
   matrix_spec: { os: ["ubuntu-2204", "macos-14", "windows-64"], ssl: ["ssl"], version: ["latest"], topology: ["standalone"] }
@@ -2671,29 +2620,29 @@ buildvariants:
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
+    - name: "test-load-balancer-net100"
 
 - matrix_name: load-balancer-tests-2204
   matrix_spec: { version: ["rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2204" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
+    - name: "test-load-balancer-net100"
 
 - matrix_name: load-balancer-tests-secure
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2004" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
+    - name: "test-load-balancer-net100"
 
 - matrix_name: load-balancer-tests-secure-2204
   matrix_spec: { version: ["rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2204" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
-    - name: "test-load-balancer-netstandard21"
     - name: "test-load-balancer-net60"
+    - name: "test-load-balancer-net100"
 
 # Performance tests
 - name: driver-performance-tests
@@ -2731,23 +2680,23 @@ buildvariants:
   matrix_spec: { os: "ubuntu-2204", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
   display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
   tasks:
-    - name: test-socks5-proxy-netstandard21
     - name: test-socks5-proxy-net60
+    - name: test-socks5-proxy-net100
 
 - matrix_name: "socks5-proxy-tests-windows"
   matrix_spec: { os: "windows-64", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
   display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
   tasks:
     - name: test-socks5-proxy-net472
-    - name: test-socks5-proxy-netstandard21
     - name: test-socks5-proxy-net60
+    - name: test-socks5-proxy-net100
 
 - matrix_name: "socks5-proxy-tests-macos"
   matrix_spec: { os: "macos-14", ssl: ["nossl", "ssl"], version: ["latest"], topology: ["replicaset"] }
   display_name: "Socks5 Proxy ${version} ${os} ${ssl}"
   tasks:
-    - name: test-socks5-proxy-netstandard21
     - name: test-socks5-proxy-net60
+    - name: test-socks5-proxy-net100
 
 # CSFLE tests
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
@@ -2755,46 +2704,39 @@ buildvariants:
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mocked-kms-tls-net60
+    - name: test-csfle-with-mocked-kms-tls-net100
     - name: test-csfle-with-mongocryptd-net472
-    - name: test-csfle-with-mongocryptd-netstandard21
     - name: test-csfle-with-mongocryptd-net60
+    - name: test-csfle-with-mongocryptd-net100
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2004"
   matrix_spec: { os: "ubuntu-2004", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mocked-kms-tls-net60
-    - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net100
     - name: test-csfle-with-mongocryptd-net60
+    - name: test-csfle-with-mongocryptd-net100
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2204"
   matrix_spec: { os: "ubuntu-2204", ssl: "nossl", version: ["rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mocked-kms-tls-net60
-    - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net100
     - name: test-csfle-with-mongocryptd-net60
+    - name: test-csfle-with-mongocryptd-net100
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
   matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
   exclude_spec: { os: "macos-14-arm64", ssl: "*", version: ["4.4", "5.0"], topology: "*" }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
-    - name: test-csfle-with-mocked-kms-tls-netstandard21
     - name: test-csfle-with-mocked-kms-tls-net60
-    - name: test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mocked-kms-tls-net100
     - name: test-csfle-with-mongocryptd-net60
-  rules:
-    - if: { os: "macos-14-arm64", ssl: "*", version: "*", topology: "*" }
-      then:
-        remove_tasks:
-        # Apple M1 (arm64) cannot load runtimes lower then .NET 6.
-          - test-csfle-with-mocked-kms-tls-netstandard21
-          - test-csfle-with-mongocryptd-netstandard21
+    - name: test-csfle-with-mongocryptd-net100
 
 - name: "csfle-with-azure-kms-tests"
   display_name: "CSFLE with AZURE KMS"
@@ -2823,8 +2765,6 @@ buildvariants:
   batchtime: 1440 # 1 day
   tasks:
     - name: test-smoke-tests-net472
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100
@@ -2843,8 +2783,6 @@ buildvariants:
   display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100
@@ -2858,8 +2796,6 @@ buildvariants:
   display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
   tasks:
-    - name: test-smoke-tests-netcoreapp31
-    - name: test-smoke-tests-net50
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100

@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
 using System;
 using System.Globalization;
 #endif
@@ -177,7 +177,7 @@ public class ReplaceMethodToAggregationExpressionTranslatorTests
         [TestHelpers.MakeLambda<MyModel, string>(model => model.RegexField.Replace(model.StringField, m => m.Value.ToUpper()))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", m => m.Value.ToUpper()))],
         [TestHelpers.MakeLambda<MyModel, string>(model => Regex.Replace(model.StringField, "pattern", m => m.Value.ToUpper(), RegexOptions.IgnoreCase))],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", "new", StringComparison.Ordinal))],
         [TestHelpers.MakeLambda<MyModel, string>(model => model.StringField.Replace("old", "new", false, CultureInfo.InvariantCulture))],
 #endif

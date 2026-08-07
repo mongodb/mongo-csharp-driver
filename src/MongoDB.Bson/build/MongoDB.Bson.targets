@@ -1,0 +1,57 @@
+<Project>
+
+  <!--
+    Blocks NuGet's automatic compatibility fallback (AssetTargetFallback), which would
+    otherwise let a .NET Standard or pre-6.0 .NET Core project silently resolve the
+    driver's net472 assets with only warning NU1701. Those assets are not supported on
+    .NET (Core) or .NET Standard and can fail at run time.
+
+    Only .NETStandard and .NETCoreApp below 6.0 are checked, because those are the
+    consumers that would otherwise silently bind the net472 assets. Other frameworks with
+    no compatible asset (net461-net471, Xamarin, Tizen, UAP) are netstandard2.0-compatible
+    too, so the placement described below makes NuGet see a compatible package and they get
+    neither NU1202 nor MONGO1001 — they fail with a bare, unexplained CS0246 instead. That
+    is a worse diagnostic than the NU1202 they used to get, and is accepted deliberately:
+    none of them is a supported target, and none of them can bind the net472 assets either.
+    Widen the condition set below if that diagnostic ever becomes worth improving.
+
+    This file ships in MongoDB.Bson only. Every other driver package depends on it, and
+    buildTransitive assets flow through the package graph, so one copy covers all of them
+    and the consumer sees a single error.
+
+    IMPORTANT — do not "tidy" this file into build/<TFM>/ or move it to a folder other than
+    buildTransitive/netstandard2.0: this exact placement is load-bearing for a second,
+    independent reason beyond emitting MONGO1001. Because NuGet computes a package's
+    "nearest compatible framework" from the union of ALL asset groups (lib, build,
+    buildTransitive, ref, ...), shipping a buildTransitive asset at netstandard2.0 makes
+    NuGet treat MongoDB.Bson as directly compatible with netstandard2.0 (and, transitively,
+    with net5.0/netcoreapp2.x/netstandard2.x consumers) for the package as a whole — which
+    means AssetTargetFallback is never even attempted for the lib group. A .NET Standard or
+    pre-6.0 .NET Core consumer therefore resolves NO lib assets at all (not the net472 ones,
+    not any others): the driver's types simply fail to compile. This is deliberate and
+    stronger than the MSBuild error below — even a consumer who works around the error target
+    (ExcludeAssets="buildTransitive" drops this import; note that ExcludeAssets="build" does
+    NOT, and was measured to still emit MONGO1001) still cannot bind to the net472 assembly,
+    by construction of the package graph itself. There is intentionally no opt-out property: one
+    would suppress the error text but could never restore a working net472 reference, so
+    advertising an opt-out would be misleading.
+  -->
+
+  <PropertyGroup>
+    <_MongoDBTargetFrameworkVersion>$(TargetFrameworkVersion.TrimStart('vV'))</_MongoDBTargetFrameworkVersion>
+
+    <!-- Defaults to supported, so an unusual evaluation context (no TargetFrameworkIdentifier)
+         fails open rather than breaking the consumer's build. -->
+    <_MongoDBIsSupportedTargetFramework>true</_MongoDBIsSupportedTargetFramework>
+    <_MongoDBIsSupportedTargetFramework Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard'">false</_MongoDBIsSupportedTargetFramework>
+    <_MongoDBIsSupportedTargetFramework Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp' AND $([MSBuild]::VersionLessThan('$(_MongoDBTargetFrameworkVersion)', '6.0'))">false</_MongoDBIsSupportedTargetFramework>
+  </PropertyGroup>
+
+  <Target Name="_MongoDBValidateTargetFramework"
+          BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(_MongoDBIsSupportedTargetFramework)' != 'true'">
+    <Error Code="MONGO1001"
+           Text="The MongoDB .NET/C# Driver does not support the target framework '$(TargetFramework)'. Supported target frameworks are net472 (and later .NET Framework versions), net6.0, net8.0 and net10.0. No compatible assets are available for this project, so the driver's types will not resolve. Retarget this project to net6.0 or later, or use version 3.x of the driver, which supports netstandard2.1." />
+  </Target>
+
+</Project>

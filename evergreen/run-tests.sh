@@ -13,7 +13,8 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #   OCSP_TLS_SHOULD_SUCCEED         Set to test OCSP. Values are true/false/nil
 #   MONGODB_X509_CLIENT_P12_PATH    Absolute path to client certificate in p12 format
 #   MONGO_X509_CLIENT_CERTIFICATE_PASSWORD  password for client certificate
-#   FRAMEWORK                       Set to specify .NET framework to test against. Values: "Net472", "NetStandard21",
+#   FRAMEWORK                       Set to specify .NET framework to test against. Use Target Framework Moniker
+#                                   values: "net472", "net6.0", "net8.0", "net10.0".
 #   TEST_CATEGORY                   Set to specify a test category to filter by.
 #   TEST_PROJECT_PATH               Set glob filter to find test projects.
 #   DRIVERS_TOOLS                   Set base path to evergreen-drivers-tools project
