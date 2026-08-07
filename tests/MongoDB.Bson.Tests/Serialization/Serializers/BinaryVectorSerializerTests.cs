@@ -341,7 +341,7 @@ namespace MongoDB.Bson.Tests.Serialization
             return binaryData;
         }
 
-        public readonly static IEnumerable<object[]> TestData =
+        public static readonly IEnumerable<object[]> TestData =
         [
             [BinaryVectorDataType.Int8, 1, sbyte.MaxValue],
             [BinaryVectorDataType.Int8, 55, sbyte.MaxValue],
@@ -351,7 +351,7 @@ namespace MongoDB.Bson.Tests.Serialization
             [BinaryVectorDataType.Float32, 55, float.MaxValue],
         ];
 
-        public readonly static IEnumerable<object[]> TestDataBinaryVector =
+        public static readonly IEnumerable<object[]> TestDataBinaryVector =
         [
             [BinaryVectorDataType.Int8, 1, 0, sbyte.MaxValue],
             [BinaryVectorDataType.Int8, 55, 0, sbyte.MaxValue],

@@ -50,9 +50,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
 
     internal abstract class AstSortOrder
     {
-        private readonly static AstSortOrder __ascending = new AstAscendingSortOrder();
-        private readonly static AstSortOrder __descending = new AstDescendingSortOrder();
-        private readonly static AstSortOrder __metaTextScore = new AstMetaTextScoreSortOrder();
+        private static readonly AstSortOrder __ascending = new AstAscendingSortOrder();
+        private static readonly AstSortOrder __descending = new AstDescendingSortOrder();
+        private static readonly AstSortOrder __metaTextScore = new AstMetaTextScoreSortOrder();
 
         public static AstSortOrder Ascending => __ascending;
         public static AstSortOrder Descending => __descending;

@@ -524,9 +524,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         // nested types
         private static class DefaultFrameworkAllowedTypes
         {
-            private readonly static Func<Type, bool> __allowedTypes = AllowedTypesImplementation;
+            private static readonly Func<Type, bool> __allowedTypes = AllowedTypesImplementation;
 
-            private readonly static HashSet<Type> __allowedNonGenericTypesSet = new HashSet<Type>
+            private static readonly HashSet<Type> __allowedNonGenericTypesSet = new HashSet<Type>
             {
                 typeof(System.Boolean),
                 typeof(System.Byte),
@@ -566,7 +566,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 typeof(System.Version)
             };
 
-            private readonly static HashSet<Type> __allowedGenericTypesSet = new HashSet<Type>
+            private static readonly HashSet<Type> __allowedGenericTypesSet = new HashSet<Type>
             {
                 typeof(System.Collections.Generic.Dictionary<,>),
                 typeof(System.Collections.Generic.HashSet<>),

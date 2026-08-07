@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 {
     internal static class InjectMethodToFilterTranslator
     {
-        private readonly static MethodInfo __renderFilterMethodInfo;
+        private static readonly MethodInfo __renderFilterMethodInfo;
 
         static InjectMethodToFilterTranslator()
         {
