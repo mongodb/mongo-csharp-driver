@@ -119,9 +119,8 @@ namespace MongoDB.Driver.Tests.Specifications.auth
             {
                 JsonDrivenHelper.EnsureAllFieldsAreValid(expectedCredential, "username", "password", "source", "mechanism", "mechanism_properties");
                 mongoCredential.Username.Should().Be(ValueToString(expectedCredential["username"]));
-#pragma warning disable 618
-                mongoCredential.Password.Should().Be(ValueToString(expectedCredential["password"]));
-#pragma warning restore 618
+                var actualPassword = (mongoCredential.Evidence as PasswordEvidence)?.ToInsecureString();
+                actualPassword.Should().Be(ValueToString(expectedCredential["password"]));
                 mongoCredential.Source.Should().Be(ValueToString(expectedCredential["source"]));
                 mongoCredential.Mechanism.Should().Be(ValueToString(expectedCredential["mechanism"]));
 

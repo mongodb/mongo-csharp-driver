@@ -339,13 +339,8 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.Equal(null, settings.Socks5ProxySettings);
             Assert.Null(settings.SslSettings);
-#pragma warning disable 618
-            Assert.Equal(false, settings.UseSsl);
-#pragma warning restore 618
             Assert.Equal(false, settings.UseTls);
-#pragma warning disable 618
-            Assert.Equal(true, settings.VerifySslCertificate);
-#pragma warning restore 618
+            Assert.Equal(false, settings.AllowInsecureTls);
 #pragma warning disable 618
             Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
 #pragma warning restore 618
@@ -528,19 +523,11 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-#pragma warning disable 618
-            clone.UseSsl = !settings.UseSsl;
-#pragma warning restore 618
-            Assert.False(clone.Equals(settings));
-
-            clone = settings.Clone();
             clone.UseTls = !settings.UseTls;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-#pragma warning disable 618
-            clone.VerifySslCertificate = !settings.VerifySslCertificate;
-#pragma warning restore 618
+            clone.AllowInsecureTls = !settings.AllowInsecureTls;
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
@@ -717,14 +704,8 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ProxyPort, settings.Socks5ProxySettings.Port);
             Assert.Equal(url.ProxyUsername, ((Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)settings.Socks5ProxySettings.Authentication).Username);
             Assert.Equal(url.ProxyPassword, ((Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)settings.Socks5ProxySettings.Authentication).Password);
-#pragma warning disable 618
             Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
-            Assert.Equal(url.UseSsl, settings.UseSsl);
-#pragma warning restore 618
             Assert.Equal(url.UseTls, settings.UseTls);
-#pragma warning disable 618
-            Assert.Equal(url.VerifySslCertificate, settings.VerifySslCertificate);
-#pragma warning restore 618
 
 #pragma warning disable 618
             Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
@@ -1334,23 +1315,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestUseSsl()
-        {
-#pragma warning disable 618
-            var settings = new MongoClientSettings();
-            Assert.Equal(false, settings.UseSsl);
-
-            var useSsl = true;
-            settings.UseSsl = useSsl;
-            Assert.Equal(useSsl, settings.UseSsl);
-
-            settings.Freeze();
-            Assert.Equal(useSsl, settings.UseSsl);
-            Assert.Throws<InvalidOperationException>(() => { settings.UseSsl = useSsl; });
-#pragma warning restore 618
-        }
-
-        [Fact]
         public void TestUseTls()
         {
             var settings = new MongoClientSettings();
@@ -1363,24 +1327,6 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(useTls, settings.UseTls);
             Assert.Throws<InvalidOperationException>(() => { settings.UseTls = useTls; });
-        }
-
-        [Fact]
-        public void TestVerifySslCertificate()
-        {
-#pragma warning disable 618
-            var settings = new MongoClientSettings();
-            Assert.Equal(true, settings.VerifySslCertificate);
-
-            var verifySslCertificate = false;
-            settings.VerifySslCertificate = verifySslCertificate;
-            Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
-            settings.SslSettings.CheckCertificateRevocation.Should().BeFalse();
-
-            settings.Freeze();
-            Assert.Equal(verifySslCertificate, settings.VerifySslCertificate);
-            Assert.Throws<InvalidOperationException>(() => { settings.VerifySslCertificate = verifySslCertificate; });
-#pragma warning restore 618
         }
 
         [Fact]

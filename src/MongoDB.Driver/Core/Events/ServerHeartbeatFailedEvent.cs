@@ -35,22 +35,6 @@ namespace MongoDB.Driver.Core.Events
         /// Initializes a new instance of the <see cref="ServerHeartbeatFailedEvent"/> struct.
         /// </summary>
         /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="exception">The exception.</param>
-        /// <param name="awaited">The awaited flag.</param>
-        [Obsolete("Use the other contstructor instead")]
-        public ServerHeartbeatFailedEvent(ConnectionId connectionId, Exception exception, bool awaited)
-        {
-            _awaited = awaited;
-            _connectionId = connectionId;
-            _duration = TimeSpan.MinValue;
-            _exception = exception;
-            _timestamp = DateTime.UtcNow;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerHeartbeatFailedEvent"/> struct.
-        /// </summary>
-        /// <param name="connectionId">The connection identifier.</param>
         /// <param name="duration">The duration of time passed since corresponding <see cref="ServerHeartbeatStartedEvent"/>.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="awaited">The awaited flag.</param>

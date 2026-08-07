@@ -49,12 +49,6 @@ namespace MongoDB.Driver.Core.Servers
         ReplicaSetSecondary,
 
         /// <summary>
-        /// Use ReplicaSetSecondary instead.
-        /// </summary>
-        [Obsolete("Passives are treated the same as secondaries.")]
-        ReplicaSetPassive,
-
-        /// <summary>
         /// The server is a replica set arbiter.
         /// </summary>
         ReplicaSetArbiter,

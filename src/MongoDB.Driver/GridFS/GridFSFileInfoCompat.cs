@@ -85,18 +85,6 @@ namespace MongoDB.Driver.GridFS
         }
 
         /// <summary>
-        /// Gets the identifier as a BsonValue.
-        /// </summary>
-        /// <value>
-        /// The identifier as a BsonValue.
-        /// </value>
-        [Obsolete("All new GridFS files should use an ObjectId as the Id.")]
-        public BsonValue IdAsBsonValue
-        {
-            get { return GetValue<BsonValue>("IdAsBsonValue"); }
-        }
-
-        /// <summary>
         /// Gets the length.
         /// </summary>
         /// <value>

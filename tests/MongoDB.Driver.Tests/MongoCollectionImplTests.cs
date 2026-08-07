@@ -94,9 +94,6 @@ namespace MongoDB.Driver
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -142,9 +139,6 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
-#pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
-#pragma warning restore 618
         }
 
         [Theory]
@@ -174,9 +168,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
 
             using var cancellationTokenSource1 = new CancellationTokenSource();
@@ -346,9 +337,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -798,72 +786,6 @@ namespace MongoDB.Driver
 
                 exception.Should().BeOfType<NotSupportedException>();
             }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Count_should_execute_a_CountOperation(
-            [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var session = CreateSession(usingSession);
-            var filter = new BsonDocument("x", 1);
-            var options = new CountOptions
-            {
-                Collation = new Collation("en_US"),
-                Hint = "funny",
-                Limit = 10,
-                MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
-            };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            if (usingSession)
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(session, filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(session, filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-            else
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-
-            var call = _operationExecutor.GetReadCall<long>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
-
-            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
         }
 
         [Theory]
@@ -2100,9 +2022,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2166,9 +2085,6 @@ namespace MongoDB.Driver
             request.AdditionalOptions.Should().BeNull();
             request.Background.Should().Be(options.Background);
             request.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2236,9 +2152,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2303,9 +2216,6 @@ namespace MongoDB.Driver
             request1.AdditionalOptions.Should().BeNull();
             request1.Background.Should().Be(options.Background);
             request1.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request1.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2343,9 +2253,6 @@ namespace MongoDB.Driver
             request2.AdditionalOptions.Should().BeNull();
             request2.Background.Should().NotHaveValue();
             request2.Bits.Should().NotHaveValue();
-#pragma warning disable 618
-            request2.BucketSize.Should().NotHaveValue();
-#pragma warning restore 618
             request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();
@@ -2904,200 +2811,6 @@ namespace MongoDB.Driver
             var operation = (BulkMixedWriteOperation)call.Operation;
             var requests = operation.Requests.ToList(); // call ToList to force evaluation
             document.Contains("_id").Should().Be(assignIdOnInsert);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void MapReduce_with_inline_output_mode_should_execute_a_MapReduceOperation(
-            [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var session = CreateSession(usingSession);
-            var map = new BsonJavaScript("map");
-            var reduce = new BsonJavaScript("reduce");
-            var filterDocument = new BsonDocument("filter", 1);
-            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
-            var sortDocument = new BsonDocument("sort", 1);
-            var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
-#pragma warning disable CS0618 // Type or member is obsolete
-            var options = new MapReduceOptions<BsonDocument, BsonDocument>
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                Collation = new Collation("en_US"),
-                Filter = filterDefinition,
-                Finalize = new BsonJavaScript("finalizer"),
-#pragma warning disable 618
-                JavaScriptMode = true,
-#pragma warning restore 618
-                Limit = 10,
-                MaxTime = TimeSpan.FromMinutes(2),
-#pragma warning disable CS0618 // Type or member is obsolete
-                OutputOptions = MapReduceOutputOptions.Inline,
-#pragma warning restore CS0618 // Type or member is obsolete
-                Scope = new BsonDocument("test", 3),
-                Sort = sortDefinition,
-                Verbose = true
-            };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            if (usingSession)
-            {
-                if (async)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduceAsync(session, map, reduce, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduce(session, map, reduce, options, cancellationToken);
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-            }
-            else
-            {
-                if (async)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduceAsync(map, reduce, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduce(map, reduce, options, cancellationToken);
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-            }
-
-            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var operation = call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>().Subject;
-#pragma warning restore CS0618 // Type or member is obsolete
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filterDocument);
-            operation.FinalizeFunction.Should().Be(options.Finalize);
-#pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
-#pragma warning restore 618
-            operation.Limit.Should().Be(options.Limit);
-            operation.MapFunction.Should().Be(map);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
-            operation.ReduceFunction.Should().Be(reduce);
-            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
-            operation.Scope.Should().Be(options.Scope);
-            operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void MapReduce_with_collection_output_mode_should_execute_a_MapReduceOutputToCollectionOperation(
-            [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
-        {
-            var writeConcern = new WriteConcern(1);
-            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
-            var session = CreateSession(usingSession);
-            var map = new BsonJavaScript("map");
-            var reduce = new BsonJavaScript("reduce");
-            var filterDocument = new BsonDocument("filter", 1);
-            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
-            var sortDocument = new BsonDocument("sort", 1);
-            var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
-#pragma warning disable CS0618 // Type or member is obsolete
-            var options = new MapReduceOptions<BsonDocument, BsonDocument>
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                BypassDocumentValidation = true,
-                Collation = new Collation("en_US"),
-                Filter = filterDefinition,
-                Finalize = new BsonJavaScript("finalizer"),
-#pragma warning disable 618
-                JavaScriptMode = true,
-#pragma warning restore 618
-                Limit = 10,
-                MaxTime = TimeSpan.FromMinutes(2),
-#pragma warning disable 618
-                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
-#pragma warning restore 618
-                Scope = new BsonDocument("test", 3),
-                Sort = sortDefinition,
-                Verbose = true
-            };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            if (usingSession)
-            {
-                if (async)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduceAsync(session, map, reduce, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduce(session, map, reduce, options, cancellationToken);
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-            }
-            else
-            {
-                if (async)
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduceAsync(map, reduce, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-                else
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    subject.MapReduce(map, reduce, options, cancellationToken);
-#pragma warning restore CS0618 // Type or member is obsolete
-                }
-            }
-
-            var call = _operationExecutor.GetWriteCall<BsonDocument>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var operation = call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>().Subject;
-#pragma warning restore CS0618 // Type or member is obsolete
-            operation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filterDocument);
-            operation.FinalizeFunction.Should().Be(options.Finalize);
-#pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
-#pragma warning restore 618
-            operation.Limit.Should().Be(options.Limit);
-            operation.MapFunction.Should().Be(map);
-            operation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            operation.NonAtomicOutput.Should().NotHaveValue();
-#pragma warning restore 618
-            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
-#pragma warning disable CS0618 // Type or member is obsolete
-            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
-#pragma warning restore CS0618 // Type or member is obsolete
-            operation.ReduceFunction.Should().Be(reduce);
-            operation.Scope.Should().Be(options.Scope);
-#pragma warning disable 618
-            operation.ShardedOutput.Should().Be(true);
-#pragma warning restore 618
-            operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
-            operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 
         [Theory]

@@ -148,30 +148,6 @@ namespace MongoDB.Driver
             return _wrappedCollection.BulkWriteAsync(session, CombineModelFilters(requests), options, cancellationToken);
         }
 
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.Count(CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.Count(session, CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.CountAsync(session, CombineFilters(filter), options, cancellationToken);
-        }
-
         public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.CountDocuments(CombineFilters(filter), options, cancellationToken);
@@ -320,38 +296,6 @@ namespace MongoDB.Driver
         public override Task<TProjection> FindOneAndUpdateAsync<TProjection>(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, FindOneAndUpdateOptions<TDocument, TProjection> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.FindOneAndUpdateAsync(session, CombineFilters(filter), AdjustUpdateDefinition(update, options?.IsUpsert ?? false), options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduce(map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduce(session, map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduceAsync(map, reduce, options, cancellationToken);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public override Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            options = options ?? new MapReduceOptions<TDocument, TResult>();
-            options.Filter = CombineFilters(options.Filter);
-            return _wrappedCollection.MapReduceAsync(session, map, reduce, options, cancellationToken);
         }
 
         // private methods

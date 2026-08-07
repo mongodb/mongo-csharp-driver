@@ -153,7 +153,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                     {
                         case "aggregate": return new JsonDrivenAggregateTest(collection, _objectMap);
                         case "bulkWrite": return new JsonDrivenBulkWriteTest(collection, _objectMap);
-                        case "count": return new JsonDrivenCountTest(collection, _objectMap);
+                        case "count": throw new SkipException(".NET/C# driver does not implement a Count helper; use CountDocuments or EstimatedDocumentCount.");
                         case "countDocuments": return new JsonDrivenCountDocumentsTest(collection, _objectMap);
                         case "createIndex": return new JsonDrivenCreateIndexTest(collection, _objectMap);
                         case "deleteMany": return new JsonDrivenDeleteManyTest(collection, _objectMap);
@@ -172,7 +172,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "insertOne": return new JsonDrivenInsertOneTest(collection, _objectMap);
                         case "listIndexes": return new JsonDrivenListIndexesTest(collection, _objectMap);
                         case "listIndexNames": throw new SkipException(".NET/C# driver does not implement a ListIndexNames helper.");
-                        case "mapReduce": return new JsonDrivenMapReduceTest(collection, _objectMap);
+                        case "mapReduce": throw new SkipException(".NET/C# driver does not implement a MapReduce helper; use an aggregation pipeline.");
                         case "replaceOne": return new JsonDrivenReplaceOneTest(collection, _objectMap);
                         case "updateMany": return new JsonDrivenUpdateManyTest(collection, _objectMap);
                         case "updateOne": return new JsonDrivenUpdateOneTest(collection, _objectMap);

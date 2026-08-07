@@ -94,20 +94,6 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
                 ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
-
-                var invalidDataKeyOptions = new DataKeyOptions(alternateKeyNames: Optional.Create(Mock.Of<IReadOnlyList<string>>()));
-#pragma warning disable CS0618 // Type or member is obsolete
-                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-
-                invalidDataKeyOptions = new DataKeyOptions(keyMaterial: new BsonBinaryData(new byte[0]));
-                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-#pragma warning restore CS0618 // Type or member is obsolete
             }
 
         }

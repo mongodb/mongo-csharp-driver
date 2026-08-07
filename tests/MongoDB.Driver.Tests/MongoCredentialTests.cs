@@ -113,9 +113,8 @@ namespace MongoDB.Driver.Tests
         public void TestPassword()
         {
             var credentials = MongoCredential.CreateCredential("database", "username", "password");
-#pragma warning disable 618
-            Assert.Equal("password", credentials.Password);
-#pragma warning restore 618
+            var passwordEvidence = credentials.Evidence.Should().BeOfType<PasswordEvidence>().Subject;
+            Assert.Equal("password", passwordEvidence.ToInsecureString());
         }
 
         [Fact]

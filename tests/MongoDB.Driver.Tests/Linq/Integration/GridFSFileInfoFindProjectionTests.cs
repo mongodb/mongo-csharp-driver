@@ -49,27 +49,6 @@ namespace MongoDB.Driver.Tests.Linq.Integration
             result.Should().Be(ObjectId.Parse("111111111111111111111111"));
         }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-        [Fact]
-        public void Project_IdAsBsonValue_should_work()
-        {
-            var collection = Fixture.Collection;
-
-            var find = collection
-                .Find(Builders<GridFSFileInfo>.Filter.Where(x => x.IdAsBsonValue == new BsonObjectId(ObjectId.Parse("111111111111111111111111"))))
-                .Project(x => x.IdAsBsonValue);
-
-            var filter = TranslateFindFilter(collection, find);
-            filter.Should().Be("{ _id : { $oid : '111111111111111111111111' } }");
-
-            var projection = TranslateFindProjection(collection, find);
-            projection.Should().Be("{ _id : 1 }");
-
-            var result = find.Single();
-            result.Should().Be(ObjectId.Parse("111111111111111111111111"));
-        }
-#pragma warning restore CS0618 // Type or member is obsolete
-
         public sealed class ClassFixture : MongoCollectionFixture<GridFSFileInfo, BsonDocument>
         {
             protected override IEnumerable<BsonDocument> InitialData =>

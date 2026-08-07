@@ -536,21 +536,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl => _useTls;
-
-        /// <summary>
         /// Gets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls => _useTls;
-
-        /// <summary>
-        /// Gets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate => !_allowInsecureTls;
 
         /// <summary>
         /// Gets the W component of the write concern.

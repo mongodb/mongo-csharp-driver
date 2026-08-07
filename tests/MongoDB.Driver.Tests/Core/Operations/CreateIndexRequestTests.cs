@@ -69,22 +69,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void BucketSize_get_and_set_should_work(
-            [Values(null, 1.0, 2.0)]
-            double? value)
-        {
-            var subject = new CreateIndexRequest(new BsonDocument("x", 1));
-
-#pragma warning disable 618
-            subject.BucketSize = value;
-            var result = subject.BucketSize;
-#pragma warning restore 618
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Collation_get_and_set_should_work(
             [Values(null, "en_US", "fr_CA")]
             string locale)
@@ -110,9 +94,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.AdditionalOptions.Should().BeNull();
             subject.Background.Should().NotHaveValue();
             subject.Bits.Should().NotHaveValue();
-#pragma warning disable 618
-            subject.BucketSize.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Collation.Should().BeNull();
             subject.DefaultLanguage.Should().BeNull();
             subject.ExpireAfter.Should().NotHaveValue();
@@ -224,31 +205,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "key", keys },
                 { "name", "x_1" },
                 { "bits", () => bits.Value, bits.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateIndexDocument_should_return_expected_result_when_BucketSize_is_set(
-            [Values(null, 1.0, 2.0)]
-            double? bucketSize)
-        {
-            var keys = new BsonDocument("x", 1);
-            var subject = new CreateIndexRequest(keys)
-            {
-#pragma warning disable 618
-                BucketSize = bucketSize
-#pragma warning restore 618
-            };
-
-            var result = subject.CreateIndexDocument();
-
-            var expectedResult = new BsonDocument
-            {
-                { "key", keys },
-                { "name", "x_1" },
-                { "bucketSize", () => bucketSize.Value, bucketSize.HasValue }
             };
             result.Should().Be(expectedResult);
         }

@@ -26,7 +26,6 @@ namespace MongoDB.Driver
         // fields
         private bool? _background;
         private int? _bits;
-        private double? _bucketSize;
         private Collation _collation;
         private string _defaultLanguage;
         private TimeSpan? _expireAfter;
@@ -60,16 +59,6 @@ namespace MongoDB.Driver
         {
             get { return _bits; }
             set { _bits = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the size of a geohash bucket.
-        /// </summary>
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public double? BucketSize
-        {
-            get { return _bucketSize; }
-            set { _bucketSize = value; }
         }
 
         /// <summary>
@@ -229,9 +218,6 @@ namespace MongoDB.Driver
                 {
                     Background = options.Background,
                     Bits = options.Bits,
-#pragma warning disable 618
-                    BucketSize = options.BucketSize,
-#pragma warning restore 618
                     Collation = options.Collation,
                     DefaultLanguage = options.DefaultLanguage,
                     ExpireAfter = options.ExpireAfter,

@@ -200,56 +200,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
         /// For a fast estimate of the total documents in a collection see <see cref="EstimatedDocumentCount"/>.
         /// </summary>
         /// <remarks>
@@ -907,60 +857,6 @@ namespace MongoDB.Driver
         /// The result of the insert operation.
         /// </returns>
         Task<InsertManyResult> InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A cursor.</returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A cursor.
-        /// </returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is a cursor.</returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Executes a map-reduce command.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="session">The session.</param>
-        /// <param name="map">The map function.</param>
-        /// <param name="reduce">The reduce function.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// A Task whose result is a cursor.
-        /// </returns>
-        [Obsolete("Use Aggregation pipeline instead.")]
-        Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         /// Returns a filtered collection that appears to contain only documents of the derived type.

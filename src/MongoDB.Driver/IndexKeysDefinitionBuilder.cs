@@ -118,40 +118,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Combines an existing index keys definition with a geo haystack index key definition.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="keys">The keys.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="additionalFieldName">Name of the additional field.</param>
-        /// <returns>
-        /// A combined index keys definition.
-        /// </returns>
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public static IndexKeysDefinition<TDocument> GeoHaystack<TDocument>(this IndexKeysDefinition<TDocument> keys, FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
-        {
-            var builder = Builders<TDocument>.IndexKeys;
-            return builder.Combine(keys, builder.GeoHaystack(field, additionalFieldName));
-        }
-
-        /// <summary>
-        /// Combines an existing index keys definition with a geo haystack index key definition.
-        /// </summary>
-        /// <typeparam name="TDocument">The type of the document.</typeparam>
-        /// <param name="keys">The keys.</param>
-        /// <param name="field">The field.</param>
-        /// <param name="additionalFieldName">Name of the additional field.</param>
-        /// <returns>
-        /// A combined index keys definition.
-        /// </returns>
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public static IndexKeysDefinition<TDocument> GeoHaystack<TDocument>(this IndexKeysDefinition<TDocument> keys, Expression<Func<TDocument, object>> field, Expression<Func<TDocument, object>> additionalFieldName = null)
-        {
-            var builder = Builders<TDocument>.IndexKeys;
-            return builder.Combine(keys, builder.GeoHaystack(field, additionalFieldName));
-        }
-
-        /// <summary>
         /// Combines an existing index keys definition with a 2dsphere index key definition.
         /// </summary>
         /// <typeparam name="TDocument">The type of the document.</typeparam>
@@ -329,35 +295,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a geo haystack index key definition.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="additionalFieldName">Name of the additional field.</param>
-        /// <returns>
-        /// A geo haystack index key definition.
-        /// </returns>
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public IndexKeysDefinition<TDocument> GeoHaystack(FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
-        {
-            return new GeoHaystackIndexKeyDefinition<TDocument>(field, additionalFieldName);
-        }
-
-        /// <summary>
-        /// Creates a geo haystack index key definition.
-        /// </summary>
-        /// <param name="field">The field.</param>
-        /// <param name="additionalFieldName">Name of the additional field.</param>
-        /// <returns>
-        /// A geo haystack index key definition.
-        /// </returns>
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public IndexKeysDefinition<TDocument> GeoHaystack(Expression<Func<TDocument, object>> field, Expression<Func<TDocument, object>> additionalFieldName = null)
-        {
-            FieldDefinition<TDocument> additional = additionalFieldName == null ? null : new ExpressionFieldDefinition<TDocument>(additionalFieldName);
-            return GeoHaystack(new ExpressionFieldDefinition<TDocument>(field), additional);
-        }
-
-        /// <summary>
         /// Creates a 2dsphere index key definition.
         /// </summary>
         /// <param name="field">The field.</param>
@@ -488,33 +425,6 @@ namespace MongoDB.Driver
             var renderedField = _field.Render(args);
 
             return new BsonDocument(renderedField.FieldName, _direction.Render());
-        }
-    }
-
-    [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-    internal sealed class GeoHaystackIndexKeyDefinition<TDocument> : IndexKeysDefinition<TDocument>
-    {
-        private readonly FieldDefinition<TDocument> _field;
-        private readonly FieldDefinition<TDocument> _additionalFieldName;
-
-        public GeoHaystackIndexKeyDefinition(FieldDefinition<TDocument> field, FieldDefinition<TDocument> additionalFieldName = null)
-        {
-            _field = Ensure.IsNotNull(field, nameof(field));
-            _additionalFieldName = additionalFieldName;
-        }
-
-        public override BsonDocument Render(RenderArgs<TDocument> args)
-        {
-            var renderedField = _field.Render(args);
-
-            var document = new BsonDocument(renderedField.FieldName, "geoHaystack");
-            if (_additionalFieldName != null)
-            {
-                var additionalRenderedField = _additionalFieldName.Render(args);
-                document.Add(additionalRenderedField.FieldName, 1);
-            }
-
-            return document;
         }
     }
 

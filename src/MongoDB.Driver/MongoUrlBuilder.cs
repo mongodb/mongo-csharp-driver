@@ -706,32 +706,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl
-        {
-            get { return _useTls; }
-            set { _useTls = value; }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls
         {
             get => _useTls;
             set => _useTls = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate
-        {
-            get => !_allowInsecureTls;
-            set => _allowInsecureTls = !value;
         }
 
         /// <summary>

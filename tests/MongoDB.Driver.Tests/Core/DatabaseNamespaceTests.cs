@@ -71,28 +71,6 @@ namespace MongoDB.Driver
             subject.DatabaseName.Should().Be("test");
         }
 
-        [Fact]
-        public void SystemIndexesCollection_should_return_the_system_indexes_collection()
-        {
-            var subject = new DatabaseNamespace("test");
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var commandCollection = subject.SystemIndexesCollection;
-#pragma warning restore CS0618 // Type or member is obsolete
-            commandCollection.FullName.Should().Be("test.system.indexes");
-        }
-
-        [Fact]
-        public void SystemNamespacesCollection_should_return_the_system_namespaces_collection()
-        {
-            var subject = new DatabaseNamespace("test");
-
-#pragma warning disable CS0618 // Type or member is obsolete
-            var commandCollection = subject.SystemNamespacesCollection;
-#pragma warning restore CS0618 // Type or member is obsolete
-            commandCollection.FullName.Should().Be("test.system.namespaces");
-        }
-
         [Theory]
         [InlineData("one", "one", true)]
         [InlineData("one", "two", false)]

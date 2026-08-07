@@ -93,27 +93,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public virtual long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public virtual long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public abstract Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public virtual Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
@@ -533,27 +512,6 @@ namespace MongoDB.Driver
             };
             var bulkWriteResult = await bulkWriteAsync(models, bulkWriteOptions).ConfigureAwait(false);
             return InsertManyResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public virtual IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public virtual IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public abstract Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        [Obsolete("Use Aggregation pipeline instead.")]
-        public virtual Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
         }
 
         public abstract IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TDocument;

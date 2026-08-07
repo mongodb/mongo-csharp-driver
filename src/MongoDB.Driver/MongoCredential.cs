@@ -86,24 +86,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets the password.
-        /// </summary>
-        [Obsolete("Use Evidence instead.")]
-        public string Password
-        {
-            get
-            {
-                var passwordEvidence = _evidence as PasswordEvidence;
-                if (passwordEvidence != null)
-                {
-                    return SecureStringHelper.ToInsecureString(passwordEvidence.SecurePassword);
-                }
-
-                return null;
-            }
-        }
-
-        /// <summary>
         /// Gets the source.
         /// </summary>
         public string Source

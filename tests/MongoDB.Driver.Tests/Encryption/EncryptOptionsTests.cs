@@ -15,6 +15,7 @@
 
 using System;
 using FluentAssertions;
+using MongoDB.Bson;
 using MongoDB.Driver.Encryption;
 using Xunit;
 
@@ -176,11 +177,6 @@ namespace MongoDB.Driver.Tests.Encryption
         // String algorithm
         [InlineData(EncryptionAlgorithm.String, "String")]
         [InlineData("String", "String")]
-        // TextPreview is a deprecated alias and is translated to the String algorithm
-#pragma warning disable CS0618
-        [InlineData(EncryptionAlgorithm.TextPreview, "String")]
-#pragma warning restore CS0618
-        [InlineData("TextPreview", "String")]
         public void Constructor_should_support_different_algorithm_representations(object algorithm, string expectedAlgorithmRepresentation)
         {
             var alternateKeyName = "test";
@@ -216,20 +212,35 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void With_textOptions_should_create_new_instance_with_updated_textOptions()
+        public void StringOptions_should_render_all_query_type_options()
         {
-#pragma warning disable CS0618 // intentionally exercising the deprecated TextOptions API
-            var originalTextOptions = new TextOptions(true, true, prefixOptions: new PrefixOptions(10, 2));
-            var newTextOptions = new TextOptions(false, false, substringOptions: new SubstringOptions(10, 8, 2));
+            var subject = new StringOptions(
+                caseSensitive: true,
+                diacriticSensitive: false,
+                prefixOptions: new PrefixOptions(10, 2),
+                substringOptions: new SubstringOptions(20, 10, 2),
+                suffixOptions: new SuffixOptions(8, 3));
 
-            var subject = new EncryptOptions(algorithm: EncryptionAlgorithm.TextPreview, keyId: Guid.NewGuid(), textOptions: originalTextOptions);
+            var result = subject.CreateDocument();
 
-            var updated = subject.With(textOptions: newTextOptions);
+            result.Should().Be(BsonDocument.Parse(@"
+                {
+                    caseSensitive : true,
+                    diacriticSensitive : false,
+                    prefix : { strMaxQueryLength : 10, strMinQueryLength : 2 },
+                    substring : { strMaxLength : 20, strMaxQueryLength : 10, strMinQueryLength : 2 },
+                    suffix : { strMaxQueryLength : 8, strMinQueryLength : 3 }
+                }"));
+        }
 
-            updated.TextOptions.Should().BeSameAs(newTextOptions);
-            updated.Algorithm.Should().Be(subject.Algorithm);
-            updated.KeyId.Should().Be(subject.KeyId);
-#pragma warning restore CS0618
+        [Fact]
+        public void StringOptions_should_omit_query_type_options_that_are_not_set()
+        {
+            var subject = new StringOptions(caseSensitive: false, diacriticSensitive: true);
+
+            var result = subject.CreateDocument();
+
+            result.Should().Be(BsonDocument.Parse("{ caseSensitive : false, diacriticSensitive : true }"));
         }
 
         [Fact]

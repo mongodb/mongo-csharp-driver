@@ -64,26 +64,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Whether or not this exception contains a socket timeout exception.
-        /// </summary>
-        [Obsolete("Use ContainsTimeoutException instead.")]
-        public bool ContainsSocketTimeoutException
-        {
-            get
-            {
-                for (var exception = InnerException; exception != null; exception = exception.InnerException)
-                {
-                    if (exception is SocketException socketException &&
-                        socketException.SocketErrorCode == SocketError.TimedOut)
-                    {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Whether or not this exception contains a timeout exception.
         /// </summary>
         public bool ContainsTimeoutException
