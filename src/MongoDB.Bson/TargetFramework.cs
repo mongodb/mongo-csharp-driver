@@ -26,6 +26,8 @@ namespace MongoDB.Bson
             "net80";
 #elif NET10_0
             "net100";
+#else
+            throw new System.InvalidOperationException($"Unexpected target framework: {Moniker}.");
 #endif
     }
 }

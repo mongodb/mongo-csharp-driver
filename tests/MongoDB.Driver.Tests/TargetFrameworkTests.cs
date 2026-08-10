@@ -41,6 +41,8 @@ namespace MongoDB.Driver.Tests
             return "net80";
 #elif NET10_0
             return "net100";
+#else
+            throw new System.InvalidOperationException($"Unexpected target framework: {TargetFramework.Moniker}.");
 #endif
         }
     }
