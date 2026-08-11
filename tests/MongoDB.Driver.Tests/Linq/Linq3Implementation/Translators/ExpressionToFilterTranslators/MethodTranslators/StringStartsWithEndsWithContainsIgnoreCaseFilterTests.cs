@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             exception.Should().BeOfType<ExpressionNotSupportedException>();
         }
 
-#if NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
         [Fact]
         public void String_contains_with_current_culture_ignore_case_should_work()
         {

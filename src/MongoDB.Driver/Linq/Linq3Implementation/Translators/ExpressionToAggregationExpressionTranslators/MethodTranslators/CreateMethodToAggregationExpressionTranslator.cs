@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 return new TranslatedExpression(expression, ast, tupleSerializer);
             }
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
             if (method.Is(KeyValuePairMethod.Create))
             {
                 var keyExpression = arguments[0];

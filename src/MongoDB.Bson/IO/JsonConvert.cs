@@ -90,7 +90,7 @@ namespace MongoDB.Bson.IO
             return double.Parse(value, NumberFormatInfo.InvariantInfo);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a string to a Half.
         /// </summary>
@@ -212,7 +212,7 @@ namespace MongoDB.Bson.IO
             return value.ToString("R", NumberFormatInfo.InvariantInfo);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Half to a string.
         /// </summary>

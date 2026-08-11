@@ -48,11 +48,11 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
             var json = testObj.ToJson();
 
-            var baseString =  """
+            var baseString = """
             { "Hours" : 13, "Minutes" : 804, "Seconds" : 48293, "Milliseconds" : 48293000, "Microseconds" : 48293000000, "Ticks" : 482930000000, "Nanoseconds" : 48293000000000
             """;
 
-            var documentString =  """
+            var documentString = """
                               { "Hour" : 13, "Minute" : 24, "Second" : 53, "Millisecond" : 0, "Microsecond" : 0, "Nanosecond" : 0, "Ticks" : 482930000000 }
                               """;
 
@@ -86,9 +86,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Microsecond" : { "$numberInt" : "0" }, "Nanosecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Microsecond" : { "$numberInt" : "999" }, "Nanosecond" : { "$numberInt" : "900" }, "Ticks" : { "$numberLong" : "863999999999" } } }""","23:59:59.9999999" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "0" }, "Minute" : { "$numberInt" : "0" }, "Second" : { "$numberInt" : "0" }, "Millisecond" : { "$numberInt" : "0" }, "Microsecond" : { "$numberInt" : "0" }, "Nanosecond" : { "$numberInt" : "0" }, "Ticks" : { "$numberLong" : "0" } } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "23" }, "Minute" : { "$numberInt" : "59" }, "Second" : { "$numberInt" : "59" }, "Millisecond" : { "$numberInt" : "999" }, "Microsecond" : { "$numberInt" : "999" }, "Nanosecond" : { "$numberInt" : "900" }, "Ticks" : { "$numberLong" : "863999999999" } } }""", "23:59:59.9999999")]
         public void Deserialize_with_document_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer();
@@ -96,9 +96,9 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Ticks" : { "$numberLong" : "307255946583" } } }""","08:32:05.5946583" )]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Microsecond" : { "$numberInt" : "658" }, "Ticks" : { "$numberLong" : "307255946583" } } }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Nanosecond" : { "$numberInt" : "300" }, "Ticks" : { "$numberLong" : "307255946583" } } }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : { "Hour" : { "$numberInt" : "8" }, "Minute" : { "$numberInt" : "32" }, "Second" : { "$numberInt" : "5" }, "Millisecond" : { "$numberInt" : "594" }, "Ticks" : { "$numberLong" : "307255946583" } } }""", "08:32:05.5946583")]
         public void Deserialize_with_document_should_work_with_missing_microsecond_or_nanosecond(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer();
@@ -140,18 +140,18 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : "23:59:59.9999999" }""","23:59:59.9999999" )]
-        [InlineData("""{ "x" : { "$numberLong" : "307255946583" } }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "863999999999" } }""","23:59:59.9999999" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "307255946583" } }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "863999999999" } }""","23:59:59.9999999" )]
-        [InlineData("""{ "x" : { "$numberInt" : "27624525" } }""","00:00:02.7624525" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "2147483647" } }""","00:03:34.7483647" )] //int.MaxValue
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : "23:59:59.9999999" }""", "23:59:59.9999999")]
+        [InlineData("""{ "x" : { "$numberLong" : "307255946583" } }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "863999999999" } }""", "23:59:59.9999999")]
+        [InlineData("""{ "x" : { "$numberDouble" : "307255946583" } }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "863999999999" } }""", "23:59:59.9999999")]
+        [InlineData("""{ "x" : { "$numberInt" : "27624525" } }""", "00:00:02.7624525")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "2147483647" } }""", "00:03:34.7483647")] //int.MaxValue
         public void Deserialize_with_ticks_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer();
@@ -159,15 +159,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "14" } }""","14:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "14" } }""","14:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "15.54" } }""","15:32:24.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "14" } }""","14:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "14" } }""", "14:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "14" } }""", "14:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "15.54" } }""", "15:32:24.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "14" } }""", "14:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_hours_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Hours);
@@ -175,15 +175,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "145" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "145" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "145.5" } }""","02:25:30.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "145" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "145" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "145" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "145.5" } }""", "02:25:30.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "145" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_minutes_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Minutes);
@@ -191,15 +191,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "8700" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700.25" } }""","02:25:00.2500000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "8700" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700.25" } }""", "02:25:00.2500000")]
+        [InlineData("""{ "x" : { "$numberInt" : "8700" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_seconds_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Seconds);
@@ -207,15 +207,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "8700000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700250.43" } }""","02:25:00.2504300" )]
-        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700250.43" } }""", "02:25:00.2504300")]
+        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_milliseconds_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Milliseconds);
@@ -223,15 +223,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "8700000000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700000000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700250430.5" } }""","02:25:00.2504305" )]
-        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""","00:00:08.7000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700250430.5" } }""", "02:25:00.2504305")]
+        [InlineData("""{ "x" : { "$numberInt" : "8700000" } }""", "00:00:08.7000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_microseconds_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Microseconds);
@@ -239,15 +239,15 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : "08:32:05.5946583" }""","08:32:05.5946583" )]
-        [InlineData("""{ "x" : "00:00:00.0000000" }""","00:00:00.0000000")]
-        [InlineData("""{ "x" : { "$numberLong" : "8700000000000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberLong" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""","00:00:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000.5" } }""","02:25:00.0000000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "870000000" } }""","00:00:00.8700000" )]
-        [InlineData("""{ "x" : { "$numberInt" : "0" } }""","00:00:00.0000000" )]
+        [InlineData("""{ "x" : "08:32:05.5946583" }""", "08:32:05.5946583")]
+        [InlineData("""{ "x" : "00:00:00.0000000" }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "8700000000000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberLong" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "0" } }""", "00:00:00.0000000")]
+        [InlineData("""{ "x" : { "$numberDouble" : "8700000000000.5" } }""", "02:25:00.0000000")]
+        [InlineData("""{ "x" : { "$numberInt" : "870000000" } }""", "00:00:00.8700000")]
+        [InlineData("""{ "x" : { "$numberInt" : "0" } }""", "00:00:00.0000000")]
         public void Deserialize_with_nanoseconds_should_have_expected_result(string json, string expectedResult)
         {
             var subject = new TimeOnlySerializer(BsonType.Int64, TimeOnlyUnits.Nanoseconds);
@@ -255,7 +255,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
         }
 
         [Theory]
-        [InlineData("""{ "x" : { "$numberLong" : "-23" } }""" )]
+        [InlineData("""{ "x" : { "$numberLong" : "-23" } }""")]
         [InlineData("""{ "x" : { "$numberLong" : "963999999999" } }""")]
         public void Deserialize_should_throw_when_time_as_int64_is_out_of_range(string json)
         {
@@ -522,25 +522,25 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
 
         private class TestClass
         {
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Hours )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Hours)]
             public TimeOnly Hours { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Minutes )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Minutes)]
             public TimeOnly Minutes { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Seconds )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Seconds)]
             public TimeOnly Seconds { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Milliseconds )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Milliseconds)]
             public TimeOnly Milliseconds { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Microseconds )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Microseconds)]
             public TimeOnly Microseconds { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Ticks )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Ticks)]
             public TimeOnly Ticks { get; set; }
 
-            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Nanoseconds )]
+            [BsonTimeOnlyOptions(BsonType.Int64, TimeOnlyUnits.Nanoseconds)]
             public TimeOnly Nanoseconds { get; set; }
 
             [BsonTimeOnlyOptions(BsonType.Document)]

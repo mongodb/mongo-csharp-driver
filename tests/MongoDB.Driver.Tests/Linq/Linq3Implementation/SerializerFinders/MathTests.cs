@@ -47,16 +47,16 @@ public class MathTests
         [TestHelpers.MakeLambda((MyModel model) => Math.Abs(model.SByteValue)), typeof(SByteSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Math.Abs(model.FloatValue)), typeof(SingleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Math.Acos(model.DoubleValue)), typeof(DoubleSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => Math.Acosh(model.DoubleValue)), typeof(DoubleSerializer)],
 #endif
         [TestHelpers.MakeLambda((MyModel model) => Math.Asin(model.DoubleValue)), typeof(DoubleSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => Math.Asinh(model.DoubleValue)), typeof(DoubleSerializer)],
 #endif
         [TestHelpers.MakeLambda((MyModel model) => Math.Atan(model.DoubleValue)), typeof(DoubleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Math.Atan2(model.DoubleValue, 1.0)), typeof(DoubleSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => Math.Atanh(model.DoubleValue)), typeof(DoubleSerializer)],
 #endif
         [TestHelpers.MakeLambda((MyModel model) => Math.Ceiling(model.DecimalValue)), typeof(DecimalSerializer)],

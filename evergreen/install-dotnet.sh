@@ -7,18 +7,12 @@ DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-10.0}"
 echo "runtime: $FRAMEWORK"
 
 if [ -n "$FRAMEWORK" ]; then
-  if [ "$FRAMEWORK" = "net5.0" ]; then
-    RUNTIME_VERSIONS="5.0"
-  elif [ "$FRAMEWORK" = "net6.0" ]; then
+  if [ "$FRAMEWORK" = "net6.0" ]; then
     RUNTIME_VERSIONS="6.0"
   elif [ "$FRAMEWORK" = "net8.0" ]; then
     RUNTIME_VERSIONS="8.0"
   elif [ "$FRAMEWORK" = "net10.0" ]; then
     RUNTIME_VERSIONS="10.0"
-  elif [ "$FRAMEWORK" = "netstandard2.1" ]; then
-    RUNTIME_VERSIONS="3.1"
-  elif [ "$FRAMEWORK" = "netcoreapp3.1" ]; then
-    RUNTIME_VERSIONS="3.1"
   fi
 fi
 

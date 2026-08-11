@@ -32,11 +32,16 @@ namespace MongoDB.Driver.Authentication.ScramSha
         {
             var passwordDigest = AuthenticationHelper.MongoPasswordDigest(credential.Username, credential.Password);
 
+            // 20 is the length of output of a sha-1 hmac
+#if NET6_0_OR_GREATER
+            // The Rfc2898DeriveBytes constructors are obsolete (SYSLIB0060) from .NET 10 on.
+            return Rfc2898DeriveBytes.Pbkdf2(passwordDigest, salt, iterations, HashAlgorithmName.SHA1, 20);
+#else
             using (var deriveBytes = new Rfc2898DeriveBytes(passwordDigest, salt, iterations, HashAlgorithmName.SHA1))
             {
-                // 20 is the length of output of a sha-1 hmac
                 return deriveBytes.GetBytes(20);
             }
+#endif
         }
 
         public byte[] Hmac(UTF8Encoding encoding, byte[] data, string key)

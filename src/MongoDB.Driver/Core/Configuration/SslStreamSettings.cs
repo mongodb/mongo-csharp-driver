@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly SslProtocols _enabledSslProtocols;
         private readonly RemoteCertificateValidationCallback _serverCertificateValidationCallback;
 
-        // SslProtocols.Tls13 is not available until netcoreapp3.1 (but not part of netstandard2.1) and net5.0
+        // SslProtocols.Tls13 is not defined on net472, so the (framework-stable) numeric value is used instead.
         internal const SslProtocols SslProtocolsTls13 = (SslProtocols)12288;
 
         // constructors

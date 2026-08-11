@@ -19,7 +19,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if NET6_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#else
 using System.Runtime.Serialization;
+#endif
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Shared;
@@ -1312,7 +1316,13 @@ namespace MongoDB.Bson.Serialization
                 }
                 else
                 {
+                    // FormatterServices.GetUninitializedObject is obsolete (SYSLIB0050) from .NET 8 on;
+                    // RuntimeHelpers.GetUninitializedObject is the direct replacement, available from .NET 5 on.
+#if NET6_0_OR_GREATER
+                    _creator = () => RuntimeHelpers.GetUninitializedObject(_classType);
+#else
                     _creator = () => FormatterServices.GetUninitializedObject(_classType);
+#endif
                 }
             }
 

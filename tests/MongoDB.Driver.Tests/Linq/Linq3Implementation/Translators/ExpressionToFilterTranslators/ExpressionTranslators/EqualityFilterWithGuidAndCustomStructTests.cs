@@ -92,7 +92,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private IMongoCollection<Document> CreateCollection()
         {
-            var collection = GetCollection<Document>("C") ;
+            var collection = GetCollection<Document>("C");
 
             var guid = Guid.Parse("0102030405060708090a0b0c0d0e0f10");
             var invoiceId = new InvoiceId(guid);
