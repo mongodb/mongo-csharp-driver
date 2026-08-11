@@ -135,6 +135,42 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public async Task ForEachAsync_should_dispose_cursor_when_processor_is_null(
+            [Values(
+                ForEachAsyncOverload.Action,
+                ForEachAsyncOverload.ActionWithIndex,
+                ForEachAsyncOverload.Func,
+                ForEachAsyncOverload.FuncWithIndex)]
+            ForEachAsyncOverload overload)
+        {
+            var mockCursor = new Mock<IAsyncCursor<BsonDocument>>();
+
+            await Record.ExceptionAsync(() => InvokeForEachAsync(overload, mockCursor.Object, nullProcessor: true));
+
+            mockCursor.Verify(c => c.DisposeAsync(), Times.Once);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ForEachAsync_should_throw_when_argument_is_null(
+            [Values(
+                ForEachAsyncOverload.Action,
+                ForEachAsyncOverload.ActionWithIndex,
+                ForEachAsyncOverload.Func,
+                ForEachAsyncOverload.FuncWithIndex)]
+            ForEachAsyncOverload overload,
+            [Values("processor", "source")] string nullArgument)
+        {
+            var cursor = nullArgument == "source" ? null : CreateCursor(1);
+
+            var exception = await Record.ExceptionAsync(() => InvokeForEachAsync(overload, cursor, nullProcessor: nullArgument == "processor"));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be(nullArgument);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_return_expected_result(
             [Values(false, true)] bool async)
         {
@@ -251,6 +287,30 @@ namespace MongoDB.Driver
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Terminal_operator_should_throw_when_cursor_is_null(
+            [Values(
+                TerminalOperator.Any,
+                TerminalOperator.First,
+                TerminalOperator.FirstOrDefault,
+                TerminalOperator.Single,
+                TerminalOperator.SingleOrDefault,
+                TerminalOperator.ToList)]
+            TerminalOperator terminalOperator,
+            [Values(false, true)] bool async)
+        {
+            IAsyncCursor<BsonDocument> cursor = null;
+            var expectedParamName = terminalOperator == TerminalOperator.ToList ? "source" : "cursor";
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => InvokeAsync(terminalOperator, cursor)) :
+                Record.Exception(() => Invoke(terminalOperator, cursor));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be(expectedParamName);
+        }
+
         [Fact]
         public void ToAsyncEnumerable_result_should_only_be_enumerable_one_time()
         {
@@ -325,6 +385,21 @@ namespace MongoDB.Driver
             var result = cursor.ToEnumerable();
 
             result.ToList().Should().Equal(expectedDocuments);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ToEnumerable_should_throw_when_cursor_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAsyncCursor<BsonDocument> cursor = null;
+
+            var exception = async ?
+                Record.Exception(() => cursor.ToAsyncEnumerable()) :
+                Record.Exception(() => cursor.ToEnumerable());
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("cursor");
         }
 
         [Theory]
@@ -412,6 +487,31 @@ namespace MongoDB.Driver
             }
         }
 
+        private static Task InvokeForEachAsync(ForEachAsyncOverload overload, IAsyncCursor<BsonDocument> cursor, bool nullProcessor)
+        {
+            switch (overload)
+            {
+                case ForEachAsyncOverload.Action:
+                    Action<BsonDocument> action = _ => { };
+                    return cursor.ForEachAsync(nullProcessor ? null : action);
+
+                case ForEachAsyncOverload.ActionWithIndex:
+                    Action<BsonDocument, int> actionWithIndex = (_, _) => { };
+                    return cursor.ForEachAsync(nullProcessor ? null : actionWithIndex);
+
+                case ForEachAsyncOverload.Func:
+                    Func<BsonDocument, Task> func = _ => Task.CompletedTask;
+                    return cursor.ForEachAsync(nullProcessor ? null : func);
+
+                case ForEachAsyncOverload.FuncWithIndex:
+                    Func<BsonDocument, int, Task> funcWithIndex = (_, _) => Task.CompletedTask;
+                    return cursor.ForEachAsync(nullProcessor ? null : funcWithIndex);
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(overload), overload, null);
+            }
+        }
+
         private static async Task InvokeAsync(TerminalOperator terminalOperator, IAsyncCursor<BsonDocument> cursor)
         {
             switch (terminalOperator)
@@ -425,6 +525,14 @@ namespace MongoDB.Driver
                 default:
                     throw new ArgumentOutOfRangeException(nameof(terminalOperator), terminalOperator, null);
             }
+        }
+
+        public enum ForEachAsyncOverload
+        {
+            Action,
+            ActionWithIndex,
+            Func,
+            FuncWithIndex
         }
 
         public enum TerminalOperator

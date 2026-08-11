@@ -121,6 +121,42 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public async Task ForEachAsync_should_not_execute_the_query_when_processor_is_null(
+            [Values(
+                ForEachAsyncOverload.Action,
+                ForEachAsyncOverload.ActionWithIndex,
+                ForEachAsyncOverload.Func,
+                ForEachAsyncOverload.FuncWithIndex)]
+            ForEachAsyncOverload overload)
+        {
+            var mockCursorSource = new Mock<IAsyncCursorSource<BsonDocument>>();
+
+            await Record.ExceptionAsync(() => InvokeForEachAsync(overload, mockCursorSource.Object, nullProcessor: true));
+
+            mockCursorSource.Verify(s => s.ToCursorAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ForEachAsync_should_throw_when_argument_is_null(
+            [Values(
+                ForEachAsyncOverload.Action,
+                ForEachAsyncOverload.ActionWithIndex,
+                ForEachAsyncOverload.Func,
+                ForEachAsyncOverload.FuncWithIndex)]
+            ForEachAsyncOverload overload,
+            [Values("processor", "source")] string nullArgument)
+        {
+            var source = nullArgument == "source" ? null : CreateCursorSource(1);
+
+            var exception = await Record.ExceptionAsync(() => InvokeForEachAsync(overload, source, nullProcessor: nullArgument == "processor"));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be(nullArgument);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Single_should_return_expected_result(
             [Values(false, true)] bool async)
         {
@@ -205,6 +241,29 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public async Task Terminal_operator_should_throw_when_source_is_null(
+            [Values(
+                TerminalOperator.Any,
+                TerminalOperator.First,
+                TerminalOperator.FirstOrDefault,
+                TerminalOperator.Single,
+                TerminalOperator.SingleOrDefault,
+                TerminalOperator.ToList)]
+            TerminalOperator terminalOperator,
+            [Values(false, true)] bool async)
+        {
+            IAsyncCursorSource<BsonDocument> source = null;
+
+            var exception = async ?
+                await Record.ExceptionAsync(() => InvokeAsync(terminalOperator, source)) :
+                Record.Exception(() => Invoke(terminalOperator, source));
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("source");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public async Task ToAsyncEnumerable_result_should_be_enumerable_multiple_times(
             [Values(1, 2)] int times)
         {
@@ -262,6 +321,21 @@ namespace MongoDB.Driver
             var result = source.ToEnumerable();
 
             result.ToList().Should().Equal(expectedDocuments);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void ToEnumerable_should_throw_when_source_is_null(
+            [Values(false, true)] bool async)
+        {
+            IAsyncCursorSource<BsonDocument> source = null;
+
+            var exception = async ?
+                Record.Exception(() => source.ToAsyncEnumerable()) :
+                Record.Exception(() => source.ToEnumerable());
+
+            exception.Should().BeOfType<ArgumentNullException>()
+                .Subject.ParamName.Should().Be("source");
         }
 
         [Theory]
@@ -332,6 +406,79 @@ namespace MongoDB.Driver
             mockCursorSource.Setup(s => s.ToCursorAsync(It.IsAny<CancellationToken>())).Returns(() => Task.FromResult<IAsyncCursor<BsonDocument>>(CreateCursor(count)));
 
             return mockCursorSource.Object;
+        }
+
+        private static void Invoke(TerminalOperator terminalOperator, IAsyncCursorSource<BsonDocument> source)
+        {
+            switch (terminalOperator)
+            {
+                case TerminalOperator.Any: source.Any(); break;
+                case TerminalOperator.First: source.First(); break;
+                case TerminalOperator.FirstOrDefault: source.FirstOrDefault(); break;
+                case TerminalOperator.Single: source.Single(); break;
+                case TerminalOperator.SingleOrDefault: source.SingleOrDefault(); break;
+                case TerminalOperator.ToList: source.ToList(); break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(terminalOperator), terminalOperator, null);
+            }
+        }
+
+        private static async Task InvokeAsync(TerminalOperator terminalOperator, IAsyncCursorSource<BsonDocument> source)
+        {
+            switch (terminalOperator)
+            {
+                case TerminalOperator.Any: await source.AnyAsync(); break;
+                case TerminalOperator.First: await source.FirstAsync(); break;
+                case TerminalOperator.FirstOrDefault: await source.FirstOrDefaultAsync(); break;
+                case TerminalOperator.Single: await source.SingleAsync(); break;
+                case TerminalOperator.SingleOrDefault: await source.SingleOrDefaultAsync(); break;
+                case TerminalOperator.ToList: await source.ToListAsync(); break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(terminalOperator), terminalOperator, null);
+            }
+        }
+
+        private static Task InvokeForEachAsync(ForEachAsyncOverload overload, IAsyncCursorSource<BsonDocument> source, bool nullProcessor)
+        {
+            switch (overload)
+            {
+                case ForEachAsyncOverload.Action:
+                    Action<BsonDocument> action = _ => { };
+                    return source.ForEachAsync(nullProcessor ? null : action);
+
+                case ForEachAsyncOverload.ActionWithIndex:
+                    Action<BsonDocument, int> actionWithIndex = (_, _) => { };
+                    return source.ForEachAsync(nullProcessor ? null : actionWithIndex);
+
+                case ForEachAsyncOverload.Func:
+                    Func<BsonDocument, Task> func = _ => Task.CompletedTask;
+                    return source.ForEachAsync(nullProcessor ? null : func);
+
+                case ForEachAsyncOverload.FuncWithIndex:
+                    Func<BsonDocument, int, Task> funcWithIndex = (_, _) => Task.CompletedTask;
+                    return source.ForEachAsync(nullProcessor ? null : funcWithIndex);
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(overload), overload, null);
+            }
+        }
+
+        public enum ForEachAsyncOverload
+        {
+            Action,
+            ActionWithIndex,
+            Func,
+            FuncWithIndex
+        }
+
+        public enum TerminalOperator
+        {
+            Any,
+            First,
+            FirstOrDefault,
+            Single,
+            SingleOrDefault,
+            ToList
         }
     }
 }
