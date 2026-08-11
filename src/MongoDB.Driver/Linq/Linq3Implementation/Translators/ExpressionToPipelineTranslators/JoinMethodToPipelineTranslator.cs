@@ -64,32 +64,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     AstProject.Exclude("_id"));
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
-                string innerCollectionName;
-                IBsonSerializer innerSerializer;
-                AstPipeline innerFilterPipeline = null;
-
-                if (innerExpression is ConstantExpression)
-                {
-                    (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
-                }
-                else
-                {
-                    var rootInnerExpression = TranslationContext.GetUltimateSource(innerExpression);
-                    (innerCollectionName, innerSerializer) = rootInnerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
-                    var innerTranslation = ExpressionToPipelineTranslator.Translate(context, innerExpression);
-                    innerSerializer = innerTranslation.OutputSerializer;
-                    innerFilterPipeline = innerTranslation.Ast.Stages.Count > 0 ? innerTranslation.Ast : null;
-                }
+                // Only a bare collection is supported as the inner sequence. A non-collection inner sequence
+                // (e.g. one with OrderBy/Take/Skip) would be translated into a correlated $lookup pipeline that
+                // applies per outer document rather than once globally, producing wrong results. Reject it here;
+                // proper support for such subqueries is tracked in CSHARP-6118.
+                var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
 
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
                 var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
-                // When the inner sequence is filtered we emit a $lookup that combines localField/foreignField
-                // with a pipeline. That concise syntax requires MongoDB 5.0+ (Feature.LookupConciseSyntax);
-                // a bare inner sequence uses the simpler localField/foreignField form supported by all servers.
-                var lookupStage = innerFilterPipeline != null
-                    ? AstStage.Lookup(innerCollectionName, localField, foreignField, [], innerFilterPipeline, "_inner")
-                    : AstStage.Lookup(from: innerCollectionName, localField, foreignField, @as: "_inner");
+                var lookupStage = AstStage.Lookup(from: innerCollectionName, localField, foreignField, @as: "_inner");
 
                 var unwindStage = AstStage.Unwind("_inner", preserveNullAndEmptyArrays: isLeftJoin ? true : null);
 
