@@ -8,7 +8,6 @@ set -o errexit  # Exit the script with error if any of the commands fail
 #       AUTH_GSSAPI           Set the GSSAPI credentials, including a user principal/password to use to connect to AUTH_HOST server via GSSAPI authentication mechanism
 #       FRAMEWORK             Set target framework to test against
 #       OS                    Set whether the current operating system is Windows or not
-#       PROJECT_DIRECTORY     Set the working directory for the project (only required for non-Windows environments)
 
 ############################################
 #            Main Program                  #
@@ -17,32 +16,23 @@ echo "Running GSSAPI authentication tests"
 
 export GSSAPI_TESTS_ENABLED=true
 
-if [ "Windows_NT" = "$OS" ]; then
-  cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST.10GEN.CC /v KdcNames /d ldaptest.10gen.cc /t REG_MULTI_SZ /f"
-  echo "LDAPTEST.10GEN.CC registry has been added"
+if [ "windows-64" = "$OS" ]; then
+    cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST.BUILD.10GEN.CC /v KdcNames /d ldaptest.build.10gen.cc /t REG_MULTI_SZ /f"
+    echo "LDAPTEST.BUILD.10GEN.CC registry has been added"
 
-  cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST2.10GEN.CC /v KdcNames /d ldaptest.10gen.cc /t REG_MULTI_SZ /f"
-  echo "LDAPTEST2.10GEN.CC registry has been added"
-
-  for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
-    setx $var z:\\data\\tmp
-    export $var=z:\\data\\tmp
-  done
+    export AUTH_GSSAPI="${PRINCIPAL_BUILD}:${SASL_PASS}"
 else
   echo "Setting krb5 config file"
-  touch ${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
-  export KRB5_CONFIG=${PROJECT_DIRECTORY}/evergreen/krb5.conf.empty
+  touch ./evergreen/krb5.conf.empty
+  export KRB5_CONFIG=./evergreen/krb5.conf.empty
 
-  IFS=':' read -ra PARTS <<< "$AUTH_GSSAPI"
-  USER=$(printf ${PARTS[0]//%/\\x}) # unescape percent-encoded string
-  PWD=$(printf ${PARTS[1]//%/\\x})
+  echo -n "${KEYTAB_BASE64_BUILD}" | base64 -d > ./evergreen/drivers.keytab
+  kinit -k -t ./evergreen/drivers.keytab ${PRINCIPAL_BUILD}
 
-  kinit $USER<<<$PWD
-
-  for var in TMP TEMP NUGET_PACKAGES NUGET_HTTP_CACHE_PATH APPDATA; do
-    export $var=/data/tmp;
-  done
+  export AUTH_GSSAPI=${PRINCIPAL_BUILD}
 fi;
+
+export AUTH_HOST=${SASL_HOST_BUILD}
 
 ./evergreen/compile-sources.sh
 TEST_CATEGORY=GssapiMechanism ./evergreen/execute-tests.sh

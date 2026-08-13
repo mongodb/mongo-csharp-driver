@@ -32,13 +32,8 @@ namespace MongoDB.Driver.Tests.Authentication.Libgssapi
 
         public GssapiSecurityCredentialTests()
         {
-            var authGssapi = Environment.GetEnvironmentVariable("AUTH_GSSAPI");
-            if (!string.IsNullOrEmpty(authGssapi))
-            {
-                var authParts = authGssapi.Split(':');
-                _username = Uri.UnescapeDataString(authParts[0]);
-                _password = Uri.UnescapeDataString(authParts[1]);
-            }
+            _username = Environment.GetEnvironmentVariable("AUTH_GSSAPI");
+            _password = Environment.GetEnvironmentVariable("SASL_PASS");
         }
 
         [Fact]

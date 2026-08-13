@@ -80,7 +80,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         // private methods
         private string CreateGssapiConnectionString(string authHost, string mechanismProperty = null)
         {
-            var authGssapi = GetEnvironmentVariable("AUTH_GSSAPI");
+            var authGssapi = Uri.EscapeDataString(GetEnvironmentVariable("AUTH_GSSAPI"));
 
             return $"mongodb://{authGssapi}@{authHost}/kerberos?authMechanism=GSSAPI{mechanismProperty}";
         }
