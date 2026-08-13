@@ -24,6 +24,7 @@ using MongoDB.Driver.Tests.Specifications.Runner;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
@@ -57,6 +58,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 // kmip requires configuring kms mock server
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
+            }
+
+            if (testCase.Name.Contains("legacy.count.json") || testCase.Name.Contains("legacy.unsupportedCommand.json"))
+            {
+                throw new SkipException(".NET/C# driver does not implement Count or MapReduce helpers.");
             }
 
             RequirePlatform

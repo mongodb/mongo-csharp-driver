@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
@@ -91,7 +90,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                 {
                     "aggregate" => new UnifiedAggregateOperationBuilder(_entityMap).BuildCollectionOperation(targetEntityId, operationArguments),
                     "bulkWrite" => new UnifiedBulkWriteOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
-                    "count" => throw new SkipException(".NET/C# driver does not implement a Count helper; use CountDocuments or EstimatedDocumentCount."),
                     "countDocuments" => new UnifiedCountDocumentsOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createChangeStream" => new UnifiedCreateChangeStreamOnCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "createFindCursor" => new UnifiedCreateFindCursorOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
@@ -113,7 +111,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                     "insertOne" => new UnifiedInsertOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listIndexes" => new UnifiedListIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "listSearchIndexes" => new UnifiedListSearchIndexesOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
-                    "mapReduce" => throw new SkipException(".NET/C# driver does not implement a MapReduce helper; use an aggregation pipeline."),
                     "rename" => new UnifiedRenameCollectionOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "replaceOne" => new UnifiedReplaceOneOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
                     "updateMany" => new UnifiedUpdateManyOperationBuilder(_entityMap).Build(targetEntityId, operationArguments),
