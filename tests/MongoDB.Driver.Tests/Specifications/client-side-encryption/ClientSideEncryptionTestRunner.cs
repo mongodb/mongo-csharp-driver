@@ -60,9 +60,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
             }
 
-            if (testCase.Name.Contains("legacy.count.json") || testCase.Name.Contains("legacy.unsupportedCommand.json"))
+            if (testCase.Name.Contains("legacy.count.json"))
             {
-                throw new SkipException(".NET/C# driver does not implement Count or MapReduce helpers.");
+                throw new SkipException(".NET/C# driver does not implement a Count helper.");
             }
 
             RequirePlatform

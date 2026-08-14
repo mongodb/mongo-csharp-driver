@@ -2815,6 +2815,200 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void MapReduce_with_inline_output_mode_should_execute_a_MapReduceOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var session = CreateSession(usingSession);
+            var map = new BsonJavaScript("map");
+            var reduce = new BsonJavaScript("reduce");
+            var filterDocument = new BsonDocument("filter", 1);
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var sortDocument = new BsonDocument("sort", 1);
+            var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+#pragma warning disable CS0618 // Type or member is obsolete
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
+#pragma warning restore CS0618 // Type or member is obsolete
+            {
+                Collation = new Collation("en_US"),
+                Filter = filterDefinition,
+                Finalize = new BsonJavaScript("finalizer"),
+#pragma warning disable 618
+                JavaScriptMode = true,
+#pragma warning restore 618
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+#pragma warning disable CS0618 // Type or member is obsolete
+                OutputOptions = MapReduceOutputOptions.Inline,
+#pragma warning restore CS0618 // Type or member is obsolete
+                Scope = new BsonDocument("test", 3),
+                Sort = sortDefinition,
+                Verbose = true
+            };
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduceAsync(session, map, reduce, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduce(session, map, reduce, options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+            }
+            else
+            {
+                if (async)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduceAsync(map, reduce, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduce(map, reduce, options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+            }
+
+            var call = _operationExecutor.GetReadCall<IAsyncCursor<BsonDocument>>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var operation = call.Operation.Should().BeOfType<MapReduceOperation<BsonDocument>>().Subject;
+#pragma warning restore CS0618 // Type or member is obsolete
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Filter.Should().Be(filterDocument);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+#pragma warning disable 618
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+#pragma warning restore 618
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(map);
+            operation.MaxTime.Should().Be(options.MaxTime);
+            operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
+            operation.ReduceFunction.Should().Be(reduce);
+            operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
+            operation.Scope.Should().Be(options.Scope);
+            operation.Sort.Should().Be(sortDocument);
+            operation.Verbose.Should().Be(options.Verbose);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void MapReduce_with_collection_output_mode_should_execute_a_MapReduceOutputToCollectionOperation(
+            [Values(false, true)] bool usingSession,
+            [Values(false, true)] bool async)
+        {
+            var writeConcern = new WriteConcern(1);
+            var subject = CreateSubject<BsonDocument>().WithWriteConcern(writeConcern);
+            var session = CreateSession(usingSession);
+            var map = new BsonJavaScript("map");
+            var reduce = new BsonJavaScript("reduce");
+            var filterDocument = new BsonDocument("filter", 1);
+            var filterDefinition = (FilterDefinition<BsonDocument>)filterDocument;
+            var sortDocument = new BsonDocument("sort", 1);
+            var sortDefinition = (SortDefinition<BsonDocument>)sortDocument;
+#pragma warning disable CS0618 // Type or member is obsolete
+            var options = new MapReduceOptions<BsonDocument, BsonDocument>
+#pragma warning restore CS0618 // Type or member is obsolete
+            {
+                BypassDocumentValidation = true,
+                Collation = new Collation("en_US"),
+                Filter = filterDefinition,
+                Finalize = new BsonJavaScript("finalizer"),
+#pragma warning disable 618
+                JavaScriptMode = true,
+#pragma warning restore 618
+                Limit = 10,
+                MaxTime = TimeSpan.FromMinutes(2),
+#pragma warning disable 618
+                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
+#pragma warning restore 618
+                Scope = new BsonDocument("test", 3),
+                Sort = sortDefinition,
+                Verbose = true
+            };
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            if (usingSession)
+            {
+                if (async)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduceAsync(session, map, reduce, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduce(session, map, reduce, options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+            }
+            else
+            {
+                if (async)
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduceAsync(map, reduce, options, cancellationToken).GetAwaiter().GetResult();
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+                else
+                {
+#pragma warning disable CS0618 // Type or member is obsolete
+                    subject.MapReduce(map, reduce, options, cancellationToken);
+#pragma warning restore CS0618 // Type or member is obsolete
+                }
+            }
+
+            var call = _operationExecutor.GetWriteCall<BsonDocument>();
+            VerifySessionAndCancellationToken(call, session, cancellationToken);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var operation = call.Operation.Should().BeOfType<MapReduceOutputToCollectionOperation>().Subject;
+#pragma warning restore CS0618 // Type or member is obsolete
+            operation.BypassDocumentValidation.Should().Be(options.BypassDocumentValidation);
+            operation.Collation.Should().BeSameAs(options.Collation);
+            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
+            operation.Filter.Should().Be(filterDocument);
+            operation.FinalizeFunction.Should().Be(options.Finalize);
+#pragma warning disable 618
+            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
+#pragma warning restore 618
+            operation.Limit.Should().Be(options.Limit);
+            operation.MapFunction.Should().Be(map);
+            operation.MaxTime.Should().Be(options.MaxTime);
+#pragma warning disable 618
+            operation.NonAtomicOutput.Should().NotHaveValue();
+#pragma warning restore 618
+            operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
+#pragma warning disable CS0618 // Type or member is obsolete
+            operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
+#pragma warning restore CS0618 // Type or member is obsolete
+            operation.ReduceFunction.Should().Be(reduce);
+            operation.Scope.Should().Be(options.Scope);
+#pragma warning disable 618
+            operation.ShardedOutput.Should().Be(true);
+#pragma warning restore 618
+            operation.Sort.Should().Be(sortDocument);
+            operation.Verbose.Should().Be(options.Verbose);
+            operation.WriteConcern.Should().BeSameAs(writeConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void ReplaceOne_should_execute_a_BulkMixedOperation(
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,

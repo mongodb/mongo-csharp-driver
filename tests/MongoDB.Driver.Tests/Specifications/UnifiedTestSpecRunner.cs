@@ -397,10 +397,6 @@ namespace MongoDB.Driver.Tests.Specifications
             "Deprecated count with rawData option",
             "Deprecated count with rawData option on less than 8.2.0 - ignore argument",
 
-            // readWriteConcern
-            // .NET/C# driver does not implement a MapReduce helper
-            "MapReduce omits default write concern",
-
             // retryableReads
             "collection.findOne succeeds after retryable handshake network error",
             "collection.findOne succeeds after retryable handshake server error (ShutdownInProgress)",
@@ -440,13 +436,11 @@ namespace MongoDB.Driver.Tests.Specifications
             "listIndexNames.json",
             "listIndexNames-serverErrors.json",
 
-            // .NET/C# driver does not implement Count or MapReduce helpers.
+            // .NET/C# driver does not implement a Count helper.
             // Qualified by resource namespace because other specs have files of the same name that must keep running.
             "retryable_reads.tests.unified.count.json",
             "retryable_reads.tests.unified.count-serverErrors.json",
-            "retryable_reads.tests.unified.mapReduce.json",
-            "transactions.tests.unified.count.json",
-            "open_telemetry.operation.map_reduce.json"
+            "transactions.tests.unified.count.json"
         ]);
 
         #region CMAP helpers

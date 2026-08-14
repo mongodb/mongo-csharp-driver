@@ -491,6 +491,70 @@ namespace MongoDB.Driver
             return ExecuteWriteOperationAsync(session, operation, options?.Timeout, cancellationToken);
         }
 
+        [Obsolete("Use Aggregation pipeline instead.")]
+        public override IAsyncCursor<TResult> MapReduce<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return MapReduce(session, map, reduce, options, cancellationToken: cancellationToken);
+        }
+
+        [Obsolete("Use Aggregation pipeline instead.")]
+        public override IAsyncCursor<TResult> MapReduce<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(map, nameof(map));
+            Ensure.IsNotNull(reduce, nameof(reduce));
+            options ??= new MapReduceOptions<TDocument, TResult>();
+
+            var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
+            var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
+
+            var renderArgs = GetRenderArgs();
+            if (outputOptions == MapReduceOutputOptions.Inline)
+            {
+                var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
+                return ExecuteReadOperation(session, operation, options.Timeout, cancellationToken);
+            }
+            else
+            {
+                var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
+                ExecuteWriteOperation(session, mapReduceOperation, options.Timeout, cancellationToken);
+                return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
+            }
+        }
+
+        [Obsolete("Use Aggregation pipeline instead.")]
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
+        {
+            using var session = _operationExecutor.StartImplicitSession();
+            return await MapReduceAsync(session, map, reduce, options, cancellationToken).ConfigureAwait(false);
+        }
+
+        [Obsolete("Use Aggregation pipeline instead.")]
+        public override async Task<IAsyncCursor<TResult>> MapReduceAsync<TResult>(IClientSessionHandle session, BsonJavaScript map, BsonJavaScript reduce, MapReduceOptions<TDocument, TResult> options = null, CancellationToken cancellationToken = default)
+        {
+            Ensure.IsNotNull(session, nameof(session));
+            Ensure.IsNotNull(map, nameof(map));
+            Ensure.IsNotNull(reduce, nameof(reduce));
+            options ??= new MapReduceOptions<TDocument, TResult>();
+
+            var outputOptions = options.OutputOptions ?? MapReduceOutputOptions.Inline;
+            var resultSerializer = ResolveResultSerializer<TResult>(options.ResultSerializer);
+
+            var renderArgs = GetRenderArgs();
+            if (outputOptions == MapReduceOutputOptions.Inline)
+            {
+                var operation = CreateMapReduceOperation(map, reduce, options, resultSerializer, renderArgs);
+                return await ExecuteReadOperationAsync(session, operation, options.Timeout, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                var mapReduceOperation = CreateMapReduceOutputToCollectionOperation(map, reduce, options, outputOptions, renderArgs);
+                await ExecuteWriteOperationAsync(session, mapReduceOperation, options.Timeout, cancellationToken).ConfigureAwait(false);
+                return CreateMapReduceOutputToCollectionResultCursor(session, options, mapReduceOperation.OutputCollectionNamespace, resultSerializer);
+            }
+        }
+
         public override IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>()
         {
             var derivedDocumentSerializer = _settings.SerializationDomain.LookupSerializer<TDerivedDocument>();
@@ -1028,6 +1092,112 @@ namespace MongoDB.Driver
             };
         }
 
+#pragma warning disable CS0618 // Type or member is obsolete
+        private MapReduceOperation<TResult> CreateMapReduceOperation<TResult>(
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            MapReduceOptions<TDocument, TResult> options,
+            IBsonSerializer<TResult> resultSerializer,
+            RenderArgs<TDocument> renderArgs)
+        {
+            return new MapReduceOperation<TResult>(
+#pragma warning restore CS0618 // Type or member is obsolete
+                _collectionNamespace,
+                map,
+                reduce,
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                Collation = options.Collation,
+                Filter = options.Filter?.Render(renderArgs),
+                FinalizeFunction = options.Finalize,
+#pragma warning disable 618
+                JavaScriptMode = options.JavaScriptMode,
+#pragma warning restore 618
+                Limit = options.Limit,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                Scope = options.Scope,
+                Sort = options.Sort?.Render(renderArgs),
+                Verbose = options.Verbose
+            };
+        }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        private MapReduceOutputToCollectionOperation CreateMapReduceOutputToCollectionOperation<TResult>(
+            BsonJavaScript map,
+            BsonJavaScript reduce,
+            MapReduceOptions<TDocument, TResult> options,
+            MapReduceOutputOptions outputOptions,
+            RenderArgs<TDocument> renderArgs)
+        {
+            var collectionOutputOptions = (MapReduceOutputOptions.CollectionOutput)outputOptions;
+            var databaseNamespace = collectionOutputOptions.DatabaseName == null ?
+                _collectionNamespace.DatabaseNamespace :
+                new DatabaseNamespace(collectionOutputOptions.DatabaseName);
+            var outputCollectionNamespace = new CollectionNamespace(databaseNamespace, collectionOutputOptions.CollectionName);
+
+            return new MapReduceOutputToCollectionOperation(
+#pragma warning restore CS0618 // Type or member is obsolete
+                _collectionNamespace,
+                outputCollectionNamespace,
+                map,
+                reduce,
+                _messageEncoderSettings)
+            {
+                BypassDocumentValidation = options.BypassDocumentValidation,
+                Collation = options.Collation,
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                Filter = options.Filter?.Render(renderArgs),
+                FinalizeFunction = options.Finalize,
+#pragma warning disable 618
+                JavaScriptMode = options.JavaScriptMode,
+#pragma warning restore 618
+                Limit = options.Limit,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                MaxTime = options.MaxTime,
+#pragma warning disable 618
+                NonAtomicOutput = collectionOutputOptions.NonAtomic,
+#pragma warning restore 618
+                OutputMode = collectionOutputOptions.OutputMode,
+                RetryRequested = _database.Client.Settings.RetryWrites,
+                Scope = options.Scope,
+#pragma warning disable 618
+                ShardedOutput = collectionOutputOptions.Sharded,
+#pragma warning restore 618
+                Sort = options.Sort?.Render(renderArgs),
+                Verbose = options.Verbose,
+                WriteConcern = _settings.WriteConcern
+            };
+        }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        private IAsyncCursor<TResult> CreateMapReduceOutputToCollectionResultCursor<TResult>(IClientSessionHandle session, MapReduceOptions<TDocument, TResult> options, CollectionNamespace outputCollectionNamespace, IBsonSerializer<TResult> resultSerializer)
+#pragma warning restore CS0618 // Type or member is obsolete
+        {
+            var findOperation = new FindOperation<TResult>(
+                outputCollectionNamespace,
+                resultSerializer,
+                _messageEncoderSettings)
+            {
+                Collation = options.Collation,
+                EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
+                MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
+                MaxTime = options.MaxTime,
+                ReadConcern = _settings.ReadConcern,
+                RetryRequested = _database.Client.Settings.RetryReads
+            };
+
+            // we want to delay execution of the find because the user may
+            // not want to iterate the results at all...
+            var forkedSession = session.Fork();
+            var deferredCursor = new DeferredAsyncCursor<TResult>(
+                () => forkedSession.Dispose(),
+                ct => ExecuteReadOperation(forkedSession, findOperation, ReadPreference.Primary, options?.Timeout, ct),
+                ct => ExecuteReadOperationAsync(forkedSession, findOperation, ReadPreference.Primary, options?.Timeout, ct));
+            return deferredCursor;
+        }
+
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
         {
             var operationContext = session.WrappedCoreSession.CurrentTransaction?.OperationContext;
@@ -1180,6 +1350,21 @@ namespace MongoDB.Driver
             }
 
             return renderedArrayFilters;
+        }
+
+        private IBsonSerializer<TResult> ResolveResultSerializer<TResult>(IBsonSerializer<TResult> resultSerializer)
+        {
+            if (resultSerializer != null)
+            {
+                return resultSerializer;
+            }
+
+            if (typeof(TResult) == typeof(TDocument) && _documentSerializer != null)
+            {
+                return (IBsonSerializer<TResult>)_documentSerializer;
+            }
+
+            return _settings.SerializationDomain.LookupSerializer<TResult>();
         }
 
         // nested types

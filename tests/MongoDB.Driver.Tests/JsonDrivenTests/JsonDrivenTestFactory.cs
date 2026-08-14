@@ -171,6 +171,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
                         case "insertOne": return new JsonDrivenInsertOneTest(collection, _objectMap);
                         case "listIndexes": return new JsonDrivenListIndexesTest(collection, _objectMap);
                         case "listIndexNames": throw new SkipException(".NET/C# driver does not implement a ListIndexNames helper.");
+                        case "mapReduce": return new JsonDrivenMapReduceTest(collection, _objectMap);
                         case "replaceOne": return new JsonDrivenReplaceOneTest(collection, _objectMap);
                         case "updateMany": return new JsonDrivenUpdateManyTest(collection, _objectMap);
                         case "updateOne": return new JsonDrivenUpdateOneTest(collection, _objectMap);
