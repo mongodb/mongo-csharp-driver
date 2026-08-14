@@ -76,7 +76,6 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(3, 6, 0);
             var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
@@ -91,7 +90,6 @@ namespace MongoDB.Driver.Core.Servers
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             subject.AverageRoundTripTime.Should().Be(TimeSpan.FromSeconds(1));
@@ -159,7 +157,6 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("State")]
         [InlineData("Tags")]
         [InlineData("Type")]
-        [InlineData("Version")]
         [InlineData("WireVersionRange")]
         public void Equals_should_return_false_when_any_field_is_not_equal(string notEqualField)
         {
@@ -179,7 +176,6 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(3, 6, 0);
             var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
@@ -195,7 +191,6 @@ namespace MongoDB.Driver.Core.Servers
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             switch (notEqualField)
@@ -211,7 +206,6 @@ namespace MongoDB.Driver.Core.Servers
                 case "ServerId": serverId = new ServerId(new ClusterId(), endPoint); break;
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
-                case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
                 case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
@@ -228,7 +222,6 @@ namespace MongoDB.Driver.Core.Servers
                 logicalSessionTimeout: logicalSessionTimeout,
                 replicaSetConfig: replicaSetConfig,
                 tags: tags,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             subject.Equals(serverDescription2).Should().BeFalse();
@@ -332,7 +325,6 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("AverageRoundTripTime")]
         [InlineData("LastUpdateTimestamp")]
         [InlineData("State")]
-        [InlineData("Version")]
         [InlineData("MaxBatchCount")]
         [InlineData("MaxDocumentSize")]
         [InlineData("MaxMessageSize")]
@@ -348,7 +340,6 @@ namespace MongoDB.Driver.Core.Servers
             var averageRoundTripTime = TimeSpan.FromSeconds(1);
             var lastUpdateTimestamp = DateTime.UtcNow;
             var state = ServerState.Connected;
-            var version = new SemanticVersion(3, 6, 0);
             var maxBatchCount = 1000;
             var maxDocumentSize = 16000000;
             var maxMessageSize = 48000000;
@@ -363,7 +354,6 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 state: state,
-                version: version,
                 maxBatchCount: maxBatchCount,
                 maxDocumentSize: maxDocumentSize,
                 maxMessageSize: maxMessageSize,
@@ -377,7 +367,6 @@ namespace MongoDB.Driver.Core.Servers
                 case "AverageRoundTripTime": averageRoundTripTime = averageRoundTripTime.Add(TimeSpan.FromSeconds(1)); break;
                 case "LastUpdateTimestamp": lastUpdateTimestamp = lastUpdateTimestamp.Add(TimeSpan.FromSeconds(1)); break;
                 case "State": state = ServerState.Disconnected; break;
-                case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
                 case "MaxBatchCount": maxBatchCount += 1; break;
                 case "MaxDocumentSize": maxDocumentSize += 1; break;
                 case "MaxMessageSize": maxMessageSize += 1; break;
@@ -394,7 +383,6 @@ namespace MongoDB.Driver.Core.Servers
                 averageRoundTripTime: averageRoundTripTime,
                 lastUpdateTimestamp: lastUpdateTimestamp,
                 state: state,
-                version: version,
                 maxBatchCount: maxBatchCount,
                 maxDocumentSize: maxDocumentSize,
                 maxMessageSize: maxMessageSize,
@@ -573,7 +561,6 @@ namespace MongoDB.Driver.Core.Servers
         [InlineData("State")]
         [InlineData("Tags")]
         [InlineData("Type")]
-        [InlineData("Version")]
         [InlineData("WireVersionRange")]
         public void With_should_return_new_instance_when_a_field_is_not_equal(string notEqualField)
         {
@@ -598,7 +585,6 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(3, 6, 0);
             var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
@@ -621,7 +607,6 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 tags: tags,
                 type: type,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             switch (notEqualField)
@@ -643,7 +628,6 @@ namespace MongoDB.Driver.Core.Servers
                 case "State": state = ServerState.Disconnected; break;
                 case "Tags": tags = new TagSet(new[] { new Tag("x", "b") }); break;
                 case "Type": type = ServerType.ReplicaSetSecondary; break;
-                case "Version": version = new SemanticVersion(version.Major, version.Minor, version.Patch + 1); break;
                 case "WireVersionRange": wireVersionRange = new Range<int>(0, 0); break;
             }
 
@@ -665,7 +649,6 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 tags: tags,
                 type: type,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             result.Should().NotBeSameAs(subject);
@@ -688,7 +671,6 @@ namespace MongoDB.Driver.Core.Servers
             var state = ServerState.Connected;
             var tags = new TagSet(new[] { new Tag("x", "a") });
             var type = ServerType.ReplicaSetPrimary;
-            var version = new SemanticVersion(3, 6, 0);
             var wireVersionRange = new Range<int>(6, 14);
 
             var subject = new ServerDescription(
@@ -701,7 +683,6 @@ namespace MongoDB.Driver.Core.Servers
                 state: state,
                 tags: tags,
                 type: type,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             var result = subject.With(
@@ -712,7 +693,6 @@ namespace MongoDB.Driver.Core.Servers
                 state: ServerState.Connected,
                 tags: tags,
                 type: type,
-                version: version,
                 wireVersionRange: wireVersionRange);
 
             result.ShouldBeEquivalentTo(subject);
