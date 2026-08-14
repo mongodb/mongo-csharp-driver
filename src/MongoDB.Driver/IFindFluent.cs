@@ -52,22 +52,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Counts the number of documents.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The count.</returns>
-        [Obsolete("Use CountDocuments instead.")]
-        long Count(CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task whose result is the count.</returns>
-        [Obsolete("Use CountDocumentsAsync instead.")]
-        Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents.
-        /// </summary>
         /// <remarks>
         /// Note: when migrating from Count to CountDocuments the following query operations must be replaced:
         /// 

@@ -31,8 +31,6 @@ namespace MongoDB.Driver.Core.Operations
         public BsonDocument AdditionalOptions { get; set; }
         public bool? Background { get; set; }
         public int? Bits { get; set; }
-        [Obsolete("GeoHaystack indexes were deprecated in server version 4.4.")]
-        public double? BucketSize { get; set; }
         public Collation Collation { get; set; }
         public string DefaultLanguage { get; set; }
         public TimeSpan? ExpireAfter { get; set; }
@@ -81,9 +79,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "name", GetIndexName() },
                 { "background", () => Background.Value, Background.HasValue },
                 { "bits", () => Bits.Value, Bits.HasValue },
-#pragma warning disable CS0618 // Type or member is obsolete
-                { "bucketSize", () => BucketSize.Value, BucketSize.HasValue },
-#pragma warning restore CS0618 // Type or member is obsolete
                 { "collation", () => Collation.ToBsonDocument(), Collation != null },
                 { "default_language", () => DefaultLanguage, DefaultLanguage != null },
                 { "expireAfterSeconds", () => ExpireAfter.Value.TotalSeconds, ExpireAfter.HasValue },

@@ -200,56 +200,6 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="filter">The filter.</param>
-        /// <param name="options">The options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>
-        /// The number of documents in the collection.
-        /// </returns>
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        /// <summary>
-        /// Counts the number of documents in the collection.
         /// For a fast estimate of the total documents in a collection see <see cref="EstimatedDocumentCount"/>.
         /// </summary>
         /// <remarks>

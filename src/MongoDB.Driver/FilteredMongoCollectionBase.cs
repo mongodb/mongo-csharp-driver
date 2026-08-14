@@ -148,30 +148,6 @@ namespace MongoDB.Driver
             return _wrappedCollection.BulkWriteAsync(session, CombineModelFilters(requests), options, cancellationToken);
         }
 
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.Count(CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public override long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.Count(session, CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.CountAsync(CombineFilters(filter), options, cancellationToken);
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public override Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return _wrappedCollection.CountAsync(session, CombineFilters(filter), options, cancellationToken);
-        }
-
         public override long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _wrappedCollection.CountDocuments(CombineFilters(filter), options, cancellationToken);

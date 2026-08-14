@@ -317,9 +317,6 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        public abstract IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer);
-
-        /// <inheritdoc />
         public virtual IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, AggregateUnwindOptions<TNewResult> options)
         {
             throw new NotImplementedException();

@@ -184,12 +184,6 @@ namespace MongoDB.Driver.Core.Servers
             }
         }
 
-        [Obsolete("Use Invalidate with TopologyDescription instead.")]
-        public void Invalidate(string reasonInvalidated)
-        {
-            Invalidate(reasonInvalidated, responseTopologyDescription: null);
-        }
-
         public void Invalidate(string reasonInvalidated, TopologyVersion responseTopologyDescription)
         {
             Invalidate(reasonInvalidated, clearConnectionPool: true, responseTopologyDescription);

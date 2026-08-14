@@ -86,27 +86,6 @@ namespace MongoDB.Driver.Encryption
         /// <param name="collectionName">The collection name.</param>
         /// <param name="createCollectionOptions">The create collection options.</param>
         /// <param name="kmsProvider">The kms provider.</param>
-        /// <param name="dataKeyOptions">The datakey options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The operation result.</returns>
-        /// <remarks>
-        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
-        /// </remarks>
-        [Obsolete("Use the overload with masterKey instead.")]
-        public CreateEncryptedCollectionResult CreateEncryptedCollection(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
-        {
-            Ensure.That(dataKeyOptions?.AlternateKeyNames == null && dataKeyOptions?.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
-
-            return CreateEncryptedCollection(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions?.MasterKey, cancellationToken);
-        }
-
-        /// <summary>
-        /// Create encrypted collection.
-        /// </summary>
-        /// <param name="database">The database.</param>
-        /// <param name="collectionName">The collection name.</param>
-        /// <param name="createCollectionOptions">The create collection options.</param>
-        /// <param name="kmsProvider">The kms provider.</param>
         /// <param name="masterKey">The master key.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The operation result.</returns>
@@ -140,27 +119,6 @@ namespace MongoDB.Driver.Encryption
             }
 
             return new CreateEncryptedCollectionResult(encryptedFields);
-        }
-
-        /// <summary>
-        /// Create encrypted collection.
-        /// </summary>
-        /// <param name="database">The database.</param>
-        /// <param name="collectionName">The collection name.</param>
-        /// <param name="createCollectionOptions">The create collection options.</param>
-        /// <param name="kmsProvider">The kms provider.</param>
-        /// <param name="dataKeyOptions">The datakey options.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The operation result.</returns>
-        /// <remarks>
-        /// If EncryptionFields contains a keyId with a null value, a data key will be automatically generated and returned in <see cref="CreateEncryptedCollectionResult.EncryptedFields"/>.
-        /// </remarks>
-        [Obsolete("Use the overload with masterKey instead.")]
-        public Task<CreateEncryptedCollectionResult> CreateEncryptedCollectionAsync(IMongoDatabase database, string collectionName, CreateCollectionOptions createCollectionOptions, string kmsProvider, DataKeyOptions dataKeyOptions, CancellationToken cancellationToken = default)
-        {
-            Ensure.That(dataKeyOptions?.AlternateKeyNames == null && dataKeyOptions?.KeyMaterial == null, $"{nameof(CreateEncryptedCollection)} supports only {nameof(dataKeyOptions.MasterKey)} in {nameof(DataKeyOptions)}.");
-
-            return CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions?.MasterKey, cancellationToken);
         }
 
         /// <summary>

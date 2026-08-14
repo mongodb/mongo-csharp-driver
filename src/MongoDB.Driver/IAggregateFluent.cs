@@ -527,18 +527,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// Appends an unwind stage to the pipeline.
         /// </summary>
-        /// <typeparam name="TNewResult">The type of the result of the stage.</typeparam>
-        /// <param name="field">The field.</param>
-        /// <param name="newResultSerializer">The new result serializer.</param>
-        /// <returns>
-        /// The fluent aggregate interface.
-        /// </returns>
-        [Obsolete("Use the Unwind overload which takes an options parameter.")]
-        IAggregateFluent<TNewResult> Unwind<TNewResult>(FieldDefinition<TResult> field, IBsonSerializer<TNewResult> newResultSerializer);
-
-        /// <summary>
-        /// Appends an unwind stage to the pipeline.
-        /// </summary>
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="options">The options.</param>

@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         /// level key because <c>{ "0": "a" }</c> is not ambiguous - update paths would simply be <c>'0'</c> which is unambiguous because BSON documents cannot have
         /// arrays at the top level. Each entry in the document maps an update path to an array which contains the actual path used when the document
         /// was updated. For example, given a document with the following shape <c>{ "a": { "0": 0 } }</c> and an update of <c>{ $inc: { "a.0": 1 } }</c>,
-        /// <see cref="ChangeStreamDocument{TDocument}.DisambiguatedPaths"/> would look like the following:
+        /// the disambiguated paths would look like the following:
         /// </para>
         /// <code>
         ///   {

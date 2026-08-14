@@ -773,20 +773,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl
-        {
-            get { return _useTls; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _useTls = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls
@@ -796,21 +782,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _useTls = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate
-        {
-            get { return !_allowInsecureTls; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                // use property instead of private field because setter has additional side effects
-                AllowInsecureTls = !value;
             }
         }
 

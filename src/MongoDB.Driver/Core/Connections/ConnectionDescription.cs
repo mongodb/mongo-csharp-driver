@@ -36,7 +36,6 @@ namespace MongoDB.Driver.Core.Connections
         private readonly int _maxMessageSize;
         private readonly int _maxWireVersion;
         private readonly int _minWireVersion;
-        private readonly SemanticVersion _serverVersion;
         private readonly ObjectId? _serviceId;
 
         // constructors
@@ -57,7 +56,6 @@ namespace MongoDB.Driver.Core.Connections
             _maxWireVersion = helloResult.MaxWireVersion;
             _minWireVersion = helloResult.MinWireVersion;
             _serviceId = helloResult.ServiceId;
-            _serverVersion = WireVersion.ToServerVersion(_maxWireVersion);
         }
 
         // properties
@@ -155,18 +153,6 @@ namespace MongoDB.Driver.Core.Connections
         public int MinWireVersion
         {
             get { return _minWireVersion; }
-        }
-
-        /// <summary>
-        /// Gets the server version.
-        /// </summary>
-        /// <value>
-        /// The server version.
-        /// </value>
-        [Obsolete("Use MaxWireVersion instead.")]
-        public SemanticVersion ServerVersion
-        {
-            get { return _serverVersion; }
         }
 
         /// <summary>

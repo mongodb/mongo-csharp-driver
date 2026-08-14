@@ -49,7 +49,6 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private bool _retryRequested;
-        private bool? _useCursor;
 
         // constructors
         /// <summary>
@@ -274,19 +273,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         public bool IsOperationRetryable => true;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should use a cursor to return the results.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the server should use a cursor to return the results.
-        /// </value>
-        [Obsolete("Server versions 3.6 and newer always use a cursor.")]
-        public bool? UseCursor
-        {
-            get { return _useCursor; }
-            set { _useCursor = value; }
-        }
 
         // methods
         /// <inheritdoc/>

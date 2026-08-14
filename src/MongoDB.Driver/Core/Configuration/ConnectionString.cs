@@ -500,21 +500,6 @@ namespace MongoDB.Driver.Core.Configuration
         public string SrvServiceName => _srvServiceName;
 
         /// <summary>
-        /// Gets whether to use SSL.
-        /// </summary>
-        [Obsolete("Use Tls instead.")]
-        public bool? Ssl
-        {
-            get { return _tls; }
-        }
-
-        /// <summary>
-        /// Gets whether to verify SSL certificates.
-        /// </summary>
-        [Obsolete("Use TlsInsecure instead.")]
-        public bool? SslVerifyCertificate => !_tlsInsecure;
-
-        /// <summary>
         /// Gets the per-operation timeout.
         /// </summary>
         // TODO: CSOT: Make it public when CSOT will be ready for GA

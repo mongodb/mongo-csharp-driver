@@ -191,7 +191,6 @@ namespace MongoDB.Driver.Tests
                 logicalSessionTimeout: TimeSpan.FromMinutes(30),
                 state: ServerState.Connected,
                 type: ServerType.ShardRouter,
-                version: new SemanticVersion(3, 6, 0),
                 wireVersionRange: new Range<int>(6, 14));
 
             var clusterDescription = new ClusterDescription(clusterId, false, null, clusterType, [serverDescription]);

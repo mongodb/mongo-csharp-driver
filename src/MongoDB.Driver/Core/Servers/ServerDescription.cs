@@ -100,7 +100,6 @@ namespace MongoDB.Driver.Core.Servers
         private readonly TagSet _tags;
         private readonly TopologyVersion _topologyVersion;
         private readonly ServerType _type;
-        private readonly SemanticVersion _version;
         private readonly Range<int> _wireVersionRange;
 
         // constructors
@@ -129,7 +128,6 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="tags">The replica set tags.</param>
         /// <param name="topologyVersion">The topology version.</param>
         /// <param name="type">The server type.</param>
-        /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
         /// <exception cref="ArgumentException">EndPoint and ServerId.EndPoint must match.</exception>
         public ServerDescription(
@@ -155,7 +153,6 @@ namespace MongoDB.Driver.Core.Servers
             Optional<TagSet> tags = default(Optional<TagSet>),
             Optional<TopologyVersion> topologyVersion = default(Optional<TopologyVersion>),
             Optional<ServerType> type = default(Optional<ServerType>),
-            Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
             Ensure.IsNotNull(endPoint, nameof(endPoint));
@@ -187,7 +184,6 @@ namespace MongoDB.Driver.Core.Servers
             _tags = tags.WithDefault(null);
             _topologyVersion = topologyVersion.WithDefault(null);
             _type = type.WithDefault(ServerType.Unknown);
-            _version = version.WithDefault(null);
             _wireVersionRange = wireVersionRange.WithDefault(null);
         }
 
@@ -481,18 +477,6 @@ namespace MongoDB.Driver.Core.Servers
         }
 
         /// <summary>
-        /// Gets the approximate server version (only the major and minor version numbers are known).
-        /// </summary>
-        /// <value>
-        /// The server version.
-        /// </value>
-        [Obsolete("This property will be removed in a later release.")]
-        public SemanticVersion Version
-        {
-            get { return _version; }
-        }
-
-        /// <summary>
         /// Gets the wire version range.
         /// </summary>
         /// <value>
@@ -540,7 +524,6 @@ namespace MongoDB.Driver.Core.Servers
                 _state == other._state &&
                 object.Equals(_tags, other._tags) &&
                 _type == other._type &&
-                object.Equals(_version, other._version) &&
                 object.Equals(_wireVersionRange, other._wireVersionRange);
         }
 
@@ -571,7 +554,6 @@ namespace MongoDB.Driver.Core.Servers
                 .Hash(_tags)
                 .Hash(_topologyVersion)
                 .Hash(_type)
-                .Hash(_version)
                 .Hash(_wireVersionRange)
                 .GetHashCode();
         }
@@ -607,7 +589,6 @@ namespace MongoDB.Driver.Core.Servers
                 .AppendFormat(", EndPoint: \"{0}\"", _endPoint)
                 .AppendFormat(", ReasonChanged: \"{0}\"", _reasonChanged)
                 .AppendFormat(", State: \"{0}\"", _state)
-                .Append($", ServerVersion: {_version}")
                 .Append($", TopologyVersion: {_topologyVersion}")
                 .AppendFormat(", Type: \"{0}\"", _type)
                 .AppendFormatIf(_tags != null && !_tags.IsEmpty, ", Tags: \"{0}\"", _tags)
@@ -643,7 +624,6 @@ namespace MongoDB.Driver.Core.Servers
         /// <param name="tags">The replica set tags.</param>
         /// <param name="topologyVersion">The topology version.</param>
         /// <param name="type">The server type.</param>
-        /// <param name="version">The server version.</param>
         /// <param name="wireVersionRange">The wire version range.</param>
         /// <returns>
         /// A new instance of ServerDescription.
@@ -669,7 +649,6 @@ namespace MongoDB.Driver.Core.Servers
             Optional<TagSet> tags = default(Optional<TagSet>),
             Optional<TopologyVersion> topologyVersion = default(Optional<TopologyVersion>),
             Optional<ServerType> type = default(Optional<ServerType>),
-            Optional<SemanticVersion> version = default(Optional<SemanticVersion>),
             Optional<Range<int>> wireVersionRange = default(Optional<Range<int>>))
         {
             return new ServerDescription(
@@ -695,7 +674,6 @@ namespace MongoDB.Driver.Core.Servers
                 tags: tags.WithDefault(_tags),
                 topologyVersion: topologyVersion.WithDefault(_topologyVersion),
                 type: type.WithDefault(_type),
-                version: version.WithDefault(_version),
                 wireVersionRange: wireVersionRange.WithDefault(_wireVersionRange));
         }
 
@@ -731,7 +709,6 @@ namespace MongoDB.Driver.Core.Servers
                 tags: _tags,
                 topologyVersion: _topologyVersion,
                 type: _type,
-                version: _version,
                 wireVersionRange: _wireVersionRange);
         }
     }

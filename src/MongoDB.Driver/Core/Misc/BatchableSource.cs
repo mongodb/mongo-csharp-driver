@@ -47,30 +47,6 @@ namespace MongoDB.Driver.Core.Misc
 
         // constructors
         /// <summary>
-        /// Initializes a new instance of the <see cref="BatchableSource{T}"/> class.
-        /// </summary>
-        /// <remarks>
-        /// Use this overload when you know the batch is small and won't have to be broken up into sub-batches.
-        /// In that case using this overload is simpler than using an enumerator and using the other constructor.
-        /// </remarks>
-        /// <param name="batch">The single batch.</param>
-        [Obsolete("Use one of the other constructors instead.")]
-        public BatchableSource(IEnumerable<T> batch)
-            : this(Ensure.IsNotNull(batch, nameof(batch)).ToList(), canBeSplit: true)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BatchableSource{T}"/> class.
-        /// </summary>
-        /// <param name="enumerator">The enumerator that will provide the items for the batch.</param>
-        [Obsolete("Use one of the other constructors instead.")]
-        public BatchableSource(IEnumerator<T> enumerator)
-            : this(EnumeratorToList(Ensure.IsNotNull(enumerator, nameof(enumerator))), canBeSplit: true)
-        {
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="BatchableSource{T}" /> class.
         /// </summary>
         /// <param name="items">The items.</param>

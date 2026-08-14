@@ -145,35 +145,6 @@ namespace MongoDB.Driver.Tests.GridFS
             var result = DeserializeFilesCollectionDocument(document);
 
             result.Id.Should().Be(document["_id"].AsObjectId);
-#pragma warning disable 618
-            result.IdAsBsonValue.Should().Be(document["_id"]);
-#pragma warning restore
-        }
-
-        [Fact]
-        public void Id_should_be_deserialized_correctly_when_id_is_not_an_ObjectId()
-        {
-            var document = CreateFilesCollectionDocument();
-            document["_id"] = 123;
-
-            var result = DeserializeFilesCollectionDocument(document);
-
-#pragma warning disable 618
-            result.IdAsBsonValue.Should().Be(document["_id"]);
-#pragma warning restore
-        }
-
-        [Fact]
-        public void IdAsBsonValue_get_should_return_the_expected_result()
-        {
-            var value = (BsonValue)123;
-            var subject = CreateSubject(idAsBsonValue: value);
-
-#pragma warning disable 618
-            var result = subject.IdAsBsonValue;
-#pragma warning restore
-
-            result.Should().Be(value);
         }
 
         [Fact]

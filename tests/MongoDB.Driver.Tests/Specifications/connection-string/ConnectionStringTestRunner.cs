@@ -176,9 +176,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                             connectionString.SrvServiceName.Should().Be(expectedOption.Value.AsString);
                             break;
                         case "ssl":
-#pragma warning disable 618
-                            AssertBoolean(connectionString.Ssl, expectedOption.Value);
-#pragma warning restore 618
+                            // the ssl option is an alias for tls and is surfaced through Tls
+                            AssertBoolean(connectionString.Tls, expectedOption.Value);
                             break;
                         case "timeoutms": //Ignored for now as this is used by CSOT.
                             break;

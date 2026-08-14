@@ -30,47 +30,34 @@ internal static class EncryptionOptionsExtensions
         };
 
     public static BsonDocument CreateDocument(this StringOptions stringOptions) =>
-        CreateStringOptionsDocument(stringOptions.CaseSensitive, stringOptions.DiacriticSensitive, stringOptions.PrefixOptions, stringOptions.SubstringOptions, stringOptions.SuffixOptions);
-
-#pragma warning disable CS0618 // TextOptions is the deprecated alias for StringOptions.
-    public static BsonDocument CreateDocument(this TextOptions textOptions) =>
-        CreateStringOptionsDocument(textOptions.CaseSensitive, textOptions.DiacriticSensitive, textOptions.PrefixOptions, textOptions.SubstringOptions, textOptions.SuffixOptions);
-#pragma warning restore CS0618
-
-    private static BsonDocument CreateStringOptionsDocument(
-        bool caseSensitive,
-        bool diacriticSensitive,
-        PrefixOptions prefixOptions,
-        SubstringOptions substringOptions,
-        SuffixOptions suffixOptions) =>
         new()
         {
-            { "caseSensitive", caseSensitive },
-            { "diacriticSensitive", diacriticSensitive },
+            { "caseSensitive", stringOptions.CaseSensitive },
+            { "diacriticSensitive", stringOptions.DiacriticSensitive },
             {
                 "prefix", () => new BsonDocument
                 {
-                    { "strMaxQueryLength", prefixOptions.StrMaxQueryLength },
-                    { "strMinQueryLength", prefixOptions.StrMinQueryLength }
+                    { "strMaxQueryLength", stringOptions.PrefixOptions.StrMaxQueryLength },
+                    { "strMinQueryLength", stringOptions.PrefixOptions.StrMinQueryLength }
                 },
-                prefixOptions != null
+                stringOptions.PrefixOptions != null
             },
             {
                 "substring", () => new BsonDocument
                 {
-                    { "strMaxLength", substringOptions.StrMaxLength },
-                    { "strMaxQueryLength", substringOptions.StrMaxQueryLength },
-                    { "strMinQueryLength", substringOptions.StrMinQueryLength }
+                    { "strMaxLength", stringOptions.SubstringOptions.StrMaxLength },
+                    { "strMaxQueryLength", stringOptions.SubstringOptions.StrMaxQueryLength },
+                    { "strMinQueryLength", stringOptions.SubstringOptions.StrMinQueryLength }
                 },
-                substringOptions != null
+                stringOptions.SubstringOptions != null
             },
             {
                 "suffix", () => new BsonDocument
                 {
-                    { "strMaxQueryLength", suffixOptions.StrMaxQueryLength },
-                    { "strMinQueryLength", suffixOptions.StrMinQueryLength }
+                    { "strMaxQueryLength", stringOptions.SuffixOptions.StrMaxQueryLength },
+                    { "strMinQueryLength", stringOptions.SuffixOptions.StrMinQueryLength }
                 },
-                suffixOptions != null
+                stringOptions.SuffixOptions != null
             }
         };
 }

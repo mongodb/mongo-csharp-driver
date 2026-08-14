@@ -94,9 +94,6 @@ namespace MongoDB.Driver
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -142,9 +139,6 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
-#pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
-#pragma warning restore 618
         }
 
         [Theory]
@@ -174,9 +168,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
 
             using var cancellationTokenSource1 = new CancellationTokenSource();
@@ -346,9 +337,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -798,72 +786,6 @@ namespace MongoDB.Driver
 
                 exception.Should().BeOfType<NotSupportedException>();
             }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Count_should_execute_a_CountOperation(
-            [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var session = CreateSession(usingSession);
-            var filter = new BsonDocument("x", 1);
-            var options = new CountOptions
-            {
-                Collation = new Collation("en_US"),
-                Hint = "funny",
-                Limit = 10,
-                MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
-            };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            if (usingSession)
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(session, filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(session, filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-            else
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-
-            var call = _operationExecutor.GetReadCall<long>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
-
-            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
         }
 
         [Theory]
@@ -2100,9 +2022,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2166,9 +2085,6 @@ namespace MongoDB.Driver
             request.AdditionalOptions.Should().BeNull();
             request.Background.Should().Be(options.Background);
             request.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2236,9 +2152,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2303,9 +2216,6 @@ namespace MongoDB.Driver
             request1.AdditionalOptions.Should().BeNull();
             request1.Background.Should().Be(options.Background);
             request1.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request1.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2343,9 +2253,6 @@ namespace MongoDB.Driver
             request2.AdditionalOptions.Should().BeNull();
             request2.Background.Should().NotHaveValue();
             request2.Bits.Should().NotHaveValue();
-#pragma warning disable 618
-            request2.BucketSize.Should().NotHaveValue();
-#pragma warning restore 618
             request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();

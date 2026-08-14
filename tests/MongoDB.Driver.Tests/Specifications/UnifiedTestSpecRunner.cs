@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("client_side_operations_timeout.tests")]
         public void ClientSideOperationsTimeout(JsonDrivenTestCase testCase)
         {
+            SkipNotSupportedTestCases(testCase, "count on collection"); // .NET/C# driver does not implement a Count helper
             SkipNotSupportedTestCases(testCase, "dropIndexes");
             SkipNotSupportedTestCases(testCase, "findOne");
             SkipNotSupportedTestCases(testCase, "listIndexNames");
@@ -385,6 +386,17 @@ namespace MongoDB.Driver.Tests.Specifications
             "legacy hello with speculative authenticate",
             "legacy hello without speculative authenticate is not redacted",
 
+            // crud
+            // .NET/C# driver does not implement a Count helper. These files also cover CountDocuments and
+            // EstimatedDocumentCount, so only the Count test cases are excluded.
+            "Deprecated count without a filter",
+            "Deprecated count with a filter",
+            "Deprecated count with skip and limit",
+            "Deprecated count with empty collection",
+            "Deprecated count with collation",
+            "Deprecated count with rawData option",
+            "Deprecated count with rawData option on less than 8.2.0 - ignore argument",
+
             // retryableReads
             "collection.findOne succeeds after retryable handshake network error",
             "collection.findOne succeeds after retryable handshake server error (ShutdownInProgress)",
@@ -418,12 +430,17 @@ namespace MongoDB.Driver.Tests.Specifications
             "findOne.json",
             "findOne-serverErrors.json",
             "listCollectionObjects.json",
-            "listCollectionObjects.json",
             "listCollectionObjects-serverErrors.json",
             "listDatabaseObjects.json",
             "listDatabaseObjects-serverErrors.json",
             "listIndexNames.json",
-            "listIndexNames-serverErrors.json"
+            "listIndexNames-serverErrors.json",
+
+            // .NET/C# driver does not implement a Count helper.
+            // Qualified by resource namespace because other specs have files of the same name that must keep running.
+            "retryable_reads.tests.unified.count.json",
+            "retryable_reads.tests.unified.count-serverErrors.json",
+            "transactions.tests.unified.count.json"
         ]);
 
         #region CMAP helpers

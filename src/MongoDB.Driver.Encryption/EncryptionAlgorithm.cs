@@ -58,15 +58,6 @@ namespace MongoDB.Driver.Encryption
         Range,
 
         /// <summary>
-        /// TextPreview algorithm.
-        /// </summary>
-        /// <remarks>
-        /// This is a deprecated alias for <see cref="String"/> and is translated to "String". Use <see cref="String"/> instead.
-        /// </remarks>
-        [Obsolete("Use String instead.")]
-        TextPreview,
-
-        /// <summary>
         /// String algorithm.
         /// </summary>
         /// <remarks>

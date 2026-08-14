@@ -80,33 +80,9 @@ namespace MongoDB.Driver.Core.Connections
         /// <value>
         /// The local value.
         /// </value>
-        [Obsolete("Use LongLocalValue instead.")]
-        public int LocalValue
-        {
-            get { return (int)_localValue; }
-        }
-
-        /// <summary>
-        /// Gets the local value.
-        /// </summary>
-        /// <value>
-        /// The local value.
-        /// </value>
         public long LongLocalValue
         {
             get { return _localValue; }
-        }
-
-        /// <summary>
-        /// Gets the server value.
-        /// </summary>
-        /// <value>
-        /// The server value.
-        /// </value>
-        [Obsolete("Use LongServerValue instead.")]
-        public int? ServerValue
-        {
-            get { return (int?)_serverValue; }
         }
 
         /// <summary>
