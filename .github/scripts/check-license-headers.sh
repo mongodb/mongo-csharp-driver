@@ -9,6 +9,9 @@
 
 set -uo pipefail
 
+# Byte-exact comparison: pin the locale so awk uses byte semantics everywhere.
+export LC_ALL=C
+
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$root" || exit 2
 
@@ -42,7 +45,9 @@ xargs -0 awk -v ref="$reference" -v bom="$bom" -v marker="$marker" -v excluded="
 
   FILENAME != current { report(current); current = FILENAME }
   { sub(/\r$/, "") }
-  FNR == 1 && index($0, bom) == 1 { $0 = substr($0, 4) }
+  # Compare rather than slice: substr/index offsets are bytes in some awks and
+  # characters in others, so a fixed offset is not portable.
+  FNR == 1 && $0 == (bom want[1]) { $0 = want[1] }
   { lines[FILENAME] = FNR; if (index($0, marker)) seen[FILENAME]++ }
   FNR <= n && $0 != want[FNR] { bad[FILENAME] = 1 }
 
