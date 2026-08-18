@@ -1,4 +1,4 @@
-﻿/* Original work:
+/* Original work:
  *   Copyright 2017 Tom Bentley
  * 
  *   Licensed under the Apache License, Version 2.0 (the "License");
