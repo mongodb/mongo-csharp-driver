@@ -1949,6 +1949,10 @@ axes:
         display_name: "rapid"
         variables:
            VERSION: "rapid"
+      - id: "9.0"
+        display_name: "9.0"
+        variables:
+          VERSION: "9.0"
       - id: "8.0"
         display_name: "8.0"
         variables:
@@ -2460,7 +2464,7 @@ buildvariants:
     - name: unit-tests-net100-csharp14
 
 - matrix_name: stable-api-tests
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
   display_name: "Stable API ${version} ${topology} ${auth} ${ssl} ${os}"
   run_on:
     - windows-2022-latest-small
@@ -2480,7 +2484,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "secure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "replicaset", auth: "auth", ssl: "ssl", os: ["macos-14", "macos-14-arm64"] }
   exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
@@ -2502,7 +2506,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "secure-tests-linux-2204"
-  matrix_spec: { version: ["rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2204" }
+  matrix_spec: { version: ["9.0", "rapid", "latest"], topology: "*", auth: "auth", ssl: "ssl", os: "ubuntu-2204" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2520,7 +2524,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "unsecure-tests-macOS"
-  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
+  matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "replicaset", auth: "noauth", ssl: "nossl", os: ["macos-14", "macos-14-arm64"] }
   exclude_spec: { version: "5.0", topology: "*", auth: "*", ssl: "*", os: "macos-14-arm64" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
@@ -2542,7 +2546,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "unsecure-tests-linux-2204"
-  matrix_spec: { version: ["rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2204" }
+  matrix_spec: { version: ["9.0", "rapid", "latest"], topology: "*", auth: "noauth", ssl: "nossl", os: "ubuntu-2204" }
   display_name: "${version} ${topology} ${auth} ${ssl} ${os}"
   tags: ["tests-variant"]
   tasks:
@@ -2560,7 +2564,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "tests-compression-macOS"
-  matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
+  matrix_spec: { compressor : ["snappy", "zstandard"], auth: "noauth", ssl: "nossl", version: ["5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: ["macos-14", "macos-14-arm64"] }
   exclude_spec: { compressor : "*", auth: "*", ssl: "*", version: "5.0", topology: "*", os: "macos-14-arm64" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
@@ -2582,7 +2586,7 @@ buildvariants:
     - name: test-net60
 
 - matrix_name: "tests-compression-linux-2204"
-  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["rapid", "latest"], topology: "standalone", os: "ubuntu-2204" }
+  matrix_spec: { compressor: "*", auth: "noauth", ssl: "nossl", version: ["9.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2204" }
   display_name: "${version} ${compressor} ${topology} ${auth} ${ssl} ${os} "
   tags: ["tests-variant"]
   tasks:
@@ -2627,14 +2631,14 @@ buildvariants:
     - name: oidc-auth-k8s-gke-task-group
 
 - matrix_name: "ocsp-tests"
-  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], auth: "noauth", ssl: "ssl", topology: "standalone", os: "windows-64" }
   display_name: "OCSP ${version} ${os}"
   batchtime: 20160 # 14 days
   tasks:
     - name: ".ocsp"
 
 - matrix_name: aws-auth-tests-windows
-  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
+  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   run_on:
     - windows-2022-latest-small
@@ -2642,13 +2646,13 @@ buildvariants:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-linux
-  matrix_spec: { version: ["6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
+  matrix_spec: { version: ["6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   tasks:
     - name: aws-auth-tests
 
 - matrix_name: aws-auth-tests-macos
-  matrix_spec: { version: ["6.0", "7.0", "8.0", "rapid", "latest"], topology: "standalone", os: "macos-14" }
+  matrix_spec: { version: ["6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "macos-14" }
   display_name: "MONGODB-AWS Auth test ${version} ${os}"
   tasks:
     - name: aws-auth-tests
@@ -2685,7 +2689,7 @@ buildvariants:
     - name: "test-load-balancer-net60"
 
 - matrix_name: load-balancer-tests-2204
-  matrix_spec: { version: ["rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2204" }
+  matrix_spec: { version: ["9.0", "rapid", "latest"], auth: "noauth", ssl: "nossl", topology: "sharded-cluster", os: "ubuntu-2204" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard21"
@@ -2699,7 +2703,7 @@ buildvariants:
     - name: "test-load-balancer-net60"
 
 - matrix_name: load-balancer-tests-secure-2204
-  matrix_spec: { version: ["rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2204" }
+  matrix_spec: { version: ["9.0", "rapid", "latest"], auth: "auth", ssl: "ssl", topology: "sharded-cluster", os: "ubuntu-2204" }
   display_name: "Load Balancer ${version} ${auth} ${ssl} ${os}"
   tasks:
     - name: "test-load-balancer-netstandard21"
@@ -2761,7 +2765,7 @@ buildvariants:
 
 # CSFLE tests
 - matrix_name: "csfle-with-mocked-kms-tests-windows"
-  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "windows-64", ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-net472
@@ -2781,7 +2785,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-linux-2204"
-  matrix_spec: { os: "ubuntu-2204", ssl: "nossl", version: ["rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: "ubuntu-2204", ssl: "nossl", version: ["9.0", "rapid", "latest"], topology: ["replicaset"] }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
     - name: test-csfle-with-mocked-kms-tls-netstandard21
@@ -2790,7 +2794,7 @@ buildvariants:
     - name: test-csfle-with-mongocryptd-net60
 
 - matrix_name: "csfle-with-mocked-kms-tests-macOS"
-  matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "rapid", "latest"], topology: ["replicaset"] }
+  matrix_spec: { os: ["macos-14", "macos-14-arm64"], ssl: "nossl", version: ["4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: ["replicaset"] }
   exclude_spec: { os: "macos-14-arm64", ssl: "*", version: ["4.4", "5.0"], topology: "*" }
   display_name: "CSFLE Mocked KMS ${version} ${os}"
   tasks:
@@ -2827,7 +2831,7 @@ buildvariants:
   matrix_spec:
     os: ["macos-14", "windows-64"]
     ssl: "nossl"
-    version: ["5.0", "6.0", "7.0", "8.0", "latest"]
+    version: ["5.0", "6.0", "7.0", "8.0", "9.0", "latest"]
     topology: ["replicaset"]
   display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
@@ -2863,7 +2867,7 @@ buildvariants:
   matrix_spec:
     os: ["ubuntu-2204"]
     ssl: "nossl"
-    version: ["latest"]
+    version: ["9.0", "latest"]
     topology: ["replicaset"]
   display_name: "smoke-tests ${version} on ${os}"
   batchtime: 1440 # 1 day
