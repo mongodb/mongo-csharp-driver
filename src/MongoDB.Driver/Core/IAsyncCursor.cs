@@ -101,6 +101,8 @@ namespace MongoDB.Driver
         /// <returns>True if the cursor contains any documents.</returns>
         public static bool Any<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             using (cursor)
             {
                 var batch = GetFirstBatch(cursor, cancellationToken);
@@ -117,6 +119,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is true if the cursor contains any documents.</returns>
         public static async Task<bool> AnyAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
@@ -133,6 +137,8 @@ namespace MongoDB.Driver
         /// <returns>The first document.</returns>
         public static TDocument First<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             using (cursor)
             {
                 var batch = GetFirstBatch(cursor, cancellationToken);
@@ -149,6 +155,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document.</returns>
         public static async Task<TDocument> FirstAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
@@ -165,6 +173,8 @@ namespace MongoDB.Driver
         /// <returns>The first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument FirstOrDefault<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             using (cursor)
             {
                 var batch = GetFirstBatch(cursor, cancellationToken);
@@ -181,6 +191,8 @@ namespace MongoDB.Driver
         /// <returns>A task whose result is the first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
@@ -198,7 +210,7 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
+            return ForEachAsync(source, processor == null ? null : (doc, _) => processor(doc), cancellationToken);
         }
 
         /// <summary>
@@ -212,12 +224,13 @@ namespace MongoDB.Driver
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, nameof(source));
-            Ensure.IsNotNull(processor, nameof(processor));
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
             await using (source.ConfigureAwait(false))
             {
+                Ensure.IsNotNull(processor, nameof(processor));
+
                 var index = 0;
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -245,7 +258,7 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return ForEachAsync(source, (doc, _) => processor(doc), cancellationToken);
+            return ForEachAsync(source, processor == null ? null : (doc, _) => processor(doc), cancellationToken);
         }
 
         /// <summary>
@@ -264,12 +277,13 @@ namespace MongoDB.Driver
         public static async Task ForEachAsync<TDocument>(this IAsyncCursor<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
             Ensure.IsNotNull(source, nameof(source));
-            Ensure.IsNotNull(processor, nameof(processor));
 
             // yes, we are taking ownership... assumption being that they've
             // exhausted the thing and don't need it anymore.
             await using (source.ConfigureAwait(false))
             {
+                Ensure.IsNotNull(processor, nameof(processor));
+
                 var index = 0;
                 while (await source.MoveNextAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -291,6 +305,8 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor.</returns>
         public static TDocument Single<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             using (cursor)
             {
                 var batch = GetFirstBatch(cursor, cancellationToken);
@@ -307,6 +323,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor.</returns>
         public static async Task<TDocument> SingleAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
@@ -324,6 +342,8 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument SingleOrDefault<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             using (cursor)
             {
                 var batch = GetFirstBatch(cursor, cancellationToken);
@@ -341,6 +361,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAsyncCursor<TDocument> cursor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(cursor, nameof(cursor));
+
             await using (cursor.ConfigureAwait(false))
             {
                 var batch = await GetFirstBatchAsync(cursor, cancellationToken).ConfigureAwait(false);
