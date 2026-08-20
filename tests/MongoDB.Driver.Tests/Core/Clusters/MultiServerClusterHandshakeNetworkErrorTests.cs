@@ -44,13 +44,13 @@ namespace MongoDB.Driver.Core.Clusters
     // Regression test for CSHARP-3173.
     public class MultiServerClusterHandshakeNetworkErrorTests : LoggableTestClass
     {
-        private readonly static ClusterId __clusterId = new ClusterId();
-        private readonly static bool __directConnection = false;
-        private readonly static EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
-        private readonly static EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
-        private readonly static TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
-        private readonly static ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
-        private readonly static ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
+        private static readonly ClusterId __clusterId = new ClusterId();
+        private static readonly bool __directConnection = false;
+        private static readonly EndPoint __endPoint1 = new DnsEndPoint("localhost", 27017);
+        private static readonly EndPoint __endPoint2 = new DnsEndPoint("localhost", 27018);
+        private static readonly TimeSpan __heartbeatInterval = TimeSpan.FromMilliseconds(200);
+        private static readonly ServerId __serverId1 = new ServerId(__clusterId, __endPoint1);
+        private static readonly ServerId __serverId2 = new ServerId(__clusterId, __endPoint2);
 
         public MultiServerClusterHandshakeNetworkErrorTests(ITestOutputHelper output) : base(output)
         {

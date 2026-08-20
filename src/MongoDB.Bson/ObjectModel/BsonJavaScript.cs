@@ -96,7 +96,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonJavaScript.</param>
         /// <returns>A BsonJavaScript or null.</returns>
-        public new static BsonJavaScript Create(object value)
+        public static new BsonJavaScript Create(object value)
         {
             if (value == null)
             {
