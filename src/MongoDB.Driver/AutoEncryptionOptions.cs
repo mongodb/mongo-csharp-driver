@@ -300,7 +300,8 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("KeyExpiration : {0}, ", _keyExpiration.Value);
             }
-            sb.AppendFormat("KmsProviders : {0}, ", _kmsProviders.ToJson(jsonWriterSettings));
+            // redact every option value, so providers added later cannot leak credentials by default
+            sb.AppendFormat("KmsProviders : {0}, ", new BsonDocument(_kmsProviders.Select(p => new BsonElement(p.Key, "<hidden>"))).ToJson(jsonWriterSettings));
             if (_keyVaultNamespace != null)
             {
                 sb.AppendFormat("KeyVaultNamespace : \"{0}\", ", _keyVaultNamespace.FullName);
