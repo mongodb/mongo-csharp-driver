@@ -235,7 +235,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             RequireServer.Check().VersionGreaterThanOrEqualTo(minVersion);
 
             const string appName = "SDAMPoolManagementTest";
-            var heartbeatInterval = TimeSpan.FromMilliseconds(100);
+            var heartbeatInterval = TimeSpan.FromMilliseconds(500);
             var eventsWaitTimeout = TimeSpan.FromMilliseconds(5000);
 
             var failPointCommand = BsonDocument.Parse(
