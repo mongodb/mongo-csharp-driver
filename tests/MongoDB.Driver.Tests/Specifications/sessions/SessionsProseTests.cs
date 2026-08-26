@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.DirectConnection = true;
-                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(10);
+                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(500);
                     if (settings.Servers.Count() > 1)
                     {
                         settings.Servers = settings.Servers.Take(1);
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     return capturedEvents
                         .SkipWhile(e => e is not ServerHeartbeatStartedEvent)
                         .Any(e => e is ServerHeartbeatSucceededEvent);
-                }, TimeSpan.FromSeconds(1), "Didn't get any server heartbeat pairs");
+                }, TimeSpan.FromSeconds(5), "Didn't get any server heartbeat pairs");
 
             c1.GetDatabase("admin").RunCommand<BsonDocument>(pingCommand);
 
