@@ -19,20 +19,19 @@ export GSSAPI_TESTS_ENABLED=true
 if [ "windows-64" = "$OS" ]; then
     cmd /c "REG ADD HKLM\SYSTEM\ControlSet001\Control\Lsa\Kerberos\Domains\LDAPTEST.BUILD.10GEN.CC /v KdcNames /d ldaptest.build.10gen.cc /t REG_MULTI_SZ /f"
     echo "LDAPTEST.BUILD.10GEN.CC registry has been added"
-
-    export AUTH_GSSAPI="${PRINCIPAL_BUILD}:${SASL_PASS}"
 else
   echo "Setting krb5 config file"
   touch ./evergreen/krb5.conf.empty
   export KRB5_CONFIG=./evergreen/krb5.conf.empty
 
   echo -n "${KEYTAB_BASE64_BUILD}" | base64 -d > ./evergreen/drivers.keytab
-  kinit -k -t ./evergreen/drivers.keytab ${PRINCIPAL_BUILD}
-
-  export AUTH_GSSAPI=${PRINCIPAL_BUILD}
+  kinit -k -t ./evergreen/drivers.keytab ${PRINCIPAL}
 fi;
 
-export AUTH_HOST=${SASL_HOST_BUILD}
+export GSSAPI_PRINCIPAL="${PRINCIPAL}"
+export GSSAPI_PASS=${SASL_PASS}
+export AUTH_HOST=${SASL_HOST}
+export AUTH_DATABASE=${GSSAPI_DB}
 
 ./evergreen/compile-sources.sh
 TEST_CATEGORY=GssapiMechanism ./evergreen/execute-tests.sh

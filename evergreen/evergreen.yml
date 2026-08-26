@@ -2610,6 +2610,8 @@ buildvariants:
 - name: gssapi-auth-tests-windows
   run_on:
     - windows-2022-latest-small
+  expansions:
+    OS: "windows-64"
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
@@ -2619,6 +2621,8 @@ buildvariants:
 - name: gssapi-auth-tests-linux
   run_on:
     - ubuntu2004-test
+  expansions:
+    OS: "ubuntu-2004"
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-net60

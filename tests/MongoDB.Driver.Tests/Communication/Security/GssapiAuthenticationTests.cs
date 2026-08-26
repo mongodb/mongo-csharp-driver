@@ -27,18 +27,20 @@ namespace MongoDB.Driver.Tests.Communication.Security
     {
         private static readonly string __collectionName = "test";
 
+        public GssapiAuthenticationTests()
+        {
+            RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
+        }
+
         [Fact]
         public void TestNoCredentials()
         {
-            RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
-
-            var mongoUrl = CreateMongoUrl();
-            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
+            var clientSettings = CreateMongoClientSettings();
             clientSettings.Credential = null;
             var client = new MongoClient(clientSettings);
-            var collection = GetTestCollection(client, mongoUrl.DatabaseName);
+            var collection = GetTestCollection(client);
 
-            var exception = Record.Exception(() => { collection.CountDocuments(new BsonDocument()); });
+            var exception = Record.Exception(() => { collection.FindSync(new BsonDocument()).ToList(); });
             var e = exception.Should().BeOfType<MongoCommandException>().Subject;
             e.CodeName.Should().Be("Unauthorized");
         }
@@ -47,12 +49,10 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [Fact]
         public void TestSuccessfulAuthentication()
         {
-            RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
+            var clientSettings = CreateMongoClientSettings();
+            var client = new MongoClient(clientSettings);
 
-            var mongoUrl = CreateMongoUrl();
-            var client = new MongoClient(mongoUrl);
-
-            var collection = GetTestCollection(client, mongoUrl.DatabaseName);
+            var collection = GetTestCollection(client);
             var result = collection
                 .FindSync(new BsonDocument())
                 .ToList();
@@ -63,41 +63,38 @@ namespace MongoDB.Driver.Tests.Communication.Security
         [Fact]
         public void TestBadPassword()
         {
-            RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
-
-            var mongoUrl = CreateMongoUrl();
-            var currentCredentialUsername = mongoUrl.Username;
-            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-            clientSettings.Credential = MongoCredential.CreateGssapiCredential(currentCredentialUsername, "wrongPassword");
+            var clientSettings = CreateMongoClientSettings();
+            clientSettings.Credential = MongoCredential.CreateGssapiCredential(clientSettings.Credential.Username, "wrongPassword");
 
             var client = new MongoClient(clientSettings);
-            var collection = GetTestCollection(client, mongoUrl.DatabaseName);
+            var collection = GetTestCollection(client);
 
             var exception = Record.Exception(() => { collection.FindSync(new BsonDocument()).ToList(); });
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
 
         // private methods
-        private string CreateGssapiConnectionString(string authHost, string mechanismProperty = null)
-        {
-            var authGssapi = Uri.EscapeDataString(GetEnvironmentVariable("AUTH_GSSAPI"));
-
-            return $"mongodb://{authGssapi}@{authHost}/kerberos?authMechanism=GSSAPI{mechanismProperty}";
-        }
-
-        private MongoUrl CreateMongoUrl()
+        private MongoClientSettings CreateMongoClientSettings()
         {
             var authHost = GetEnvironmentVariable("AUTH_HOST");
-            var connectionString = CreateGssapiConnectionString(authHost);
-            return MongoUrl.Create(connectionString);
+            var authDb = GetEnvironmentVariable("AUTH_DATABASE");
+            var username = GetEnvironmentVariable("GSSAPI_PRINCIPAL");
+            var password = GetEnvironmentVariable("GSSAPI_PASS");
+
+            var connectionString = $"mongodb://{authHost}/{authDb}";
+
+            var result = MongoClientSettings.FromConnectionString(connectionString);
+            result.Credential = MongoCredential.CreateGssapiCredential(username, password);
+
+            return result;
         }
 
         private string GetEnvironmentVariable(string name) => Environment.GetEnvironmentVariable(name) ?? throw new Exception($"{name} has not been configured.");
 
-        private IMongoCollection<BsonDocument> GetTestCollection(MongoClient client, string databaseName)
+        private IMongoCollection<BsonDocument> GetTestCollection(MongoClient client)
         {
             return client
-                .GetDatabase(databaseName)
+                .GetDatabase(GetEnvironmentVariable("AUTH_DATABASE"))
                 .GetCollection<BsonDocument>(__collectionName);
         }
     }
