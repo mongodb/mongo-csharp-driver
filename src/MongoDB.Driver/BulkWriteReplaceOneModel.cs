@@ -120,6 +120,7 @@ namespace MongoDB.Driver
             : base(collectionNamespace)
         {
             Filter = Ensure.IsNotNull(filter, nameof(filter));
+            ReplacementValidator.EnsureIsValidReplacement(replacement, nameof(replacement));
             Replacement = replacement;
             Collation = collation;
             Hint = hint;

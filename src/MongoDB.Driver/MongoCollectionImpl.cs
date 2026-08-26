@@ -1046,6 +1046,7 @@ namespace MongoDB.Driver
             FindOneAndReplaceOptions<TDocument, TProjection> options)
         {
             options ??= new FindOneAndReplaceOptions<TDocument, TProjection>();
+            ReplacementValidator.EnsureIsValidReplacement(replacement, nameof(replacement));
 
             var renderArgs = GetRenderArgs();
             var projection = options.Projection ?? new ClientSideDeserializationProjectionDefinition<TDocument, TProjection>();
