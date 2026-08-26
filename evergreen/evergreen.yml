@@ -452,28 +452,35 @@ functions:
     - command: shell.exec
       type: test
       params:
+        shell: "bash"
         working_dir: mongo-csharp-driver
         include_expansions_in_env:
-          - "AUTH_GSSAPI"
-          - "AUTH_HOST"
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+          - "OS"
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          PROJECT_DIRECTORY=${PROJECT_DIRECTORY} evergreen/run-gssapi-auth-tests.sh
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/enterprise_auth
+          . evergreen/run-gssapi-auth-tests.sh
 
   run-plain-auth-tests:
     - command: shell.exec
       type: test
       params:
+        shell: "bash"
         working_dir: mongo-csharp-driver
         include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+          - "OS"
           - "FRAMEWORK"
-        env:
-          MONGODB_URI: ${plain_auth_mongodb_uri}
         script: |
           ${PREPARE_SHELL}
-          OS=${OS} \
-            evergreen/run-plain-auth-tests.sh
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/enterprise_auth
+          . evergreen/run-plain-auth-tests.sh
 
   run-performance-tests:
     - command: shell.exec
@@ -1253,6 +1260,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net472
+        - func: assume-aws-test-secrets-role
         - func: run-gssapi-auth-tests
 
     - name: test-gssapi-netstandard21
@@ -1260,6 +1268,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: netstandard2.1
+        - func: assume-aws-test-secrets-role
         - func: run-gssapi-auth-tests
 
     - name: test-gssapi-net60
@@ -1267,6 +1276,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: assume-aws-test-secrets-role
         - func: run-gssapi-auth-tests
 
     - name: test-socks5-proxy-net472
@@ -1301,6 +1311,7 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
+        - func: assume-aws-test-secrets-role
         - func: run-plain-auth-tests
 
     - name: aws-auth-tests
@@ -2660,6 +2671,8 @@ buildvariants:
 - name: gssapi-auth-tests-windows
   run_on:
     - windows-2022-latest-small
+  expansions:
+    OS: "windows-64"
   display_name: "GSSAPI (Kerberos) Auth tests - Windows"
   tasks:
     - name: test-gssapi-net472
@@ -2669,6 +2682,8 @@ buildvariants:
 - name: gssapi-auth-tests-linux
   run_on:
     - ubuntu2004-test
+  expansions:
+    OS: "ubuntu-2004"
   display_name: "GSSAPI (Kerberos) Auth tests - Linux"
   tasks:
     - name: test-gssapi-netstandard21
