@@ -24,7 +24,7 @@ else
   touch ./evergreen/krb5.conf.empty
   export KRB5_CONFIG=./evergreen/krb5.conf.empty
 
-  echo -n "${KEYTAB_BASE64_BUILD}" | base64 -d > ./evergreen/drivers.keytab
+  echo -n "${KEYTAB_BASE64}" | base64 -d > ./evergreen/drivers.keytab
   kinit -k -t ./evergreen/drivers.keytab ${PRINCIPAL}
 fi;
 
