@@ -451,6 +451,32 @@ namespace MongoDB.Driver.Tests
             result.Should().Be("mongodb://localhost");
         }
 
+        [Fact]
+        public void Equals_should_distinguish_an_injected_setting_from_a_genuine_one()
+        {
+            var injected = new MongoUrlBuilder("mongodb://localhost") { ApplicationName = "app&replicaSet=rs0" }.ToMongoUrl();
+            var genuine = new MongoUrlBuilder("mongodb://localhost") { ApplicationName = "app", ReplicaSetName = "rs0" }.ToMongoUrl();
+
+            injected.Equals(genuine).Should().BeFalse();
+            injected.GetHashCode().Should().NotBe(genuine.GetHashCode());
+            injected.ApplicationName.Should().Be("app&replicaSet=rs0");
+            injected.ReplicaSetName.Should().BeNull();
+        }
+
+        [Fact]
+        public void Create_should_distinguish_an_injected_setting_from_a_genuine_one()
+        {
+            var injectedUrl = new MongoUrlBuilder("mongodb://localhost") { ApplicationName = "app&replicaSet=rs0" }.ToString();
+
+            var injected = MongoUrl.Create(injectedUrl);
+            var genuine = MongoUrl.Create("mongodb://localhost/?appname=app&replicaSet=rs0");
+
+            injected.Should().NotBeSameAs(genuine);
+            injected.ApplicationName.Should().Be("app&replicaSet=rs0");
+            genuine.ApplicationName.Should().Be("app");
+            genuine.ReplicaSetName.Should().Be("rs0");
+        }
+
         // private methods
         private IEnumerable<MongoUrl> EnumerateBuiltAndParsedUrls(
             MongoUrlBuilder built,
