@@ -56,6 +56,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         private BsonValue RenderArg()
         {
+            // $literal takes its operand verbatim, so a constant arg renders as its raw value. otherwise
+            // AstConstantExpression would quote the value itself and produce a doubly quoted
+            // { $literal : { $literal : ... } }, and the array wrapping below would nest an array operand.
+            if (_operator == AstUnaryOperator.Literal && _arg is AstConstantExpression constantArg)
+            {
+                return constantArg.Value;
+            }
+
             var rendered = _arg.Render();
             if (rendered.IsBsonArray)
             {

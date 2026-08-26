@@ -15,6 +15,7 @@
 
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using Xunit;
 
@@ -128,6 +129,23 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Ast.Expressions
             convertExpression.To.Should().BeSameAs(to);
             convertExpression.OnError.Should().BeNull();
             convertExpression.OnNull.Should().BeSameAs(onNull);
+        }
+
+        [Theory]
+        [InlineData("1", "{ $literal : 1 }")]
+        [InlineData("true", "{ $literal : true }")]
+        [InlineData("\"$abc\"", "{ $literal : \"$abc\" }")]
+        [InlineData("[1, 2]", "{ $literal : [1, 2] }")]
+        [InlineData("[\"$abc\"]", "{ $literal : [\"$abc\"] }")]
+        [InlineData("{ a : 1 }", "{ $literal : { a : 1 } }")]
+        [InlineData("{ $concat : \"abc\" }", "{ $literal : { $concat : \"abc\" } }")]
+        public void Literal_should_render_constant_arg_as_is(string valueAsJson, string expectedResult)
+        {
+            var value = BsonSerializer.Deserialize<BsonDocument>($"{{ v : {valueAsJson} }}")["v"];
+
+            var result = AstExpression.Literal(AstExpression.Constant(value)).Render();
+
+            result.Should().Be(BsonDocument.Parse(expectedResult));
         }
 
         [Fact]
