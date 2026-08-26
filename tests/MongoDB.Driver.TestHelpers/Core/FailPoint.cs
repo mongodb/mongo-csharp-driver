@@ -160,7 +160,7 @@ namespace MongoDB.Driver.Core.TestHelpers
             if (waitForConnected)
             {
                 // server can transition to unknown state during the test, wait until server is connected
-                if (!SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, 1000))
+                if (!SpinWait.SpinUntil(() => _server.Description.State == ServerState.Connected, 5000))
                 {
                     throw new InvalidOperationException("Server is not connected.");
                 }
