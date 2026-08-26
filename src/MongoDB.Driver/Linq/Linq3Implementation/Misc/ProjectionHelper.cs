@@ -141,14 +141,16 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
         {
             var simplifiedExpression = AstSimplifier.SimplifyAndConvert(expression);
             if (simplifiedExpression.IsConstant(out var constant) &&
-                ValueNeedsToBeQuoted(constant))
+                ValueNeedsToBeQuotedInAProjection(constant))
             {
                 return AstExpression.Literal(simplifiedExpression);
             }
 
             return expression; // not the simplified expression
 
-            static bool ValueNeedsToBeQuoted(BsonValue value)
+            // these values do not need to be quoted in an ordinary expression context but do in a projection,
+            // where the server would otherwise interpret them as include/exclude specifications
+            static bool ValueNeedsToBeQuotedInAProjection(BsonValue value)
             {
                 switch (value.BsonType)
                 {

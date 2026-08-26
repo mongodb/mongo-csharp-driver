@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
 
@@ -20,6 +22,28 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstConstantExpression : AstExpression
     {
+        // public static methods
+        // returns true if a constant value has to be quoted (using $literal) when it is rendered in an expression context.
+        // the server interprets a string that starts with "$" as a field path or a variable, a document element name that
+        // starts with "$" as an operator, a document element name containing "." as a path to a nested field, and the
+        // elements of a document or array as nested expressions, so a constant value containing any of those, at any
+        // depth, has to be quoted to ensure the server treats it as a value.
+        public static bool ValueNeedsToBeQuoted(BsonValue value)
+        {
+            return value switch
+            {
+                BsonString stringValue => !IsSafeStringValue(stringValue.Value),
+                BsonArray arrayValue => arrayValue.Any(ValueNeedsToBeQuoted),
+                BsonDocument documentValue => documentValue.Elements.Any(element => !AstFieldName.IsSafe(element.Name) || ValueNeedsToBeQuoted(element.Value)),
+                _ => false
+            };
+
+            // a string value is safe unless it starts with "$", which the server reads as a field path or a
+            // variable. unlike a field name, a "." in a value has no meaning to the server, and an empty
+            // string is a perfectly good value.
+            static bool IsSafeStringValue(string value) => !value.StartsWith("$", StringComparison.Ordinal);
+        }
+
         private readonly BsonValue _value;
 
         public AstConstantExpression(BsonValue value)
@@ -37,7 +61,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
         public override BsonValue Render()
         {
-            if (_value is BsonString bsonString && bsonString.Value.StartsWith("$"))
+            if (ValueNeedsToBeQuoted(_value))
             {
                 return new BsonDocument("$literal", _value);
             }

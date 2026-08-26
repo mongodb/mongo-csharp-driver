@@ -100,6 +100,13 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             static AstComputedField CreateComputedField(TranslationContext context, Expression expression, Expression fieldNameExpression, Expression valueExpression)
             {
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
+                if (!AstFieldName.IsSafe(fieldName))
+                {
+                    // the field name is emitted as is, so a name the server would reinterpret as an operator or as a
+                    // path to a nested field is rejected rather than allowed to alter the meaning of the expression
+                    throw new ExpressionNotSupportedException(expression, because: $"field name \"{fieldName}\" is not valid: it must not be empty, start with \"$\" or contain \".\"");
+                }
+
                 var valueTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, valueExpression);
                 return AstExpression.ComputedField(fieldName, valueTranslation.Ast);
             }

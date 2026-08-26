@@ -228,10 +228,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             static bool IsFieldEqValue(AstFieldOperationFilter node, out BsonValue value)
             {
-                // { field : { $eq : value } } where value is not a a regex
+                // { field : { $eq : value } } where value is neither a regex nor a document the server would read as query operators
                 if (node.Operation is AstComparisonFilterOperation comparisonOperation &&
                     comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
-                    comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                    comparisonOperation.Value.BsonType != BsonType.RegularExpression &&
+                    AstImpliedOperationFilterOperation.CanRepresent(comparisonOperation.Value))
                 {
                     value = comparisonOperation.Value;
                     return true;
@@ -270,13 +271,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             static bool IsFieldElemMatchEqValue(AstFieldOperationFilter node, out BsonValue value)
             {
-                // { field : { $elemMatch : { $eq : value } } } where value is not regex
+                // { field : { $elemMatch : { $eq : value } } } where value is neither a regex nor a document the server would read as query operators
                 if (node.Operation is AstElemMatchFilterOperation elemMatchOperation &&
                     elemMatchOperation.Filter is AstFieldOperationFilter elemFilter &&
                     elemFilter.Field.Path == "@<elem>" &&
                     elemFilter.Operation is AstComparisonFilterOperation comparisonOperation &&
                     comparisonOperation.Operator == AstComparisonFilterOperator.Eq &&
-                    comparisonOperation.Value.BsonType != BsonType.RegularExpression)
+                    comparisonOperation.Value.BsonType != BsonType.RegularExpression &&
+                    AstImpliedOperationFilterOperation.CanRepresent(comparisonOperation.Value))
                 {
                     value = comparisonOperation.Value;
                     return true;
@@ -667,6 +669,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
             }
 
             // { $arrayToObject : [[{ k : 'A', v : <exprA> }, { k : 'B', v : <exprB> }, ...]] } => { A : <exprA>, B : <exprB>, ... }
+            // only when every key is a safe field name: this rewrite turns a key that the server treats as data into a
+            // field name that it does not, so a key starting with "$" or containing "." has to keep its $arrayToObject form
             if (node.Operator == AstUnaryOperator.ArrayToObject &&
                 arg is AstComputedArrayExpression computedArrayExpression &&
                 computedArrayExpression.Items.All(
@@ -675,7 +679,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                         computedDocumentExpression.Fields.Count == 2 &&
                         computedDocumentExpression.Fields[0].Path == "k" &&
                         computedDocumentExpression.Fields[1].Path == "v" &&
-                        computedDocumentExpression.Fields[0].Value is AstConstantExpression { Value : { IsString : true } }))
+                        computedDocumentExpression.Fields[0].Value is AstConstantExpression { Value: BsonString { Value: var key } } &&
+                        AstFieldName.IsSafe(key)))
             {
                 var computedFields = computedArrayExpression.Items.Select(KeyValuePairDocumentToComputedField);
                 return AstExpression.ComputedDocument(computedFields);
@@ -685,7 +690,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
 
             static AstComputedField KeyValuePairDocumentToComputedField(AstExpression expression)
             {
-                // caller has verified that expression is of the form: { k : <stringConstant>, v : <valueExpression> }
+                // caller has verified that expression is of the form: { k : <safeFieldNameConstant>, v : <valueExpression> }
                 var keyValuePairDocumentExpression = (AstComputedDocumentExpression)expression;
                 var keyConstantExpression = (AstConstantExpression)keyValuePairDocumentExpression.Fields[0].Value;
                 var valueExpression = keyValuePairDocumentExpression.Fields[1].Value;
