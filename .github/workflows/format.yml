@@ -1,0 +1,41 @@
+name: Format
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+
+concurrency:
+  group: format-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: dotnet format
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '10.0.302'
+
+      - name: Verify formatting and code style
+        id: verify
+        run: dotnet format CSharpDriver.sln --verify-no-changes
+
+      - name: Show how to fix
+        if: failure() && steps.verify.outcome == 'failure'
+        run: |
+          echo "::error::Formatting or code style issues found. Run 'dotnet format CSharpDriver.sln' locally and commit the result."
+          echo "Some violations cannot be fixed automatically and have to be corrected by hand."

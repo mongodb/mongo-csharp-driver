@@ -93,6 +93,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new FindOneAndDeleteOptions<BsonDocument>();
                         options.Comment = argument.Value;
@@ -114,6 +118,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options.MaxTime = TimeSpan.FromMilliseconds(argument.Value.AsInt32);
                         break;
 #pragma warning restore CS0618 // Type or member is obsolete
+                    case "projection":
+                        options ??= new FindOneAndDeleteOptions<BsonDocument>();
+                        options.Projection = argument.Value.AsBsonDocument;
+                        break;
                     case "session":
                         session = _entityMap.Sessions[argument.Value.AsString];
                         break;

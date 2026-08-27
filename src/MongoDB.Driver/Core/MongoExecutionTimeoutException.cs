@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -74,17 +73,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromCommandResult(this, result);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoExecutionTimeoutException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoExecutionTimeoutException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
-        }
-
         // properties
         /// <summary>
         /// Gets the error code.
@@ -104,12 +92,5 @@ namespace MongoDB.Driver
         /// The name of the error code.
         /// </value>
         public string CodeName => _result?.GetValue("codeName", null)?.AsString;
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_result", _result);
-        }
     }
 }

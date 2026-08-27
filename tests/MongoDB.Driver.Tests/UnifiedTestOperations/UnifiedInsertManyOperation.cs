@@ -45,16 +45,11 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                if (_session == null)
-                {
-                    _collection.InsertMany(_documents, _options, cancellationToken);
-                }
-                else
-                {
-                    _collection.InsertMany(_session, _documents, _options, cancellationToken);
-                }
+                var result = _session == null
+                    ? _collection.InsertMany(_documents, _options, cancellationToken)
+                    : _collection.InsertMany(_session, _documents, _options, cancellationToken);
 
-                return OperationResult.FromResult(null); // In .NET InsertMany returns no result
+                return OperationResult.FromResult(CreateResult(result));
             }
             catch (Exception exception)
             {
@@ -66,21 +61,27 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             try
             {
-                if (_session == null)
-                {
-                    await _collection.InsertManyAsync(_documents, _options, cancellationToken);
-                }
-                else
-                {
-                    await _collection.InsertManyAsync(_session, _documents, _options, cancellationToken);
-                }
+                var result = _session == null
+                    ? await _collection.InsertManyAsync(_documents, _options, cancellationToken)
+                    : await _collection.InsertManyAsync(_session, _documents, _options, cancellationToken);
 
-                return OperationResult.FromResult(null);
+                return OperationResult.FromResult(CreateResult(result));
             }
             catch (Exception exception)
             {
                 return OperationResult.FromException(exception);
             }
+        }
+
+        private static BsonDocument CreateResult(InsertManyResult result)
+        {
+            if (!result.IsAcknowledged)
+            {
+                return null;
+            }
+
+            var insertedIds = new BsonDocument(result.InsertedIds.Select(kv => new BsonElement(kv.Key.ToString(), BsonValue.Create(kv.Value))));
+            return new BsonDocument("insertedIds", insertedIds);
         }
     }
 

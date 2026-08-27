@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Core.Logging
     {
         private static readonly IDictionary<Type, string> __catergories = new ConcurrentDictionary<Type, string>();
 
-        private static readonly string[] __driverNamespaces = new []
+        private static readonly string[] __driverNamespaces = new[]
         {
             "MongoDB.Bson",
             "MongoDB.Driver",

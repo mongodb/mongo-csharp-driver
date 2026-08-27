@@ -72,9 +72,9 @@ namespace MongoDB.Bson.Tests.Serialization
         [BsonKnownTypes(typeof(DerivedDocument<int>))]
         [BsonKnownTypes(typeof(DerivedDocument<List<Dictionary<string, int>>>))]
         [BsonKnownTypes(typeof(DerivedDocumentDouble<int, string>))]
-        abstract class BaseDocument;
+        private abstract class BaseDocument;
 
-        class DerivedDocument<T> : BaseDocument
+        private class DerivedDocument<T> : BaseDocument
         {
             [BsonId]
             public int Id { get; set; }
@@ -82,7 +82,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public T Value { get; set; }
         }
 
-        class DerivedDocumentDouble<T1, T2> : BaseDocument
+        private class DerivedDocumentDouble<T1, T2> : BaseDocument
         {
             [BsonId]
             public int Id { get; set; }
@@ -113,7 +113,7 @@ namespace MongoDB.Bson.Tests.Serialization
         {
             var serialized = """{ "_t" : "DerivedDocumentDouble<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""";
             var rehydrated = BsonSerializer.Deserialize<BaseDocument>(serialized);
-            rehydrated.Should().BeOfType<DerivedDocumentDouble<int,string>>();
+            rehydrated.Should().BeOfType<DerivedDocumentDouble<int, string>>();
         }
 
         [Fact]
@@ -135,7 +135,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Fact]
         public void TestSerializeGenericTypeWithTwoTypes()
         {
-            var document = new DerivedDocumentDouble<int, string> { Id = 1, Value1 = 42, Value2 = "hello"};
+            var document = new DerivedDocumentDouble<int, string> { Id = 1, Value1 = 42, Value2 = "hello" };
             var serialized = document.ToJson(typeof(BaseDocument));
             serialized.Should().Be("""{ "_t" : "DerivedDocumentDouble<Int32, String>", "_id" : 1, "Value1" : 42, "Value2" : "hello" }""");
         }

@@ -75,6 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __groupJoin;
         private static readonly MethodInfo __intersect;
         private static readonly MethodInfo __join;
+        private static readonly MethodInfo __leftJoin;
         private static readonly MethodInfo __last;
         private static readonly MethodInfo __lastOrDefault;
         private static readonly MethodInfo __lastOrDefaultWithPredicate;
@@ -125,6 +126,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeLast = null; // null when target framework does not have this method
         private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
@@ -210,6 +212,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __groupJoin = ReflectionInfo.Method((IQueryable<object> outer, IEnumerable<object> inner, Expression<Func<object, object>> outerKeySelector, Expression<Func<object, object>> innerKeySelector, Expression<Func<object, IEnumerable<object>, object>> resultSelector) => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, resultSelector));
             __intersect = ReflectionInfo.Method((IQueryable<object> source1, IEnumerable<object> source2) => source1.Intersect(source2));
             __join = ReflectionInfo.Method((IQueryable<object> outer, IEnumerable<object> inner, Expression<Func<object, object>> outerKeySelector, Expression<Func<object, object>> innerKeySelector, Expression<Func<object, object, object>> resultSelector) => outer.Join(inner, outerKeySelector, innerKeySelector, resultSelector));
+            __leftJoin = typeof(Queryable).GetMethods()
+                .FirstOrDefault(m => m.Name == "LeftJoin" && m.GetParameters().Length == 5);
             __last = ReflectionInfo.Method((IQueryable<object> source) => source.Last());
             __lastOrDefault = ReflectionInfo.Method((IQueryable<object> source) => source.LastOrDefault());
             __lastOrDefaultWithPredicate = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => source.LastOrDefault(predicate));
@@ -260,6 +264,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IQueryable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, float>> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.Take(source, count));
+#if NET6_0_OR_GREATER
+            __takeLast = ReflectionInfo.Method((IQueryable<object> source, int count) => Queryable.TakeLast(source, count));
+#endif
             __takeWhile = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, bool>> predicate) => Queryable.TakeWhile(source, predicate));
             __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IQueryable<object> source, Expression<Func<object, int, bool>> predicate) => Queryable.TakeWhile(source, predicate));
             __thenBy = ReflectionInfo.Method((IOrderedQueryable<object> source, Expression<Func<object, object>> keySelector) => source.ThenBy(keySelector));
@@ -497,6 +504,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo GroupJoin => __groupJoin;
         public static MethodInfo Intersect => __intersect;
         public static MethodInfo Join => __join;
+        public static MethodInfo LeftJoin => __leftJoin;
         public static MethodInfo Last => __last;
         public static MethodInfo LastOrDefault => __lastOrDefault;
         public static MethodInfo LastOrDefaultWithPredicate => __lastOrDefaultWithPredicate;
@@ -547,6 +555,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeLast => __takeLast;
         public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;

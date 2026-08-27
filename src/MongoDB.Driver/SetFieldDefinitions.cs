@@ -93,7 +93,7 @@ namespace MongoDB.Driver
         /// <inheritdoc/>
         public override BsonDocument Render(RenderArgs<TDocument> args)
         {
-            var stage = LinqProviderAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializerRegistry, args.TranslationOptions);
+            var stage = LinqProviderAdapter.TranslateExpressionToSetStage(_expression, args.DocumentSerializer, args.SerializationDomain, args.TranslationOptions);
             return stage["$set"].AsBsonDocument;
         }
     }

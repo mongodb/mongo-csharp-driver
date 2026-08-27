@@ -13,6 +13,8 @@
 * limitations under the License.
 */
 
+using System;
+
 namespace MongoDB.Driver.Encryption
 {
     /// <summary>
@@ -56,13 +58,14 @@ namespace MongoDB.Driver.Encryption
         Range,
 
         /// <summary>
-        /// TextPreview algorithm.
+        /// String algorithm.
         /// </summary>
         /// <remarks>
-        /// The TextPreview algorithm is in preview and should be used for experimental workloads only.
-        /// To insert or query with a "TextPreview" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
+        /// To insert or query with a "String" encrypted payload, use a MongoClient configured with AutoEncryptionOptions.
         /// AutoEncryptionOptions.BypassQueryAnalysis may be true. AutoEncryptionOptions.BypassAutoEncryption must be false.
         /// </remarks>
-        TextPreview
+#pragma warning disable CA1720
+        String
+#pragma warning restore CA1720
     }
 }

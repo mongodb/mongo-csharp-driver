@@ -551,10 +551,7 @@ namespace MongoDB.Driver
                 MaxAwaitTime = options.MaxAwaitTime,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
-                RetryRequested = _client.Settings.RetryReads,
-#pragma warning disable 618
-                UseCursor = options.UseCursor
-#pragma warning restore 618
+                RetryRequested = _client.Settings.RetryReads
             };
         }
 
@@ -628,7 +625,7 @@ namespace MongoDB.Driver
         {
             options ??= new CreateCollectionOptions<TDocument>();
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
 
             var clusteredIndex = options.ClusteredIndex?.Render(documentSerializer, serializerRegistry, translationOptions);
@@ -671,9 +668,9 @@ namespace MongoDB.Driver
             options ??= new CreateViewOptions<TDocument>();
 
             var translationOptions = _client.Settings.TranslationOptions;
-            var serializerRegistry = options.SerializerRegistry ?? BsonSerializer.SerializerRegistry;
+            var serializerRegistry = options.SerializerRegistry ?? _settings.SerializationDomain.SerializerRegistry;
             var documentSerializer = options.DocumentSerializer ?? serializerRegistry.GetSerializer<TDocument>();
-            var pipelineDocuments = pipeline.Render(new (documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
+            var pipelineDocuments = pipeline.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions)).Documents;
             return new CreateViewOperation(_databaseNamespace, viewName, viewOn, pipelineDocuments, GetMessageEncoderSettings())
             {
                 Collation = options.Collation,
@@ -775,7 +772,8 @@ namespace MongoDB.Driver
                 _client.Settings.RetryReads,
                 _client.Settings.MaxAdaptiveRetries,
                 _client.Settings.EnableOverloadRetargeting,
-                translationOptions);
+                translationOptions,
+                _settings.SerializationDomain);
         }
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, string collectionName, CancellationToken cancellationToken)
@@ -796,9 +794,13 @@ namespace MongoDB.Driver
                     : operationContext.Fork();
             }
 
-            return isTracingEnabled
-                ? new OperationContext(timeout ?? _settings.Timeout, operationName, _databaseNamespace.DatabaseName, collectionName, isTracingEnabled, cancellationToken)
-                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            return new OperationContext(session.WrappedCoreSession, timeout ?? _settings.Timeout, cancellationToken)
+            {
+                IsTracingEnabled = isTracingEnabled,
+                OperationName = isTracingEnabled ? operationName : null,
+                DatabaseName = isTracingEnabled ? _databaseNamespace.DatabaseName : null,
+                CollectionName = isTracingEnabled ? collectionName : null,
+            };
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -808,7 +810,7 @@ namespace MongoDB.Driver
         {
             var readPreference = explicitReadPreference ?? session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, null, cancellationToken);
-            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, true);
+            return _operationExecutor.ExecuteReadOperation(operationContext, operation, readPreference, true);
         }
 
         private Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
@@ -818,19 +820,19 @@ namespace MongoDB.Driver
         {
             var readPreference = explicitReadPreference ?? session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, null, cancellationToken);
-            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, true).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, operation, readPreference, true).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, string collectionName, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, collectionName, cancellationToken);
-            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, true);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, operation, true);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, string collectionName, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, collectionName, cancellationToken);
-            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, true).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, operation, true).ConfigureAwait(false);
         }
 
         private IEnumerable<string> ExtractCollectionNames(IEnumerable<BsonDocument> collections)
@@ -898,13 +900,13 @@ namespace MongoDB.Driver
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer)
         {
             var translationOptions = _client.Settings.TranslationOptions;
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private RenderArgs<TDocument> GetRenderArgs<TDocument>(IBsonSerializer<TDocument> documentSerializer, ExpressionTranslationOptions translationOptions)
         {
             translationOptions = translationOptions.AddMissingOptionsFrom(_client.Settings.TranslationOptions);
-            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<TDocument>(documentSerializer, _settings.SerializationDomain, translationOptions: translationOptions);
         }
     }
 }

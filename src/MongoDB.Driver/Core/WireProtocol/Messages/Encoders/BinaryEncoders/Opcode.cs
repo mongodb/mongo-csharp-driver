@@ -17,9 +17,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
 {
     internal enum Opcode
     {
-        Reply = 1,
-        Message = 1000,
-        Query = 2004,
         Compressed = 2012,
         OpMsg = 2013
     }

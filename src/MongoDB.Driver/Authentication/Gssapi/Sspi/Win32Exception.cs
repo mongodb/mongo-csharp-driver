@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
-
 namespace MongoDB.Driver.Authentication.Gssapi.Sspi
 {
     /// <summary>
@@ -41,16 +38,6 @@ namespace MongoDB.Driver.Authentication.Gssapi.Sspi
             : base(message)
         {
             HResult = (int)errorCode;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Win32Exception" /> class.
-        /// </summary>
-        /// <param name="info">The info.</param>
-        /// <param name="context">The context.</param>
-        protected Win32Exception(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
     }
 }

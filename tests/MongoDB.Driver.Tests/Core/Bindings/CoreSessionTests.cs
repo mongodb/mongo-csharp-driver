@@ -386,8 +386,8 @@ namespace MongoDB.Driver.Core.Bindings
             var endPoint = new DnsEndPoint("localhost", 27017);
             var serverId = new ServerId(clusterId, endPoint);
             var maxWireVersion = WireVersion.SupportedWireVersionRange.Min;
-            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, version: WireVersion.ToServerVersion(maxWireVersion), wireVersionRange: new Range<int>(0, maxWireVersion)) };
-            var clusterDescription = new ClusterDescription(clusterId, false,  null, ClusterType.ReplicaSet, servers);
+            var servers = new[] { new ServerDescription(serverId, endPoint, state: ServerState.Connected, type: ServerType.ReplicaSetPrimary, wireVersionRange: new Range<int>(0, maxWireVersion)) };
+            var clusterDescription = new ClusterDescription(clusterId, false, null, ClusterType.ReplicaSet, servers);
             var mockCluster = new Mock<IClusterInternal>();
             mockCluster.SetupGet(m => m.Description).Returns(clusterDescription);
             return mockCluster.Object;
@@ -404,8 +404,7 @@ namespace MongoDB.Driver.Core.Bindings
             serverId = serverId ?? new ServerId(new ClusterId(1), endPoint);
 
             maxWireVersion = maxWireVersion ?? WireVersion.Server40;
-            var approximateServerVersion = WireVersion.ToServerVersion(maxWireVersion.Value);
-            return new ServerDescription(serverId, endPoint, state: state, type: type, version: approximateServerVersion, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
+            return new ServerDescription(serverId, endPoint, state: state, type: type, wireVersionRange: new Optional<Range<int>>(new Range<int>(0, maxWireVersion.Value)));
         }
 
         private CoreSession CreateSubject(

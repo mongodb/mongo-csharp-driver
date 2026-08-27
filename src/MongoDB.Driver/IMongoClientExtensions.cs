@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
@@ -27,6 +28,19 @@ namespace MongoDB.Driver
     /// </summary>
     public static class IMongoClientExtensions
     {
+        /// <summary>
+        /// Appends the specified library information to the metadata sent to the server in the connection handshake.
+        /// Only connections opened after this call are affected.
+        /// </summary>
+        /// <param name="client">The client.</param>
+        /// <param name="libraryInfo">The library information to append.</param>
+        public static void AppendMetadata(this IMongoClient client, LibraryInfo libraryInfo)
+        {
+            Ensure.IsNotNull(client, nameof(client));
+            Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
+            ((IClusterInternal)client.Cluster).AppendClientMetadata(libraryInfo);
+        }
+
         /// <summary>
         /// Watches changes on all collections in all databases.
         /// </summary>

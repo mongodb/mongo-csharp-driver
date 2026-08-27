@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
         {
             if (!Environment.Is64BitProcess)
             {
-                throw new PlatformNotSupportedException($"{this.GetType().Namespace} needs to be run in a 64-bit process.");
+                throw new PlatformNotSupportedException($"{GetType().Namespace} needs to be run in a 64-bit process.");
             }
 
             // Windows:
@@ -183,7 +183,7 @@ namespace MongoDB.Driver.Encryption
 
                 var runtimeSuffix = IsAlpine() ? $"musl-{osArchitecture}" : $"{osArchitecture}";
 
-                __suffixPaths = new []{
+                __suffixPaths = new[]{
                     $"../../runtimes/linux-{runtimeSuffix}/native/",
                     $"runtimes/linux-{runtimeSuffix}/native/",
                     string.Empty
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Encryption
 
                 if (File.Exists(osRealesePath))
                 {
-                    foreach(var line in File.ReadAllLines(osRealesePath))
+                    foreach (var line in File.ReadAllLines(osRealesePath))
                     {
                         if (line.StartsWith(prettyName))
                         {

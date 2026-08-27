@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -32,16 +30,6 @@ namespace MongoDB.Driver
         /// <param name="commandResult">The command result.</param>
         public MongoDuplicateKeyException(ConnectionId connectionId, string message, WriteConcernResult commandResult)
             : base(connectionId, message, commandResult)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoDuplicateKeyException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoDuplicateKeyException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

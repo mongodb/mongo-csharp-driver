@@ -50,7 +50,7 @@ namespace MongoDB.Bson.Tests.Serialization
         [Theory]
         [ParameterAttributeData]
         public void Deserialize_should_not_throw_when_all_required_elements_present(
-            [Values(0, 1, 8, 23, 63, 111, 127, 128, 129, 555, 1024, 2500)]int membersCount)
+            [Values(0, 1, 8, 23, 63, 111, 127, 128, 129, 555, 1024, 2500)] int membersCount)
         {
             var subject = BuildTypeAndGetSerializer("Prop", membersCount);
             var properties = Enumerable
@@ -209,7 +209,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public void FastMemberMapHelper_GetMembersBitArray_with_span_should_use_the_provided_span()
         {
             var backingArray = new uint[] { 1, 2, 3 };
-            using var bitArray =  BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(backingArray);
+            using var bitArray = BsonClassMapSerializer<MyModel>.FastMemberMapHelper.GetMembersBitArray(backingArray);
 
             bitArray.Span.ToArray().ShouldBeEquivalentTo(new uint[] { 0, 0, 0 });
             bitArray.ArrayPool.Should().Be(null);

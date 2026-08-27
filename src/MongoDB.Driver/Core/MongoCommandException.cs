@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -71,18 +70,6 @@ namespace MongoDB.Driver
             AddErrorLabelsFromCommandResult(this, result);
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoCommandException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoCommandException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _command = (BsonDocument)info.GetValue("_command", typeof(BsonDocument));
-            _result = (BsonDocument)info.GetValue("_result", typeof(BsonDocument));
-        }
-
         // properties
         /// <summary>
         /// Gets the error code.
@@ -137,15 +124,6 @@ namespace MongoDB.Driver
         public BsonDocument Result
         {
             get { return _result; }
-        }
-
-        // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_command", _command);
-            info.AddValue("_result", _result);
         }
     }
 }

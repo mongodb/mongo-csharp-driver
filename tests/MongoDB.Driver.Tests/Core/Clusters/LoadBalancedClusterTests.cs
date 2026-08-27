@@ -20,9 +20,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
@@ -57,7 +59,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
             var mockEventSubscriber = new Mock<IEventSubscriber>();
             var dnsMonitorFactory = Mock.Of<IDnsMonitorFactory>();
 
-            var result = new LoadBalancedCluster(settings, serverFactory, mockEventSubscriber.Object, null, dnsMonitorFactory);
+            var result = new LoadBalancedCluster(settings, serverFactory, mockEventSubscriber.Object, null, dnsMonitorFactory, new ClientMetadata(null, null));
 
             result._dnsMonitorFactory().Should().BeSameAs(dnsMonitorFactory);
             result._state().Value.Should().Be(0); // State.Initial
@@ -65,11 +67,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
         [Theory]
         [ParameterAttributeData]
-        public void Constructor_should_handle_directConnection_correctly([Values(false, true)]bool directConnection)
+        public void Constructor_should_handle_directConnection_correctly([Values(false, true)] bool directConnection)
         {
             _settings = _settings.With(directConnection: directConnection);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, null));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, null, new ClientMetadata(null, null)));
 
             if (directConnection)
             {
@@ -87,7 +89,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(loadBalanced: loadBalanced);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, LoggerFactory, new ClientMetadata(null, null)));
 
             if (!loadBalanced)
             {
@@ -104,7 +106,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(endPoints: new[] { _endPoint, new DnsEndPoint("localhost", 27018) });
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null)));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -114,7 +116,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(replicaSetName: "rs");
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null)));
 
             exception.Should().BeOfType<ArgumentNullException>();
         }
@@ -124,7 +126,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         {
             _settings = _settings.With(srvMaxHosts: 2);
 
-            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null));
+            var exception = Record.Exception(() => new LoadBalancedCluster(_settings, _mockServerFactory, _capturedEvents, loggerFactory: null, clientMetadata: new ClientMetadata(null, null)));
 
             exception.Should().BeOfType<ArgumentException>();
         }
@@ -327,9 +329,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 
                 PublishDescription(_endPoint);
 
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var result = async ?
-                    await subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>()) :
-                    subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>());
+                    await subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>()) :
+                    subject.SelectServer(operationContext, Mock.Of<IServerSelector>());
 
                 result.EndPoint.Should().Be(_endPoint);
             }
@@ -355,9 +358,10 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                     PublishDnsException(subject, dnsException);
                 }
 
+                using var operationContext = new OperationContext(NoCoreSession.NewHandle());
                 var exception = async ?
-                    await Record.ExceptionAsync(() => subject.SelectServerAsync(OperationContext.NoTimeout, Mock.Of<IServerSelector>())) :
-                    Record.Exception(() => subject.SelectServer(OperationContext.NoTimeout, Mock.Of<IServerSelector>()));
+                    await Record.ExceptionAsync(() => subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>())) :
+                    Record.Exception(() => subject.SelectServer(operationContext, Mock.Of<IServerSelector>()));
 
                 var ex = exception.Should().BeOfType<TimeoutException>().Subject;
                 ex.Message.Should().StartWith($"A timeout occurred after {serverSelectionTimeout.TotalMilliseconds}ms selecting a server. Client view of cluster state is ");
@@ -387,7 +391,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
                 Exception exception;
                 using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMilliseconds(100)))
                 {
-                    var operationContext = new OperationContext(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+                    var operationContext = new OperationContext(NoCoreSession.NewHandle(), Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
                     exception = async ?
                         await Record.ExceptionAsync(() => subject.SelectServerAsync(operationContext, Mock.Of<IServerSelector>())) :
                         Record.Exception(() => subject.SelectServer(operationContext, Mock.Of<IServerSelector>()));
@@ -456,8 +460,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
         private LoadBalancedCluster CreateSubject(ClusterSettings settings = null, IDnsMonitorFactory dnsMonitorFactory = null)
         {
             return dnsMonitorFactory != null
-                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory)
-                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory);
+                ? new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, dnsMonitorFactory, new ClientMetadata(null, null))
+                : new LoadBalancedCluster(settings ?? _settings, _mockServerFactory, _capturedEvents, LoggerFactory, new ClientMetadata(null, null));
         }
 
         private void PublishDnsException(IDnsMonitoringCluster cluster, Exception exception)

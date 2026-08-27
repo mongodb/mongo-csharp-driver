@@ -16,12 +16,9 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
-using MongoDB.Driver.Core.Operations.ElementNameValidators;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.Operations
@@ -112,22 +109,10 @@ namespace MongoDB.Driver.Core.Operations
             get { return _update; }
         }
 
-        public override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        public override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var wireVersion = connectionDescription.MaxWireVersion;
-            // TODO: Investigate and remove code below in scope of https://jira.mongodb.org/browse/CSHARP-6061
-#pragma warning disable CS0618 // Type or member is obsolete
-            if (Feature.HintForFindAndModifyFeature.DriverMustThrowIfNotSupported(wireVersion) || (WriteConcern != null && !WriteConcern.IsAcknowledged))
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-                if (_hint != null)
-                {
-                    throw new NotSupportedException($"Server version {WireVersion.GetServerVersionForErrorMessage(wireVersion)} does not support hints.");
-                }
-            }
-
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, WriteConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, WriteConcern);
             return new BsonDocument
             {
                 { "findAndModify", CollectionNamespace.CollectionName },
@@ -148,11 +133,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
                 { "let", _let, _let != null }
             };
-        }
-
-        protected override IElementNameValidator GetCommandValidator()
-        {
-            return Validator.Instance;
         }
 
         private BsonValue EnsureUpdateIsValid(BsonValue update)
@@ -184,27 +164,6 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             return update;
-        }
-
-        private class Validator : IElementNameValidator
-        {
-            public readonly static Validator Instance = new Validator();
-
-            public IElementNameValidator GetValidatorForChildContent(string elementName)
-            {
-                if (elementName == "update")
-                {
-                    return UpdateElementNameValidator.Instance;
-                }
-
-                return NoOpElementNameValidator.Instance;
-            }
-
-            public bool IsValidElementName(string elementName)
-            {
-                Ensure.IsNotNull(elementName, nameof(elementName));
-                return true;
-            }
         }
     }
 }

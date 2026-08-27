@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Tests
             var coreSessionMock = new Mock<ICoreSessionHandle>();
             coreSessionMock.SetupGet(s => s.IsSnapshot).Returns(true);
             coreSessionMock.SetupGet(s => s.SnapshotTime).Returns(snapshotTime);
-            
+
             var session = new ClientSessionHandle(
                 Mock.Of<IMongoClient>(),
                 new ClientSessionOptions(),
@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests
         {
             var coreSessionMock = new Mock<ICoreSessionHandle>();
             coreSessionMock.SetupGet(s => s.IsSnapshot).Returns(false);
-            
+
             var session = new ClientSessionHandle(
                 Mock.Of<IMongoClient>(),
                 new ClientSessionOptions(),

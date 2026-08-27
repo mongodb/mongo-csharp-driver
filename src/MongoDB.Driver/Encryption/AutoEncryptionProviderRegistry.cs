@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Encryption
     {
         internal static AutoEncryptionProviderRegistry CreateDefaultInstance() => new AutoEncryptionProviderRegistry();
 
-        private Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController>  _autoCryptClientControllerFactory;
+        private Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> _autoCryptClientControllerFactory;
 
         public void Register(Func<IMongoClient, AutoEncryptionOptions, IAutoEncryptionLibMongoCryptController> factory)
         {

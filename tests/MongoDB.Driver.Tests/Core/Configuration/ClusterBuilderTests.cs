@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Core.Configuration
                 .ConfigureConnection(s => s.WithInternal(authenticatorFactory: authenticatorFactory))
                 .ConfigureServer(s => s.With(heartbeatTimeout: heartbeatTimeout, serverMonitoringMode: serverMonitoringMode));
 
-            var result = (ServerMonitorFactory)subject.CreateServerMonitorFactory();
+            var result = (ServerMonitorFactory)subject.CreateServerMonitorFactory(new ClientMetadata(applicationName: null, libraryInfo: null));
 
             var serverMonitorConnectionFactory = (BinaryConnectionFactory)result._connectionFactory();
             var serverMonitorConnectionSettings = serverMonitorConnectionFactory._settings();
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
 
     public static class ClusterBuilderReflector
     {
-        internal static IServerMonitorFactory CreateServerMonitorFactory(this ClusterBuilder obj) => (IServerMonitorFactory)Reflector.Invoke(obj, nameof(CreateServerMonitorFactory));
+        internal static IServerMonitorFactory CreateServerMonitorFactory(this ClusterBuilder obj, ClientMetadata clientMetadata) => (IServerMonitorFactory)Reflector.Invoke(obj, nameof(CreateServerMonitorFactory), clientMetadata);
 
         internal static Func<IStreamFactory, IStreamFactory> _streamFactoryWrapper(this ClusterBuilder obj) => (Func<IStreamFactory, IStreamFactory>)Reflector.GetFieldValue(obj, nameof(_streamFactoryWrapper));
     }

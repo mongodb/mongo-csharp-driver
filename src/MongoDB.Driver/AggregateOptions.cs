@@ -36,7 +36,6 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private TimeSpan? _timeout;
         private ExpressionTranslationOptions _translationOptions;
-        private bool? _useCursor;
 
         // implicit conversions
         /// <summary>
@@ -147,14 +146,5 @@ namespace MongoDB.Driver
             set { _translationOptions = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to use a cursor.
-        /// </summary>
-        [Obsolete("Server versions 3.6 and newer always use a cursor.")]
-        public bool? UseCursor
-        {
-            get { return _useCursor; }
-            set { _useCursor = value; }
-        }
     }
 }

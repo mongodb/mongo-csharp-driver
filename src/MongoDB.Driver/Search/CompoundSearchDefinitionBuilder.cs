@@ -30,6 +30,7 @@ namespace MongoDB.Driver.Search
         private List<SearchDefinition<TDocument>> _filter;
         private int _minimumShouldMatch = 0;
         private SearchScoreDefinition<TDocument> _score;
+        private List<string> _doesNotAffect;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CompoundSearchDefinitionBuilder{TDocument}"/> class.
@@ -38,6 +39,23 @@ namespace MongoDB.Driver.Search
         public CompoundSearchDefinitionBuilder(SearchScoreDefinition<TDocument> score = null)
         {
             _score = score;
+        }
+
+        /// <summary>
+        /// Specifies a facet whose counts should not be restricted by this compound operator.
+        /// When a facet is listed here, the compound operator's clauses do not filter the
+        /// documents counted for that facet — the facet reflects the full result set as if
+        /// this operator were not present.
+        /// </summary>
+        /// <param name="facetName">The name of the facet that this compound operator should not affect.</param>
+        /// <returns>The compound search definition builder.</returns>
+        public CompoundSearchDefinitionBuilder<TDocument> DoesNotAffect(string facetName)
+        {
+            Ensure.IsNotNullOrEmpty(facetName, nameof(facetName));
+
+            _doesNotAffect ??= new List<string>();
+            _doesNotAffect.Add(facetName);
+            return this;
         }
 
         /// <summary>
@@ -127,7 +145,7 @@ namespace MongoDB.Driver.Search
         /// </summary>
         /// <returns>A compound search definition.</returns>
         public SearchDefinition<TDocument> ToSearchDefinition() =>
-            new CompoundSearchDefinition<TDocument>(_must, _mustNot, _should, _filter, _minimumShouldMatch, _score);
+            new CompoundSearchDefinition<TDocument>(_must, _mustNot, _should, _filter, _minimumShouldMatch, _doesNotAffect, _score);
 
         /// <summary>
         /// Performs an implicit conversion from a <see cref="CompoundSearchDefinitionBuilder{TDocument}"/>

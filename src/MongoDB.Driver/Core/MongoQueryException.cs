@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Connections;
 
@@ -44,18 +42,6 @@ namespace MongoDB.Driver
             _queryResult = queryResult;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoQueryException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoQueryException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _query = (BsonDocument)info.GetValue("_query", typeof(BsonDocument));
-            _queryResult = (BsonDocument)info.GetValue("_queryResult", typeof(BsonDocument));
-        }
-
         // properties
         /// <summary>
         /// Gets the query.
@@ -77,15 +63,6 @@ namespace MongoDB.Driver
         public BsonDocument QueryResult
         {
             get { return _queryResult; }
-        }
-
-        // methods
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_query", _query);
-            info.AddValue("_queryResult", _queryResult);
         }
     }
 }

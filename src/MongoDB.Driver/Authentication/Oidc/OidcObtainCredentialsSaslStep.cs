@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Authentication.Oidc
             byte[] bytesReceivedFromServer,
             CancellationToken cancellationToken)
         {
-            var credentials = await _oidcCallback.GetCredentialsAsync(new OidcCallbackParameters(1, _principalName), cancellationToken);
+            var credentials = await _oidcCallback.GetCredentialsAsync(new OidcCallbackParameters(1, _principalName), cancellationToken).ConfigureAwait(false);
             return PreparePayload(credentials);
         }
     }

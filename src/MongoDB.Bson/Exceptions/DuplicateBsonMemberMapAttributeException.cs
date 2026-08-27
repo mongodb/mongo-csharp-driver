@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoDB.Bson
 {
@@ -40,16 +39,6 @@ namespace MongoDB.Bson
         /// <param name="inner">The inner.</param>
         public DuplicateBsonMemberMapAttributeException(string message, Exception inner)
             : base(message, inner)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DuplicateBsonMemberMapAttributeException" /> class.
-        /// </summary>
-        /// <param name="info">The info.</param>
-        /// <param name="context">The context.</param>
-        protected DuplicateBsonMemberMapAttributeException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

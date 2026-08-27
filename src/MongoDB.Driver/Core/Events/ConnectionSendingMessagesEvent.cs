@@ -14,8 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
@@ -31,21 +29,6 @@ namespace MongoDB.Driver.Core.Events
         private readonly long? _operationId;
         private readonly int _requestId;
         private readonly DateTime _timestamp;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionSendingMessagesEvent" /> struct.
-        /// </summary>
-        /// <param name="connectionId">The connection identifier.</param>
-        /// <param name="requestIds">The request ids.</param>
-        /// <param name="operationId">The operation identifier.</param>
-        [Obsolete("Support for sending multiple messages has been removed, use the constructor with single requestId instead.")]
-        public ConnectionSendingMessagesEvent(ConnectionId connectionId, IReadOnlyList<int> requestIds, long? operationId)
-        {
-            _connectionId = connectionId;
-            _requestId = requestIds.Single();
-            _operationId = operationId;
-            _timestamp = DateTime.UtcNow;
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectionSendingMessagesEvent" /> struct.
@@ -83,15 +66,6 @@ namespace MongoDB.Driver.Core.Events
         public int RequestId
         {
             get { return _requestId; }
-        }
-
-        /// <summary>
-        /// Gets the request ids.
-        /// </summary>
-        [Obsolete($"Support for sending multiple messages has been removed, use {nameof(RequestId)} instead.")]
-        public IReadOnlyList<int> RequestIds
-        {
-            get { return [_requestId]; }
         }
 
         /// <summary>

@@ -308,15 +308,6 @@ namespace MongoDB.Driver
         public override IBsonSerializer<TOutput> OutputSerializer => _outputSerializer;
 
         /// <summary>
-        /// Gets the serializer.
-        /// </summary>
-        [Obsolete("Use OutputSerializer instead.")]
-        public IBsonSerializer<TOutput> Serializer
-        {
-            get { return _outputSerializer; }
-        }
-
-        /// <summary>
         /// Gets the stages.
         /// </summary>
         public override IEnumerable<IPipelineStageDefinition> Stages => _stages;

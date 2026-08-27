@@ -25,19 +25,16 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
     {
         private readonly ICompressorSource _compressorSource;
         private readonly MessageEncoderSettings _encoderSettings;
-        private readonly IMessageEncoderSelector _originalEncoderSelector;
         private const int MessageHeaderLength = 16;
 
         public CompressedMessageBinaryEncoder(
             Stream stream,
-            IMessageEncoderSelector originalEncoderSelector,
             ICompressorSource compressorSource,
             MessageEncoderSettings encoderSettings)
             : base(stream, encoderSettings)
         {
             _compressorSource = Ensure.IsNotNull(compressorSource, nameof(compressorSource));
             _encoderSettings = encoderSettings; // can be null
-            _originalEncoderSelector = originalEncoderSelector;
         }
 
         public CompressedMessage ReadMessage()
@@ -69,7 +66,7 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
                 uncompressedBuffer.MakeReadOnly();
 
                 var originalMessageEncoderFactory = new BinaryMessageEncoderFactory(uncompressedStream, _encoderSettings, _compressorSource);
-                var originalMessageEncoder = _originalEncoderSelector.GetEncoder(originalMessageEncoderFactory);
+                var originalMessageEncoder = originalMessageEncoderFactory.GetCommandMessageEncoder();
                 var originalMessage = originalMessageEncoder.ReadMessage();
 
                 return new CompressedMessage(originalMessage, null, compressorType);

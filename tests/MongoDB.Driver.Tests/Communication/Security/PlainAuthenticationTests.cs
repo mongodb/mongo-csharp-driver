@@ -16,8 +16,8 @@
 using System;
 using System.Linq;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Communication.Security
@@ -44,12 +44,10 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
             Assert.Throws<MongoCommandException>(() =>
             {
-#pragma warning disable 618
                 client
                     .GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName)
                     .GetCollection<BsonDocument>(__collectionName)
-                    .Count(new BsonDocument());
-#pragma warning restore
+                    .CountDocuments(new BsonDocument());
             });
         }
 

@@ -30,26 +30,26 @@ namespace MongoDB.Bson.Serialization
             {
                 // check IMultipleChildSerializersConfigurableSerializer first because some serializers implement both interfaces
                 case IMultipleChildSerializersConfigurable multipleChildSerializerConfigurable:
-                {
-                    var anyChildSerializerWasReconfigured = false;
-                    var reconfiguredChildSerializers = new List<IBsonSerializer>();
-
-                    foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
                     {
-                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
-                        anyChildSerializerWasReconfigured |= reconfiguredChildSerializer != null;
-                        reconfiguredChildSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
+                        var anyChildSerializerWasReconfigured = false;
+                        var reconfiguredChildSerializers = new List<IBsonSerializer>();
+
+                        foreach (var childSerializer in multipleChildSerializerConfigurable.ChildSerializers)
+                        {
+                            var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                            anyChildSerializerWasReconfigured |= reconfiguredChildSerializer != null;
+                            reconfiguredChildSerializers.Add(reconfiguredChildSerializer ?? childSerializer);
+                        }
+
+                        return anyChildSerializerWasReconfigured ? multipleChildSerializerConfigurable.WithChildSerializers(reconfiguredChildSerializers.ToArray()) : null;
                     }
 
-                    return anyChildSerializerWasReconfigured ? multipleChildSerializerConfigurable.WithChildSerializers(reconfiguredChildSerializers.ToArray()) : null;
-                }
-
                 case IChildSerializerConfigurable childSerializerConfigurable:
-                {
-                    var childSerializer = childSerializerConfigurable.ChildSerializer;
-                    var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
-                    return reconfiguredChildSerializer != null ? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
-                }
+                    {
+                        var childSerializer = childSerializerConfigurable.ChildSerializer;
+                        var reconfiguredChildSerializer = ReconfigureSerializerRecursively(childSerializer, reconfigure);
+                        return reconfiguredChildSerializer != null ? childSerializerConfigurable.WithChildSerializer(reconfiguredChildSerializer) : null;
+                    }
 
                 default:
                     return reconfigure(serializer);

@@ -51,7 +51,7 @@ namespace MongoDB.Driver
             // serialize numeric values without converting them
             if (fieldType.IsNumeric() && valueType.IsNumeric())
             {
-                var valueSerializer = BsonSerializer.SerializerRegistry.GetSerializer(valueType);
+                var valueSerializer = serializerRegistry.GetSerializer(valueType);
                 if (HasStringRepresentation(fieldSerializer))
                 {
                     valueSerializer = WithStringRepresentation(valueSerializer);

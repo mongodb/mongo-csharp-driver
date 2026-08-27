@@ -148,7 +148,7 @@ namespace MongoDB.Driver.Tests
         {
             var filter = __subject.Ne(x => x.E, value);
 
-            filter.Render(__args  ).Should().Be(expectedFilter);
+            filter.Render(__args).Should().Be(expectedFilter);
         }
 
         [Theory]

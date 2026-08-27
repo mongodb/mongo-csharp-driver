@@ -31,12 +31,18 @@ namespace MongoDB.Driver.Tests
         // private methods
         private string GetExpectedTargetFramework()
         {
-#if NET6_0_OR_GREATER
-            return "net60";
-#elif NETCOREAPP3_1_OR_GREATER
-            return "netstandard21";
-#elif NET472
+            // The driver ships an asset for every framework the tests target, so each test TFM
+            // resolves to the driver assembly built for that same TFM.
+#if NET472
             return "net472";
+#elif NET6_0
+            return "net60";
+#elif NET8_0
+            return "net80";
+#elif NET10_0
+            return "net100";
+#else
+            throw new System.InvalidOperationException($"Unexpected target framework: {TargetFramework.Moniker}.");
 #endif
         }
     }

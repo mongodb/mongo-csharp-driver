@@ -47,7 +47,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
         [Fact]
         public void SupportedWireRange_should_be_correct()
         {
-            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(9, 29));
+            WireVersion.SupportedWireVersionRange.Should().Be(new Range<int>(9, 30));
         }
 
         [Fact]
@@ -60,7 +60,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
 
         [Theory]
         [InlineData(99, null, null)]
-        [InlineData(30, null, null)]
+        [InlineData(31, null, null)]
+        [InlineData(30, 9, 1)]
         [InlineData(29, 9, 0)]
         [InlineData(28, 8, 3)]
         [InlineData(27, 8, 2)]
@@ -91,6 +92,24 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
             {
                 serverVersion.Should().BeNull();
             }
+        }
+
+        [Fact]
+        public void ToWireVersion_should_return_min_supported_wire_version_when_null()
+        {
+            ServerVersion? subject = null;
+
+            subject.ToWireVersion().Should().Be(WireVersion.SupportedWireVersionRange.Min);
+        }
+
+        [Fact]
+        public void ToWireVersion_should_throw_for_invalid_server_version()
+        {
+            var subject = (ServerVersion?)int.MaxValue;
+
+            var exception = Record.Exception(() => subject.ToWireVersion());
+
+            exception.Should().BeOfType<ArgumentException>().Subject.ParamName.Should().Be("serverVersion");
         }
     }
 }

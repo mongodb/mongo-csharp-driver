@@ -41,12 +41,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal EnumerableInterfaceImplementerSerializerBase(IBsonSerializationDomain serializationDomain, IBsonSerializer itemSerializer)
+            : base(serializationDomain, itemSerializer)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializerBase{TValue}" /> class.
         /// </summary>
         /// <param name="serializerRegistry">The serializer registry.</param>
         protected EnumerableInterfaceImplementerSerializerBase(IBsonSerializerRegistry serializerRegistry)
             : base(serializerRegistry)
+        {
+        }
+
+        internal EnumerableInterfaceImplementerSerializerBase(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
         {
         }
 
@@ -106,12 +116,22 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal EnumerableInterfaceImplementerSerializerBase(IBsonSerializationDomain serializationDomain, IBsonSerializer<TItem> itemSerializer)
+            : base(serializationDomain, itemSerializer)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableInterfaceImplementerSerializerBase{TValue, TItem}" /> class.
         /// </summary>
         /// <param name="serializerRegistry">The serializer registry.</param>
         public EnumerableInterfaceImplementerSerializerBase(IBsonSerializerRegistry serializerRegistry)
             : base(serializerRegistry)
+        {
+        }
+
+        internal EnumerableInterfaceImplementerSerializerBase(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain)
         {
         }
 

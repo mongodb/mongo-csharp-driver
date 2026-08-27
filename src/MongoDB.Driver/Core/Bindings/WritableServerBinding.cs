@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -29,22 +29,15 @@ namespace MongoDB.Driver.Core.Bindings
         private readonly IClusterInternal _cluster;
 #pragma warning restore CA2213 // Disposable fields should be disposed
         private bool _disposed;
-        private readonly ICoreSessionHandle _session;
 
-        public WritableServerBinding(IClusterInternal cluster, ICoreSessionHandle session)
+        public WritableServerBinding(IClusterInternal cluster)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
-            _session = Ensure.IsNotNull(session, nameof(session));
         }
 
         public ReadPreference ReadPreference
         {
             get { return ReadPreference.Primary; }
-        }
-
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
@@ -60,14 +53,14 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
@@ -79,7 +72,7 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, WritableServerSelector.Instance, deprioritizedServers);
             return CreateServerChannelSource(server);
         }
 
@@ -90,7 +83,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         public IChannelSourceHandle GetWriteChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            if (IsSessionPinnedToServer())
+            if (IsSessionPinnedToServer(operationContext))
             {
                 throw new InvalidOperationException($"This overload of {nameof(GetWriteChannelSource)} cannot be called when pinned to a server.");
             }
@@ -113,7 +106,7 @@ namespace MongoDB.Driver.Core.Bindings
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, WritableServerSelector.Instance, deprioritizedServers).ConfigureAwait(false);
             return CreateServerChannelSource(server);
         }
 
@@ -124,7 +117,7 @@ namespace MongoDB.Driver.Core.Bindings
 
         public async Task<IChannelSourceHandle> GetWriteChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers, IMayUseSecondaryCriteria mayUseSecondary)
         {
-            if (IsSessionPinnedToServer())
+            if (IsSessionPinnedToServer(operationContext))
             {
                 throw new InvalidOperationException($"This overload of {nameof(GetWriteChannelSource)} cannot be called when pinned to a server.");
             }
@@ -141,21 +134,20 @@ namespace MongoDB.Driver.Core.Bindings
 
         private IChannelSourceHandle CreateServerChannelSource(IServer server)
         {
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _session.Dispose();
                 _disposed = true;
             }
         }
 
-        private bool IsSessionPinnedToServer()
+        private bool IsSessionPinnedToServer(OperationContext operationContext)
         {
-            return _session.IsInTransaction && _session.CurrentTransaction.PinnedServer != null;
+            return operationContext.Session.IsInTransaction && operationContext.Session.CurrentTransaction.PinnedServer != null;
         }
 
         private void ThrowIfDisposed()

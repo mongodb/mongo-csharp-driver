@@ -50,13 +50,13 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         exception.Should().BeOfType<ExpressionNotSupportedException>();
     }
 
-    private static char[] __singleCharsSeparator = [ ',' ];
-    private static char[] __multipleCharsSeparator = [ ',', ';' ];
-    private static string[] __singleStringsSeparator = [ "," ];
-    private static string[] __multipleStringsSeparator = [ ",", ";" ];
+    private static char[] __singleCharsSeparator = [','];
+    private static char[] __multipleCharsSeparator = [',', ';'];
+    private static string[] __singleStringsSeparator = [","];
+    private static string[] __multipleStringsSeparator = [",", ";"];
     public static IEnumerable<object[]> SupportedTestCases =
     [
-#if NETCOREAPP || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // string.Split(char, StringSplitOptions.None).
         [
             TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(',', StringSplitOptions.None)),
@@ -136,7 +136,7 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         ],
         // TODO: Missed cases when StringSplitOptions.TrimEntries. Currently, it is silently ignored. Need jira ticket for that.
 
-#if NETCOREAPP || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // string.Split(string, StringSplitOptions.None).
         [
             TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(",", StringSplitOptions.None)),
@@ -205,17 +205,12 @@ public class SplitMethodToAggregationExpressionTranslatorTests
         [
          TestHelpers.MakeLambda<MyModel, string[]>(model => model.RegexField.Split(model.StringField)),
          "{ $split: [{ $getField: { field: 'StringField', input: '$$ROOT' } }, { $getField: { field: 'RegexField',  input: '$$ROOT' } }] }"
-],
+        ],
     ];
 
     public static IEnumerable<object[]> NonSupportedTestCases =
     [
         // Multiple char separators are not supported
-#if !CSHARP_14
-        // C# 14 cannot have such statement with the following compilation error occurs:
-        // error CS8640: Expression tree cannot contain value of ref struct or restricted type 'ReadOnlySpan'.
-        [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(',', ';'))],
-#endif
         [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(new[] { ',', ';' }))],
         [TestHelpers.MakeLambda<MyModel, string[]>(model => model.StringField.Split(__multipleCharsSeparator))],
         // Multiple string separators are not supported

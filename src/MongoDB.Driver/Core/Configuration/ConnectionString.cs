@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Core.Configuration
     public sealed class ConnectionString
     {
         // constants
-        private const int defaultMongoDBPort = 27017;
-        private const int defaultSrvPort = 53;
+        private const int DefaultMongoDBPort = 27017;
+        private const int DefaultSrvPort = 53;
 
         // private fields
         private readonly string _originalConnectionString;
@@ -243,6 +243,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets a value indicating whether overload retargeting is enabled.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public bool? EnableOverloadRetargeting
         {
             get { return _enableOverloadRetargeting; }
@@ -320,6 +321,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the maximum number of adaptive retries for overload errors.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public int? MaxAdaptiveRetries
         {
             get { return _maxAdaptiveRetries; }
@@ -496,21 +498,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code>
         /// </summary>
         public string SrvServiceName => _srvServiceName;
-
-        /// <summary>
-        /// Gets whether to use SSL.
-        /// </summary>
-        [Obsolete("Use Tls instead.")]
-        public bool? Ssl
-        {
-            get { return _tls; }
-        }
-
-        /// <summary>
-        /// Gets whether to verify SSL certificates.
-        /// </summary>
-        [Obsolete("Use TlsInsecure instead.")]
-        public bool? SslVerifyCertificate => !_tlsInsecure;
 
         /// <summary>
         /// Gets the per-operation timeout.
@@ -773,10 +760,10 @@ namespace MongoDB.Driver.Core.Configuration
 
         private void ExtractHosts(Match match)
         {
-            int defaultPort = defaultMongoDBPort;
+            int defaultPort = DefaultMongoDBPort;
             if (_scheme == ConnectionStringScheme.MongoDBPlusSrv)
             {
-                defaultPort = defaultSrvPort;
+                defaultPort = DefaultSrvPort;
             }
             List<EndPoint> endPoints = new List<EndPoint>();
             foreach (Capture host in match.Groups["host"].Captures)
@@ -1515,7 +1502,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return host.Length > original.Length &&
                        hostDotCount > originalDotCount &&
                        host.EndsWith(original, StringComparison.Ordinal) &&
-                       host[host.Length - original.Length -1 ] == '.';
+                       host[host.Length - original.Length - 1] == '.';
             }
 
             // We check that the returned hostname has the same domain name as original

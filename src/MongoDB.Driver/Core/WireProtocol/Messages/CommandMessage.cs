@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
@@ -22,7 +21,7 @@ using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages
 {
-    internal sealed class CommandMessage : MongoDBMessage
+    internal abstract class CommandMessage : MongoDBMessage
     {
         // static
         private static readonly HashSet<string> __messagesNotToBeCompressed = new HashSet<string>
@@ -40,38 +39,27 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
         };
 
         // fields
-        private bool _exhaustAllowed;
         private bool _moreToCome;
-        private Action<IMessageEncoderPostProcessor> _postWriteAction;
         private readonly int _requestId;
-        private readonly int _responseTo;
         private readonly List<CommandMessageSection> _sections;
 
         // constructors
-        public CommandMessage(
+        protected CommandMessage(
             int requestId,
-            int responseTo,
             IEnumerable<CommandMessageSection> sections,
             bool moreToCome)
         {
             _requestId = requestId;
-            _responseTo = responseTo;
             _sections = Ensure.IsNotNull(sections, nameof(sections)).ToList();
             _moreToCome = moreToCome;
 
             if (_sections.Count(s => s.PayloadType == PayloadType.Type0) != 1)
             {
-                throw new ArgumentException("There must be exactly one type 0 payload.", nameof(sections));
+                throw new System.ArgumentException("There must be exactly one type 0 payload.", nameof(sections));
             }
         }
 
         // public properties
-        public bool ExhaustAllowed
-        {
-            get { return _exhaustAllowed; }
-            set { _exhaustAllowed = value; }
-        }
-
         public override bool MayBeCompressed
         {
             get
@@ -89,23 +77,13 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
             }
         }
 
-        public override MongoDBMessageType MessageType => MongoDBMessageType.Command;
-
         public bool MoreToCome
         {
             get { return _moreToCome; }
             set { _moreToCome = value; }
         }
 
-        public Action<IMessageEncoderPostProcessor> PostWriteAction
-        {
-            get { return _postWriteAction; }
-            set { _postWriteAction = value; }
-        }
-
         public int RequestId => _requestId;
-        public bool ResponseExpected => !_moreToCome;
-        public int ResponseTo => _responseTo;
         public IReadOnlyList<CommandMessageSection> Sections => _sections;
 
         // public methods

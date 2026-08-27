@@ -14,6 +14,7 @@
 */
 
 using System;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
@@ -31,6 +32,48 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
     internal static class AstPickAccumulatorOperatorExtensions
     {
+        public static AstExpression EnsureNIsValid(this AstPickAccumulatorOperator @operator, AstExpression n)
+        {
+            switch (@operator)
+            {
+                case AstPickAccumulatorOperator.Bottom:
+                case AstPickAccumulatorOperator.Top:
+                    return Ensure.IsNull(n, nameof(n));
+
+                case AstPickAccumulatorOperator.BottomN:
+                case AstPickAccumulatorOperator.FirstN:
+                case AstPickAccumulatorOperator.LastN:
+                case AstPickAccumulatorOperator.MaxN:
+                case AstPickAccumulatorOperator.MinN:
+                case AstPickAccumulatorOperator.TopN:
+                    return Ensure.IsNotNull(n, nameof(n));
+
+                default:
+                    throw new InvalidOperationException($"Invalid operator: {@operator}.");
+            }
+        }
+
+        public static AstSortFields EnsureSortByIsValid(this AstPickAccumulatorOperator @operator, AstSortFields sortBy)
+        {
+            switch (@operator)
+            {
+                case AstPickAccumulatorOperator.Bottom:
+                case AstPickAccumulatorOperator.BottomN:
+                case AstPickAccumulatorOperator.Top:
+                case AstPickAccumulatorOperator.TopN:
+                    return Ensure.IsNotNull(sortBy, nameof(sortBy));
+
+                case AstPickAccumulatorOperator.FirstN:
+                case AstPickAccumulatorOperator.LastN:
+                case AstPickAccumulatorOperator.MaxN:
+                case AstPickAccumulatorOperator.MinN:
+                    return Ensure.IsNull(sortBy, nameof(sortBy));
+
+                default:
+                    throw new InvalidOperationException($"Invalid operator: {@operator}.");
+            }
+        }
+
         public static string Render(this AstPickAccumulatorOperator @operator)
         {
             return @operator switch

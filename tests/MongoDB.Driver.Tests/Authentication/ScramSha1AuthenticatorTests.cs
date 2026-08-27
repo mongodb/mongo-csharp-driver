@@ -23,6 +23,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.ScramSha;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -68,25 +69,24 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }}, $db : \"source\"{expectedServerApiString} }} }} ] }}");
-            sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"), $db : \"source\"{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ saslStart : 1, mechanism : 'SCRAM-SHA-1', payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'), options : {{ skipEmptyExchange : true }}, $db : 'source'{expectedServerApiString} }}");
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'), $db : 'source'{expectedServerApiString} }}");
         }
 
         [Theory]
@@ -103,25 +103,24 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = null;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-            var expectedSEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId0}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"SCRAM-SHA-1\", payload : new BinData(0, \"biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM\"), options : {{ \"skipEmptyExchange\" : true }}, $db : \"source\"{expectedSEndString} }} }} ] }}");
-            sentMessages[1].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId1}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslContinue : 1, conversationId : 1, payload : new BinData(0, \"Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9\"), $db : \"source\"{expectedSEndString} }} }} ] }}");
+            var expectedSEndString = ", $readPreference : { mode : 'primaryPreferred' }";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ saslStart : 1, mechanism : 'SCRAM-SHA-1', payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'), options : {{ skipEmptyExchange : true }}, $db : 'source'{expectedSEndString} }}");
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'), $db : 'source'{expectedSEndString} }}");
         }
 
         [Theory]
@@ -137,9 +136,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(responseException);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -159,9 +159,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -184,9 +185,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -217,17 +219,18 @@ namespace MongoDB.Driver.Tests.Authentication
             var helloResult = (BsonDocument)__descriptionCommandWireProtocol.HelloResult.Wrapped.Clone();
             if (useSpeculativeAuthenticate)
             {
-                helloResult.Add("speculativeAuthenticate", ((Type0CommandMessageSection<RawBsonDocument>)saslStartResponse.WrappedMessage.Sections[0]).Document);
+                helloResult.Add("speculativeAuthenticate", ((Type0CommandMessageSection<RawBsonDocument>)saslStartResponse.Sections[0]).Document);
             }
 
             connection.Description = new ConnectionDescription(__descriptionCommandWireProtocol.ConnectionId, new HelloResult(helloResult));
 
             BsonDocument helloCommand = null;
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (useSpeculativeAuthenticate)
             {
                 // Call CustomizeInitialHelloCommand so that the authenticator thinks its started to speculatively
                 // authenticate
-                helloCommand = subject.CustomizeInitialHelloCommand(OperationContext.NoTimeout, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
+                helloCommand = subject.CustomizeInitialHelloCommand(operationContext, new BsonDocument { { OppressiveLanguageConstants.LegacyHelloCommandName, 1 } });
             }
             else
             {
@@ -242,96 +245,42 @@ namespace MongoDB.Driver.Tests.Authentication
 
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, connection.Description);
+                await subject.AuthenticateAsync(operationContext, connection, connection.Description);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, connection.Description);
+                subject.Authenticate(operationContext, connection, connection.Description);
             }
 
             var expectedSentMessageCount = 3 - (useLongAuthentication ? 0 : 1) - (useSpeculativeAuthenticate ? 1 : 0);
-            SpinWait.SpinUntil(
-                () => connection.GetSentMessages().Count >= expectedSentMessageCount,
-                TimeSpan.FromSeconds(5)
-                ).Should().BeTrue();
+            SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= expectedSentMessageCount, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(expectedSentMessageCount);
-
-            var actualRequestIds = sentMessages.Select(m => m["requestId"].AsInt32).ToList();
 
             var expectedMessages = new List<BsonDocument>();
 
-            var saslStartMessage = BsonDocument.Parse(@$"
-            {{
-                opcode : 'opmsg',
-                requestId : {actualRequestIds[0]},
-                responseTo : 0,
-                sections : [
-                {{
-                    payloadType : 0,
-                    document : {{
-                        saslStart : 1,
-                        mechanism : 'SCRAM-SHA-1',
-                        payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'),
-                        options : {{ skipEmptyExchange: true }},
-                        '$db' : 'source'
-                    }}
-                }}
-                ]
-            }}");
+            var saslStartMessage = BsonDocument.Parse("{ saslStart : 1, mechanism : 'SCRAM-SHA-1', payload : new BinData(0, 'biwsbj11c2VyLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdM'), options : { skipEmptyExchange: true }, '$db' : 'source' }");
             if (!useSpeculativeAuthenticate)
             {
                 expectedMessages.Add(saslStartMessage);
             }
 
-            var saslContinueMessage = BsonDocument.Parse(@$"
-            {{
-                opcode : 'opmsg',
-                requestId : {(useSpeculativeAuthenticate ? actualRequestIds[0] : actualRequestIds[1])},
-                responseTo : 0,
-                sections : [
-                {{
-                    payloadType : 0,
-                    document : {{
-                        saslContinue : 1,
-                        conversationId : 1,
-                        payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'),
-                        '$db' : 'source'
-                    }}
-                }}
-                ]
-            }}");
+            var saslContinueMessage = BsonDocument.Parse("{ saslContinue : 1, conversationId : 1, payload : new BinData(0, 'Yz1iaXdzLHI9ZnlrbytkMmxiYkZnT05Sdjlxa3hkYXdMSG8rVmdrN3F2VU9LVXd1V0xJV2c0bC85U3JhR01IRUUscD1NQzJUOEJ2Ym1XUmNrRHc4b1dsNUlWZ2h3Q1k9'), '$db' : 'source' }");
             expectedMessages.Add(saslContinueMessage);
 
             if (useLongAuthentication)
             {
-                var saslOptionalFinalMessage = BsonDocument.Parse($@"
-                {{
-                    opcode : 'opmsg',
-                    requestId : {(useSpeculativeAuthenticate ? actualRequestIds[1] : actualRequestIds[2])},
-                    responseTo : 0,
-                    sections : [
-                    {{
-                        payloadType : 0,
-                        document : {{
-                            saslContinue : 1,
-                            conversationId : 1,
-                            payload : new BinData(0, ''),
-                            '$db' : 'source'
-                        }}
-                    }}
-                    ]
-                }}");
+                var saslOptionalFinalMessage = BsonDocument.Parse("{ saslContinue : 1, conversationId : 1, payload : new BinData(0, ''), '$db' : 'source' }");
                 expectedMessages.Add(saslOptionalFinalMessage);
             }
 
-            sentMessages.Should().Equal(expectedMessages);
+            sentMessages.Select(m => MessageHelper.ToCommandPayload(m)).Should().Equal(expectedMessages);
             if (useSpeculativeAuthenticate)
             {
                 helloCommand.Should().Contain("speculativeAuthenticate");
                 var speculativeAuthenticateDocument = helloCommand["speculativeAuthenticate"].AsBsonDocument;
-                var expectedSpeculativeAuthenticateDocument = saslStartMessage["sections"].AsBsonArray[0]["document"].AsBsonDocument;
+                var expectedSpeculativeAuthenticateDocument = saslStartMessage;
                 var dollarsDbElement = expectedSpeculativeAuthenticateDocument.GetElement("$db");
                 expectedSpeculativeAuthenticateDocument.RemoveElement(dollarsDbElement); // $db is automatically added by wireProtocol processing that can be different from db specified in authenticator
                 expectedSpeculativeAuthenticateDocument.Add(new BsonElement("db", TestUserSource));
@@ -357,13 +306,14 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5))
@@ -381,7 +331,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserSource, TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "SCRAM-SHA-1",

@@ -145,35 +145,33 @@ namespace MongoDB.Driver.Core.Operations
 
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
 
         public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        internal BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        internal BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var maxWireVersion = connectionDescription.MaxWireVersion;
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
-            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(session, connectionDescription);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, _writeConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForWriteCommand(operationContext.Session, connectionDescription);
             if (_commitQuorum != null)
             {
                 Feature.CreateIndexCommitQuorum.ThrowIfNotSupported(maxWireVersion);
@@ -193,10 +191,10 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
             var databaseNamespace = _collectionNamespace.DatabaseNamespace;
-            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
             var resultSerializer = BsonDocumentSerializer.Instance;
             return new WriteCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, _messageEncoderSettings, OperationName);
         }

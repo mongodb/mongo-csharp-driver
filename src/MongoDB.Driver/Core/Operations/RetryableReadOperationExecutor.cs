@@ -45,10 +45,10 @@ namespace MongoDB.Driver.Core.Operations
 
                     var operationResult = operation.ExecuteAttempt(operationContext, context, totalAttempts, transactionNumber: null);
 
-                    if (context.Binding.Session.Id != null &&
-                        context.Binding.Session.IsInTransaction)
+                    if (operationContext.Session.Id != null &&
+                        operationContext.Session.IsInTransaction)
                     {
-                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
+                        operationContext.Session.CurrentTransaction.HasCompletedCommand = true;
                     }
 
                     return operationResult;
@@ -96,10 +96,10 @@ namespace MongoDB.Driver.Core.Operations
 
                     var operationResult = await operation.ExecuteAttemptAsync(operationContext, context, totalAttempts, transactionNumber: null).ConfigureAwait(false);
 
-                    if (context.Binding.Session.Id != null &&
-                        context.Binding.Session.IsInTransaction)
+                    if (operationContext.Session.Id != null &&
+                        operationContext.Session.IsInTransaction)
                     {
-                        context.Binding.Session.CurrentTransaction.HasCompletedCommand = true;
+                        operationContext.Session.CurrentTransaction.HasCompletedCommand = true;
                     }
 
                     return operationResult;
@@ -114,6 +114,14 @@ namespace MongoDB.Driver.Core.Operations
                         throw originalException;
                     }
 
+                    // We bail early if the backoff would exceed the CSOT deadline. The cancellation token alone does not
+                    // fire when the deadline elapses, so without this check the delay would ignore the remaining timeout.
+                    var remaining = operationContext.RemainingTimeout;
+                    if (remaining != Timeout.InfiniteTimeSpan && remaining < backoff)
+                    {
+                        throw originalException;
+                    }
+
                     await Task.Delay(backoff, operationContext.CancellationToken).ConfigureAwait(false);
                     deprioritizedServers = UpdateServerList(server, deprioritizedServers, ex, context.EnableOverloadRetargeting);
                 }
@@ -121,7 +129,8 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         // private static methods
-        private static bool ShouldRetry(OperationContext operationContext,
+        private static bool ShouldRetry(
+            OperationContext operationContext,
             RetryableReadContext context,
             bool isOperationRetryable,
             Exception exception,
@@ -144,7 +153,7 @@ namespace MongoDB.Driver.Core.Operations
             var isRetryableException = RetryabilityHelper.IsRetryableException(exception);
             var isSystemOverloadedException = RetryabilityHelper.IsSystemOverloadedException(exception);
 
-            var isRetryableRead = isOperationRetryable && !context.Binding.Session.IsInTransaction && isRetryableReadException;
+            var isRetryableRead = isOperationRetryable && !operationContext.Session.IsInTransaction && isRetryableReadException;
 
             var isBackpressureRetry = isSystemOverloadedException
                                       && isRetryableException;
@@ -157,14 +166,15 @@ namespace MongoDB.Driver.Core.Operations
             if (isSystemOverloadedException)
             {
                 // If the first command in a transaction was rejected due to overload, reset to Starting so the retry re-sends startTransaction:true.
-                if (context.Binding.Session.Id != null
-                    && context.Binding.Session.IsInTransaction
-                    && context.Binding.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)
+                if (operationContext.Session.Id != null
+                    && operationContext.Session.IsInTransaction
+                    && operationContext.Session.CurrentTransaction is { HasCompletedCommand: false } currentTransaction)
                 {
                     currentTransaction.ResetState();
                 }
 
-                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random);
+                var baseBackoffMs = RetryabilityHelper.GetBaseBackoffMs(exception);
+                backoff = RetryabilityHelper.GetOperationRetryBackoffDelay(attempt, random, baseBackoffMs);
 
                 return attempt <= context.MaxAdaptiveRetries;
             }

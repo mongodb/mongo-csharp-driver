@@ -105,6 +105,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         options ??= new FindOptions<BsonDocument>();
                         options.BatchSize = argument.Value.AsInt32;
                         break;
+                    case "collation":
+                        options ??= new FindOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new FindOptions<BsonDocument>();
                         options.Comment = argument.Value;

@@ -26,8 +26,8 @@ namespace MongoDB.Driver.Tests.Encryption
     public class CsfleSchemaBuilderTests
     {
         private readonly CollectionNamespace _collectionNamespace = CollectionNamespace.FromFullName("medicalRecords.patients");
-        private const string _keyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
-        private static Guid _keyId = Guid.Parse(_keyIdString);
+        private const string KeyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
+        private static Guid _keyId = Guid.Parse(KeyIdString);
 
         [Fact]
         public void CsfleSchemaBuilder_works_as_expected()
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests.Encryption
                                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         });
 
-                } );
+                });
             });
 
             var expected = new Dictionary<string, string>
@@ -218,7 +218,7 @@ namespace MongoDB.Driver.Tests.Encryption
             """ "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(
             null,
-            _keyIdString,
+            KeyIdString,
             """ "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_Metadata_works_as_expected(EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -246,11 +246,11 @@ namespace MongoDB.Driver.Tests.Encryption
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
             null,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_PatternProperty_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -280,17 +280,17 @@ namespace MongoDB.Driver.Tests.Encryption
             null,
             null,
             "")]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             null,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_PatternProperty_with_multiple_bson_types_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void EncryptedCollection_PatternProperty_nested_works_as_expected()
         {
-            Guid? keyId = Guid.Parse(_keyIdString);
+            Guid? keyId = Guid.Parse(KeyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
 
             builder.PatternProperty(p => p.Insurance, innerBuilder =>
@@ -367,7 +367,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void EncryptedCollection_PatternProperty_nested_with_string_works_as_expected()
         {
-            Guid? keyId = Guid.Parse(_keyIdString);
+            Guid? keyId = Guid.Parse(KeyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
 
             builder.PatternProperty<Insurance>("insurance", innerBuilder =>
@@ -420,11 +420,11 @@ namespace MongoDB.Driver.Tests.Encryption
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
             null,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_Property_with_expression_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -454,17 +454,17 @@ namespace MongoDB.Driver.Tests.Encryption
             null,
             null,
             "")]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
             null,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             null,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": ["array", "string"], "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
-        [InlineData(new[] {BsonType.Array, BsonType.String},
+        [InlineData(new[] { BsonType.Array, BsonType.String },
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": ["array", "string"], "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_Property_with_multiple_bson_types_works_as_expected(IEnumerable<BsonType> bsonTypes, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -496,11 +496,11 @@ namespace MongoDB.Driver.Tests.Encryption
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random" """)]
         [InlineData(BsonType.Array,
             null,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         [InlineData(BsonType.Array,
             EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random,
-            _keyIdString,
+            KeyIdString,
             """ "bsonType": "array", "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random", "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }] """)]
         public void EncryptedCollection_Property_with_string_works_as_expected(BsonType bsonType, EncryptionAlgorithm? algorithm, string keyString, string expectedContent)
         {
@@ -528,7 +528,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void EncryptedCollection_Property_nested_works_as_expected()
         {
-            Guid? keyId = Guid.Parse(_keyIdString);
+            Guid? keyId = Guid.Parse(KeyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
 
             builder.Property(p => p.Insurance, innerBuilder =>
@@ -577,7 +577,7 @@ namespace MongoDB.Driver.Tests.Encryption
         [Fact]
         public void EncryptedCollection_Property_nested_with_string_works_as_expected()
         {
-            Guid? keyId = Guid.Parse(_keyIdString);
+            Guid? keyId = Guid.Parse(KeyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
 
             builder.Property<Insurance>("insurance", innerBuilder =>

@@ -38,16 +38,16 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
         private enum ServerTypeTest
         {
-           RSPrimary = ServerType.ReplicaSetPrimary,
-           RSSecondary = ServerType.ReplicaSetSecondary,
-           RSArbiter = ServerType.ReplicaSetArbiter,
-           RSGhost = ServerType.ReplicaSetGhost,
-           RSOther = ServerType.ReplicaSetOther,
-           Mongos = ServerType.ShardRouter,
-           Standalone = ServerType.Standalone,
-           Unknown = ServerType.Unknown,
-           PossiblePrimary = ServerType.Unknown,
-           LoadBalancer = ServerType.LoadBalanced
+            RSPrimary = ServerType.ReplicaSetPrimary,
+            RSSecondary = ServerType.ReplicaSetSecondary,
+            RSArbiter = ServerType.ReplicaSetArbiter,
+            RSGhost = ServerType.ReplicaSetGhost,
+            RSOther = ServerType.ReplicaSetOther,
+            Mongos = ServerType.ShardRouter,
+            Standalone = ServerType.Standalone,
+            Unknown = ServerType.Unknown,
+            PossiblePrimary = ServerType.Unknown,
+            LoadBalancer = ServerType.LoadBalanced
         }
 
         public enum ServerTagTest
@@ -129,7 +129,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 
             var maxWireVersion = serverData.maxWireVersion ?? 9;
             var wireVersionRange = new Range<int>(0, maxWireVersion);
-            var serverVersion = new SemanticVersion(4, 4, 0);
 
             var serverId = new ServerId(clusterId, endPoint);
             return new ServerDescription(
@@ -141,7 +140,6 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
                 lastWriteTimestamp: lastWriteTimestamp,
                 heartbeatInterval: heartbeatInterval,
                 wireVersionRange: wireVersionRange,
-                version: serverVersion,
                 tags: tagSet,
                 state: ServerState.Connected);
         }

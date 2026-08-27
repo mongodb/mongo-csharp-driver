@@ -335,7 +335,7 @@ namespace MongoDB.Bson
                 return _value == (Decimal128)rhsDouble.Value; // use == instead of Equals so NaN is handled correctly
             }
 
-            return this.Equals(rhs);
+            return Equals(rhs);
         }
     }
 }

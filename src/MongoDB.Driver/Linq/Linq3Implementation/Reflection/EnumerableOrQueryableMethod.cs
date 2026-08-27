@@ -79,7 +79,6 @@ internal static class EnumerableOrQueryableMethod
     // sets of methods
     private static readonly IReadOnlyMethodInfoSet __aggregateOverloads;
     private static readonly IReadOnlyMethodInfoSet __aggregateWithSeedOverloads;
-    private static readonly IReadOnlyMethodInfoSet __anyOverloads;
     private static readonly IReadOnlyMethodInfoSet __appendOrPrepend;
     private static readonly IReadOnlyMethodInfoSet __averageOverloads;
     private static readonly IReadOnlyMethodInfoSet __averageWithSelectorOverloads;
@@ -116,6 +115,7 @@ internal static class EnumerableOrQueryableMethod
     private static readonly IReadOnlyMethodInfoSet __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     private static readonly IReadOnlyMethodInfoSet __sumOverloads;
     private static readonly IReadOnlyMethodInfoSet __sumWithSelectorOverloads;
+    private static readonly IReadOnlyMethodInfoSet __takeLastOverloads;
     private static readonly IReadOnlyMethodInfoSet __takeOverloads;
     private static readonly IReadOnlyMethodInfoSet __thenByOverloads;
 
@@ -478,12 +478,6 @@ internal static class EnumerableOrQueryableMethod
             __aggregateWithSeedFuncAndResultSelector
         ]);
 
-        __anyOverloads = MethodInfoSet.Create(
-        [
-            __any,
-            __anyWithPredicate
-        ]);
-
         __appendOrPrepend = MethodInfoSet.Create(
         [
             __append,
@@ -842,7 +836,13 @@ internal static class EnumerableOrQueryableMethod
             QueryableMethod.SumSingleWithSelector,
         ]);
 
-      __takeOverloads = MethodInfoSet.Create(
+        __takeLastOverloads = MethodInfoSet.Create(
+        [
+            EnumerableMethod.TakeLast,
+            QueryableMethod.TakeLast
+        ]);
+
+        __takeOverloads = MethodInfoSet.Create(
         [
             __take,
             __takeWhile, // it's convenient to treat TakeWhile as if it was an overload of Take
@@ -904,7 +904,8 @@ internal static class EnumerableOrQueryableMethod
         __skipOrTakeOverloads = MethodInfoSet.Create(
         [
             __skipOverloads,
-            __takeOverloads
+            __takeOverloads,
+            __takeLastOverloads
         ]);
     }
 
@@ -965,7 +966,6 @@ internal static class EnumerableOrQueryableMethod
     // sets of methods
     public static IReadOnlyMethodInfoSet AggregateOverloads => __aggregateOverloads;
     public static IReadOnlyMethodInfoSet AggregateWithSeedOverloads => __aggregateWithSeedOverloads;
-    public static IReadOnlyMethodInfoSet AnyOverloads => __anyOverloads;
     public static IReadOnlyMethodInfoSet AppendOrPrepend => __appendOrPrepend;
     public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
     public static IReadOnlyMethodInfoSet AverageWithSelectorOverloads => __averageWithSelectorOverloads;
@@ -1002,6 +1002,7 @@ internal static class EnumerableOrQueryableMethod
     public static IReadOnlyMethodInfoSet SkipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex => __skipWhileWithPredicateTakingIndexOrTakeWhileWithPredicateTakingIndex;
     public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;
     public static IReadOnlyMethodInfoSet SumWithSelectorOverloads => __sumWithSelectorOverloads;
+    public static IReadOnlyMethodInfoSet TakeLastOverloads => __takeLastOverloads;
     public static IReadOnlyMethodInfoSet TakeOverloads => __takeOverloads;
     public static IReadOnlyMethodInfoSet ThenByOverloads => __thenByOverloads;
 }

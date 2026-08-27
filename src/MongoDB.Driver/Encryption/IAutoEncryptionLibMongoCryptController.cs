@@ -27,6 +27,6 @@ namespace MongoDB.Driver.Encryption
         /// Gets the crypt shared library version.
         /// </summary>
         /// <returns>A crypt shared library version.</returns>
-        public string CryptSharedLibraryVersion();
+        string CryptSharedLibraryVersion();
     }
 }

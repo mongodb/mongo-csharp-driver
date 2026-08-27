@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -27,7 +28,6 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -68,27 +68,23 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(response);
             connection.Description = __descriptionCommandWireProtocol;
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
-
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedServerApiString} }} }} ] }}");
+            var expectedServerApiString = useServerApi ? ", apiVersion : '1', apiStrict : true, apiDeprecationErrors : true" : "";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ authenticate : 1, mechanism : 'MONGODB-X509', user : 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US', $db : '$external'{expectedServerApiString} }}");
         }
 
         [Theory]
@@ -103,27 +99,23 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(response);
             connection.Description = null;
 
-            var expectedRequestId = RequestMessage.CurrentGlobalRequestId + 1;
-
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            var actualRequestId = sentMessages[0]["requestId"].AsInt32;
-            actualRequestId.Should().BeInRange(expectedRequestId, expectedRequestId + 10);
-
-            var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ authenticate : 1, mechanism : \"MONGODB-X509\", user : \"CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US\", $db : \"$external\"{expectedEndString} }} }} ] }}");
+            var expectedEndString = ", '$readPreference' : { mode : 'primaryPreferred' }";
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be($"{{ authenticate : 1, mechanism : 'MONGODB-X509', user : 'CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US', $db : '$external'{expectedEndString} }}");
         }
 
 
@@ -140,9 +132,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.EnqueueCommandResponseMessage(response);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -161,9 +154,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.Description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.EnqueueCommandResponseMessage(response);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeNull();
         }
@@ -184,9 +178,10 @@ namespace MongoDB.Driver.Tests.Authentication
             var description = CreateConnectionDescription(maxWireVersion: WireVersion.Server44);
             connection.Description = description;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, description)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, description));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, description)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, description));
 
             exception.Should().BeNull();
         }

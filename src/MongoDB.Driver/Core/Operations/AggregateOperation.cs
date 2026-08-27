@@ -49,7 +49,6 @@ namespace MongoDB.Driver.Core.Operations
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TResult> _resultSerializer;
         private bool _retryRequested;
-        private bool? _useCursor;
 
         // constructors
         /// <summary>
@@ -275,19 +274,6 @@ namespace MongoDB.Driver.Core.Operations
 
         public bool IsOperationRetryable => true;
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the server should use a cursor to return the results.
-        /// </summary>
-        /// <value>
-        /// A value indicating whether the server should use a cursor to return the results.
-        /// </value>
-        [Obsolete("Server versions 3.6 and newer always use a cursor.")]
-        public bool? UseCursor
-        {
-            get { return _useCursor; }
-            set { _useCursor = value; }
-        }
-
         // methods
         /// <inheritdoc/>
         public IAsyncCursor<TResult> Execute(OperationContext operationContext, IReadBinding binding)
@@ -312,9 +298,9 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(operationContext, context);
                 var result = operation.Execute(operationContext, context);
 
-                context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, context.Channel, result);
+                return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
             }
         }
 
@@ -341,15 +327,15 @@ namespace MongoDB.Driver.Core.Operations
                 var operation = CreateOperation(operationContext, context);
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
 
-                context.ChannelSource.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
+                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(context.ChannelSource, context.Channel, result);
+                return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
             }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern);
             var command = new BsonDocument
             {
                 { "aggregate", _collectionNamespace == null ? (BsonValue)1 : _collectionNamespace.CollectionName },
@@ -392,50 +378,29 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private AsyncCursor<TResult> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
+        private IAsyncCursor<TResult> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
         {
             if (result.CursorId.HasValue)
             {
-                return CreateCursorFromCursorResult(channelSource, channel, result);
+                return CreateCursorFromCursorResult(operationContext, channelSource, channel, result);
             }
-            else
-            {
-                // don't need connection pinning
-                return CreateCursorFromInlineResult(result);
-            }
+
+            return new SingleBatchAsyncCursor<TResult>(result.Results);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
         {
             var cursorId = result.CursorId.GetValueOrDefault(0);
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             return new AsyncCursor<TResult>(
                 getMoreChannelSource,
+                operationContext.Session.Fork(),
                 result.CollectionNamespace,
                 _comment,
                 result.Results,
                 cursorId,
                 result.PostBatchResumeToken,
                 _batchSize,
-                null, // limit
-                _resultSerializer,
-                MessageEncoderSettings,
-                _maxAwaitTime,
-                _retryRequested,
-                maxAdaptiveRetries: _maxAdaptiveRetries,
-                enableOverloadRetargeting: _enableOverloadRetargeting);
-        }
-
-        private AsyncCursor<TResult> CreateCursorFromInlineResult(AggregateResult result)
-        {
-            return new AsyncCursor<TResult>(
-                null, // channelSource
-                CollectionNamespace,
-                _comment,
-                result.Results,
-                0, // cursorId
-                null, // postBatchResumeToken
-                null, // batchSize
                 null, // limit
                 _resultSerializer,
                 MessageEncoderSettings,

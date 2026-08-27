@@ -34,14 +34,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // public methods
-        public CommandResponseMessage DecryptFields(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        public ResponseCommandMessage DecryptFields(ResponseCommandMessage encryptedResponseMessage, CancellationToken cancellationToken)
         {
             var encryptedDocumentBytes = GetEncryptedDocumentBytes(encryptedResponseMessage);
             var unencryptedDocumentBytes = _documentFieldDecryptor.DecryptFields(encryptedDocumentBytes, cancellationToken);
             return CreateUnencryptedResponseMessage(encryptedResponseMessage, unencryptedDocumentBytes);
         }
 
-        public async Task<CommandResponseMessage> DecryptFieldsAsync(CommandResponseMessage encryptedResponseMessage, CancellationToken cancellationToken)
+        public async Task<ResponseCommandMessage> DecryptFieldsAsync(ResponseCommandMessage encryptedResponseMessage, CancellationToken cancellationToken)
         {
             var encryptedDocumentBytes = GetEncryptedDocumentBytes(encryptedResponseMessage);
             var unencryptedDocumentBytes = await _documentFieldDecryptor.DecryptFieldsAsync(encryptedDocumentBytes, cancellationToken).ConfigureAwait(false);
@@ -49,23 +49,20 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // private methods
-        private CommandResponseMessage CreateUnencryptedResponseMessage(CommandResponseMessage encryptedResponseMessage, byte[] unencryptedDocumentBytes)
+        private ResponseCommandMessage CreateUnencryptedResponseMessage(ResponseCommandMessage encryptedResponseMessage, byte[] unencryptedDocumentBytes)
         {
             var unencryptedDocument = new RawBsonDocument(unencryptedDocumentBytes);
             var unencryptedSections = new[] { new Type0CommandMessageSection<RawBsonDocument>(unencryptedDocument, RawBsonDocumentSerializer.Instance) };
-            var encryptedCommandMessage = encryptedResponseMessage.WrappedMessage;
-            var unencryptedCommandMessage = new CommandMessage(
-                encryptedCommandMessage.RequestId,
-                encryptedCommandMessage.ResponseTo,
+            return new ResponseCommandMessage(
+                encryptedResponseMessage.RequestId,
+                encryptedResponseMessage.ResponseTo,
                 unencryptedSections,
-                encryptedCommandMessage.MoreToCome);
-            return new CommandResponseMessage(unencryptedCommandMessage);
+                encryptedResponseMessage.MoreToCome);
         }
 
-        private byte[] GetEncryptedDocumentBytes(CommandResponseMessage encryptedResponseMessage)
+        private byte[] GetEncryptedDocumentBytes(ResponseCommandMessage encryptedResponseMessage)
         {
-            var encryptedCommandMessage = encryptedResponseMessage.WrappedMessage;
-            var encryptedSections = encryptedCommandMessage.Sections;
+            var encryptedSections = encryptedResponseMessage.Sections;
             var encryptedType0Section = (Type0CommandMessageSection<RawBsonDocument>)encryptedSections.Single();
             var encryptedDocumentSlice = encryptedType0Section.Document.Slice;
             var encryptedDocumentBytes = new byte[encryptedDocumentSlice.Length];

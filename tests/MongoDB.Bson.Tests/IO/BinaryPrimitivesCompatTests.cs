@@ -14,9 +14,9 @@
 */
 
 using System;
-using Xunit;
 using FluentAssertions;
 using MongoDB.Bson.IO;
+using Xunit;
 
 namespace MongoDB.Bson.Tests.IO
 {

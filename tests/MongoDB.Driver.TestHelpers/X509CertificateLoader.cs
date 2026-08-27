@@ -18,7 +18,8 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace MongoDB.Driver.TestHelpers;
 
-#if !NET8_0_OR_GREATER
+// System.Security.Cryptography.X509Certificates.X509CertificateLoader was introduced in .NET 9.
+#if !NET9_0_OR_GREATER
 
 public static class X509CertificateLoader
 {
@@ -26,7 +27,7 @@ public static class X509CertificateLoader
         new(certificateData.ToArray());
 
     public static X509Certificate2 LoadCertificateFromFile(string certificateFilename) =>
-        new (certificateFilename);
+        new(certificateFilename);
 
     public static X509Certificate2 LoadPkcs12FromFile(string certificateFilename, string password) =>
         new(certificateFilename, password);

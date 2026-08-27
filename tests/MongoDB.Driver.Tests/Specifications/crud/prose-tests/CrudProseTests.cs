@@ -152,13 +152,13 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L68C8-L68C104
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_splits_batches_on_maxWriteBatchSize([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_splits_batches_on_maxWriteBatchSize([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
             var models = Enumerable
                 .Range(0, maxBatchCount + 1)
-                .Select(_ => new BulkWriteInsertOneModel<BsonDocument>("db.coll", new BsonDocument{ { "a", "b" } }))
+                .Select(_ => new BulkWriteInsertOneModel<BsonDocument>("db.coll", new BsonDocument { { "a", "b" } }))
                 .ToArray();
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "bulkWrite");
@@ -176,7 +176,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L96
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_splits_batches_on_maxMessageSizeBytes([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_splits_batches_on_maxMessageSizeBytes([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var connectionDescription = DriverTestConfiguration.GetConnectionDescription();
@@ -204,7 +204,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L136
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_collects_WriteConcernError_across_batches([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_collects_WriteConcernError_across_batches([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxBatchCount = DriverTestConfiguration.GetConnectionDescription().MaxBatchCount;
@@ -222,7 +222,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
             }";
             var models = Enumerable
                 .Range(0, maxBatchCount + 1)
-                .Select(_ => new BulkWriteInsertOneModel<BsonDocument>("db.coll", new BsonDocument{ { "a", "b" } }))
+                .Select(_ => new BulkWriteInsertOneModel<BsonDocument>("db.coll", new BsonDocument { { "a", "b" } }))
                 .ToArray();
 
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "bulkWrite");
@@ -467,7 +467,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L602
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_document([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_document([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
@@ -494,7 +494,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L602
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_namespace([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_throws_if_no_operations_can_be_added_big_namespace([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
             var maxMessageSize = DriverTestConfiguration.GetConnectionDescription().MaxMessageSize;
@@ -521,7 +521,7 @@ namespace MongoDB.Driver.Tests.Specifications.crud.prose_tests
         // https://github.com/mongodb/specifications/blob/7517681e6a3186cb7f3114314a9fe1bc3a747b9f/source/crud/tests/README.md?plain=1#L647
         [Theory]
         [ParameterAttributeData]
-        public async Task MongoClient_bulkWrite_throws_if_auto_encryption_configured([Values(true, false)]bool async)
+        public async Task MongoClient_bulkWrite_throws_if_auto_encryption_configured([Values(true, false)] bool async)
         {
             RequireServer.Check().Supports(Feature.ClientBulkWrite);
 

@@ -37,9 +37,9 @@ internal class KeyValuePairWrappedValueSerializer<TKey, TValue> : SerializerBase
     private readonly IBsonSerializer<KeyValuePair<TKey, TValue>> _keyValuePairSerializer;
     private readonly IBsonSerializer<TValue> _valueSerializer;
 
-    public KeyValuePairWrappedValueSerializer(IBsonSerializer<TKey> keySerializer,  IBsonSerializer<TValue> valueSerializer)
+    public KeyValuePairWrappedValueSerializer(IBsonSerializer<TKey> keySerializer, IBsonSerializer<TValue> valueSerializer)
     {
-        _keyValuePairSerializer = (IBsonSerializer<KeyValuePair<TKey, TValue>>)KeyValuePairSerializer.Create(BsonType.Document,  keySerializer, valueSerializer);
+        _keyValuePairSerializer = (IBsonSerializer<KeyValuePair<TKey, TValue>>)KeyValuePairSerializer.Create(BsonType.Document, keySerializer, valueSerializer);
         _valueSerializer = valueSerializer;
     }
 

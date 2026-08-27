@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Connections
             IStreamFactory streamFactory,
             IEventSubscriber eventSubscriber,
             ServerApi serverApi,
+            ClientMetadata clientMetadata,
             ILoggerFactory loggerFactory,
             TracingOptions tracingOptions,
             TimeSpan? socketReadTimeout,
@@ -51,7 +52,8 @@ namespace MongoDB.Driver.Core.Connections
             _settings = Ensure.IsNotNull(settings, nameof(settings));
             _streamFactory = Ensure.IsNotNull(streamFactory, nameof(streamFactory));
             _eventSubscriber = Ensure.IsNotNull(eventSubscriber, nameof(eventSubscriber));
-            _connectionInitializer = new ConnectionInitializer(settings.ApplicationName, settings.Compressors, serverApi, settings.LibraryInfo);
+            Ensure.IsNotNull(clientMetadata, nameof(clientMetadata));
+            _connectionInitializer = new ConnectionInitializer(clientMetadata, settings.Compressors, serverApi);
             _loggerFactory = loggerFactory;
             _tracingOptions = tracingOptions;
             _socketReadTimeout = socketReadTimeout.HasValue && socketReadTimeout > TimeSpan.Zero ? socketReadTimeout.Value : Timeout.InfiniteTimeSpan;

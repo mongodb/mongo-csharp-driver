@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using Xunit;
@@ -30,7 +31,7 @@ public class DoubleTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -42,7 +43,7 @@ public class DoubleTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(1.0)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => double.Parse("42")), typeof(DoubleSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => double.Parse(model.StringValue)), typeof(DoubleSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +51,6 @@ public class DoubleTests
     {
         public double Value { get; set; }
         public double Other { get; set; }
+        public string StringValue { get; set; }
     }
 }

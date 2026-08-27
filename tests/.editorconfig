@@ -1,0 +1,8 @@
+[*.cs]
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1001.severity = none
+dotnet_diagnostic.CA1065.severity = none
+dotnet_diagnostic.CA2002.severity = none
+
+[MongoDB.Bson.Tests/**.cs]
+dotnet_diagnostic.CA1033.severity = none

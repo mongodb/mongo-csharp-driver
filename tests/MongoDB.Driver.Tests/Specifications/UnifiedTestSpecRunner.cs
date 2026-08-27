@@ -55,6 +55,7 @@ namespace MongoDB.Driver.Tests.Specifications
         [UnifiedTestsTheory("client_side_operations_timeout.tests")]
         public void ClientSideOperationsTimeout(JsonDrivenTestCase testCase)
         {
+            SkipNotSupportedTestCases(testCase, "count on collection"); // .NET/C# driver does not implement a Count helper
             SkipNotSupportedTestCases(testCase, "dropIndexes");
             SkipNotSupportedTestCases(testCase, "findOne");
             SkipNotSupportedTestCases(testCase, "listIndexNames");
@@ -123,7 +124,39 @@ namespace MongoDB.Driver.Tests.Specifications
 
         [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("crud.tests.unified")]
-        public void Crud(JsonDrivenTestCase testCase) => Run(testCase);
+        public void Crud(JsonDrivenTestCase testCase)
+        {
+            var testsToSkip = new[]
+            {
+                "Unacknowledged findOneAndReplace with hint string on 4.4+ server",
+                "Unacknowledged findOneAndReplace with hint document on 4.4+ server",
+                "Unacknowledged findOneAndUpdate with hint string on 4.4+ server",
+                "Unacknowledged findOneAndUpdate with hint document on 4.4+ server",
+                "Unacknowledged findOneAndDelete with hint string on 4.4+ server",
+                "Unacknowledged findOneAndDelete with hint document on 4.4+ server"
+            };
+            if (testsToSkip.Any(t => testCase.Name.Contains(t)))
+            {
+                throw new SkipException("Skipped due to CSHARP-6079");
+            }
+
+            if (testCase.Shared["_fileName"].AsString.EndsWith("-rawdata.json"))
+            {
+                throw new SkipException("CSharpDriver does not support rawData option.");
+            }
+
+            if (testCase.Shared["_fileName"].AsString == "distinct-hint.json")
+            {
+                throw new SkipException("CSharpDriver does not support Hint for Distinct operation.");
+            }
+
+            if (testCase.Name.Contains("findOneAndUpdate document validation errInfo is accessible"))
+            {
+                throw new SkipException("CSharpDriver does not support modifyCollection.");
+            }
+
+            Run(testCase);
+        }
 
         [UnifiedTestsTheory("gridfs.tests")]
         public void GridFS(JsonDrivenTestCase testCase) => Run(testCase);
@@ -168,8 +201,11 @@ namespace MongoDB.Driver.Tests.Specifications
                 .SkipWhen(SupportedOperatingSystem.MacOS);
 #endif
 
-           Run(testCase);
+            Run(testCase);
         }
+
+        [UnifiedTestsTheory("mongodb_handshake.tests.unified")]
+        public void MongoDbHandshake(JsonDrivenTestCase testCase) => Run(testCase);
 
         [UnifiedTestsTheory("open_telemetry.operation")]
         public void OpenTelemetry(JsonDrivenTestCase testCase)
@@ -350,6 +386,17 @@ namespace MongoDB.Driver.Tests.Specifications
             "legacy hello with speculative authenticate",
             "legacy hello without speculative authenticate is not redacted",
 
+            // crud
+            // .NET/C# driver does not implement a Count helper. These files also cover CountDocuments and
+            // EstimatedDocumentCount, so only the Count test cases are excluded.
+            "Deprecated count without a filter",
+            "Deprecated count with a filter",
+            "Deprecated count with skip and limit",
+            "Deprecated count with empty collection",
+            "Deprecated count with collation",
+            "Deprecated count with rawData option",
+            "Deprecated count with rawData option on less than 8.2.0 - ignore argument",
+
             // retryableReads
             "collection.findOne succeeds after retryable handshake network error",
             "collection.findOne succeeds after retryable handshake server error (ShutdownInProgress)",
@@ -383,12 +430,17 @@ namespace MongoDB.Driver.Tests.Specifications
             "findOne.json",
             "findOne-serverErrors.json",
             "listCollectionObjects.json",
-            "listCollectionObjects.json",
             "listCollectionObjects-serverErrors.json",
             "listDatabaseObjects.json",
             "listDatabaseObjects-serverErrors.json",
             "listIndexNames.json",
-            "listIndexNames-serverErrors.json"
+            "listIndexNames-serverErrors.json",
+
+            // .NET/C# driver does not implement a Count helper.
+            // Qualified by resource namespace because other specs have files of the same name that must keep running.
+            "retryable_reads.tests.unified.count.json",
+            "retryable_reads.tests.unified.count-serverErrors.json",
+            "transactions.tests.unified.count.json"
         ]);
 
         #region CMAP helpers

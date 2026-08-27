@@ -28,8 +28,8 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.Driver.Encryption;
+using MongoDB.Driver.Tests.Specifications.client_side_encryption;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
@@ -94,20 +94,6 @@ namespace MongoDB.Driver.Tests.Encryption
 
                 ShouldBeArgumentNullException(Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
                 ShouldBeArgumentNullException(await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider: null, masterKey)), expectedParamName: "kmsProvider");
-
-                var invalidDataKeyOptions = new DataKeyOptions(alternateKeyNames: Optional.Create(Mock.Of<IReadOnlyList<string>>()));
-#pragma warning disable CS0618 // Type or member is obsolete
-                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-
-                invalidDataKeyOptions = new DataKeyOptions(keyMaterial: new BsonBinaryData(new byte[0]));
-                Record.Exception(() => subject.CreateEncryptedCollection(database, collectionName: collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-                (await Record.ExceptionAsync(() => subject.CreateEncryptedCollectionAsync(database, collectionName, createCollectionOptions, kmsProvider, dataKeyOptions: invalidDataKeyOptions)))
-                    .Should().BeOfType<ArgumentException>().Which.Message.Should().Be("CreateEncryptedCollection supports only MasterKey in DataKeyOptions.");
-#pragma warning restore CS0618 // Type or member is obsolete
             }
 
         }
@@ -152,12 +138,12 @@ namespace MongoDB.Driver.Tests.Encryption
             var mockCollection = new Mock<IMongoCollection<BsonDocument>>();
             mockCollection
                 .SetupSequence(c => c.InsertOne(It.IsAny<BsonDocument>(), It.IsAny<InsertOneOptions>(), It.IsAny<CancellationToken>()))
-                .Pass()
+                .Returns(InsertOneResult.Unacknowledged.Instance)
                 .Throws(new Exception("test"));
             mockCollection
                 .SetupSequence(c => c.InsertOneAsync(It.IsAny<BsonDocument>(), It.IsAny<InsertOneOptions>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask)
-                .Throws(new Exception("test"));
+                .ReturnsAsync(InsertOneResult.Unacknowledged.Instance)
+                .ThrowsAsync(new Exception("test"));
             var mockDatabase = new Mock<IMongoDatabase>();
             mockDatabase.Setup(c => c.GetCollection<BsonDocument>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>())).Returns(mockCollection.Object);
             var client = new Mock<IMongoClient>();
@@ -382,7 +368,7 @@ namespace MongoDB.Driver.Tests.Encryption
             async ? await clientEncryption.DecryptAsync(value) : clientEncryption.Decrypt(value);
 
         private async ValueTask<BsonBinaryData> ExplicitEncryptAsync(ClientEncryption clientEncryption, EncryptOptions encryptOptions, BsonValue value, bool async) =>
-            async? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
+            async ? await clientEncryption.EncryptAsync(value, encryptOptions) : clientEncryption.Encrypt(value, encryptOptions);
 
         private void ShouldBeArgumentNullException(Exception ex, string expectedParamName) => ex.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be(expectedParamName);
     }

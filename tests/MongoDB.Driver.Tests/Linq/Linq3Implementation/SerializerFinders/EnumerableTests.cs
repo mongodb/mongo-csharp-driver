@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
@@ -34,7 +35,7 @@ public class EnumerableTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -123,6 +124,12 @@ public class EnumerableTests
         [TestHelpers.MakeLambda((MyModel model) => model.Items.LastOrDefault(x => x > 0)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.LastOrDefault()), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyQueryableModel model) => model.Items.LastOrDefault(x => x > 0)), typeof(Int32Serializer)],
+
+        [TestHelpers.MakeLambda((MyQueryableModel model) => model.Outers.LeftJoin(model.Inners, o => o.Key, i => i.Key, (o, i) => i.InnerName)), typeof(IQueryableSerializer<string>)],
+        [TestHelpers.MakeLambda((MyQueryableModel model) => model.Outers.LeftJoin(model.Inners, o => o.Key, i => i.Key, (o, i) => o.OuterName)), typeof(IQueryableSerializer<string>)],
+#if NET10_0_OR_GREATER
+        [TestHelpers.MakeLambda((MyQueryableModel model) => model.Outers.LeftJoin(model.InnerList, o => o.Key, i => i.Key, (o, i) => i.InnerName)), typeof(IQueryableSerializer<string>)],
+#endif
 
         [TestHelpers.MakeLambda((MyModel model) => model.Items.LongCount()), typeof(Int64Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Items.LongCount(x => x > 0)), typeof(Int64Serializer)],
@@ -249,5 +256,22 @@ public class EnumerableTests
         public IQueryable<decimal> DecimalItems { get; set; }
         public IQueryable<long> LongItems { get; set; }
         public IQueryable<float> FloatItems { get; set; }
+        public IQueryable<Outer> Outers { get; set; }
+        public IQueryable<Inner> Inners { get; set; }
+#if NET10_0_OR_GREATER
+        public IEnumerable<Inner> InnerList { get; set; }
+#endif
+    }
+
+    private class Outer
+    {
+        public int Key { get; set; }
+        public string OuterName { get; set; }
+    }
+
+    private class Inner
+    {
+        public int Key { get; set; }
+        public string InnerName { get; set; }
     }
 }

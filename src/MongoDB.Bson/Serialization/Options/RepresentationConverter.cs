@@ -213,7 +213,7 @@ namespace MongoDB.Bson.Serialization.Options
             return decimal128Value;
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Half to a Decimal128.
         /// </summary>
@@ -397,7 +397,7 @@ namespace MongoDB.Bson.Serialization.Options
             return value;
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Half to a Double.
         /// </summary>
@@ -507,7 +507,7 @@ namespace MongoDB.Bson.Serialization.Options
             return value;
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Decimal128 to a Half.
         /// </summary>
@@ -817,7 +817,7 @@ namespace MongoDB.Bson.Serialization.Options
             return int32Value;
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Half to an Int32.
         /// </summary>
@@ -1019,7 +1019,7 @@ namespace MongoDB.Bson.Serialization.Options
         }
 
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts a Half to an Int64.
         /// </summary>

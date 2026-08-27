@@ -93,27 +93,6 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public virtual long Count(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use CountDocuments or EstimatedDocumentCount instead.")]
-        public virtual long Count(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public abstract Task<long> CountAsync(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken));
-
-        [Obsolete("Use CountDocumentsAsync or EstimatedDocumentCountAsync instead.")]
-        public virtual Task<long> CountAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual long CountDocuments(FilterDefinition<TDocument> filter, CountOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
@@ -419,17 +398,17 @@ namespace MongoDB.Driver
             throw new NotImplementedException();
         }
 
-        public virtual void InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertOneResult InsertOne(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
+            return InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual void InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertOneResult InsertOne(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
+            return InsertOne(document, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private void InsertOne(TDocument document, InsertOneOptions options, Action<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions> bulkWrite)
+        private InsertOneResult InsertOne(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull((object)document, "document");
 
@@ -442,7 +421,8 @@ namespace MongoDB.Driver
                     Comment = options.Comment,
                     Timeout = options.Timeout
                 };
-                bulkWrite(new[] { model }, bulkWriteOptions);
+                var bulkWriteResult = bulkWrite(new[] { model }, bulkWriteOptions);
+                return InsertOneResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
             }
             catch (MongoBulkWriteException<TDocument> ex)
             {
@@ -450,23 +430,17 @@ namespace MongoDB.Driver
             }
         }
 
-        [Obsolete("Use the new overload of InsertOneAsync with an InsertOneOptions parameter instead.")]
-        public virtual Task InsertOneAsync(TDocument document, CancellationToken _cancellationToken)
-        {
-            return InsertOneAsync(document, null, _cancellationToken);
-        }
-
-        public virtual Task InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertOneResult> InsertOneAsync(IClientSessionHandle session, TDocument document, InsertOneOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertOneAsync(document, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task InsertOneAsync(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task> bulkWriteAsync)
+        private async Task<InsertOneResult> InsertOneAsync(TDocument document, InsertOneOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull((object)document, "document");
 
@@ -479,7 +453,8 @@ namespace MongoDB.Driver
                     Comment = options.Comment,
                     Timeout = options.Timeout
                 };
-                await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
+                var bulkWriteResult = await bulkWriteAsync(new[] { model }, bulkWriteOptions).ConfigureAwait(false);
+                return InsertOneResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
             }
             catch (MongoBulkWriteException<TDocument> ex)
             {
@@ -487,17 +462,17 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertManyResult InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
+            return InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual void InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual InsertManyResult InsertMany(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
-            InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
+            return InsertMany(documents, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private void InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options, Action<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions> bulkWrite)
+        private InsertManyResult InsertMany(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull(documents, nameof(documents));
 
@@ -509,20 +484,21 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 Timeout = options.Timeout
             };
-            bulkWrite(models, bulkWriteOptions);
+            var bulkWriteResult = bulkWrite(models, bulkWriteOptions);
+            return InsertManyResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
         }
 
-        public virtual Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertManyResult> InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<InsertManyResult> InsertManyAsync(IClientSessionHandle session, IEnumerable<TDocument> documents, InsertManyOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return InsertManyAsync(documents, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private Task InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task> bulkWriteAsync)
+        private async Task<InsertManyResult> InsertManyAsync(IEnumerable<TDocument> documents, InsertManyOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(documents, nameof(documents));
 
@@ -534,7 +510,8 @@ namespace MongoDB.Driver
                 IsOrdered = options.IsOrdered,
                 Timeout = options.Timeout
             };
-            return bulkWriteAsync(models, bulkWriteOptions);
+            var bulkWriteResult = await bulkWriteAsync(models, bulkWriteOptions).ConfigureAwait(false);
+            return InsertManyResult.FromBulkWriteResult(bulkWriteResult, DocumentSerializer);
         }
 
         [Obsolete("Use Aggregation pipeline instead.")]
@@ -560,45 +537,29 @@ namespace MongoDB.Driver
 
         public abstract IFilteredMongoCollection<TDerivedDocument> OfType<TDerivedDocument>() where TDerivedDocument : TDocument;
 
-        public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOne(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
-        }
-
-        public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOne(filter, replacement, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual ReplaceOneResult ReplaceOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOne(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
-        }
-
-        private ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
+        private ReplaceOneResult ReplaceOne(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options ??= new ReplaceOptions();
+            options ??= new ReplaceOptions<TDocument>();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is ReplaceOptions<TDocument> re)
-            {
-                model.Sort = re.Sort;
-            }
 
             try
             {
@@ -618,46 +579,30 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOneAsync(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
-        }
-
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return ReplaceOneAsync(filter, replacement, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        [Obsolete("Use the overload that takes a ReplaceOptions instead of an UpdateOptions.")]
-        public virtual Task<ReplaceOneResult> ReplaceOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, TDocument replacement, UpdateOptions options, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return ReplaceOneAsync(filter, replacement, ReplaceOptions.From(options), (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
-        }
-
-        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions options,
+        private async Task<ReplaceOneResult> ReplaceOneAsync(FilterDefinition<TDocument> filter, TDocument replacement, ReplaceOptions<TDocument> options,
             Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull((object)replacement, "replacement");
 
-            options ??= new ReplaceOptions();
+            options ??= new ReplaceOptions<TDocument>();
             var model = new ReplaceOneModel<TDocument>(filter, replacement)
             {
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort
             };
-
-            if (options is ReplaceOptions<TDocument> re)
-            {
-                model.Sort = re.Sort;
-            }
 
             try
             {
@@ -677,22 +622,26 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateMany(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual UpdateResult UpdateMany(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateMany(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
+        private UpdateResult UpdateMany(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (options?.Sort != null)
+            {
+                throw new ArgumentException("UpdateMany does not support Sort option", nameof(options));
+            }
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions<TDocument>();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -719,22 +668,26 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateManyAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<UpdateResult> UpdateManyAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateManyAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
+        private async Task<UpdateResult> UpdateManyAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
+            if (options?.Sort != null)
+            {
+                throw new ArgumentException("UpdateMany does not support Sort option", nameof(options));
+            }
 
-            options = options ?? new UpdateOptions();
+            options ??= new UpdateOptions<TDocument>();
             var model = new UpdateManyModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
@@ -761,34 +714,30 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOne(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual UpdateResult UpdateOne(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOne(filter, update, options, (requests, bulkWriteOptions) => BulkWrite(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
+        private UpdateResult UpdateOne(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, BulkWriteResult<TDocument>> bulkWrite)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options ??= new UpdateOptions();
+            options ??= new UpdateOptions<TDocument>();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is UpdateOptions<TDocument> uo)
-            {
-                model.Sort = uo.Sort;
-            }
 
             try
             {
@@ -808,34 +757,30 @@ namespace MongoDB.Driver
             }
         }
 
-        public virtual Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOneAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(requests, bulkWriteOptions, cancellationToken));
         }
 
-        public virtual Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
+        public virtual Task<UpdateResult> UpdateOneAsync(IClientSessionHandle session, FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return UpdateOneAsync(filter, update, options, (requests, bulkWriteOptions) => BulkWriteAsync(session, requests, bulkWriteOptions, cancellationToken));
         }
 
-        private async Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
+        private async Task<UpdateResult> UpdateOneAsync(FilterDefinition<TDocument> filter, UpdateDefinition<TDocument> update, UpdateOptions<TDocument> options, Func<IEnumerable<WriteModel<TDocument>>, BulkWriteOptions, Task<BulkWriteResult<TDocument>>> bulkWriteAsync)
         {
             Ensure.IsNotNull(filter, nameof(filter));
             Ensure.IsNotNull(update, nameof(update));
 
-            options ??= new UpdateOptions();
+            options ??= new UpdateOptions<TDocument>();
             var model = new UpdateOneModel<TDocument>(filter, update)
             {
                 ArrayFilters = options.ArrayFilters,
                 Collation = options.Collation,
                 Hint = options.Hint,
-                IsUpsert = options.IsUpsert
+                IsUpsert = options.IsUpsert,
+                Sort = options.Sort,
             };
-
-            if (options is UpdateOptions<TDocument> uo)
-            {
-                model.Sort = uo.Sort;
-            }
 
             try
             {

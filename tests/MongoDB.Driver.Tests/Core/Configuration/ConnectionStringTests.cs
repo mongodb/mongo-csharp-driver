@@ -385,10 +385,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.LocalThreshold.Should().Be(null);
             subject.SocketTimeout.Should().Be(null);
             subject.ServerMonitoringMode.Should().Be(null);
-#pragma warning disable 618
-            subject.Ssl.Should().Be(null);
-            subject.SslVerifyCertificate.Should().Be(null);
-#pragma warning restore 618
             subject.Timeout.Should().Be(null);
             subject.Tls.Should().Be(null);
             subject.TlsInsecure.Should().Be(null);
@@ -490,10 +486,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(50));
             subject.SocketTimeout.Should().Be(TimeSpan.FromMilliseconds(40));
             subject.ServerMonitoringMode.Should().Be(ServerMonitoringMode.Stream);
-#pragma warning disable 618
-            subject.Ssl.Should().BeFalse();
-            subject.SslVerifyCertificate.Should().Be(true);
-#pragma warning restore 618
 #if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
             subject.Timeout.Should().Be(TimeSpan.FromMilliseconds(42));
 #endif
@@ -1084,9 +1076,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
-#pragma warning disable 618
-            subject.Ssl.Should().Be(ssl);
-#pragma warning restore 618
+            // the ssl keyword remains supported and is an alias for tls
+            subject.Tls.Should().Be(ssl);
         }
 
         [Theory]
@@ -1096,9 +1087,8 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionString(connectionString);
 
-#pragma warning disable 618
-            subject.SslVerifyCertificate.Should().Be(sslVerifyCertificate);
-#pragma warning restore 618
+            // the sslVerifyCertificate keyword remains supported and is the inverse of tlsInsecure
+            subject.TlsInsecure.Should().Be(!sslVerifyCertificate);
         }
 
 #if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
@@ -1327,7 +1317,7 @@ namespace MongoDB.Driver.Core.Configuration
 
         [Theory]
         [ParameterAttributeData]
-        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)]int srvMaxHosts)
+        public void Valid_srvMaxHosts_with_mongodbsrv_scheme_should_be_valid([Values(0, 42)] int srvMaxHosts)
         {
             var subject = new ConnectionString($"mongodb+srv://cluster0.10gen.cc/?srvMaxHosts={srvMaxHosts}");
 

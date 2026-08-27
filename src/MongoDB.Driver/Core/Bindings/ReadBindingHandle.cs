@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -39,11 +39,6 @@ namespace MongoDB.Driver.Core.Bindings
         public ReadPreference ReadPreference
         {
             get { return _reference.Instance.ReadPreference; }
-        }
-
-        public ICoreSessionHandle Session
-        {
-            get { return _reference.Instance.Session; }
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)

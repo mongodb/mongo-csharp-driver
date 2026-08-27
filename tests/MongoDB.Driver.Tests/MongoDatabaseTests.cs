@@ -87,9 +87,6 @@ namespace MongoDB.Driver
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -136,9 +133,6 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(subject.Settings.ReadConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
-#pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
-#pragma warning restore 618
         }
 
         [Theory]
@@ -166,9 +160,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             var cancellationToken1 = new CancellationTokenSource().Token;
             var cancellationToken2 = new CancellationTokenSource().Token;
@@ -245,9 +236,6 @@ namespace MongoDB.Driver
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
             findOperation.NoCursorTimeout.Should().NotHaveValue();
-#pragma warning disable 618
-            findOperation.OplogReplay.Should().NotHaveValue();
-#pragma warning restore 618
             findOperation.Projection.Should().BeNull();
             findOperation.RetryRequested.Should().BeTrue();
             findOperation.Skip.Should().Be(null);
@@ -285,9 +273,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;

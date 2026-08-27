@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Authentication.Oidc
         {
             var metadataUrl = $"http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience={Uri.EscapeDataString(_tokenResource)}";
 
-            return (new Uri(metadataUrl), new[] { ("Metadata-Flavor", "Google") } );
+            return (new Uri(metadataUrl), new[] { ("Metadata-Flavor", "Google") });
         }
 
         protected override OidcAccessToken ProcessHttpResponse(Stream responseStream)

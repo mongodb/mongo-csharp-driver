@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver
@@ -31,16 +29,6 @@ namespace MongoDB.Driver
         /// <param name="connectionId">The connection identifier.</param>
         public MongoConnectionClosedException(ConnectionId connectionId)
             : base(connectionId, "The connection was closed while we were waiting our turn to use it.")
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConnectionClosedException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoConnectionClosedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
 

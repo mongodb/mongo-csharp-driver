@@ -14,17 +14,19 @@
  */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
 internal static class SerializerFinder
 {
     public static void FindSerializers(
+        IBsonSerializationDomain serializationDomain,
         Expression expression,
         ExpressionTranslationOptions translationOptions,
         SerializerMap nodeSerializers)
     {
-        var visitor = new SerializerFinderVisitor(translationOptions, nodeSerializers);
+        var visitor = new SerializerFinderVisitor(serializationDomain, translationOptions, nodeSerializers);
 
         do
         {

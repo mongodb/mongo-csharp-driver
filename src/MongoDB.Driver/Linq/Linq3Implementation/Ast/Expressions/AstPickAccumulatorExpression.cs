@@ -23,50 +23,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 {
     internal sealed class AstPickAccumulatorExpression : AstAccumulatorExpression
     {
-        #region static
-        private static AstExpression EnsureNIsValid(AstPickAccumulatorOperator @operator, AstExpression n)
-        {
-            switch (@operator)
-            {
-                case AstPickAccumulatorOperator.Bottom:
-                case AstPickAccumulatorOperator.Top:
-                    return Ensure.IsNull(n, nameof(n));
-
-                case AstPickAccumulatorOperator.BottomN:
-                case AstPickAccumulatorOperator.FirstN:
-                case AstPickAccumulatorOperator.LastN:
-                case AstPickAccumulatorOperator.MaxN:
-                case AstPickAccumulatorOperator.MinN:
-                case AstPickAccumulatorOperator.TopN:
-                    return Ensure.IsNotNull(n, nameof(n));
-
-                default:
-                    throw new InvalidOperationException($"Invalid operator: {@operator}.");
-            }
-        }
-
-        private static AstSortFields EnsureSortByIsValid(AstPickAccumulatorOperator @operator, AstSortFields sortBy)
-        {
-            switch (@operator)
-            {
-                case AstPickAccumulatorOperator.Bottom:
-                case AstPickAccumulatorOperator.BottomN:
-                case AstPickAccumulatorOperator.Top:
-                case AstPickAccumulatorOperator.TopN:
-                    return Ensure.IsNotNull(sortBy, nameof(sortBy));
-
-                case AstPickAccumulatorOperator.FirstN:
-                case AstPickAccumulatorOperator.LastN:
-                case AstPickAccumulatorOperator.MaxN:
-                case AstPickAccumulatorOperator.MinN:
-                    return Ensure.IsNull(sortBy, nameof(sortBy));
-
-                default:
-                    throw new InvalidOperationException($"Invalid operator: {@operator}.");
-            }
-        }
-        #endregion
-
         private readonly AstExpression _n;
         private readonly AstPickAccumulatorOperator _operator;
         private readonly AstExpression _selector;
@@ -79,9 +35,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             AstExpression n)
         {
             _operator = @operator;
-            _sortBy = EnsureSortByIsValid(@operator, sortBy);
+            _sortBy = @operator.EnsureSortByIsValid(sortBy);
             _selector = Ensure.IsNotNull(selector, nameof(selector));
-            _n = EnsureNIsValid(@operator, n);
+            _n = @operator.EnsureNIsValid(n);
         }
 
         public AstExpression N => _n;

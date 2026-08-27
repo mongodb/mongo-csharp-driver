@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,10 +21,10 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -309,6 +309,7 @@ namespace MongoDB.Driver
 
             return new AsyncCursor<BsonDocument>(
                 channelSource: new Mock<IChannelSource>().Object,
+                session: new Mock<ICoreSessionHandle>().Object,
                 collectionNamespace: new CollectionNamespace("foo", "bar"),
                 comment: null,
                 firstBatch: firstBatch,

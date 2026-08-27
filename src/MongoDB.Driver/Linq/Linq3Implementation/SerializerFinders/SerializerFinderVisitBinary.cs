@@ -42,7 +42,7 @@ internal partial class SerializerFinderVisitor
         if (IsSymmetricalBinaryOperator(@operator))
         {
             // expr1 op expr2 => expr1: expr2Serializer or expr2: expr1Serializer
-           DeduceSerializers(leftExpression, rightExpression);
+            DeduceSerializers(leftExpression, rightExpression);
         }
 
         if (@operator == ExpressionType.ArrayIndex)

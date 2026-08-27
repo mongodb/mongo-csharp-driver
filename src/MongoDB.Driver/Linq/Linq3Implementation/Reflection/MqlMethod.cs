@@ -33,6 +33,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezone;
         private static readonly MethodInfo __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
         private static readonly MethodInfo __deserializeEJson;
+        private static readonly MethodInfo __encStrContains;
+        private static readonly MethodInfo __encStrEndsWith;
+        private static readonly MethodInfo __encStrNormalizedEq;
+        private static readonly MethodInfo __encStrStartsWith;
         private static readonly MethodInfo __exists;
         private static readonly MethodInfo __field;
         private static readonly MethodInfo __hash;
@@ -48,6 +52,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __dateFromStringOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithFormatOverloads;
         private static readonly IReadOnlyMethodInfoSet __dateFromStringWithTimezoneOverloads;
+        private static readonly IReadOnlyMethodInfoSet __encStrMethodOverloads;
         private static readonly IReadOnlyMethodInfoSet __similarityFunctionOverloads;
 
         // static constructor
@@ -63,6 +68,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __dateFromStringWithFormatAndTimezone = ReflectionInfo.Method((string dateString, string format, string timezone) => Mql.DateFromString(dateString, format, timezone));
             __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull = ReflectionInfo.Method((string dateString, string format, string timezone, DateTime? onError, DateTime? onNull) => Mql.DateFromString(dateString, format, timezone, onError, onNull));
             __deserializeEJson = ReflectionInfo.Method((object value, DeserializeEJsonOptions<object> options) => Mql.DeserializeEJson(value, options));
+            __encStrContains = ReflectionInfo.Method((string input, string value) => Mql.EncStrContains(input, value));
+            __encStrEndsWith = ReflectionInfo.Method((string input, string value) => Mql.EncStrEndsWith(input, value));
+            __encStrNormalizedEq = ReflectionInfo.Method((string input, string value) => Mql.EncStrNormalizedEq(input, value));
+            __encStrStartsWith = ReflectionInfo.Method((string input, string value) => Mql.EncStrStartsWith(input, value));
             __exists = ReflectionInfo.Method((object field) => Mql.Exists(field));
             __field = ReflectionInfo.Method((object container, string fieldName, IBsonSerializer<object> serializer) => Mql.Field<object, object>(container, fieldName, serializer));
             __hash = ReflectionInfo.Method((object value, MqlHashAlgorithm algorithm) => Mql.Hash(value, algorithm));
@@ -103,6 +112,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull
             ]);
 
+            __encStrMethodOverloads = MethodInfoSet.Create(
+            [
+                __encStrContains,
+                __encStrEndsWith,
+                __encStrNormalizedEq,
+                __encStrStartsWith,
+            ]);
+
             __similarityFunctionOverloads = MethodInfoSet.Create(
             [
                 dotProductEnumerable,
@@ -124,6 +141,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo DateFromStringWithFormatAndTimezone => __dateFromStringWithFormatAndTimezone;
         public static MethodInfo DateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull => __dateFromStringWithFormatAndTimezoneAndOnErrorAndOnNull;
         public static MethodInfo DeserializeEJson => __deserializeEJson;
+        public static MethodInfo EncStrContains => __encStrContains;
+        public static MethodInfo EncStrEndsWith => __encStrEndsWith;
+        public static MethodInfo EncStrNormalizedEq => __encStrNormalizedEq;
+        public static MethodInfo EncStrStartsWith => __encStrStartsWith;
         public static MethodInfo Exists => __exists;
         public static MethodInfo Field => __field;
         public static MethodInfo Hash => __hash;
@@ -139,6 +160,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet DateFromStringOverloads => __dateFromStringOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithFormatOverloads => __dateFromStringWithFormatOverloads;
         public static IReadOnlyMethodInfoSet DateFromStringWithTimezoneOverloads => __dateFromStringWithTimezoneOverloads;
+        public static IReadOnlyMethodInfoSet EncStrMethodOverloads => __encStrMethodOverloads;
         public static IReadOnlyMethodInfoSet SimilarityFunctionOverloads => __similarityFunctionOverloads;
     }
 }

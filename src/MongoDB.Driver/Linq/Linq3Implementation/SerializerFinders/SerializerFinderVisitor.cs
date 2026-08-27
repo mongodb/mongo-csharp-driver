@@ -14,6 +14,7 @@
  */
 
 using System.Linq.Expressions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
 using ExpressionVisitor = System.Linq.Expressions.ExpressionVisitor;
 
@@ -24,16 +25,20 @@ internal partial class SerializerFinderVisitor : ExpressionVisitor
     private bool _isMakingProgress = true;
     private readonly SerializerMap _nodeSerializers;
     private int _oldNodeSerializersCount = 0;
+    private readonly IBsonSerializationDomain _serializationDomain;
     private readonly ExpressionTranslationOptions _translationOptions;
     private bool _useDefaultSerializerForConstants = false; // make as much progress as possible before setting this to true
 
-    public SerializerFinderVisitor(ExpressionTranslationOptions translationOptions, SerializerMap nodeSerializers)
+    public SerializerFinderVisitor(IBsonSerializationDomain serializationDomain, ExpressionTranslationOptions translationOptions, SerializerMap nodeSerializers)
     {
+        _serializationDomain = serializationDomain;
         _nodeSerializers = nodeSerializers;
         _translationOptions = translationOptions;
     }
 
     public bool IsMakingProgress => _isMakingProgress;
+
+    public IBsonSerializationDomain SerializationDomain => _serializationDomain;
 
     public void EndPass()
     {

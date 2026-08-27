@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -31,24 +31,17 @@ namespace MongoDB.Driver.Core.Bindings
         private bool _disposed;
         private readonly ReadPreference _readPreference;
         private readonly IServerSelector _serverSelector;
-        private readonly ICoreSessionHandle _session;
 
-        public ReadPreferenceBinding(IClusterInternal cluster, ReadPreference readPreference, ICoreSessionHandle session)
+        public ReadPreferenceBinding(IClusterInternal cluster, ReadPreference readPreference)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _readPreference = Ensure.IsNotNull(readPreference, nameof(readPreference));
-            _session = Ensure.IsNotNull(session, nameof(session));
             _serverSelector = new ReadPreferenceServerSelector(readPreference);
         }
 
         public ReadPreference ReadPreference
         {
             get { return _readPreference; }
-        }
-
-        public ICoreSessionHandle Session
-        {
-            get { return _session; }
         }
 
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
@@ -64,27 +57,26 @@ namespace MongoDB.Driver.Core.Bindings
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _session, _serverSelector, deprioritizedServers);
+            var server = _cluster.SelectServerAndPinIfNeeded(operationContext, _serverSelector, deprioritizedServers);
             return GetChannelSourceHelper(server);
         }
 
         public async Task<IChannelSourceHandle> GetReadChannelSourceAsync(OperationContext operationContext, IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
             ThrowIfDisposed();
-            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _session, _serverSelector, deprioritizedServers).ConfigureAwait(false);
+            var server = await _cluster.SelectServerAndPinIfNeededAsync(operationContext, _serverSelector, deprioritizedServers).ConfigureAwait(false);
             return GetChannelSourceHelper(server);
         }
 
         private IChannelSourceHandle GetChannelSourceHelper(IServer server)
         {
-            return new ChannelSourceHandle(new ServerChannelSource(server, _session.Fork()));
+            return new ChannelSourceHandle(new ServerChannelSource(server));
         }
 
         public void Dispose()
         {
             if (!_disposed)
             {
-                _session.Dispose();
                 _disposed = true;
             }
         }

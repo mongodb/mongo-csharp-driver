@@ -16,11 +16,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Logging;
@@ -103,7 +101,7 @@ namespace MongoDB.Driver.Core.Connections
         }
 
         public void BeforeSending(
-            RequestMessage message,
+            RequestCommandMessage message,
             ConnectionId connectionId,
             ObjectId? serviceId,
             IByteBuffer buffer,
@@ -113,11 +111,11 @@ namespace MongoDB.Driver.Core.Connections
         {
             using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
             {
-                ProcessRequestMessage(message, connectionId, serviceId, stream, encoderSettings, stopwatch, skipLogging);
+                ProcessCommandRequestMessage(message, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
             }
         }
 
-        public void AfterSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, bool skipLogging)
+        public void AfterSending(RequestCommandMessage message, ConnectionId connectionId, ObjectId? serviceId, bool skipLogging)
         {
             if (_state == null)
             {
@@ -149,7 +147,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void ErrorSending(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
+        public void ErrorSending(RequestCommandMessage message, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
         {
             if (_state == null)
             {
@@ -175,7 +173,7 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        public void AfterReceiving(ResponseMessage message, IByteBuffer buffer, ConnectionId connectionId, ObjectId? serviceId, MessageEncoderSettings encoderSettings, bool skipLogging)
+        public void AfterReceiving(ResponseCommandMessage message, IByteBuffer buffer, ConnectionId connectionId, ObjectId? serviceId, MessageEncoderSettings encoderSettings, bool skipLogging)
         {
             if (_state == null)
             {
@@ -188,14 +186,7 @@ namespace MongoDB.Driver.Core.Connections
                 return;
             }
 
-            if (message is CommandResponseMessage)
-            {
-                ProcessCommandResponseMessage(state, (CommandResponseMessage)message, buffer, connectionId, serviceId, encoderSettings, skipLogging);
-            }
-            else
-            {
-                ProcessReplyMessage(state, message, buffer, connectionId, encoderSettings, skipLogging);
-            }
+            ProcessCommandResponseMessage(state, message, buffer, connectionId, serviceId, encoderSettings, skipLogging);
         }
 
         public void ErrorReceiving(int responseTo, ConnectionId connectionId, ObjectId? serviceId, Exception exception, bool skipLogging)
@@ -256,27 +247,12 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessRequestMessage(RequestMessage message, ConnectionId connectionId, ObjectId? serviceId, Stream stream, MessageEncoderSettings encoderSettings, Stopwatch stopwatch, bool skipLogging)
-        {
-            switch (message.MessageType)
-            {
-                case MongoDBMessageType.Command:
-                    ProcessCommandRequestMessage((CommandRequestMessage)message, connectionId, serviceId, new CommandMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
-                    break;
-                case MongoDBMessageType.Query:
-                    ProcessQueryMessage((QueryMessage)message, connectionId, new QueryMessageBinaryEncoder(stream, encoderSettings), stopwatch, skipLogging);
-                    break;
-                default:
-                    throw new MongoInternalException("Invalid message type.");
-            }
-        }
-
-        private void ProcessCommandRequestMessage(CommandRequestMessage message, ConnectionId connectionId, ObjectId? serviceId, CommandMessageBinaryEncoder encoder, Stopwatch stopwatch, bool skipLogging)
+        private void ProcessCommandRequestMessage(RequestCommandMessage message, ConnectionId connectionId, ObjectId? serviceId, CommandMessageBinaryEncoder encoder, Stopwatch stopwatch, bool skipLogging)
         {
             var requestId = message.RequestId;
             var operationId = EventContext.OperationId;
 
-            var originalType0Section = message.WrappedMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+            var originalType0Section = message.Sections.OfType<Type0CommandMessageSection>().Single();
             var originalCommand = (BsonDocument)originalType0Section.Document;
             var databaseNamespace = originalType0Section.DatabaseNamespace;
             var sessionId = originalType0Section.SessionId;
@@ -353,7 +329,7 @@ namespace MongoDB.Driver.Core.Connections
                     originalCommand,
                     stopwatch,
                     new CollectionNamespace(databaseNamespace, "$cmd"),
-                    message.WrappedMessage.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
+                    message.MoreToCome ? ExpectedResponseType.None : ExpectedResponseType.Command,
                     shouldRedactCommand,
                     databaseNamespace,
                     connectionId,
@@ -363,10 +339,9 @@ namespace MongoDB.Driver.Core.Connections
             }
         }
 
-        private void ProcessCommandResponseMessage(CommandState state, CommandResponseMessage message, IByteBuffer buffer, ConnectionId connectionId, ObjectId? serviceId, MessageEncoderSettings encoderSettings, bool skipLogging)
+        private void ProcessCommandResponseMessage(CommandState state, ResponseCommandMessage message, IByteBuffer buffer, ConnectionId connectionId, ObjectId? serviceId, MessageEncoderSettings encoderSettings, bool skipLogging)
         {
-            var wrappedMessage = message.WrappedMessage;
-            var type0Section = wrappedMessage.Sections.OfType<Type0CommandMessageSection<RawBsonDocument>>().Single();
+            var type0Section = message.Sections.OfType<Type0CommandMessageSection<RawBsonDocument>>().Single();
             var reply = (BsonDocument)type0Section.Document;
 
             BsonValue ok;
@@ -401,295 +376,6 @@ namespace MongoDB.Driver.Core.Connections
             {
                 HandleCommandFailure(state, reply, connectionId, serviceId, message.ResponseTo, skipLogging);
             }
-        }
-
-        private void ProcessQueryMessage(QueryMessage originalMessage, ConnectionId connectionId, QueryMessageBinaryEncoder encoder, Stopwatch stopwatch, bool skipLogging)
-        {
-            var requestId = originalMessage.RequestId;
-            var operationId = EventContext.OperationId;
-
-            var decodedMessage = encoder.ReadMessage(RawBsonDocumentSerializer.Instance);
-            try
-            {
-                var isCommand = IsCommand(decodedMessage.CollectionNamespace);
-                string commandName;
-                BsonDocument command;
-                var shouldRedactCommand = false;
-                if (isCommand)
-                {
-                    command = decodedMessage.Query;
-                    var firstElement = command.GetElement(0);
-                    commandName = firstElement.Name;
-                    shouldRedactCommand = ShouldRedactCommand(command);
-                    if (shouldRedactCommand)
-                    {
-                        command = new BsonDocument();
-                    }
-                }
-                else
-                {
-                    commandName = "find";
-                    command = BuildFindCommandFromQuery(decodedMessage);
-                    if (decodedMessage.Query.GetValue("$explain", false).ToBoolean())
-                    {
-                        commandName = "explain";
-                        command = new BsonDocument("explain", command);
-                    }
-                }
-
-                _eventLogger.LogAndPublish(new CommandStartedEvent(
-                    commandName,
-                    command,
-                    decodedMessage.CollectionNamespace.DatabaseNamespace,
-                    operationId,
-                    requestId,
-                    connectionId),
-                    skipLogging);
-
-                TrackCommandState(
-                    requestId,
-                    operationId,
-                    commandName,
-                    command,
-                    stopwatch,
-                    decodedMessage.CollectionNamespace,
-                    isCommand ? ExpectedResponseType.Command : ExpectedResponseType.Query,
-                    shouldRedactCommand,
-                    decodedMessage.CollectionNamespace.DatabaseNamespace,
-                    connectionId,
-                    skipLogging,
-                    sessionId: null,
-                    transactionNumber: null);
-            }
-            finally
-            {
-                var disposable = decodedMessage.Query as IDisposable;
-                if (disposable != null)
-                {
-                    disposable.Dispose();
-                }
-                disposable = decodedMessage.Fields as IDisposable;
-                if (disposable != null)
-                {
-                    disposable.Dispose();
-                }
-            }
-        }
-
-        private void ProcessReplyMessage(CommandState state, ResponseMessage message, IByteBuffer buffer, ConnectionId connectionId, MessageEncoderSettings encoderSettings, bool skipLogging)
-        {
-            state.Stopwatch.Stop();
-            bool disposeOfDocuments = false;
-            var replyMessage = message as ReplyMessage<RawBsonDocument>;
-            if (replyMessage == null)
-            {
-                // ReplyMessage is generic, which means that we can't use it here, so, we need to use a different one...
-                using (var stream = new ByteBufferStream(buffer, ownsBuffer: false))
-                {
-                    var encoderFactory = new BinaryMessageEncoderFactory(stream, encoderSettings);
-                    replyMessage = (ReplyMessage<RawBsonDocument>)encoderFactory
-                        .GetReplyMessageEncoder(RawBsonDocumentSerializer.Instance)
-                        .ReadMessage();
-                    disposeOfDocuments = true;
-                }
-            }
-
-            try
-            {
-                if (replyMessage.CursorNotFound ||
-                    replyMessage.QueryFailure ||
-                    (state.ExpectedResponseType != ExpectedResponseType.Query && replyMessage.Documents.Count == 0))
-                {
-                    // Activity is not completed here. WireProtocol will create the real exception with a
-                    // meaningful stacktrace, and CompleteCommandActivityWithException will be called there.
-
-                    if (_shouldTrackFailed)
-                    {
-                        var queryFailureDocument = replyMessage.QueryFailureDocument;
-                        if (state.ShouldRedactReply)
-                        {
-                            queryFailureDocument = new BsonDocument();
-                        }
-
-                        _eventLogger.LogAndPublish(new CommandFailedEvent(
-                            state.CommandName,
-                            state.QueryNamespace.DatabaseNamespace,
-                            new MongoCommandException(
-                                connectionId,
-                                string.Format("{0} command failed", state.CommandName),
-                                null,
-                                queryFailureDocument),
-                            state.OperationId,
-                            replyMessage.ResponseTo,
-                            connectionId,
-                            state.Stopwatch.Elapsed),
-                            skipLogging);
-                    }
-                }
-                else
-                {
-                    switch (state.ExpectedResponseType)
-                    {
-                        case ExpectedResponseType.Command:
-                            ProcessCommandReplyMessage(state, replyMessage, connectionId, skipLogging);
-                            break;
-                        case ExpectedResponseType.Query:
-                            ProcessQueryReplyMessage(state, replyMessage, connectionId, skipLogging);
-                            break;
-                    }
-                }
-            }
-            finally
-            {
-                if (disposeOfDocuments && replyMessage.Documents != null)
-                {
-                    replyMessage.Documents.ForEach(d => d.Dispose());
-                }
-            }
-        }
-
-        private void ProcessCommandReplyMessage(CommandState state, ReplyMessage<RawBsonDocument> replyMessage, ConnectionId connectionId, bool skipLogging)
-        {
-            BsonDocument reply = replyMessage.Documents[0];
-            BsonValue ok;
-            if (!reply.TryGetValue("ok", out ok))
-            {
-                // this is a degenerate case with the server and
-                // we don't really know what to do here...
-                return;
-            }
-
-            if (state.ShouldRedactReply)
-            {
-                reply = new BsonDocument();
-            }
-
-            if (!ok.ToBoolean())
-            {
-                HandleCommandFailure(state, reply, connectionId, serviceId: null, replyMessage.ResponseTo, skipLogging);
-            }
-            else
-            {
-                CompleteCommandActivityWithSuccess(reply);
-
-                _eventLogger.LogAndPublish(new CommandSucceededEvent(
-                    state.CommandName,
-                    reply,
-                    state.QueryNamespace.DatabaseNamespace,
-                    state.OperationId,
-                    replyMessage.ResponseTo,
-                    connectionId,
-                    state.Stopwatch.Elapsed),
-                    skipLogging);
-            }
-        }
-
-        private void ProcessQueryReplyMessage(CommandState state, ReplyMessage<RawBsonDocument> replyMessage, ConnectionId connectionId, bool skipLogging)
-        {
-            if (_shouldTrackSucceeded)
-            {
-                BsonDocument reply;
-                if (state.CommandName == "explain")
-                {
-                    reply = new BsonDocument("ok", 1);
-                    reply.Merge(replyMessage.Documents[0]);
-                }
-                else
-                {
-                    var batchName = state.CommandName == "find" ? "firstBatch" : "nextBatch";
-                    reply = new BsonDocument
-                    {
-                        { "cursor", new BsonDocument
-                                    {
-                                        { "id", replyMessage.CursorId },
-                                        { "ns", state.QueryNamespace.FullName },
-                                        { batchName, new BsonArray(replyMessage.Documents) }
-                                    }},
-                        { "ok", 1 }
-                    };
-                }
-
-                CompleteCommandActivityWithSuccess(reply);
-
-                _eventLogger.LogAndPublish(new CommandSucceededEvent(
-                    state.CommandName,
-                    reply,
-                    state.QueryNamespace.DatabaseNamespace,
-                    state.OperationId,
-                    replyMessage.ResponseTo,
-                    connectionId,
-                    state.Stopwatch.Elapsed),
-                    skipLogging);
-            }
-        }
-
-        private BsonDocument BuildFindCommandFromQuery(QueryMessage message)
-        {
-            var batchSize = EventContext.FindOperationBatchSize ?? 0;
-            var limit = EventContext.FindOperationLimit ?? 0;
-            var command = new BsonDocument
-            {
-                { "find", message.CollectionNamespace.CollectionName },
-                { "projection", message.Fields, message.Fields != null },
-                { "skip", message.Skip, message.Skip > 0 },
-                { "batchSize", batchSize, batchSize > 0 },
-                { "limit", limit, limit != 0 },
-                { "awaitData", message.AwaitData, message.AwaitData },
-                { "noCursorTimeout", message.NoCursorTimeout, message.NoCursorTimeout },
-                { "allowPartialResults", message.PartialOk, message.PartialOk },
-                { "tailable", message.TailableCursor, message.TailableCursor },
-#pragma warning disable 618
-                { "oplogReplay", message.OplogReplay, message.OplogReplay }
-#pragma warning restore 618
-            };
-
-            var query = message.Query;
-            if (query.ElementCount <= 1 && !query.Contains("$query"))
-            {
-                command["filter"] = query; // can be empty
-            }
-            else
-            {
-                foreach (var element in query)
-                {
-                    switch (element.Name)
-                    {
-                        case "$query":
-                            command["filter"] = element.Value;
-                            break;
-                        case "$orderby":
-                            command["sort"] = element.Value;
-                            break;
-                        case "$showDiskLoc":
-                            command["showRecordId"] = element.Value;
-                            break;
-                        case "$explain":
-                            // explain is special and gets handled elsewhere
-                            break;
-                        default:
-                            if (element.Name.StartsWith("$", StringComparison.Ordinal))
-                            {
-                                // should we actually remove the $ or not?
-                                command[element.Name.Substring(1)] = element.Value;
-                            }
-                            else
-                            {
-                                // theoretically, this should never happen and is illegal.
-                                // however, we'll push this up anyways and a command-failure
-                                // event will likely get thrown.
-                                command[element.Name] = element.Value;
-                            }
-                            break;
-                    }
-                }
-            }
-
-            return command;
-        }
-
-        private static bool IsCommand(CollectionNamespace collectionNamespace)
-        {
-            return collectionNamespace.Equals(collectionNamespace.DatabaseNamespace.CommandCollection);
         }
 
         private static bool ShouldRedactCommand(BsonDocument command)
@@ -812,7 +498,6 @@ namespace MongoDB.Driver.Core.Connections
         private enum ExpectedResponseType
         {
             None,
-            Query,
             Command
         }
 

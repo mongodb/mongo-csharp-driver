@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
                     });
 
             mockConnection
-                .SetupSequence(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                .SetupSequence(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(
                     () =>
                     {
@@ -189,22 +189,20 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
             SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             if (sentMessages.Count > 1)
             {
-                requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }}, \"apiVersion\" : \"1\" }} }}] }}");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' }, apiVersion : '1' }");
             }
         }
 
         [Fact]
         public void RoundTripTimeMonitor_without_serverApi_but_with_loadBalancedConnection_should_use_hello_command_to_set_up_monitoring()
         {
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
             mockConnectionFactory.Setup(f => f.ConnectionSettings).Returns(() => new ConnectionSettings());
@@ -231,15 +229,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 
             SpinWait.SpinUntil(() => thread.ThreadState == ThreadState.Stopped, TimeSpan.FromMilliseconds(500)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().BeInRange(1, 2);
 
-            var requestId = sentMessages[0]["requestId"].AsInt32;
-            sentMessages[0].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             if (sentMessages.Count > 1)
             {
-                requestId = sentMessages[1]["requestId"].AsInt32;
-                sentMessages[1].Should().Be($"{{ \"opcode\" : \"opmsg\", \"requestId\" : {requestId}, \"responseTo\" : 0, \"sections\" : [{{ \"payloadType\" : 0, \"document\" : {{ \"hello\" : 1, \"helloOk\" : true, \"loadBalanced\" : true, \"backpressure\" : true, \"$db\" : \"admin\", \"$readPreference\" : {{ \"mode\" : \"primaryPreferred\" }} }} }}] }}");
+                MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be("{ hello : 1, helloOk : true, loadBalanced : true, backpressure : '2', $db : 'admin', $readPreference : { mode : 'primaryPreferred' } }");
             }
         }
 
@@ -284,7 +280,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
         private RoundTripTimeMonitor CreateSubject(TimeSpan frequency, Mock<IConnection> mockConnection)
         {
             mockConnection
-                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<IMessageEncoderSelector>(), It.IsAny<MessageEncoderSettings>()))
+                .Setup(c => c.ReceiveMessage(It.IsAny<OperationContext>(), It.IsAny<int>(), It.IsAny<MessageEncoderSettings>()))
                 .Returns(() => CreateResponseMessage());
 
             var mockConnectionFactory = new Mock<IConnectionFactory>();
@@ -296,13 +292,13 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
             return CreateSubject(frequency, mockConnection, mockConnectionFactory);
         }
 
-        private ResponseMessage CreateResponseMessage()
+        private ResponseCommandMessage CreateResponseMessage()
         {
             var section0Document = $"{{ {OppressiveLanguageConstants.LegacyHelloResponseIsWritablePrimaryFieldName} : true, topologyVersion : {{ processId : ObjectId('5ee3f0963109d4fe5e71dd28'), counter : NumberLong(0) }}, ok : 1.0 }}";
             var section0 = new Type0CommandMessageSection<RawBsonDocument>(
                 new RawBsonDocument(BsonDocument.Parse(section0Document).ToBson()),
                 RawBsonDocumentSerializer.Instance);
-            return new CommandResponseMessage(new CommandMessage(1, 1, new[] { section0 }, false));
+            return new ResponseCommandMessage(1, 1, new[] { section0 }, false);
         }
     }
 

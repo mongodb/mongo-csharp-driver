@@ -292,13 +292,7 @@ namespace MongoDB.Driver.Tests
 #endif
                 Assert.Equal(true, url.TlsDisableCertificateRevocationCheck);
                 Assert.Equal("username", url.Username);
-#pragma warning disable 618
-                Assert.Equal(true, url.UseSsl);
-#pragma warning restore 618
                 Assert.Equal(true, url.UseTls);
-#pragma warning disable 618
-                Assert.Equal(false, url.VerifySslCertificate);
-#pragma warning restore 618
                 Assert.Equal(2, ((WriteConcern.WCount)url.W).Value);
 #pragma warning disable 618
                 Assert.Equal(0.0, url.WaitQueueMultiple);
@@ -313,7 +307,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void TestDirectConnection([Values(false, true, null)]bool? directConnection)
+        public void TestDirectConnection([Values(false, true, null)] bool? directConnection)
         {
             var directConnectionString = directConnection.HasValue ? $"?directConnection={directConnection.Value}" : string.Empty;
             var connectionString = $"mongodb://localhost/{directConnectionString}";

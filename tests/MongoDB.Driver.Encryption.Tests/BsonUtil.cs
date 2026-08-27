@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
+using System.IO;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using System.IO;
 
 namespace MongoDB.Driver.Encryption.Tests
 {
-    class BsonUtil
+    internal class BsonUtil
     {
         public static BsonDocument ToDocument(Binary bin)
         {

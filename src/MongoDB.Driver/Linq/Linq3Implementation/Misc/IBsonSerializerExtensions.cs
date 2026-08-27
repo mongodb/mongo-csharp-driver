@@ -160,6 +160,6 @@ internal static class IBsonSerializerExtensions
 
     public static IBsonSerializer GetValueSerializerIfWrapped(this IBsonSerializer serializer)
     {
-        return serializer is IWrappedValueSerializer wrappedValueSerializer ? wrappedValueSerializer.ValueSerializer.GetValueSerializerIfWrapped() :  serializer;
+        return serializer is IWrappedValueSerializer wrappedValueSerializer ? wrappedValueSerializer.ValueSerializer.GetValueSerializerIfWrapped() : serializer;
     }
 }

@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // public static methods
         public static AstFilter Translate(TranslationContext context, MethodCallExpression expression)
         {
-            var method  = expression.Method;
+            var method = expression.Method;
             var arguments = expression.Arguments;
 
             if (method.IsOneOf(__translatableOverloads))

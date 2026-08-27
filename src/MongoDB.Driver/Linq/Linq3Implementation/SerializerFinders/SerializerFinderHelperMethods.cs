@@ -23,7 +23,7 @@ using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Serializers;
-using IOrderedEnumerableSerializer=MongoDB.Driver.Linq.Linq3Implementation.Serializers.IOrderedEnumerableSerializer;
+using IOrderedEnumerableSerializer = MongoDB.Driver.Linq.Linq3Implementation.Serializers.IOrderedEnumerableSerializer;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 
@@ -71,7 +71,7 @@ internal partial class SerializerFinderVisitor
         return nodes.Any(IsNotKnown);
     }
 
-    IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
+    private IBsonSerializer CreateCollectionSerializerFromCollectionSerializer(Type collectionType, IBsonSerializer collectionSerializer)
     {
         if (collectionSerializer.ValueType == collectionType)
         {
@@ -101,7 +101,7 @@ internal partial class SerializerFinderVisitor
         return CreateCollectionSerializerFromItemSerializer(collectionType, itemSerializer);
     }
 
-    IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type collectionType, IBsonSerializer itemSerializer)
+    private IBsonSerializer CreateCollectionSerializerFromItemSerializer(Type collectionType, IBsonSerializer itemSerializer)
     {
         if (itemSerializer is IUnknowableSerializer)
         {
@@ -114,7 +114,7 @@ internal partial class SerializerFinderVisitor
             _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>) => IEnumerableSerializer.Create(itemSerializer),
             _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IOrderedEnumerable<>) => IOrderedEnumerableSerializer.Create(itemSerializer),
             _ when collectionType.IsConstructedGenericType && collectionType.GetGenericTypeDefinition() == typeof(IQueryable<>) => IQueryableSerializer.Create(itemSerializer),
-            _ => (BsonSerializer.LookupSerializer(collectionType) as IChildSerializerConfigurable)?.WithChildSerializer(itemSerializer)
+            _ => (_serializationDomain.LookupSerializer(collectionType) as IChildSerializerConfigurable)?.WithChildSerializer(itemSerializer)
         };
     }
 
@@ -165,7 +165,7 @@ internal partial class SerializerFinderVisitor
 
         if (IsNotKnown(collectionExpression2) && IsKnown(collectionExpression1, out collectionSerializer1))
         {
-             collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
+            collectionSerializer2 = CreateCollectionSerializerFromCollectionSerializer(collectionExpression2.Type, collectionSerializer1);
             AddNodeSerializer(collectionExpression2, collectionSerializer2);
         }
     }
@@ -216,7 +216,7 @@ internal partial class SerializerFinderVisitor
             AddNodeSerializer(expression1, expression2Serializer);
         }
 
-        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer)&&  expression1Serializer.ValueType == expression2.Type)
+        if (IsNotKnown(expression2) && IsKnown(expression1, out var expression1Serializer) && expression1Serializer.ValueType == expression2.Type)
         {
             AddNodeSerializer(expression2, expression1Serializer);
         }

@@ -28,10 +28,10 @@ namespace MongoDB.Bson
     {
         #region static
         // private constants
-        private const short __exponentMax = 6111;
-        private const short __exponentMin = -6176;
-        private const short __exponentBias = 6176;
-        private const short __maxSignificandDigits = 34;
+        private const short ExponentMax = 6111;
+        private const short ExponentMin = -6176;
+        private const short ExponentBias = 6176;
+        private const short MaxSignificandDigits = 34;
 
         // private static fields
         private static readonly UInt128 __maxSignificand = UInt128.Parse("9999999999999999999999999999999999"); // must be initialized before Decimal128.Parse is called
@@ -259,7 +259,7 @@ namespace MongoDB.Bson
             return new Decimal128(value);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Performs an explicit conversion from <see cref="Half"/> to <see cref="Decimal128"/>.
         /// </summary>
@@ -385,7 +385,7 @@ namespace MongoDB.Bson
             return Decimal128.ToSingle(value);
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Performs an explicit conversion from <see cref="Decimal128"/> to <see cref="Half"/>.
         /// </summary>
@@ -990,7 +990,7 @@ namespace MongoDB.Bson
             }
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Converts the value of the specified <see cref="Decimal128"/> to the equivalent <see cref="Half"/>.
         /// </summary>
@@ -1189,7 +1189,7 @@ namespace MongoDB.Bson
             significandString = RemoveLeadingZeroes(significandString);
             significandString = ClampOrRound(ref exponent, significandString);
 
-            if (exponent > __exponentMax || exponent < __exponentMin)
+            if (exponent > ExponentMax || exponent < ExponentMin)
             {
                 result = default(Decimal128);
                 return false;
@@ -1209,42 +1209,42 @@ namespace MongoDB.Bson
         // private static methods
         private static string ClampOrRound(ref int exponent, string significandString)
         {
-            if (exponent > __exponentMax)
+            if (exponent > ExponentMax)
             {
                 if (significandString == "0")
                 {
                     // since significand is zero simply use the largest possible exponent
-                    exponent = __exponentMax;
+                    exponent = ExponentMax;
                 }
                 else
                 {
                     // use clamping to bring the exponent into range
-                    var numberOfTrailingZeroesToAdd = exponent - __exponentMax;
+                    var numberOfTrailingZeroesToAdd = exponent - ExponentMax;
                     var digitsAvailable = 34 - significandString.Length;
                     if (numberOfTrailingZeroesToAdd <= digitsAvailable)
                     {
-                        exponent = __exponentMax;
+                        exponent = ExponentMax;
                         significandString = significandString + new string('0', numberOfTrailingZeroesToAdd);
                     }
                 }
             }
-            else if (exponent < __exponentMin)
+            else if (exponent < ExponentMin)
             {
                 if (significandString == "0")
                 {
                     // since significand is zero simply use the smallest possible exponent
-                    exponent = __exponentMin;
+                    exponent = ExponentMin;
                 }
                 else
                 {
                     // use exact rounding to bring the exponent into range
-                    var numberOfTrailingZeroesToRemove = __exponentMin - exponent;
+                    var numberOfTrailingZeroesToRemove = ExponentMin - exponent;
                     if (numberOfTrailingZeroesToRemove < significandString.Length)
                     {
                         var trailingDigits = significandString.Substring(significandString.Length - numberOfTrailingZeroesToRemove);
                         if (Regex.IsMatch(trailingDigits, "^0+$"))
                         {
-                            exponent = __exponentMin;
+                            exponent = ExponentMin;
                             significandString = significandString.Substring(0, significandString.Length - numberOfTrailingZeroesToRemove);
                         }
                     }
@@ -1254,7 +1254,7 @@ namespace MongoDB.Bson
             {
                 // use exact rounding to reduce significand to 34 digits
                 var numberOfTrailingZeroesToRemove = significandString.Length - 34;
-                if (exponent + numberOfTrailingZeroesToRemove <= __exponentMax)
+                if (exponent + numberOfTrailingZeroesToRemove <= ExponentMax)
                 {
                     var trailingDigits = significandString.Substring(significandString.Length - numberOfTrailingZeroesToRemove);
                     if (Regex.IsMatch(trailingDigits, "^0+$"))
@@ -1290,7 +1290,7 @@ namespace MongoDB.Bson
 
         private static Decimal128 FromComponents(bool isNegative, short exponent, UInt128 significand)
         {
-            if (exponent < __exponentMin || exponent > __exponentMax)
+            if (exponent < ExponentMin || exponent > ExponentMax)
             {
                 throw new ArgumentOutOfRangeException(nameof(exponent));
             }
@@ -1508,7 +1508,7 @@ namespace MongoDB.Bson
             _lowBits = decimal128Value.GetIEEELowBits();
         }
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
         /// <summary>
         /// Initializes a new instance of the <see cref="Decimal128"/> struct.
         /// </summary>
@@ -1938,7 +1938,7 @@ namespace MongoDB.Bson
             {
                 var xType = GetDecimal128Type(x);
                 var yType = GetDecimal128Type(y);
-				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+                // .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
 #if NET6_0_OR_GREATER
                 var result = Comparer<Decimal128Type>.Default.Compare(xType, yType);
 #else
@@ -1967,7 +1967,7 @@ namespace MongoDB.Bson
             {
                 var xClass = GetNumberClass(x);
                 var yClass = GetNumberClass(y);
-				// .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
+                // .NET Framework lacks some optimizations for enums that would result in boxing and lookup overhead for the default comparer
 #if NET6_0_OR_GREATER
                 var result = Comparer<NumberClass>.Default.Compare(xClass, yClass);
 #else

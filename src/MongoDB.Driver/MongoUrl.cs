@@ -249,6 +249,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets a value indicating whether overload retargeting is enabled.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public bool? EnableOverloadRetargeting => _enableOverloadRetargeting;
 
         /// <summary>
@@ -332,6 +333,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets the maximum number of adaptive retries for overload errors.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public int? MaxAdaptiveRetries => _maxAdaptiveRetries;
 
         /// <summary>
@@ -534,21 +536,9 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl => _useTls;
-
-        /// <summary>
         /// Gets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls => _useTls;
-
-        /// <summary>
-        /// Gets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate => !_allowInsecureTls;
 
         /// <summary>
         /// Gets the W component of the write concern.

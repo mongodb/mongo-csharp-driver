@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -24,29 +24,12 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadWriteBindingHandleTests
     {
-        private Mock<IReadWriteBinding> _mockReadWriteBinding;
-
-        public ReadWriteBindingHandleTests()
-        {
-            _mockReadWriteBinding = new Mock<IReadWriteBinding>();
-        }
-
         [Fact]
         public void Constructor_should_throw_if_readWriteBinding_is_null()
         {
-            Action act = () => new ReadWriteBindingHandle(null);
+            var exception = Record.Exception(() => new ReadWriteBindingHandle(null));
 
-            act.ShouldThrow<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void Session_should_delegate_to_reference()
-        {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
-
-            var result = subject.Session;
-
-            _mockReadWriteBinding.Verify(m => m.Session, Times.Once);
+            exception.Should().BeOfType<ArgumentNullException>();
         }
 
         [Theory]
@@ -55,12 +38,13 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var subject = new ReadWriteBindingHandle(Mock.Of<IReadWriteBinding>());
             subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetReadChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetReadChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetReadChannelSource(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -71,19 +55,21 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var mockReadWriteBinding = new Mock<IReadWriteBinding>();
+            var subject = new ReadWriteBindingHandle(mockReadWriteBinding.Object);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.GetReadChannelSourceAsync(OperationContext.NoTimeout);
+                await subject.GetReadChannelSourceAsync(operationContext);
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
+                mockReadWriteBinding.Verify(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetReadChannelSource(OperationContext.NoTimeout);
+                subject.GetReadChannelSource(operationContext);
 
-                _mockReadWriteBinding.Verify(b => b.GetReadChannelSource(It.IsAny<OperationContext>()), Times.Once);
+                mockReadWriteBinding.Verify(b => b.GetReadChannelSource(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 
@@ -93,12 +79,13 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var subject = new ReadWriteBindingHandle(Mock.Of<IReadWriteBinding>());
             subject.Dispose();
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout)) :
-                Record.Exception(() => subject.GetWriteChannelSource(OperationContext.NoTimeout));
+                await Record.ExceptionAsync(() => subject.GetWriteChannelSourceAsync(operationContext)) :
+                Record.Exception(() => subject.GetWriteChannelSource(operationContext));
 
             exception.Should().BeOfType<ObjectDisposedException>();
         }
@@ -109,26 +96,28 @@ namespace MongoDB.Driver.Core.Bindings
             [Values(false, true)]
             bool async)
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var mockReadWriteBinding = new Mock<IReadWriteBinding>();
+            var subject = new ReadWriteBindingHandle(mockReadWriteBinding.Object);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.GetWriteChannelSourceAsync(OperationContext.NoTimeout);
+                await subject.GetWriteChannelSourceAsync(operationContext);
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
+                mockReadWriteBinding.Verify(b => b.GetWriteChannelSourceAsync(It.IsAny<OperationContext>()), Times.Once);
             }
             else
             {
-                subject.GetWriteChannelSource(OperationContext.NoTimeout);
+                subject.GetWriteChannelSource(operationContext);
 
-                _mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(It.IsAny<OperationContext>()), Times.Once);
+                mockReadWriteBinding.Verify(b => b.GetWriteChannelSource(It.IsAny<OperationContext>()), Times.Once);
             }
         }
 
         [Fact]
         public void Fork_should_throw_if_disposed()
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var subject = new ReadWriteBindingHandle(Mock.Of<IReadWriteBinding>());
             subject.Dispose();
 
             Action act = () => subject.Fork();
@@ -139,46 +128,49 @@ namespace MongoDB.Driver.Core.Bindings
         [Fact]
         public void Disposing_of_handle_after_fork_should_not_dispose_of_channelSource()
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var mockReadWriteBinding = new Mock<IReadWriteBinding>();
+            var subject = new ReadWriteBindingHandle(mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
 
-            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
+            mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
 
             forked.Dispose();
 
-            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
+            mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_fork_before_disposing_of_subject_hould_not_dispose_of_channelSource()
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var mockReadWriteBinding = new Mock<IReadWriteBinding>();
+            var subject = new ReadWriteBindingHandle(mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             forked.Dispose();
 
-            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
+            mockReadWriteBinding.Verify(b => b.Dispose(), Times.Never);
 
             subject.Dispose();
 
-            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
+            mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
 
         [Fact]
         public void Disposing_of_last_handle_should_dispose_of_connectioSource()
         {
-            var subject = new ReadWriteBindingHandle(_mockReadWriteBinding.Object);
+            var mockReadWriteBinding = new Mock<IReadWriteBinding>();
+            var subject = new ReadWriteBindingHandle(mockReadWriteBinding.Object);
 
             var forked = subject.Fork();
 
             subject.Dispose();
             forked.Dispose();
 
-            _mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
+            mockReadWriteBinding.Verify(b => b.Dispose(), Times.Once);
         }
     }
 }

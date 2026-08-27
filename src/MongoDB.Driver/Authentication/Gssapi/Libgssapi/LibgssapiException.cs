@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
 * limitations under the License.
 */
 
-using System;
-using System.Runtime.Serialization;
-
 namespace MongoDB.Driver.Authentication.Gssapi.Libgssapi
 {
     /// <summary>
@@ -28,16 +25,6 @@ namespace MongoDB.Driver.Authentication.Gssapi.Libgssapi
         /// </summary>
         /// <param name="message">Error message from libgssapi.</param>
         public LibgssapiException(string message) : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LibgssapiException" /> class.
-        /// </summary>
-        /// <param name="info">The info.</param>
-        /// <param name="context">The context.</param>
-        protected LibgssapiException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

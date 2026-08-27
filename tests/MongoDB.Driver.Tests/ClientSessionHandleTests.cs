@@ -21,12 +21,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -653,7 +653,7 @@ namespace MongoDB.Driver.Tests
             var noBackoffTimeMs = await ExecuteWithTransactionAsync(0);
             var backoffTimeMs = await ExecuteWithTransactionAsync(1);
 
-            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 1800, 150);
+            backoffTimeMs.Should().BeApproximately(noBackoffTimeMs + 2280, 150);
 
             async Task<double> ExecuteWithTransactionAsync(double randomValue)
             {

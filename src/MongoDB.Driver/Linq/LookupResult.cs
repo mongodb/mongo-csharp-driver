@@ -63,10 +63,10 @@ namespace MongoDB.Driver.Linq
             IBsonSerializer<TResult> resultSerializer)
         {
             _localSerializer = Ensure.IsNotNull(localSerializer, nameof(localSerializer));
-             Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
+            Ensure.IsNotNull(resultSerializer, nameof(resultSerializer));
 
-             var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(resultSerializer.ValueType);
-             _resultsSerializer = (IBsonSerializer<TResult[]>)Activator.CreateInstance(arraySerializerType, resultSerializer);
+            var arraySerializerType = typeof(ArraySerializer<>).MakeGenericType(resultSerializer.ValueType);
+            _resultsSerializer = (IBsonSerializer<TResult[]>)Activator.CreateInstance(arraySerializerType, resultSerializer);
         }
 
         public override LookupResult<TLocal, TResult> Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)

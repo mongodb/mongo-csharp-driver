@@ -1,4 +1,4 @@
-﻿/* Copyright 2017-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,12 +22,12 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -635,8 +635,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = CreateSubject();
             var binding = new Mock<IReadBinding>().Object;
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var exception = Record.Exception(() => ExecuteOperation(subject, binding, async));
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, binding, async));
 
             var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
             argumentException.ParamName.Should().Be("binding");

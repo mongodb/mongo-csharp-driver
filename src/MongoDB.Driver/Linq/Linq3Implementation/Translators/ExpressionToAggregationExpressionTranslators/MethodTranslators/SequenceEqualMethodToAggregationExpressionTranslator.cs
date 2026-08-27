@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var ast = AstExpression.Let(
                     firstVarBinding,
                     secondVarBinding,
-                    @in : AstExpression.And(
+                    @in: AstExpression.And(
                         AstExpression.Eq(AstExpression.Type(firstAst), "array"),
                         AstExpression.Eq(AstExpression.Type(secondAst), "array"),
                         AstExpression.Eq(AstExpression.Size(firstAst), AstExpression.Size(secondAst)),
@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                             AstExpression.Map(
                                 input: AstExpression.Zip([firstAst, secondAst]),
                                 @as: pairVar,
-                                @in : AstExpression.Eq(AstExpression.ArrayElemAt(pairVar, 0), AstExpression.ArrayElemAt(pairVar, 1)))))
+                                @in: AstExpression.Eq(AstExpression.ArrayElemAt(pairVar, 0), AstExpression.ArrayElemAt(pairVar, 1)))))
                 );
 
                 return new TranslatedExpression(expression, ast, new BooleanSerializer());

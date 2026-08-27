@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Encryption.Tests
 {
     public class SigningRSAESPKCSCallbackTests
     {
-        private static string DataToSign =  "data to sign";
+        private static string DataToSign = "data to sign";
 
         public static readonly string PrivateKey = "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC4JOyv5z05cL18ztpknRC7CFY2gYol4DAKerdVUoDJ"
             + "xCTmFMf39dVUEqD0WDiw/qcRtSO1/FRut08PlSPmvbyKetsLoxlpS8lukSzEFpFK7+L+R4miFOl6HvECyg7lbC1H/WGAhIz9yZRlXhRo9qmO/fB6PV9IeYtU+1xY"

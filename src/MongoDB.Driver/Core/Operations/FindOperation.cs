@@ -57,7 +57,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly MessageEncoderSettings _messageEncoderSettings;
         private BsonDocument _min;
         private bool? _noCursorTimeout;
-        private bool? _oplogReplay;
         private BsonDocument _projection;
         private ReadConcern _readConcern = ReadConcern.Default;
         private readonly IBsonSerializer<TDocument> _resultSerializer;
@@ -181,13 +180,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _noCursorTimeout = value; }
         }
 
-        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
-        public bool? OplogReplay
-        {
-            get { return _oplogReplay; }
-            set { _oplogReplay = value; }
-        }
-
         public BsonDocument Projection
         {
             get { return _projection; }
@@ -255,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
             var batchSize = _batchSize;
             // https://github.com/mongodb/specifications/blob/668992950d975d3163e538849dd20383a214fc37/source/crud/crud.md?plain=1#L803
@@ -265,7 +257,7 @@ namespace MongoDB.Driver.Core.Operations
             }
 
             var isShardRouter = connectionDescription.HelloResult.ServerType == ServerType.ShardRouter;
-            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern);
             return new BsonDocument
             {
                 { "find", _collectionNamespace.CollectionName },
@@ -284,7 +276,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "returnKey", () => _returnKey.Value, _returnKey.HasValue },
                 { "showRecordId", () => _showRecordId.Value, _showRecordId.HasValue },
                 { "tailable", true, _cursorType == CursorType.Tailable || _cursorType == CursorType.TailableAwait },
-                { "oplogReplay", () => _oplogReplay.Value, _oplogReplay.HasValue },
                 { "noCursorTimeout", () => _noCursorTimeout.Value, _noCursorTimeout.HasValue },
                 { "awaitData", true, _cursorType == CursorType.TailableAwait },
                 { "allowDiskUse", () => _allowDiskUse.Value, _allowDiskUse.HasValue },
@@ -312,9 +303,9 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext);
+                var operation = CreateOperation();
                 var commandResult = operation.Execute(operationContext, context);
-                return CreateCursor(context.ChannelSource, context.Channel, commandResult);
+                return CreateCursor(operationContext, context.ChannelSource, context.Channel, commandResult);
             }
         }
 
@@ -335,13 +326,13 @@ namespace MongoDB.Driver.Core.Operations
 
             using (EventContext.BeginFind(_batchSize, _limit))
             {
-                var operation = CreateOperation(operationContext);
+                var operation = CreateOperation();
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-                return CreateCursor(context.ChannelSource, context.Channel, commandResult);
+                return CreateCursor(operationContext, context.ChannelSource, context.Channel, commandResult);
             }
         }
 
-        private AsyncCursor<TDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
+        private AsyncCursor<TDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
         {
             var cursorDocument = commandResult["cursor"].AsBsonDocument;
             var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
@@ -350,11 +341,12 @@ namespace MongoDB.Driver.Core.Operations
 
             if (cursorDocument.TryGetValue("atClusterTime", out var atClusterTime))
             {
-                channelSource.Session.SetSnapshotTimeIfNeeded(atClusterTime.AsBsonTimestamp);
+                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime.AsBsonTimestamp);
             }
 
             return new AsyncCursor<TDocument>(
                 getMoreChannelSource,
+                operationContext.Session.Fork(),
                 collectionNamespace,
                 _comment,
                 firstBatch.Documents,
@@ -383,7 +375,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext)
+        private ReadCommandOperation<BsonDocument> CreateOperation()
         {
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,

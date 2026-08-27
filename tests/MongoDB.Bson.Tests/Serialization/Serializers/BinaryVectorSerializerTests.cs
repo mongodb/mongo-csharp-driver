@@ -365,16 +365,16 @@ namespace MongoDB.Bson.Tests.Serialization
         private static (T[], byte[] VectorBson) GetTestData<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)
             where T : struct
         {
-                var elementsSpan = new ReadOnlySpan<T>(
-                    Enumerable.Range(0, elementsCount)
-                    .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
-                    .ToArray());
-                var elementsBytesLittleEndian = BitConverter.IsLittleEndian
-                    ? MemoryMarshal.Cast<T, byte>(elementsSpan)
-                    : BigEndianToLittleEndian(elementsSpan, dataType);
+            var elementsSpan = new ReadOnlySpan<T>(
+                Enumerable.Range(0, elementsCount)
+                .Select(i => Convert.ChangeType(i, typeof(T)).As<T>())
+                .ToArray());
+            var elementsBytesLittleEndian = BitConverter.IsLittleEndian
+                ? MemoryMarshal.Cast<T, byte>(elementsSpan)
+                : BigEndianToLittleEndian(elementsSpan, dataType);
 
-                byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
-                return (elementsSpan.ToArray(), vectorBsonData);
+            byte[] vectorBsonData = [(byte)dataType, bitsPadding, .. elementsBytesLittleEndian];
+            return (elementsSpan.ToArray(), vectorBsonData);
         }
 
         private static (BinaryVector<T>, byte[] VectorBson) GetTestDataBinaryVector<T>(BinaryVectorDataType dataType, int elementsCount, byte bitsPadding)

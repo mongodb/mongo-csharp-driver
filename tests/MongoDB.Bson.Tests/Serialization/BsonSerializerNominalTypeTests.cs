@@ -13,11 +13,11 @@
 * limitations under the License.
 */
 
+using System;
+using System.IO;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using System;
-using System.IO;
 using Xunit;
 
 namespace MongoDB.Bson.Tests.Serialization

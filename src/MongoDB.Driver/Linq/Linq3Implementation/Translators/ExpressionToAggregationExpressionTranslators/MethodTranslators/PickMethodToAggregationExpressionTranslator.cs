@@ -33,6 +33,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
     {
         public static TranslatedExpression Translate(TranslationContext context, MethodCallExpression expression)
         {
+            if (WindowMethodToAggregationExpressionTranslator.CanTranslate(expression))
+            {
+                return WindowMethodToAggregationExpressionTranslator.Translate(context, expression);
+            }
+
             var method = expression.Method;
             var arguments = expression.Arguments.ToArray();
 
@@ -53,7 +58,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     var sortByExpression = arguments[1];
                     var sortByDefinition = GetSortByDefinition(sortByExpression, expression);
-                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.TranslationOptions);
+                    sortBy = TranslateSortByDefinition(expression, sortByExpression, sortByDefinition, itemSerializer, context.SerializationDomain, context.TranslationOptions);
                 }
 
                 var selectorLambda = (LambdaExpression)GetSelectorArgument(method, arguments);
@@ -175,18 +180,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             }
         }
 
-        private static object GetSortByDefinition(Expression sortByExpression, Expression expression)
+        internal static object GetSortByDefinition(Expression sortByExpression, Expression expression)
         {
             if (sortByExpression.NodeType == ExpressionType.Constant)
             {
                 return sortByExpression.GetConstantValue<object>(sortByExpression);
             }
 
-            // we get here when the PartialEvaluator couldn't fully evalute the SortDefinition
+            // we get here when the PartialEvaluator couldn't fully evaluate the SortDefinition
             try
             {
                 LambdaExpression lambda = Expression.Lambda(sortByExpression);
-                Delegate @delegate = lambda.Compile();
+                Delegate @delegate = lambda.CompileForOneShotEvaluation();
                 return @delegate.DynamicInvoke(null);
             }
             catch (Exception ex)
@@ -211,17 +216,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 getFieldExpression.FieldName.IsStringConstant("_id");
         }
 
-        private static AstSortFields TranslateSortByDefinition(
+        internal static AstSortFields TranslateSortByDefinition(
             Expression expression,
             Expression sortByExpression,
             object sortByDefinition,
             IBsonSerializer documentSerializer,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
             var methodInfoDefinition = typeof(PickMethodToAggregationExpressionTranslator).GetMethod(nameof(TranslateSortByDefinitionGeneric), BindingFlags.Static | BindingFlags.NonPublic);
             var documentType = documentSerializer.ValueType;
             var methodInfo = methodInfoDefinition.MakeGenericMethod(documentType);
-            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer, translationOptions });
+            return (AstSortFields)methodInfo.Invoke(null, new object[] { expression, sortByExpression, sortByDefinition, documentSerializer, serializationDomain, translationOptions });
         }
 
         private static AstSortFields TranslateSortByDefinitionGeneric<TDocument>(
@@ -229,9 +235,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             Expression sortByExpression,
             SortDefinition<TDocument> sortByDefinition,
             IBsonSerializer<TDocument> documentSerializer,
+            IBsonSerializationDomain serializationDomain,
             ExpressionTranslationOptions translationOptions)
         {
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
+            var serializerRegistry = serializationDomain.SerializerRegistry;
             var sortDocument = sortByDefinition.Render(new(documentSerializer, serializerRegistry, translationOptions: translationOptions));
             var fields = new List<AstSortField>();
             foreach (var element in sortDocument)

@@ -17,6 +17,7 @@ using System;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
@@ -33,7 +34,7 @@ public class RegexTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -45,7 +46,7 @@ public class RegexTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out var serializer).Should().BeTrue();
         serializer.Should().BeOfType(typeof(UnknowableSerializer<>).MakeGenericType(expression.Body.Type));

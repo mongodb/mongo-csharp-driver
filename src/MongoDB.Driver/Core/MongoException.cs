@@ -15,7 +15,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -46,17 +45,6 @@ namespace MongoDB.Driver
         public MongoException(string message, Exception innerException)
             : base(message, innerException)
         {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _errorLabels = (List<string>)info.GetValue(nameof(_errorLabels), typeof(List<String>));
         }
 
         // public properties
@@ -101,13 +89,6 @@ namespace MongoDB.Driver
         public void RemoveErrorLabel(string errorLabel)
         {
             _errorLabels.Remove(errorLabel);
-        }
-
-        /// <inheritdoc/>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue(nameof(_errorLabels), _errorLabels);
         }
     }
 }

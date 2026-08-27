@@ -101,6 +101,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        options ??= new DistinctOptions();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new DistinctOptions();
                         options.Comment = argument.Value;

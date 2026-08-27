@@ -305,12 +305,12 @@ namespace MongoDB.Bson.Tests
         {
             var c = CreateC();
 
-            var wrapper = BsonDocumentWrapper.Create(typeof(C), c);
+            var wrapper = BsonDocumentWrapper.Create(typeof(C), value: c);
             Assert.Same(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
             Assert.Same(c, wrapper.Wrapped);
             Assert.Equal(false, wrapper.IsMaterialized);
 
-            wrapper = BsonDocumentWrapper.Create(typeof(C), null);
+            wrapper = BsonDocumentWrapper.Create(typeof(C), value: null);
             Assert.Same(BsonSerializer.LookupSerializer(typeof(C)), wrapper.Serializer);
             Assert.Same(null, wrapper.Wrapped);
             Assert.Equal(false, wrapper.IsMaterialized);

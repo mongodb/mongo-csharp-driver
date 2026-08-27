@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
@@ -54,19 +53,19 @@ namespace MongoDB.Driver.Core.Operations
             string expectedResult)
         {
             var session = CreateSession(isInTransaction: isInTransaction);
-            var operationContext = hasOperationTimeout ? new OperationContext(TimeSpan.FromMilliseconds(42), CancellationToken.None) : OperationContext.NoTimeout;
+            using var operationContext = new OperationContext(session, hasOperationTimeout ? TimeSpan.FromMilliseconds(42) : null);
             var writeConcern = writeConcernJson == null ? null : WriteConcern.FromBsonDocument(BsonDocument.Parse(writeConcernJson));
 
-            var result = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, writeConcern);
+            var result = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, writeConcern);
 
             result.Should().Be(expectedResult);
         }
 
         // private methods
-        private ICoreSession CreateSession(
+        private ICoreSessionHandle CreateSession(
             bool isInTransaction)
         {
-            var mockSession = new Mock<ICoreSession>();
+            var mockSession = new Mock<ICoreSessionHandle>();
             mockSession.SetupGet(m => m.IsInTransaction).Returns(isInTransaction);
             return mockSession.Object;
         }

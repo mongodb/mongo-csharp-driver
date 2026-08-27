@@ -271,7 +271,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new BsonSerializationException("Element names cannot contain nulls.");
             }
-            if (_disposed) { throw new ObjectDisposedException(this.GetType().Name); }
+            if (_disposed) { throw new ObjectDisposedException(GetType().Name); }
             if (_state != BsonWriterState.Name)
             {
                 ThrowInvalidState("WriteName", BsonWriterState.Name);

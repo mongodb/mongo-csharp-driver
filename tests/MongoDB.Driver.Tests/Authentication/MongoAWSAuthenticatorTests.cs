@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.AWS;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -62,8 +63,7 @@ namespace MongoDB.Driver.Tests.Authentication
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Authenticate_should_have_expected_result(
-            [Values(false, true)] bool async)
+        public async Task Authenticate_should_have_expected_result([Values(false, true)] bool async)
         {
             var dateTime = DateTime.UtcNow;
             var clientNonce = RandomByteGenerator.Instance.Generate(ClientNonceLength);
@@ -114,28 +114,27 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            var expectedFirstMessage = GetExpectedSaslStartCommand(expectedClientFirstMessage);
+            var expectedSecondMessage = GetExpectedSaslContinueCommand(expectedClientSecondMessage);
 
-            var expectedFirstMessage = GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage);
-            var expectedSecondMessage = GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage);
-
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be(expectedFirstMessage);
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be(expectedSecondMessage);
         }
 
         [Theory]
@@ -194,26 +193,24 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-
             var expectedServerApiString = useServerApi ? ", apiVersion : \"1\", apiStrict : true, apiDeprecationErrors : true" : "";
-            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedServerApiString));
-            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedServerApiString));
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be(GetExpectedSaslStartCommand(expectedClientFirstMessage, expectedServerApiString));
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be(GetExpectedSaslContinueCommand(expectedClientSecondMessage, expectedServerApiString));
         }
 
         [Theory]
@@ -263,33 +260,31 @@ namespace MongoDB.Driver.Tests.Authentication
 
             var subject = CreateAwsSaslAuthenticator(null, mockRandomByteGenerator.Object, mockClock.Object, null);
 
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var saslStartResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslStartCommandResponseString));
             var saslContinueResponse = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson(saslContinueCommandResponseString));
             connection.EnqueueCommandResponseMessage(saslStartResponse);
             connection.EnqueueCommandResponseMessage(saslContinueResponse);
             connection.Description = null;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
-
             var expectedEndString = ", \"$readPreference\" : { \"mode\" : \"primaryPreferred\" }";
-            sentMessages[0].Should().Be(GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage, expectedEndString));
-            sentMessages[1].Should().Be(GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage, expectedEndString));
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be(GetExpectedSaslStartCommand(expectedClientFirstMessage, expectedEndString));
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be(GetExpectedSaslContinueCommand(expectedClientSecondMessage, expectedEndString));
         }
 
         [Theory]
@@ -304,9 +299,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(commandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
         }
@@ -341,9 +337,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned an invalid sts host.");
@@ -376,9 +373,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslStartCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server sent an invalid nonce.");
@@ -415,9 +413,10 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol)) ;
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol)) :
+                Record.Exception(() => subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
             exception.Message.Should().Be("Server returned unexpected fields: u.");
@@ -480,28 +479,26 @@ namespace MongoDB.Driver.Tests.Authentication
             connection.EnqueueCommandResponseMessage(saslContinueCommandResponse);
             connection.Description = __descriptionCommandWireProtocol;
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                await subject.AuthenticateAsync(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                await subject.AuthenticateAsync(operationContext, connection, __descriptionCommandWireProtocol);
             }
             else
             {
-                subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol);
+                subject.Authenticate(operationContext, connection, __descriptionCommandWireProtocol);
             }
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 2, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(2);
 
-            var actualRequestId0 = sentMessages[0]["requestId"].AsInt32;
-            var actualRequestId1 = sentMessages[1]["requestId"].AsInt32;
+            var expectedFirstMessage = GetExpectedSaslStartCommand(expectedClientFirstMessage);
+            var expectedSecondMessage = GetExpectedSaslContinueCommand(expectedClientSecondMessage);
 
-            var expectedFirstMessage = GetExpectedSaslStartCommandMessage(actualRequestId0, expectedClientFirstMessage);
-            var expectedSecondMessage = GetExpectedSaslContinueCommandMessage(actualRequestId1, expectedClientSecondMessage);
-
-            sentMessages[0].Should().Be(expectedFirstMessage);
-            sentMessages[1].Should().Be(expectedSecondMessage);
+            MessageHelper.ToCommandPayload(sentMessages[0]).Should().Be(expectedFirstMessage);
+            MessageHelper.ToCommandPayload(sentMessages[1]).Should().Be(expectedSecondMessage);
         }
 
         // private methods
@@ -514,7 +511,7 @@ namespace MongoDB.Driver.Tests.Authentication
             var saslContext = new SaslContext
             {
                 EndPoint = __serverId.EndPoint,
-                ClusterEndPoints = [ __serverId.EndPoint ],
+                ClusterEndPoints = [__serverId.EndPoint],
                 Identity = new MongoExternalIdentity(TestUserName),
                 IdentityEvidence = new PasswordEvidence(TestUserPassword),
                 Mechanism = "MONGODB-AWS",
@@ -525,53 +522,11 @@ namespace MongoDB.Driver.Tests.Authentication
             return new SaslAuthenticator(awsSaslMechanism, serverApi);
         }
 
-        private static string GetExpectedSaslContinueCommandMessage(int requestId, BsonDocument clientMessage, string expectedServerApiString = null)
-        {
-            return
-                "{" +
-                    "opcode : \"opmsg\", " +
-                    $"requestId : {requestId}, " +
-                    "responseTo : 0, " +
-                    "sections : " +
-                    "[" +
-                        "{" +
-                            "payloadType : 0, " +
-                            "document : " +
-                            "{" +
-                                "saslContinue : 1, " +
-                                "conversationId : 1, " +
-                                $"payload : new BinData(0, \"{ToBase64(clientMessage.ToBson())}\"), " +
-                                "$db : \"$external\" " +
-                                expectedServerApiString +
-                            "}" +
-                        "}" +
-                    "]" +
-                "}";
-        }
+        private static BsonDocument GetExpectedSaslContinueCommand(BsonDocument clientMessage, string expectedServerApiString = null) =>
+            BsonDocument.Parse($"{{ saslContinue : 1, conversationId : 1, payload : new BinData(0, '{ToBase64(clientMessage.ToBson())}'), $db : '$external' {expectedServerApiString} }}");
 
-        private static string GetExpectedSaslStartCommandMessage(int requestId, BsonDocument clientMessage, string expectedServerApiString = null)
-        {
-            return
-                "{" +
-                    "opcode : \"opmsg\", " +
-                    $"requestId : {requestId}, " +
-                    "responseTo : 0, " +
-                    "sections : " +
-                    "[" +
-                        "{" +
-                            "payloadType : 0, " +
-                            "document : " +
-                            "{" +
-                                "saslStart : 1, " +
-                                "mechanism : \"MONGODB-AWS\", " +
-                                $"payload : new BinData(0, \"{ToBase64(clientMessage.ToBson())}\"), " +
-                                "$db : \"$external\" " +
-                                expectedServerApiString +
-                            "}" +
-                        "}" +
-                    "]" +
-                "}";
-        }
+        private static BsonDocument GetExpectedSaslStartCommand(BsonDocument clientMessage, string expectedServerApiString = null) =>
+            BsonDocument.Parse($"{{ saslStart : 1, mechanism : 'MONGODB-AWS', payload : new BinData(0, '{ToBase64(clientMessage.ToBson())}'), $db : '$external' {expectedServerApiString} }}");
 
         private static byte[] Combine(byte[] first, byte[] second)
         {

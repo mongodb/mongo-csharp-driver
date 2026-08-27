@@ -15,9 +15,9 @@
 
 using System;
 using System.Collections.Generic;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver
 {
@@ -42,10 +42,10 @@ namespace MongoDB.Driver
         /// Use this method in a MongoDB LINQ query when you need to specify how a constant should be serialized.
         /// </summary>
         /// <param name="value">The value.</param>
-        /// <param name="representaion">The representation.</param>
+        /// <param name="representation">The representation.</param>
         /// <typeparam name="TValue">The type of the value.</typeparam>
         /// <returns>The value</returns>
-        public static TValue Constant<TValue>(TValue value, BsonType representaion)
+        public static TValue Constant<TValue>(TValue value, BsonType representation)
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
@@ -140,6 +140,42 @@ namespace MongoDB.Driver
         {
             throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
         }
+
+        /// <summary>
+        /// Translates to the "$encStrContains" aggregation expression operator for use in LINQ queries against QE-encrypted string fields.
+        /// </summary>
+        /// <param name="input">The field value.</param>
+        /// <param name="value">The substring to search for.</param>
+        /// <returns><c>true</c> if the field value contains the substring.</returns>
+        public static bool EncStrContains(string input, string value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translates to the "$encStrEndsWith" aggregation expression operator for use in LINQ queries against QE-encrypted string fields.
+        /// </summary>
+        /// <param name="input">The field value.</param>
+        /// <param name="value">The suffix to match.</param>
+        /// <returns><c>true</c> if the field value ends with the suffix.</returns>
+        public static bool EncStrEndsWith(string input, string value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translates to the "$encStrNormalizedEq" aggregation expression operator for use in LINQ queries against QE-encrypted string fields.
+        /// </summary>
+        /// <param name="input">The field value.</param>
+        /// <param name="value">The value to compare against.</param>
+        /// <returns><c>true</c> if the field value equals the value after normalization.</returns>
+        public static bool EncStrNormalizedEq(string input, string value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
+
+        /// <summary>
+        /// Translates to the "$encStrStartsWith" aggregation expression operator for use in LINQ queries against QE-encrypted string fields.
+        /// </summary>
+        /// <param name="input">The field value.</param>
+        /// <param name="value">The prefix to match.</param>
+        /// <returns><c>true</c> if the field value starts with the prefix.</returns>
+        public static bool EncStrStartsWith(string input, string value) =>
+            throw CustomLinqExtensionMethodHelper.CreateNotSupportedException();
 
         /// <summary>
         /// Tests whether a field exists.

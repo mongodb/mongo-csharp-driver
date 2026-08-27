@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -28,6 +27,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.TestHelpers;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests
@@ -612,13 +612,14 @@ namespace MongoDB.Driver.Core.Tests
                 new[] { new InsertRequest(new BsonDocument()) },
                 _messageEncoderSettings);
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                return bulkInsertOperation.ExecuteAsync(OperationContext.NoTimeout, context).GetAwaiter().GetResult();
+                return bulkInsertOperation.ExecuteAsync(operationContext, context).GetAwaiter().GetResult();
             }
             else
             {
-                return bulkInsertOperation.Execute(OperationContext.NoTimeout, context);
+                return bulkInsertOperation.Execute(operationContext, context);
             }
         }
 
@@ -632,28 +633,30 @@ namespace MongoDB.Driver.Core.Tests
                 BatchSize = 1
             };
 
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                return findOperation.ExecuteAsync(OperationContext.NoTimeout, context).GetAwaiter().GetResult();
+                return findOperation.ExecuteAsync(operationContext, context).GetAwaiter().GetResult();
             }
             else
             {
-                return findOperation.Execute(OperationContext.NoTimeout, context);
+                return findOperation.Execute(operationContext, context);
             }
         }
 
         private RetryableReadContext CreateRetryableReadContext(IReadBindingHandle readBindingHandle, bool async)
         {
             var retryableContext = new RetryableReadContext(readBindingHandle, retryRequested: false, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
-                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
+                retryableContext.SelectServerAsync(operationContext, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(operationContext).GetAwaiter().GetResult();
             }
             else
             {
-                retryableContext.SelectServer(OperationContext.NoTimeout, null);
-                retryableContext.AcquireChannel(OperationContext.NoTimeout);
+                retryableContext.SelectServer(operationContext, null);
+                retryableContext.AcquireChannel(operationContext);
             }
             return retryableContext;
         }
@@ -671,15 +674,16 @@ namespace MongoDB.Driver.Core.Tests
         private RetryableWriteContext CreateRetryableWriteContext(IReadWriteBindingHandle readWriteBindingHandle, bool async)
         {
             var retryableContext = new RetryableWriteContext(readWriteBindingHandle, retryRequested: false, RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, false);
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                retryableContext.SelectServerAsync(OperationContext.NoTimeout, null).GetAwaiter().GetResult();
-                retryableContext.AcquireChannelAsync(OperationContext.NoTimeout).GetAwaiter().GetResult();
+                retryableContext.SelectServerAsync(operationContext, null).GetAwaiter().GetResult();
+                retryableContext.AcquireChannelAsync(operationContext).GetAwaiter().GetResult();
             }
             else
             {
-                retryableContext.SelectServer(OperationContext.NoTimeout, null);
-                retryableContext.AcquireChannel(OperationContext.NoTimeout);
+                retryableContext.SelectServer(operationContext, null);
+                retryableContext.AcquireChannel(operationContext);
             }
             return retryableContext;
         }

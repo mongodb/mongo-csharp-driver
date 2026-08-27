@@ -467,42 +467,6 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Count_should_include_the_filter(
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject();
-            var options = new CountOptions();
-
-            if (async)
-            {
-#pragma warning disable 618
-                await subject.CountAsync(_providedFilter, options, CancellationToken.None);
-
-                _mockDerivedCollection.Verify(
-                    c => c.CountAsync(
-                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                        options,
-                        CancellationToken.None),
-                    Times.Once);
-#pragma warning restore
-            }
-            else
-            {
-#pragma warning disable 618
-                subject.Count(_providedFilter, options, CancellationToken.None);
-
-                _mockDerivedCollection.Verify(
-                    c => c.Count(
-                        It.Is<FilterDefinition<B>>(f => RenderFilter(f).Equals(_expectedFilter)),
-                        options,
-                        CancellationToken.None),
-                    Times.Once);
-#pragma warning restore
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public async Task CountDocuments_should_include_the_filter(
             [Values(false, true)] bool usingSession,
             [Values(false, true)] bool async)
@@ -969,7 +933,7 @@ namespace MongoDB.Driver.Tests
             public int PropC;
         }
 
-        public class UpdateTestCases  : IValueGenerator
+        public class UpdateTestCases : IValueGenerator
         {
             public object[] GenerateValues() => new object[]
                 {
@@ -1020,7 +984,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Count_should_only_count_derived_types(
+        public void CountDocuments_should_only_count_derived_types(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -1028,17 +992,13 @@ namespace MongoDB.Driver.Tests
             long result1, result2;
             if (async)
             {
-#pragma warning disable 618
-                result1 = subject.CountAsync("{}").GetAwaiter().GetResult();
-                result2 = subject.OfType<C>().CountAsync("{}").GetAwaiter().GetResult();
-#pragma warning restore
+                result1 = subject.CountDocumentsAsync("{}").GetAwaiter().GetResult();
+                result2 = subject.OfType<C>().CountDocumentsAsync("{}").GetAwaiter().GetResult();
             }
             else
             {
-#pragma warning disable 618
-                result1 = subject.Count("{}");
-                result2 = subject.OfType<C>().Count("{}");
-#pragma warning restore
+                result1 = subject.CountDocuments("{}");
+                result2 = subject.OfType<C>().CountDocuments("{}");
             }
 
             result1.Should().Be(6);
@@ -1047,7 +1007,7 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
-        public void Count_should_only_count_derived_types_with_a_filter(
+        public void CountDocuments_should_only_count_derived_types_with_a_filter(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
@@ -1055,15 +1015,11 @@ namespace MongoDB.Driver.Tests
             long result;
             if (async)
             {
-#pragma warning disable 618
-                result = subject.CountAsync(x => x.PropB > 2).GetAwaiter().GetResult();
-#pragma warning restore
+                result = subject.CountDocumentsAsync(x => x.PropB > 2).GetAwaiter().GetResult();
             }
             else
             {
-#pragma warning disable 618
-                result = subject.Count(x => x.PropB > 2);
-#pragma warning restore
+                result = subject.CountDocuments(x => x.PropB > 2);
             }
 
             result.Should().Be(4);
@@ -1184,7 +1140,7 @@ namespace MongoDB.Driver.Tests
                         { "$unset", nameof(B.PropB) }
                     });
 
-            var updateOptions = new UpdateOptions { IsUpsert = upsert };
+            var updateOptions = new UpdateOptions<B> { IsUpsert = upsert };
             var result = async
                 ? subject.UpdateOneAsync(filter, pipeline, updateOptions).GetAwaiter().GetResult()
                 : subject.UpdateOne(filter, pipeline, updateOptions);

@@ -1,4 +1,4 @@
-﻿/* Copyright 2019-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,9 +49,9 @@ using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using OperatingSystemHelper = MongoDB.Driver.Core.Misc.OperatingSystemHelper;
+using OperatingSystemPlatform = MongoDB.Driver.Core.Misc.OperatingSystemPlatform;
 using Reflector = MongoDB.Bson.TestHelpers.Reflector;
-using OperatingSystemHelper  = MongoDB.Driver.Core.Misc.OperatingSystemHelper;
-using OperatingSystemPlatform  = MongoDB.Driver.Core.Misc.OperatingSystemPlatform;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 {
@@ -136,7 +137,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                                 exception
                                     .Should().BeOfType<MongoEncryptionCreateCollectionException>().Which.InnerException
-                                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
+                                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.");
                             }
                             break;
                         case 3: // Case 3: Invalid ``keyId``
@@ -149,7 +150,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     .Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
                             }
                             break;
-                       case 4: // Case 4: Insert encrypted value
+                        case 4: // Case 4: Insert encrypted value
                             {
                                 var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
                                 var collection = CreateEncryptedCollection<BsonDocument>(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async, out var effectiveEncryptedFields);
@@ -909,6 +910,148 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
+        // KMS Connect Callback prose tests (prose test 28).
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#28-kms-connect-callback
+        // Case 5 (callback receives timeout) is omitted because it requires CSOT, which the C# driver does not implement
+
+        // Case 1: plain HTTP proxy. The connector tunnels KMS traffic through the plain HTTP proxy on
+        // port 9004; the driver still negotiates TLS end-to-end with the KMS host through the tunnel.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-1-plain-http-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_via_plain_http_proxy([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            GetProxyConnectCount(HttpProxyPort, useTls: false).Should().BeGreaterOrEqualTo(1);
+        }
+
+        // Case 2: HTTPS proxy. Two independent TLS layers are in play: the connector's client-to-proxy
+        // TLS (verified against the proxy CA) and the driver's client-to-KMS TLS carried through the
+        // CONNECT tunnel (verified against the real KMS host). Success confirms the KMS host - not the
+        // proxy - was verified.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-2-https-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_via_https_proxy([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+            using var caCertificate = LoadProxyCaCertificate();
+
+            ResetProxyMetrics(HttpsProxyPort, useTls: true, caCertificate);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpsProxyPort, useTls: true, caCertificate);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            GetProxyConnectCount(HttpsProxyPort, useTls: true, caCertificate).Should().BeGreaterOrEqualTo(1);
+        }
+
+        // Case 3: full auto encryption pipeline via proxy. Exercises encrypt-on-insert and
+        // decrypt-on-find with KMS traffic routed through the proxy.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-3-full-auto-encryption-pipeline-via-proxy
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_full_auto_encryption_pipeline([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            using var client = ConfigureClient();
+            var connector = new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null);
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            var schema = new BsonDocument
+            {
+                { "bsonType", "object" },
+                {
+                    "properties",
+                    new BsonDocument("encrypted_string", new BsonDocument("encrypt", new BsonDocument
+                    {
+                        { "keyId", new BsonArray { new BsonBinaryData(dataKeyId, GuidRepresentation.Standard) } },
+                        { "bsonType", "string" },
+                        { "algorithm", "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic" }
+                    }))
+                }
+            };
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var clientEncrypted = ConfigureClientEncrypted(
+                schemaMap: new BsonDocument(__collCollectionNamespace.FullName, schema),
+                kmsProviderFilter: "aws",
+                autoEncryptionOptionsConfigurator: options => options.With(kmsConnector: Optional.Create<IKmsConnector>(connector)));
+
+            var encryptedCollection = GetCollection(clientEncrypted, __collCollectionNamespace);
+            Insert(encryptedCollection, async, new BsonDocument { { "_id", 1 }, { "encrypted_string", "hello" } });
+
+            var decrypted = Find(encryptedCollection, new BsonDocument("_id", 1), async).Single();
+            decrypted["encrypted_string"].AsString.Should().Be("hello");
+
+            var stillEncrypted = Find(GetCollection(client, __collCollectionNamespace), new BsonDocument("_id", 1), async).Single();
+            stillEncrypted["encrypted_string"].BsonType.Should().Be(BsonType.Binary);
+
+            // Exactly one KMS request is expected since the decrypted key is cached; more than one would indicate a DEK caching regression.
+            GetProxyConnectCount(HttpProxyPort, useTls: false).Should().Be(1);
+        }
+
+        // Case 4: Error. A connector that fails with a non-network error must surface the error to the caller
+        // rather than having it swallowed by the KMS retry path.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-4-error
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_error_propagates([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            using var client = ConfigureClient();
+            var connector = new FailingKmsConnector("Test Error");
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var exception = Record.Exception(() => CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async));
+
+            exception.Should().NotBeNull();
+            GetExceptionChain(exception).Should().Contain(e => e.Message.Contains("Test Error"));
+        }
+
+        // Case 6: Retry. A connector that fails with a network error must be retried.
+        // https://github.com/mongodb/specifications/tree/master/source/client-side-encryption/tests#case-6-retry
+        [Theory]
+        [ParameterAttributeData]
+        public void KmsConnectCallback_retries_after_network_error([Values(false, true)] bool async)
+        {
+            RequireEnvironment.Check().KmsProvider("aws");
+            RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED", isDefined: true);
+
+            ResetProxyMetrics(HttpProxyPort, useTls: false);
+
+            using var client = ConfigureClient();
+            var connector = new RetryOnceKmsConnector(new HttpConnectProxyKmsConnector(HttpProxyPort, useTls: false, caCertificate: null));
+            using var clientEncryption = CreateAwsClientEncryptionWithConnector(client, connector);
+
+            var dataKeyId = CreateDataKey(clientEncryption, "aws", new DataKeyOptions(masterKey: AwsMasterKey()), async);
+
+            dataKeyId.Should().NotBe(Guid.Empty);
+            connector.InvocationCount.Should().BeGreaterThan(1);
+        }
+
         [Theory]
         [MemberData(nameof(DeadlockTest_MemberData))]
         public void DeadlockTest(
@@ -1234,14 +1377,19 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
             var encryptedFields = JsonFileReader.Instance.Documents["etc.data.encryptedFields.json"];
+            var encryptedFieldsC10 = JsonFileReader.Instance.Documents["etc.data.encryptedFields-c10.json"];
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
             var key1Id = key1Document["_id"].AsGuid;
             var explicitCollectionNamespace = CollectionNamespace.FromFullName("db.explicit_encryption");
+            var explicitC10CollectionNamespace = CollectionNamespace.FromFullName("db.explicit_encryption_c10");
             var value = "encrypted indexed value";
 
             using (var client = ConfigureClient(clearCollections: true, mainCollectionNamespace: explicitCollectionNamespace, encryptedFields: encryptedFields))
             {
                 CreateCollection(client, explicitCollectionNamespace, encryptedFields: encryptedFields);
+                client.GetDatabase(explicitC10CollectionNamespace.DatabaseNamespace.DatabaseName)
+                    .DropCollection(explicitC10CollectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFieldsC10 });
+                CreateCollection(client, explicitC10CollectionNamespace, encryptedFields: encryptedFieldsC10);
                 CreateCollection(client, __keyVaultCollectionNamespace);
                 var keyVaultCollection = GetCollection(client, __keyVaultCollectionNamespace);
                 Insert(keyVaultCollection, async, key1Document);
@@ -1251,12 +1399,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local", autoEncryptionOptionsConfigurator: (options) => options.With(bypassQueryAnalysis: true)))
                 {
                     var explicitCollection = GetCollection(encryptedClient, explicitCollectionNamespace);
+                    var explicitC10Collection = GetCollection(encryptedClient, explicitC10CollectionNamespace);
 
-                    RunTestCase(explicitCollection, clientEncryption, testCase);
+                    RunTestCase(explicitCollection, explicitC10Collection, clientEncryption, testCase);
                 }
             }
 
-            void RunTestCase(IMongoCollection<BsonDocument> explicitCollectionFromEncryptedClient, ClientEncryption clientEncryption, int testCase)
+            void RunTestCase(IMongoCollection<BsonDocument> explicitCollectionFromEncryptedClient, IMongoCollection<BsonDocument> explicitC10CollectionFromEncryptedClient, ClientEncryption clientEncryption, int testCase)
             {
                 switch (testCase)
                 {
@@ -1280,35 +1429,18 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, contentionFactor: 10);
 
-                            BsonBinaryData encryptedValue;
                             for (int i = 0; i < 10; i++)
                             {
-                                encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
-
+                                var encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
                                 var insertPayload = new BsonDocument("encryptedIndexed", encryptedValue);
-                                Insert(explicitCollectionFromEncryptedClient, async, insertPayload);
+                                Insert(explicitC10CollectionFromEncryptedClient, async, insertPayload);
                             }
 
-                            // 1
-                            encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 0);
-                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
-
-                            var findPayload = new BsonDocument("encryptedIndexed", encryptedValue);
-                            var result = Find(explicitCollectionFromEncryptedClient, findPayload, async).ToList();
-                            // Assert less than 10 documents are returned. 0 documents may be returned
-                            result.Count.Should().BeLessThan(10);
-                            foreach (var doc in result)
-                            {
-                                doc.Elements.Should().Contain(new BsonElement("encryptedIndexed", value));
-                            }
-
-                            // 2
                             encryptionOptions = new EncryptOptions(algorithm: EncryptionAlgorithm.Indexed.ToString(), keyId: key1Id, queryType: "equality", contentionFactor: 10);
-                            encryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
+                            var findEncryptedValue = ExplicitEncrypt(clientEncryption, encryptionOptions, value, async);
 
-                            var findPayload2 = new BsonDocument("encryptedIndexed", encryptedValue);
-                            result = Find(explicitCollectionFromEncryptedClient, findPayload2, async).ToList();
-                            // Assert 10 documents are returned
+                            var findPayload = new BsonDocument("encryptedIndexed", findEncryptedValue);
+                            var result = Find(explicitC10CollectionFromEncryptedClient, findPayload, async).ToList();
                             result.Count.Should().Be(10);
                             foreach (var doc in result)
                             {
@@ -1803,7 +1935,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 try
                 {
-                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception,"The message received was unexpected or badly formatted");
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "The message received was unexpected or badly formatted");
                 }
                 catch (XunitException) // assertation failed
                 {
@@ -2512,7 +2644,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                { "$project": { "_id": 0 } }
                            ]
                            """;
-            var expectedResult1 ="""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            var expectedResult1 = """{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
             RunTestCase(csfleNamespace, pipeline1, expectedResult1);
 
             // Case 2: db.qe joins db.no_schema
@@ -2530,7 +2662,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0, "__safeContent__" : 0}}
                            ]
                            """;
-            var expectedResult2 ="""{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            var expectedResult2 = """{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
             RunTestCase(qeNamespace, pipeline2, expectedResult2);
 
             // Case 3: db.no_schema joins db.csfle
@@ -2547,7 +2679,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult3 ="""{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
+            var expectedResult3 = """{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline3, expectedResult3);
 
             // Case 4: db.no_schema joins db.qe
@@ -2564,7 +2696,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult4 ="""{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
+            var expectedResult4 = """{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline4, expectedResult4);
 
             // Case 5: db.csfle joins db.csfle2
@@ -2581,7 +2713,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult5 ="""{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
+            var expectedResult5 = """{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
             RunTestCase(csfleNamespace, pipeline5, expectedResult5);
 
             // Case 6: db.qe joins db.qe2
@@ -2598,7 +2730,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0, "__safeContent__" : 0}}
                            ]
                            """;
-            var expectedResult6 ="""{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
+            var expectedResult6 = """{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
             RunTestCase(qeNamespace, pipeline6, expectedResult6);
 
             // Case 7: db.no_schema joins db.no_schema2
@@ -2615,7 +2747,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult7 ="""{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
+            var expectedResult7 = """{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline7, expectedResult7);
 
             // Case 8: db.csfle joins db.qe
@@ -2740,29 +2872,107 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             }
         }
 
-        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-text-explicit-encryption
+        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
+        // Prefix and suffix queries require server 9.0+ (GA). Substring queries are covered by StringSubstringExplicitEncryptionTest.
         [Theory]
         [ParameterAttributeData]
-        public void TextExplicitEncryptionTest(
-            [Range(1, 11)] int testCase,
+        public void StringExplicitEncryptionTest(
+            [Values(1, 2, 3, 4, 7, 8, 9)] int testCase,
             [Values(true, false)] bool async)
         {
             RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2TextPreviewAlgorithm)
+                .Supports(Feature.Csfle2QEv2StringAlgorithm)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: false);
+        }
+
+        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
+        // Substring queries require server 9.0+ (GA). The substringPreview query type is covered by StringSubstringPreviewExplicitEncryptionTest.
+        [Theory]
+        [ParameterAttributeData]
+        public void StringSubstringExplicitEncryptionTest(
+            [Values(5, 6, 10, 11)] int testCase,
+            [Values(true, false)] bool async)
+        {
+            RequireServer.Check()
+                .Supports(Feature.Csfle2QEv2StringAlgorithm)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
+
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: false);
+        }
+
+        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
+        // Substring preview queries are supported on servers before 9.0 (libmongocrypt 1.18.1+) and are
+        // rejected on server 9.0+. GA substring is covered by StringSubstringExplicitEncryptionTest.
+        [Theory]
+        [ParameterAttributeData]
+        public void StringSubstringPreviewExplicitEncryptionTest(
+            [Values(5, 6)] int testCase,
+            [Values(true, false)] bool async)
+        {
+            RequireServer.Check()
+                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
                 .VersionLessThanOrEqualTo("8.99.99");
 
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: true);
+        }
+
+        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
+        // Prefix/suffix preview queries are supported on servers before 9.0 (libmongocrypt 1.19.1+) and are
+        // rejected on server 9.0+, so this is gated to 8.2-8.x. GA prefix/suffix is covered by StringExplicitEncryptionTest.
+        [Theory]
+        [ParameterAttributeData]
+        public void StringPreviewExplicitEncryptionTest(
+            [Values(1, 2, 3, 4)] int testCase,
+            [Values(true, false)] bool async)
+        {
+            RequireServer.Check()
+                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
+                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
+                .VersionLessThanOrEqualTo("8.99.99");
+
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: true);
+        }
+
+        private void RunStringExplicitEncryptionTestCase(int testCase, bool async, bool isSubstring, bool isPreview)
+        {
             var prefixSuffixCollectionNamespace = new CollectionNamespace("db", "prefix-suffix");
+            var prefixSuffixPreviewCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-preview");
             var substringCollectionNamespace = new CollectionNamespace("db", "substring");
+            var substringPreviewCollectionNamespace = new CollectionNamespace("db", "substring-preview");
             var prefixSuffixCiDiCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-ci-di");
             var substringCiDiCollectionNamespace = new CollectionNamespace("db", "substring-ci-di");
 
             using var keyVaultClient = ConfigureClient();
 
-            DropAndCreateCollection(keyVaultClient, prefixSuffixCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix.json"]);
-            DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
-            DropAndCreateCollection(keyVaultClient, prefixSuffixCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix-ci-di.json"]);
-            DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
+            // Each collection has a different minimum server version, so only create the collections relevant to the cases under test.
+            if (isSubstring)
+            {
+                if (isPreview)
+                {
+                    // The substring-preview collection requires a server before 9.0.
+                    DropAndCreateCollection(keyVaultClient, substringPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-preview.json"]);
+                }
+                else
+                {
+                    // The substring collections require server 9.0+.
+                    DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
+                    DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
+                }
+            }
+            else if (isPreview)
+            {
+                // The prefix-suffix-preview collection requires a server before 9.0.
+                DropAndCreateCollection(keyVaultClient, prefixSuffixPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix-preview.json"]);
+            }
+            else
+            {
+                // The prefix-suffix collections require server 9.0+.
+                DropAndCreateCollection(keyVaultClient, prefixSuffixCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix.json"]);
+                DropAndCreateCollection(keyVaultClient, prefixSuffixCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix-ci-di.json"]);
+            }
 
             var key1Document = JsonFileReader.Instance.Documents["etc.data.keys.key1-document.json"];
             var key1Id = key1Document["_id"].AsGuid;
@@ -2770,48 +2980,63 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             var keyVaultCollection = GetCollection(keyVaultClient, __keyVaultCollectionNamespace);
             Insert(keyVaultCollection, async, key1Document);
 
-            var encryptOptions = new EncryptOptions(EncryptionAlgorithm.TextPreview, keyId: key1Id, contentionFactor: 0);
+            var encryptOptions = new EncryptOptions(EncryptionAlgorithm.String, keyId: key1Id, contentionFactor: 0);
 
             using (var clientEncryption = ConfigureClientEncryption(keyVaultClient, kmsProviderNames: "local"))
             using (var encryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local", bypassQueryAnalysis: true))
             using (var autoEncryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local"))
             {
                 var prefixSuffixCollection = GetCollection(encryptedClient, prefixSuffixCollectionNamespace);
+                var prefixSuffixPreviewCollection = GetCollection(encryptedClient, prefixSuffixPreviewCollectionNamespace);
                 var substringCollection = GetCollection(encryptedClient, substringCollectionNamespace);
+                var substringPreviewCollection = GetCollection(encryptedClient, substringPreviewCollectionNamespace);
                 var prefixSuffixCiDiCollectionAuto = GetCollection(autoEncryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var prefixSuffixCiDiCollectionExplicit = GetCollection(encryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var substringCiDiCollectionAuto = GetCollection(autoEncryptedClient, substringCiDiCollectionNamespace);
                 var substringCiDiCollectionExplicit = GetCollection(encryptedClient, substringCiDiCollectionNamespace);
 
+                // Prefix/suffix cases run against either the GA prefix-suffix collection (server 9.0+) or the preview
+                // prefix-suffix-preview collection (server < 9.0); the matching query types are chosen in RunTestCase.
+                var prefixSuffixCollectionForCase = isPreview ? prefixSuffixPreviewCollection : prefixSuffixCollection;
+
+                // Substring cases 5-6 run against either the GA substring collection (server 9.0+) or the preview
+                // substring-preview collection (server < 9.0); the matching query type is chosen in RunTestCase.
+                var substringCollectionForCase = isPreview ? substringPreviewCollection : substringCollection;
+
                 var valueToEncrypt = "foobarbaz";
 
-                var encryptedText = ExplicitEncrypt(
-                    clientEncryption,
-                    encryptOptions.With(textOptions: new TextOptions(
-                        true,
-                        true,
-                        new PrefixOptions(10, 2),
-                        suffixOptions: new SuffixOptions(10, 2))),
-                    valueToEncrypt,
-                    async);
+                if (isSubstring)
+                {
+                    var encryptedText = ExplicitEncrypt(
+                        clientEncryption,
+                        encryptOptions.With(stringOptions: new StringOptions(
+                            true,
+                            true,
+                            substringOptions: new SubstringOptions(10, 6, 2))),
+                        valueToEncrypt,
+                        async);
 
-                Insert(prefixSuffixCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(substringCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                }
+                else
+                {
+                    var encryptedText = ExplicitEncrypt(
+                        clientEncryption,
+                        encryptOptions.With(stringOptions: new StringOptions(
+                            true,
+                            true,
+                            new PrefixOptions(10, 2),
+                            suffixOptions: new SuffixOptions(10, 2))),
+                        valueToEncrypt,
+                        async);
 
-                encryptedText = ExplicitEncrypt(
-                    clientEncryption,
-                    encryptOptions.With(textOptions: new TextOptions(
-                        true,
-                        true,
-                        substringOptions: new SubstringOptions(10, 10, 2))),
-                    valueToEncrypt,
-                    async);
-
-                Insert(substringCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(prefixSuffixCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                }
 
                 RunTestCase(
                     clientEncryption,
-                    prefixSuffixCollection,
-                    substringCollection,
+                    prefixSuffixCollectionForCase,
+                    substringCollectionForCase,
                     prefixSuffixCiDiCollectionAuto,
                     prefixSuffixCiDiCollectionExplicit,
                     substringCiDiCollectionAuto,
@@ -2827,226 +3052,233 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 IMongoCollection<BsonDocument> substringCiDiCollectionAuto,
                 IMongoCollection<BsonDocument> substringCiDiCollectionExplicit)
             {
+                // Cases 1-4 (prefix/suffix) and 5-6 (substring) use the GA query types on 9.0+ and the preview
+                // query types on older servers, via the variables below. Cases 7-11 are GA-only (never run by the
+                // *PreviewExplicitEncryptionTest theories) and intentionally hardcode the GA query types.
+                var prefixQueryType = isPreview ? "prefixPreview" : "prefix";
+                var suffixQueryType = isPreview ? "suffixPreview" : "suffix";
+                var substringQueryType = isPreview ? "substringPreview" : "substring";
+
                 switch (testCase)
                 {
                     case 1: // can find a document by prefix
-                    {
-                        var encryptedFoo = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefixPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                new PrefixOptions(10, 2))),
-                            "foo",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedFoo);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 2: // can find a document by suffix
-                    {
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffixPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "baz",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 3: // assert no document found by prefix
-                    {
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefixPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                new PrefixOptions(10, 2))),
-                            "baz",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBaz);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 4: // assert no document found by suffix
-                    {
-                        var encryptedFoo = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffixPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "foo",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedFoo);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 5: // can find a document by substring
-                    {
-                        var encryptedBar = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substringPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                substringOptions: new SubstringOptions(10, 10, 2))),
-                            "bar",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
-
-                        var findResult = Find(substringCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 6: // assert no document found by substring
-                    {
-                        var encryptedQux = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substringPreview", textOptions: new TextOptions(
-                                true,
-                                true,
-                                substringOptions: new SubstringOptions(10, 10, 2))),
-                            "qux",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedQux);
-
-                        var findResult = Find(substringCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 7: // assert contentionFactor is required
-                    {
-                        var exception = Record.Exception(() =>
                         {
-                            ExplicitEncrypt(
+                            var encryptedFoo = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(contentionFactor: null, queryType: "prefixPreview", textOptions: new TextOptions(
+                                encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
                                     true,
                                     true,
                                     new PrefixOptions(10, 2))),
                                 "foo",
                                 async);
-                        });
 
-                        exception.Should().BeOfType<MongoEncryptionException>()
-                            .Which.Message.Should().Contain("contention factor is required for textPreview algorithm");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedFoo);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 2: // can find a document by suffix
+                        {
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "baz",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 3: // assert no document found by prefix
+                        {
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    new PrefixOptions(10, 2))),
+                                "baz",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBaz);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 4: // assert no document found by suffix
+                        {
+                            var encryptedFoo = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "foo",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedFoo);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 5: // can find a document by substring
+                        {
+                            var encryptedBar = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "bar",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
+
+                            var findResult = Find(substringCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 6: // assert no document found by substring
+                        {
+                            var encryptedQux = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "qux",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedQux);
+
+                            var findResult = Find(substringCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 7: // assert contentionFactor is required
+                        {
+                            var exception = Record.Exception(() =>
+                            {
+                                ExplicitEncrypt(
+                                    clientEncryption,
+                                    encryptOptions.With(contentionFactor: null, queryType: "prefix", stringOptions: new StringOptions(
+                                        true,
+                                        true,
+                                        new PrefixOptions(10, 2))),
+                                    "foo",
+                                    async);
+                            });
+
+                            exception.Should().BeOfType<MongoEncryptionException>()
+                                .Which.Message.Should().Contain("contention factor is required for string algorithm");
+                            break;
+                        }
                     case 8: // can find an auto-encrypted case indexed document by prefix and suffix
-                    {
-                        Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "BingQiLin"));
+                        {
+                            Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "BingQiLin"));
 
-                        var encryptedBing = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefixPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                new PrefixOptions(10, 2))),
-                            "bing",
-                            async);
+                            var encryptedBing = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    new PrefixOptions(10, 2))),
+                                "bing",
+                                async);
 
-                        var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBing);
-                        var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
-                        prefixResult["encryptedText"].AsString.Should().Be("BingQiLin");
+                            var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBing);
+                            var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
+                            prefixResult["encryptedText"].AsString.Should().Be("BingQiLin");
 
-                        var encryptedLin = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffixPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "lin",
-                            async);
+                            var encryptedLin = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "lin",
+                                async);
 
-                        var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedLin);
-                        var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
-                        suffixResult["encryptedText"].AsString.Should().Be("BingQiLin");
-                        break;
-                    }
+                            var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedLin);
+                            var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
+                            suffixResult["encryptedText"].AsString.Should().Be("BingQiLin");
+                            break;
+                        }
                     case 9: // can find an auto-encrypted diacritic-insensitively indexed document by prefix and suffix
-                    {
-                        Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "cafébarbäz"));
+                        {
+                            Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "cafébarbäz"));
 
-                        var encryptedCafe = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefixPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                new PrefixOptions(10, 2))),
-                            "cafe",
-                            async);
+                            var encryptedCafe = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    new PrefixOptions(10, 2))),
+                                "cafe",
+                                async);
 
-                        var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedCafe);
-                        var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
-                        prefixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
+                            var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedCafe);
+                            var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
+                            prefixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
 
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffixPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "baz",
-                            async);
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "baz",
+                                async);
 
-                        var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
-                        var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
-                        suffixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
-                        break;
-                    }
+                            var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
+                            var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
+                            suffixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
+                            break;
+                        }
                     case 10: // can find an auto-encrypted case-insensitively indexed document by substring
-                    {
-                        Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "FooBarBaz"));
+                        {
+                            Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "FooBarBaz"));
 
-                        var encryptedBar = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substringPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                substringOptions: new SubstringOptions(10, 10, 2))),
-                            "bar",
-                            async);
+                            var encryptedBar = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "bar",
+                                async);
 
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
-                        var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("FooBarBaz");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
+                            var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("FooBarBaz");
+                            break;
+                        }
                     case 11: // can find an auto-encrypted diacritic-insensitively indexed document by substring
-                    {
-                        Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "foocafébaz"));
+                        {
+                            Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "foocafébaz"));
 
-                        var encryptedCafe = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substringPreview", textOptions: new TextOptions(
-                                false,
-                                false,
-                                substringOptions: new SubstringOptions(10, 10, 2))),
-                            "cafe",
-                            async);
+                            var encryptedCafe = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "cafe",
+                                async);
 
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedCafe);
-                        var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foocafébaz");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedCafe);
+                            var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foocafébaz");
+                            break;
+                        }
                     default: throw new Exception($"Unexpected test case {testCase}.");
                 }
             }
@@ -3072,7 +3304,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             void DropAndCreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
             {
-                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings{ WriteConcern = WriteConcern.WMajority });
+                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
                 db.DropCollection(collectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
                 db.CreateCollection(collectionNamespace.CollectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
             }
@@ -3325,7 +3557,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
-                    keyVaultNamespace: keyVaultCollectionNamespace ??__keyVaultCollectionNamespace,
+                    keyVaultNamespace: keyVaultCollectionNamespace ?? __keyVaultCollectionNamespace,
                     schemaMapDocument: schemaMap,
                     kmsProviders: kmsProviders,
                     externalKeyVaultClient: externalKeyVaultClient,
@@ -3590,10 +3822,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
         {
             var operation = DropCollectionOperation.CreateEncryptedDropCollectionOperationIfConfigured(collectionNamespace, encryptedFields, CoreTestConfiguration.MessageEncoderSettings, configureDropCollectionConfigurator: null);
             using (var session = CoreTestConfiguration.StartSession(_cluster))
-            using (var binding = new WritableServerBinding(_cluster, session.Fork()))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = new WritableServerBinding(_cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                operation.Execute(operationContext, bindingHandle);
             }
         }
 
@@ -3958,6 +4191,304 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             public ObjectId Id { get; set; }
             public string Name { get; set; }
             public string Ssn { get; set; }
+        }
+
+        // KMS Connect Callback helpers (prose test 28)
+        private const int HttpProxyPort = 9004;
+        private const int HttpsProxyPort = 9005;
+
+        private static BsonDocument AwsMasterKey() => new BsonDocument
+        {
+            { "region", "us-east-1" },
+            { "key", "arn:aws:kms:us-east-1:579766882180:key/89fcc2c4-08b0-4bd9-9f25-e30687b580d0" }
+        };
+
+        private ClientEncryption CreateAwsClientEncryptionWithConnector(IMongoClient client, IKmsConnector kmsConnector)
+        {
+            var kmsProviders = EncryptionTestHelper.GetKmsProviders("aws");
+            var clientEncryptionOptions = new ClientEncryptionOptions(
+                keyVaultClient: client,
+                keyVaultNamespace: __keyVaultCollectionNamespace,
+                kmsProviders: kmsProviders,
+                kmsConnector: Optional.Create(kmsConnector));
+            return new ClientEncryption(clientEncryptionOptions);
+        }
+
+        private static IEnumerable<Exception> GetExceptionChain(Exception exception)
+        {
+            for (var current = exception; current != null; current = current.InnerException)
+            {
+                yield return current;
+            }
+        }
+
+        private static void ResetProxyMetrics(int port, bool useTls, X509Certificate2 caCertificate = null)
+        {
+            using var httpClient = CreateProxyHttpClient(useTls ? caCertificate : null);
+            using var response = httpClient.PostAsync(ProxyUrl(port, useTls, "reset"), content: null).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+        }
+
+        private static int GetProxyConnectCount(int port, bool useTls, X509Certificate2 caCertificate = null)
+        {
+            using var httpClient = CreateProxyHttpClient(useTls ? caCertificate : null);
+            var body = httpClient.GetStringAsync(ProxyUrl(port, useTls, "metrics")).GetAwaiter().GetResult();
+
+            // The proxy's /metrics response starts with "connect_count <N>" as its first line
+            var connectCount = body.Split('\n')[0].Split(' ')[1];
+            return int.Parse(connectCount, CultureInfo.InvariantCulture);
+        }
+
+        private static string ProxyUrl(int port, bool useTls, string path) =>
+            $"{(useTls ? "https" : "http")}://127.0.0.1:{port}/{path}";
+
+        private static HttpClient CreateProxyHttpClient(X509Certificate2 caCertificate)
+        {
+            if (caCertificate == null)
+            {
+                return new HttpClient();
+            }
+
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (request, cert, chain, errors) => ValidateAgainstCa(cert, caCertificate)
+            };
+            return new HttpClient(handler);
+        }
+
+        private static X509Certificate2 LoadProxyCaCertificate()
+        {
+            var caFile = Environment.GetEnvironmentVariable("CSFLE_TLS_CA_FILE");
+            if (string.IsNullOrEmpty(caFile))
+            {
+                throw new InvalidOperationException("CSFLE_TLS_CA_FILE is not set while KMS_MOCK_SERVERS_ENABLED is; the proxy test environment is misconfigured.");
+            }
+
+            if (!File.Exists(caFile))
+            {
+                throw new FileNotFoundException($"Proxy CA file was not found at {caFile}.", caFile);
+            }
+
+            var pem = File.ReadAllText(caFile);
+            const string header = "-----BEGIN CERTIFICATE-----";
+            const string footer = "-----END CERTIFICATE-----";
+            var headerIndex = pem.IndexOf(header, StringComparison.Ordinal);
+            var footerIndex = pem.IndexOf(footer, StringComparison.Ordinal);
+            if (headerIndex < 0 || footerIndex <= headerIndex)
+            {
+                throw new FormatException($"Proxy CA file {caFile} is not a valid PEM certificate.");
+            }
+
+            var start = headerIndex + header.Length;
+            var base64 = pem.Substring(start, footerIndex - start).Replace("\r", "").Replace("\n", "").Trim();
+            return LoadCertificate(Convert.FromBase64String(base64));
+        }
+
+        private static X509Certificate2 LoadCertificate(byte[] rawData)
+        {
+#if NET9_0_OR_GREATER
+            return X509CertificateLoader.LoadCertificate(rawData);
+#else
+            return new X509Certificate2(rawData);
+#endif
+        }
+
+        private static bool ValidateAgainstCa(X509Certificate2 certificate, X509Certificate2 caCertificate)
+        {
+            using var chain = new X509Chain();
+            chain.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
+            chain.ChainPolicy.VerificationFlags = X509VerificationFlags.AllowUnknownCertificateAuthority;
+            chain.ChainPolicy.ExtraStore.Add(caCertificate);
+
+            // Build must succeed - it validates expiry, signatures, and chain integrity.
+            // AllowUnknownCertificateAuthority only forgives the CA being absent from the machine trust
+            // store; the thumbprint check then confirms the chain terminates at our expected CA rather
+            // than any other root.
+            if (!chain.Build(certificate))
+            {
+                return false;
+            }
+
+            var elements = chain.ChainElements;
+            var root = elements[elements.Count - 1].Certificate;
+            return string.Equals(root.Thumbprint, caCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private sealed class HttpConnectProxyKmsConnector : IKmsConnector
+        {
+            private readonly X509Certificate2 _caCertificate;
+            private readonly int _proxyPort;
+            private readonly bool _useTls;
+
+            public HttpConnectProxyKmsConnector(int proxyPort, bool useTls, X509Certificate2 caCertificate)
+            {
+                _proxyPort = proxyPort;
+                _useTls = useTls;
+                _caCertificate = caCertificate;
+            }
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.Connect("127.0.0.1", _proxyPort);
+                Stream stream = new NetworkStream(socket, ownsSocket: true);
+                try
+                {
+                    if (_useTls)
+                    {
+                        var sslStream = CreateProxySslStream(stream);
+                        sslStream.AuthenticateAsClient("127.0.0.1");
+                        stream = sslStream;
+                    }
+
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
+                    stream.Write(request, 0, request.Length);
+                    EnsureConnectSucceeded(ReadConnectResponse(stream));
+                    return stream;
+                }
+                catch
+                {
+                    stream.Dispose();
+                    throw;
+                }
+            }
+
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await socket.ConnectAsync("127.0.0.1", _proxyPort);
+                Stream stream = new NetworkStream(socket, ownsSocket: true);
+                try
+                {
+                    if (_useTls)
+                    {
+                        var sslStream = CreateProxySslStream(stream);
+                        await sslStream.AuthenticateAsClientAsync("127.0.0.1");
+                        stream = sslStream;
+                    }
+
+                    var request = Encoding.ASCII.GetBytes(BuildConnectRequest(context.Host, context.Port));
+                    await stream.WriteAsync(request, 0, request.Length, cancellationToken);
+                    EnsureConnectSucceeded(await ReadConnectResponseAsync(stream, cancellationToken));
+                    return stream;
+                }
+                catch
+                {
+#if NETFRAMEWORK
+                    stream.Dispose();
+#else
+                    await stream.DisposeAsync();
+#endif
+                    throw;
+                }
+            }
+
+            private SslStream CreateProxySslStream(Stream inner) =>
+                new(inner, leaveInnerStreamOpen: false,
+                    (sender, cert, chain, errors) => ValidateAgainstCa(LoadCertificate(cert.Export(X509ContentType.Cert)), _caCertificate));
+
+            private static string BuildConnectRequest(string host, int port) =>
+                $"CONNECT {host}:{port} HTTP/1.1\r\nHost: {host}:{port}\r\n\r\n";
+
+            private static void EnsureConnectSucceeded(string response)
+            {
+                if (!response.StartsWith("HTTP/1.1 200", StringComparison.Ordinal))
+                {
+                    throw new IOException($"Unexpected proxy CONNECT response: {response}");
+                }
+            }
+
+            // Reads the CONNECT response headers up to and including the terminating CRLFCRLF,
+            // one byte at a time so no bytes of the tunnelled TLS stream are consumed.
+            private static string ReadConnectResponse(Stream stream)
+            {
+                var builder = new StringBuilder();
+                int b;
+                while ((b = stream.ReadByte()) != -1)
+                {
+                    builder.Append((char)b);
+                    if (EndsWithHeaderTerminator(builder))
+                    {
+                        break;
+                    }
+                }
+
+                return builder.ToString();
+            }
+
+            private static async Task<string> ReadConnectResponseAsync(Stream stream, CancellationToken cancellationToken)
+            {
+                var builder = new StringBuilder();
+                var buffer = new byte[1];
+                while (await stream.ReadAsync(buffer, 0, 1, cancellationToken) != 0)
+                {
+                    builder.Append((char)buffer[0]);
+                    if (EndsWithHeaderTerminator(builder))
+                    {
+                        break;
+                    }
+                }
+
+                return builder.ToString();
+            }
+
+            private static bool EndsWithHeaderTerminator(StringBuilder builder)
+            {
+                var n = builder.Length;
+                return n >= 4 &&
+                    builder[n - 4] == '\r' && builder[n - 3] == '\n' && builder[n - 2] == '\r' && builder[n - 1] == '\n';
+            }
+        }
+
+        private sealed class FailingKmsConnector : IKmsConnector
+        {
+            private readonly string _message;
+
+            public FailingKmsConnector(string message)
+            {
+                _message = message;
+            }
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken) =>
+                throw new InvalidOperationException(_message);
+
+            public Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken) =>
+                throw new InvalidOperationException(_message);
+        }
+
+        // Fails with a network error on its first invocation, then delegates to the wrapped connector.
+        // Exercises the driver's KMS retry re-invoking kmsConnectCallback after a transient failure.
+        private sealed class RetryOnceKmsConnector : IKmsConnector
+        {
+            private readonly IKmsConnector _inner;
+            private int _invocationCount;
+
+            public RetryOnceKmsConnector(IKmsConnector inner)
+            {
+                _inner = inner;
+            }
+
+            public int InvocationCount => _invocationCount;
+
+            public Stream Connect(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                if (Interlocked.Increment(ref _invocationCount) == 1)
+                {
+                    throw new IOException("Simulated transient network error.");
+                }
+
+                return _inner.Connect(context, cancellationToken);
+            }
+
+            public async Task<Stream> ConnectAsync(KmsConnectionContext context, CancellationToken cancellationToken)
+            {
+                if (Interlocked.Increment(ref _invocationCount) == 1)
+                {
+                    throw new IOException("Simulated transient network error.");
+                }
+
+                return await _inner.ConnectAsync(context, cancellationToken);
+            }
         }
     }
 

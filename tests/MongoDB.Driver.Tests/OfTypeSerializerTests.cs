@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests
         public void Equals_with_equal_fields_should_return_true()
         {
             var x = new OfTypeSerializer<C, D>(__derivedDocumentSerializer1);
-            var y= new OfTypeSerializer<C, D>(__derivedDocumentSerializer1);
+            var y = new OfTypeSerializer<C, D>(__derivedDocumentSerializer1);
 
             var result = x.Equals(y);
 

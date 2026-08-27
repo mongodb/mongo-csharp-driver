@@ -45,7 +45,7 @@ public class MqlSubtypeTests : LinqIntegrationTest<MqlSubtypeTests.ClassFixture>
             .Where(d => Mql.Subtype(d.Data) == subtype);
 
         var renderedStages = Translate(collection, queryable);
-        AssertStages(renderedStages, $"{{ $match : {{ $expr : {{ $eq : [{{ $subtype : '$Data' }}, { (subtype.HasValue ? (int)subtype : "null") }] }} }} }}");
+        AssertStages(renderedStages, $"{{ $match : {{ $expr : {{ $eq : [{{ $subtype : '$Data' }}, {(subtype.HasValue ? (int)subtype : "null")}] }} }} }}");
 
         var result = queryable.Single();
         result.Id.Should().Be(expectedId);

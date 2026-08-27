@@ -34,6 +34,6 @@ namespace MongoDB.Driver.Encryption
         /// <param name="client">The client.</param>
         /// <param name="autoEncryptionOptions">The AutoEncryptionOptions.</param>
         /// <returns>The IAutoCryptClientController.</returns>
-        public IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions);
+        IAutoEncryptionLibMongoCryptController CreateAutoCryptClientController(IMongoClient client, AutoEncryptionOptions autoEncryptionOptions);
     }
 }

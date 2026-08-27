@@ -228,27 +228,6 @@ namespace MongoDB.Bson.Tests
         }
 
         [Fact]
-        public void TestConstructorElementsParams()
-        {
-            var element1 = new BsonElement("x", 1);
-            var element2 = new BsonElement("y", 2);
-#pragma warning disable 618
-            var document = new BsonDocument(element1, element2);
-#pragma warning restore
-            Assert.False(document.AllowDuplicateNames);
-            Assert.Equal(2, document.ElementCount);
-            Assert.Equal(2, document.ElementCount);
-            Assert.Equal(1, document["x"].AsInt32);
-            Assert.Equal(2, document["y"].AsInt32);
-            Assert.Equal(true, document.Contains("x"));
-            Assert.Equal(true, document.Contains("y"));
-            Assert.Equal(true, document.ContainsValue(1));
-            Assert.Equal(true, document.ContainsValue(2));
-            Assert.Same(element1.Value, document.GetElement("x").Value);
-            Assert.Same(element2.Value, document.GetElement("y").Value);
-        }
-
-        [Fact]
         public void TestConstructorDictionaryGeneric()
         {
             var dictionary = new Dictionary<string, object> { { "x", 1 } };

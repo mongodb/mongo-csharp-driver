@@ -24,6 +24,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.GeoJsonObjectModel;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -478,7 +479,7 @@ namespace MongoDB.Driver
         /// <param name="impliedElementFilter">The implied element filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FilterDefinition<TItem> impliedElementFilter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(impliedElementFilter);
         }
@@ -490,7 +491,7 @@ namespace MongoDB.Driver
         /// <param name="impliedElementFilter">The implied element filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TItem, bool>> impliedElementFilter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFilterDefinition<TItem>(impliedElementFilter));
         }
@@ -503,7 +504,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (can only be checked at runtime)
+        // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return new ElementMatchFilterDefinition<TDocument, TItem>(field, filter);
         }
@@ -516,7 +517,7 @@ namespace MongoDB.Driver
         /// <param name="filter">The filter.</param>
         /// <returns>An element match filter.</returns>
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (can only be checked at runtime)
+        // where TField : IEnumerable<TItem> (can only be checked at runtime)
         {
             return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), filter);
         }
@@ -531,6 +532,94 @@ namespace MongoDB.Driver
         public FilterDefinition<TDocument> ElemMatch<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, Expression<Func<TItem, bool>> filter)
         {
             return ElemMatch(new ExpressionFieldDefinition<TDocument>(field), new ExpressionFilterDefinition<TItem>(filter));
+        }
+
+        /// <summary>
+        /// Creates a substring filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrContains(FieldDefinition<TDocument, string> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.Contains, field, value);
+        }
+
+        /// <summary>
+        /// Creates a substring filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrContains(Expression<Func<TDocument, string>> field, string value)
+        {
+            return EncStrContains(new ExpressionFieldDefinition<TDocument, string>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a suffix filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrEndsWith(FieldDefinition<TDocument, string> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.EndsWith, field, value);
+        }
+
+        /// <summary>
+        /// Creates a suffix filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrEndsWith(Expression<Func<TDocument, string>> field, string value)
+        {
+            return EncStrEndsWith(new ExpressionFieldDefinition<TDocument, string>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a normalized equality filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrNormalizedEq(FieldDefinition<TDocument, string> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.NormalizedEq, field, value);
+        }
+
+        /// <summary>
+        /// Creates a normalized equality filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrNormalizedEq(Expression<Func<TDocument, string>> field, string value)
+        {
+            return EncStrNormalizedEq(new ExpressionFieldDefinition<TDocument, string>(field), value);
+        }
+
+        /// <summary>
+        /// Creates a prefix filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrStartsWith(FieldDefinition<TDocument, string> field, string value)
+        {
+            return new EncStrFilterDefinition<TDocument>(AstEncStrOperator.StartsWith, field, value);
+        }
+
+        /// <summary>
+        /// Creates a prefix filter against a QE-encrypted string field.
+        /// </summary>
+        /// <param name="field">The field.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A filter.</returns>
+        public FilterDefinition<TDocument> EncStrStartsWith(Expression<Func<TDocument, string>> field, string value)
+        {
+            return EncStrStartsWith(new ExpressionFieldDefinition<TDocument, string>(field), value);
         }
 
         /// <summary>
@@ -1877,7 +1966,7 @@ namespace MongoDB.Driver
         private readonly FilterDefinition<TItem> _filter;
 
         public ElementMatchFilterDefinition(FilterDefinition<TItem> filter)
-            // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
+        // where TDocument : IEnumerable<TItem> (can only be checked at runtime)
         {
             _filter = filter;
 
@@ -1885,7 +1974,7 @@ namespace MongoDB.Driver
         }
 
         public ElementMatchFilterDefinition(FieldDefinition<TDocument> field, FilterDefinition<TItem> filter)
-            // where TField : IEnumerable<TItem> (checked in Render)
+        // where TField : IEnumerable<TItem> (checked in Render)
         {
             _field = Ensure.IsNotNull(field, nameof(field));
             _filter = filter;
@@ -2158,7 +2247,7 @@ namespace MongoDB.Driver
                 }
 
                 var discriminatorField = new AstFilterField(discriminatorConvention.ElementName);
-                ofTypeFilter= discriminatorConvention switch
+                ofTypeFilter = discriminatorConvention switch
                 {
                     IHierarchicalDiscriminatorConvention hierarchicalDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, hierarchicalDiscriminatorConvention, nominalType, actualType),
                     IScalarDiscriminatorConvention scalarDiscriminatorConvention => DiscriminatorAstFilter.TypeIs(discriminatorField, scalarDiscriminatorConvention, nominalType, actualType),
@@ -2855,6 +2944,30 @@ namespace MongoDB.Driver
                     }
                 };
             }
+        }
+    }
+
+    internal sealed class EncStrFilterDefinition<TDocument> : FilterDefinition<TDocument>
+    {
+        private readonly AstEncStrOperator _operator;
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly string _value;
+
+        public EncStrFilterDefinition(AstEncStrOperator @operator, FieldDefinition<TDocument> field, string value)
+        {
+            _operator = @operator;
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = Ensure.IsNotNull(value, nameof(value));
+        }
+
+        public override BsonDocument Render(RenderArgs<TDocument> args)
+        {
+            var renderedField = _field.Render(args);
+            var encStrExpression = AstExpression.EncStrExpression(
+                _operator,
+                AstExpression.FieldPath("$" + renderedField.FieldName),
+                AstExpression.Constant(_value));
+            return new BsonDocument("$expr", encStrExpression.Render());
         }
     }
 }

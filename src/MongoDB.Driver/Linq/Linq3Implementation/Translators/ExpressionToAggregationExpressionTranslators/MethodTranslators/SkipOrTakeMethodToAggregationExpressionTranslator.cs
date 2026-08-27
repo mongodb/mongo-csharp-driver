@@ -45,6 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 {
                     _ when method.IsOneOf(EnumerableOrQueryableMethod.SkipOverloads) => AstExpression.Slice(sourceTranslation.Ast, countAst, int.MaxValue),
                     _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeOverloads) => AstExpression.Slice(sourceTranslation.Ast, countAst),
+                    _ when method.IsOneOf(EnumerableOrQueryableMethod.TakeLastOverloads) => AstExpression.Slice(sourceTranslation.Ast, AstExpression.Subtract(0, countAst)), // negative count takes from the end
                     _ => throw new ExpressionNotSupportedException(expression)
                 };
 

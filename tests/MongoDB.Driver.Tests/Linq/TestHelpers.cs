@@ -39,7 +39,7 @@ internal static class TestHelpers
         var rootModelParameter = expression.Parameters.Single();
         rootModelSerializer ??= BsonSerializer.LookupSerializer(rootModelParameter.Type);
 
-        var context = TranslationContext.Create(expression.Body, rootModelParameter, rootModelSerializer, null);
+        var context = TranslationContext.Create(BsonSerializer.DefaultSerializationDomain, expression.Body, rootModelParameter, rootModelSerializer, null);
         var symbol = context.CreateRootSymbol(rootModelParameter, rootModelSerializer);
         return context.WithSymbol(symbol);
     }

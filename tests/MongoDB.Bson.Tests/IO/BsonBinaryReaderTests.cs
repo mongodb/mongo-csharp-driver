@@ -30,7 +30,7 @@ namespace MongoDB.Bson.Tests.IO
         [Fact]
         public void Bookmarks_should_work()
         {
-            var document = new BsonDocument { { "x", 1 }, { "y", 2 }, { "z", new BsonDocument { { "a", "a"}, { "b", "b" } } } };
+            var document = new BsonDocument { { "x", 1 }, { "y", 2 }, { "z", new BsonDocument { { "a", "a" }, { "b", "b" } } } };
 
             using var memoryStream = new MemoryStream(document.ToBson());
             using var bsonReader = new BsonBinaryReader(memoryStream);

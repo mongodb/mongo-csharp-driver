@@ -22,8 +22,8 @@ namespace MongoDB.Driver.SmokeTests.Sdk
 {
     internal sealed class LogsTraceListener : TraceListener
     {
-        private readonly List<LogEntry> _logEntries = new();
-        private readonly object _syncRoot = new();
+        private readonly List<LogEntry> _logEntries = new List<LogEntry>();
+        private readonly object _syncRoot = new object();
 
         private string _currentCategory;
         private LogLevel _currentLogLevel;
@@ -46,18 +46,34 @@ namespace MongoDB.Driver.SmokeTests.Sdk
             var sourceLevel = Enum.Parse(typeof(SourceLevels), parts[1].Trim(':'));
 
             _currentCategory = parts[0];
-            _currentLogLevel = sourceLevel switch
+            switch (sourceLevel)
             {
-                SourceLevels.All or
-                SourceLevels.ActivityTracing => LogLevel.Trace,
-                SourceLevels.Verbose => LogLevel.Debug,
-                SourceLevels.Information => LogLevel.Information,
-                SourceLevels.Warning => LogLevel.Warning,
-                SourceLevels.Error => LogLevel.Error,
-                SourceLevels.Critical => LogLevel.Critical,
-                SourceLevels.Off => LogLevel.None,
-                _ => LogLevel.Trace
-            };
+                case SourceLevels.All:
+                case SourceLevels.ActivityTracing:
+                    _currentLogLevel = LogLevel.Trace;
+                    break;
+                case SourceLevels.Verbose:
+                    _currentLogLevel = LogLevel.Debug;
+                    break;
+                case SourceLevels.Information:
+                    _currentLogLevel = LogLevel.Information;
+                    break;
+                case SourceLevels.Warning:
+                    _currentLogLevel = LogLevel.Warning;
+                    break;
+                case SourceLevels.Error:
+                    _currentLogLevel = LogLevel.Error;
+                    break;
+                case SourceLevels.Critical:
+                    _currentLogLevel = LogLevel.Critical;
+                    break;
+                case SourceLevels.Off:
+                    _currentLogLevel = LogLevel.None;
+                    break;
+                default:
+                    _currentLogLevel = LogLevel.Trace;
+                    break;
+            }
         }
 
         public override void WriteLine(string message)

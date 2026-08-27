@@ -1,4 +1,4 @@
-/* Copyright 2013-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Runtime.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -40,16 +39,6 @@ namespace MongoDB.Driver
         /// <param name="innerException">The inner exception.</param>
         public MongoConfigurationException(string message, Exception innerException)
             : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConfigurationException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoConfigurationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

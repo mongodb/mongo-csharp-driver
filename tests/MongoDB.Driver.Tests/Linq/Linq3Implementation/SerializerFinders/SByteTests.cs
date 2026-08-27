@@ -16,6 +16,7 @@
 using System;
 using System.Linq.Expressions;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using Xunit;
@@ -30,7 +31,7 @@ public class SByteTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -42,7 +43,7 @@ public class SByteTests
         [TestHelpers.MakeLambda((MyModel model) => model.Value.CompareTo(model.Other)), typeof(Int32Serializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals((sbyte)1)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.Equals(model.Other)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => sbyte.Parse("42")), typeof(SByteSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => sbyte.Parse(model.StringValue)), typeof(SByteSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Value.ToString()), typeof(StringSerializer)],
     ];
 
@@ -50,5 +51,6 @@ public class SByteTests
     {
         public sbyte Value { get; set; }
         public sbyte Other { get; set; }
+        public string StringValue { get; set; }
     }
 }

@@ -23,8 +23,8 @@ using Xunit.Sdk;
 namespace MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing;
 
 [XunitTestCaseDiscoverer("MongoDB.TestHelpers.XunitExtensions.TimeoutEnforcing.UnobservedExceptionTestDiscoverer", "MongoDB.TestHelpers")]
-public class UnobservedExceptionTrackingFactAttribute: FactAttribute
-{}
+public class UnobservedExceptionTrackingFactAttribute : FactAttribute
+{ }
 
 public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
 {
@@ -54,7 +54,7 @@ public class UnobservedExceptionTestDiscoverer : IXunitTestCaseDiscoverer
         return [testCase];
     }
 
-    void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
+    private void UnobservedTaskExceptionEventHandler(object sender, UnobservedTaskExceptionEventArgs unobservedException) =>
         __unobservedExceptions.Add(unobservedException.Exception.ToString());
 }
 

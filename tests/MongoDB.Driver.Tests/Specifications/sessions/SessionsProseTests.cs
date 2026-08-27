@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)]bool async)
+        public async Task Ensure_server_session_are_allocated_only_on_connection_checkout([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer()
                .Capture<CommandStartedEvent>();
@@ -321,7 +321,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                 {
                     settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
                     settings.DirectConnection = true;
-                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(10);
+                    settings.HeartbeatInterval = TimeSpan.FromMilliseconds(500);
                     if (settings.Servers.Count() > 1)
                     {
                         settings.Servers = settings.Servers.Take(1);
@@ -344,7 +344,7 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
                     return capturedEvents
                         .SkipWhile(e => e is not ServerHeartbeatStartedEvent)
                         .Any(e => e is ServerHeartbeatSucceededEvent);
-                }, TimeSpan.FromSeconds(1), "Didn't get any server heartbeat pairs");
+                }, TimeSpan.FromSeconds(5), "Didn't get any server heartbeat pairs");
 
             c1.GetDatabase("admin").RunCommand<BsonDocument>(pingCommand);
 
@@ -386,7 +386,6 @@ namespace MongoDB.Driver.Tests.Specifications.sessions
             var mongoClient = DriverTestConfiguration.Client;
 
             using var session = mongoClient.StartSession(sessionOptions);
-
             var exception = Record.Exception(() => session.GetSnapshotTime());
             exception.Should().BeOfType<InvalidOperationException>();
             exception.Message.Should().Contain("non-snapshot session");

@@ -20,11 +20,11 @@ using System.Net;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers.Logging;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -176,9 +176,8 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
                             connectionString.SrvServiceName.Should().Be(expectedOption.Value.AsString);
                             break;
                         case "ssl":
-#pragma warning disable 618
-                            AssertBoolean(connectionString.Ssl, expectedOption.Value);
-#pragma warning restore 618
+                            // the ssl option is an alias for tls and is surfaced through Tls
+                            AssertBoolean(connectionString.Tls, expectedOption.Value);
                             break;
                         case "timeoutms": //Ignored for now as this is used by CSOT.
                             break;

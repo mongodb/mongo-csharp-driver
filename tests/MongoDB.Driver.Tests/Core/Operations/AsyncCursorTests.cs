@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
@@ -36,6 +35,7 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Close_should_dispose_cursor_only_once([Values(false, true)]bool async)
+        public void Close_should_dispose_cursor_only_once([Values(false, true)] bool async)
         {
             int testCursorId = 1;
             var mockChannelHandle = new Mock<IChannelHandle>();
@@ -181,6 +181,7 @@ namespace MongoDB.Driver.Core.Operations
         public void constructor_should_initialize_instance()
         {
             var channelSource = new Mock<IChannelSource>().Object;
+            var session = new Mock<ICoreSessionHandle>().Object;
             var databaseNamespace = new DatabaseNamespace("test");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "test");
             var firstBatch = new BsonDocument[] { new BsonDocument("y", 2) };
@@ -193,6 +194,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = new AsyncCursor<BsonDocument>(
                 channelSource,
+                session,
                 collectionNamespace,
                 comment: null,
                 firstBatch,
@@ -387,6 +389,79 @@ namespace MongoDB.Driver.Core.Operations
             VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), false);
         }
 
+        [Fact]
+        public void DisposeAsync_should_be_shielded_from_exceptions()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
+                .Throws<Exception>();
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+
+            subject.DisposeAsync().GetAwaiter().GetResult();
+        }
+
+        [Fact]
+        public void DisposeAsync_should_dispose_channel_source_when_cursor_id_is_zero()
+        {
+            var mockChannelSource = new Mock<IChannelSource>();
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
+
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            mockChannelSource.Verify(s => s.Dispose(), Times.Once);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_dispose_cursor_only_once()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async: true, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: 1, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+            subject.DisposeAsync().GetAwaiter().GetResult();
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_not_call_kill_cursors_for_zero_cursor_id()
+        {
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            mockChannelHandle
+                .Setup(c => c.ConnectionDescription)
+                .Returns(CreateConnectionDescriptionSupportingSession());
+
+            var mockChannelSource = new Mock<IChannelSource>();
+            mockChannelSource
+                .Setup(c => c.GetChannelAsync(It.IsAny<OperationContext>()))
+                .ReturnsAsync(mockChannelHandle.Object);
+
+            var subject = CreateSubject(cursorId: 0, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), async: true);
+        }
+
+        [Fact]
+        public void DisposeAsync_should_send_kill_cursors_through_the_async_command_path()
+        {
+            int testCursorId = 1;
+            var mockChannelHandle = new Mock<IChannelHandle>();
+            var mockChannelSource = new Mock<IChannelSource>();
+            SetupChannelMocks(mockChannelSource, mockChannelHandle, async: true, $"{{ 'ok' : true, 'cursorsNotFound' : [], 'cursorsKilled' : [{testCursorId}] }}");
+
+            var subject = CreateSubject(cursorId: testCursorId, channelSource: Optional.Create(mockChannelSource.Object));
+            subject.DisposeAsync().GetAwaiter().GetResult();
+
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Once(), async: true);
+            VerifyHowManyTimesKillCursorsCommandWasCalled(mockChannelHandle, Times.Never(), async: false);
+        }
+
         [Theory]
         [ParameterAttributeData]
         public void GetMore_should_use_same_session(
@@ -397,21 +472,19 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = new Mock<IChannelHandle>();
             var channel = mockChannel.Object;
             var mockSession = new Mock<ICoreSessionHandle>();
+            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
             var session = mockSession.Object;
             var databaseNamespace = new DatabaseNamespace("database");
             var collectionNamespace = new CollectionNamespace(databaseNamespace, "collection");
             var cursorId = 1;
-            var subject = CreateSubject(collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
+            var subject = CreateSubject(session: Optional.Create(session), collectionNamespace: collectionNamespace, cursorId: cursorId, channelSource: Optional.Create(channelSource));
             var connectionDescription = CreateConnectionDescriptionSupportingSession();
-
-            mockSession.Setup(m => m.Fork()).Returns(mockSession.Object);
             mockChannel.Setup(m => m.Fork()).Returns(mockChannel.Object);
             var mockServer = new Mock<IServer>();
             var serverId = new ServerId(new ClusterId(), new DnsEndPoint("localhost", 27017));
             mockServer.SetupGet(m => m.Description).Returns(new ServerDescription(serverId, serverId.EndPoint));
             mockChannelSource.SetupGet(m => m.Server).Returns(mockServer.Object);
 
-            mockChannelSource.SetupGet(m => m.Session).Returns(session);
             mockChannel.SetupGet(m => m.ConnectionDescription).Returns(connectionDescription);
             var nextBatchBytes = new byte[] { 5, 0, 0, 0, 0 };
             var nextBatchSlice = new ByteArrayBuffer(nextBatchBytes, isReadOnly: true);
@@ -432,13 +505,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannelAsync(It.IsAny<OperationContext>())).ReturnsAsync(channel);
                 mockChannel
                     .Setup(m => m.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        session,
+                        It.Is<OperationContext>(c => c.Session == session),
                         ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
-                        null,
-                        NoOpElementNameValidator.Instance,
                         null,
                         null,
                         CommandResponseHandling.Return,
@@ -454,13 +524,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelSource.Setup(m => m.GetChannel(It.IsAny<OperationContext>())).Returns(channel);
                 mockChannel
                     .Setup(m => m.Command(
-                        It.IsAny<OperationContext>(),
-                        session,
+                        It.Is<OperationContext>(c => c.Session == session),
                         ReadPreference.Primary,
                         databaseNamespace,
                         It.IsAny<BsonDocument>(),
-                        null,
-                        NoOpElementNameValidator.Instance,
                         null,
                         null,
                         CommandResponseHandling.Return,
@@ -493,6 +560,7 @@ namespace MongoDB.Driver.Core.Operations
 
         private AsyncCursor<BsonDocument> CreateSubject(
             Optional<IChannelSource> channelSource = default(Optional<IChannelSource>),
+            Optional<ICoreSessionHandle> session = default(Optional<ICoreSessionHandle>),
             Optional<CollectionNamespace> collectionNamespace = default(Optional<CollectionNamespace>),
             Optional<IBsonSerializer<BsonDocument>> serializer = default(Optional<IBsonSerializer<BsonDocument>>),
             Optional<IReadOnlyList<BsonDocument>> firstBatch = default(Optional<IReadOnlyList<BsonDocument>>),
@@ -503,8 +571,16 @@ namespace MongoDB.Driver.Core.Operations
             Optional<string> comment = default(Optional<string>),
             Optional<bool> retryRequested = default(Optional<bool>))
         {
+            if (!session.HasValue)
+            {
+                var sessionMock = new Mock<ICoreSessionHandle>();
+                sessionMock.Setup(s => s.Fork()).Returns(Mock.Of<ICoreSessionHandle>());
+                session = Optional.Create(sessionMock.Object);
+            }
+
             return new AsyncCursor<BsonDocument>(
                 channelSource.WithDefault(new Mock<IChannelSource>().Object),
+                session.Value,
                 collectionNamespace.WithDefault(new CollectionNamespace("test", "test")),
                 comment: comment.WithDefault(null),
                 firstBatch.WithDefault(new List<BsonDocument>()),
@@ -548,13 +624,10 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(
                         c => c.CommandAsync(
                             It.IsAny<OperationContext>(),
-                            It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
                             It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                            It.IsAny<IElementNameValidator>(),
-                            It.IsAny<BsonDocument>(),
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -575,13 +648,10 @@ namespace MongoDB.Driver.Core.Operations
                     .Setup(
                         c => c.Command(
                             It.IsAny<OperationContext>(),
-                            It.IsAny<ICoreSession>(),
                             It.IsAny<ReadPreference>(),
                             It.IsAny<DatabaseNamespace>(),
                             It.IsAny<BsonDocument>(),
                             It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                            It.IsAny<IElementNameValidator>(),
-                            It.IsAny<BsonDocument>(),
                             It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                             It.IsAny<CommandResponseHandling>(),
                             It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -601,13 +671,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle.Verify(
                     s => s.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
                         It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                        It.IsAny<IElementNameValidator>(),
-                        It.IsAny<BsonDocument>(),
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -619,13 +686,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannelHandle.Verify(
                     s => s.Command(
                         It.IsAny<OperationContext>(),
-                        It.IsAny<ICoreSession>(),
                         It.IsAny<ReadPreference>(),
                         It.IsAny<DatabaseNamespace>(),
                         It.IsAny<BsonDocument>(),
                         It.IsAny<IEnumerable<Type1CommandMessageSection>>(),
-                        It.IsAny<IElementNameValidator>(),
-                        It.IsAny<BsonDocument>(),
                         It.IsAny<Action<IMessageEncoderPostProcessor>>(),
                         It.IsAny<CommandResponseHandling>(),
                         It.IsAny<IBsonSerializer<BsonDocument>>(),
@@ -652,15 +716,17 @@ namespace MongoDB.Driver.Core.Operations
             Insert(documents);
 
             _session.ReferenceCount().Should().Be(1);
-            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary, _session.Fork()))
-            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(OperationContext.NoTimeout))
-            using (var channel = channelSource.GetChannel(OperationContext.NoTimeout))
+            using (var session = _session.Fork())
+            using (var operationContext = new OperationContext(session))
+            using (var binding = new ReadPreferenceBinding(CoreTestConfiguration.Cluster, ReadPreference.Primary))
+            using (var channelSource = (ChannelSourceHandle)binding.GetReadChannelSource(operationContext))
+            using (var channel = channelSource.GetChannel(operationContext))
             {
                 var query = new BsonDocument();
                 long cursorId;
-                var firstBatch = GetFirstBatch(channel, query, batchSize, CancellationToken.None, out cursorId);
+                var firstBatch = GetFirstBatch(operationContext, channel, query, batchSize, CancellationToken.None, out cursorId);
 
-                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
+                using (var cursor = new AsyncCursor<BsonDocument>(channelSource, session, _collectionNamespace, comment: null, firstBatch, cursorId, batchSize, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), maxTime: null, retryRequested: false, maxAdaptiveRetries: RetryabilityHelper.OperationRetryBackpressureConstants.DefaultMaxRetries, enableOverloadRetargeting: false))
                 {
                     AssertExpectedSessionReferenceCount(_session, cursor);
                     while (cursor.MoveNext(CancellationToken.None))
@@ -678,16 +744,11 @@ namespace MongoDB.Driver.Core.Operations
         {
             var cursorImplementation = (AsyncCursor<BsonDocument>)cursor;
             var cursorId = cursorImplementation._cursorId();
-            var expectedReferenceCount = cursorId == 0 ? 2 : 3; // one from the session, one from the binding, and maybe one from the cursor
+            var expectedReferenceCount = cursorId == 0 ? 1 : 2; // one from the session, and one from the cursor
             session.ReferenceCount().Should().Be(expectedReferenceCount);
         }
 
-        private IReadOnlyList<BsonDocument> GetFirstBatch(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
-        {
-            return GetFirstBatchUsingFindCommand(channel, query, batchSize, cancellationToken, out cursorId);
-        }
-
-        private IReadOnlyList<BsonDocument> GetFirstBatchUsingFindCommand(IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
+        private IReadOnlyList<BsonDocument> GetFirstBatch(OperationContext operationContext, IChannelHandle channel, BsonDocument query, int batchSize, CancellationToken cancellationToken, out long cursorId)
         {
             var command = new BsonDocument
             {
@@ -696,14 +757,11 @@ namespace MongoDB.Driver.Core.Operations
                 { "batchSize", batchSize }
             };
             var result = channel.Command<BsonDocument>(
-                new OperationContext(null, cancellationToken),
-                _session,
+                operationContext,
                 ReadPreference.Primary,
                 _databaseNamespace,
                 command,
                 null, // payloads
-                NoOpElementNameValidator.Instance,
-                null, // additionalOptions
                 null, // postWriteAction
                 CommandResponseHandling.Return,
                 BsonDocumentSerializer.Instance,

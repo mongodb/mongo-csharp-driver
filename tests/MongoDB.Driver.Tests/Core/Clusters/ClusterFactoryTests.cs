@@ -17,6 +17,7 @@ using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
@@ -101,7 +102,7 @@ namespace MongoDB.Driver.Core.Clusters
             var serverFactoryMock = Mock.Of<IClusterableServerFactory>();
 
             var clusterSettings = new ClusterSettings(endPoints: Optional.Enumerable(parsedConnectionString.Hosts));
-            var clusterFactory = new ClusterFactory(clusterSettings, serverFactoryMock, eventSubscriberMock, loggerFactory);
+            var clusterFactory = new ClusterFactory(clusterSettings, serverFactoryMock, eventSubscriberMock, loggerFactory, new ClientMetadata(null, null));
 
             return clusterFactory;
         }

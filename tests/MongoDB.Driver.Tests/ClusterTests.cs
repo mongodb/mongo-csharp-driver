@@ -1,4 +1,4 @@
-﻿/* Copyright 2021-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ namespace MongoDB.Driver.Tests
             "getnonce"
         };
 
-        private const string _collectionName = "test";
-        private const string _databaseName = "test";
+        private const string CollectionName = "test";
+        private const string DatabaseName = "test";
 
         public ClusterTests(ITestOutputHelper output) : base(output)
         {
@@ -88,18 +88,19 @@ namespace MongoDB.Driver.Tests
             {
                 using var failPoint = FailPoint.Configure(WritableServerSelector.Instance, failCommand, async, client.GetClusterInternal());
                 var slowServer = failPoint.Server;
-                var fastServer = client.GetClusterInternal().SelectServer(OperationContext.NoTimeout, new DelegateServerSelector((_, servers) => servers.Where(s => s.ServerId != slowServer.ServerId)));
+                var fastServer = client.GetClusterInternal().Servers.First(s => s.ServerId != slowServer.ServerId);
 
-                var database = client.GetDatabase(_databaseName);
+                var database = client.GetDatabase(DatabaseName);
                 CreateCollection();
-                var collection = database.GetCollection<BsonDocument>(_collectionName);
+                var collection = database.GetCollection<BsonDocument>(CollectionName);
 
                 // warm up connections
                 var channels = new ConcurrentBag<IChannelHandle>();
                 ThreadingUtilities.ExecuteOnNewThreads(threadsCount, i =>
                 {
-                    channels.Add(slowServer.GetChannel(OperationContext.NoTimeout));
-                    channels.Add(fastServer.GetChannel(OperationContext.NoTimeout));
+                    using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+                    channels.Add(slowServer.GetChannel(operationContext));
+                    channels.Add(fastServer.GetChannel(operationContext));
                 });
 
                 foreach (var channel in channels)
@@ -158,9 +159,9 @@ namespace MongoDB.Driver.Tests
         private void CreateCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
+            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
 
-            var collection = database.GetCollection<BsonDocument>(_collectionName);
+            var collection = database.GetCollection<BsonDocument>(CollectionName);
             collection.InsertOne(new BsonDocument());
         }
 
@@ -185,8 +186,8 @@ namespace MongoDB.Driver.Tests
         private void DropCollection()
         {
             var client = DriverTestConfiguration.Client;
-            var database = client.GetDatabase(_databaseName).WithWriteConcern(WriteConcern.WMajority);
-            database.DropCollection(_collectionName);
+            var database = client.GetDatabase(DatabaseName).WithWriteConcern(WriteConcern.WMajority);
+            database.DropCollection(CollectionName);
         }
     }
 }

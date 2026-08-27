@@ -978,10 +978,10 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:github/mongodb/libmongocrypt@1.18.2",
+      "bom-ref": "pkg:github/mongodb/libmongocrypt@1.20.0",
       "name": "libmongocrypt",
-      "version": "1.18.2",
-      "purl": "pkg:github/mongodb/libmongocrypt@1.18.2"
+      "version": "1.20.0",
+      "purl": "pkg:github/mongodb/libmongocrypt@1.20.0"
     }
   ],
   "dependencies": [
@@ -1159,7 +1159,7 @@
     {
       "ref": "pkg:nuget/MongoDB.Driver.Encryption@0.0.0",
       "dependsOn": [
-        "pkg:github/mongodb/libmongocrypt@1.18.2"
+        "pkg:github/mongodb/libmongocrypt@1.20.0"
       ]
     }
   ]

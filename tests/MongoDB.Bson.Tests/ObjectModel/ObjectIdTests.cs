@@ -139,9 +139,9 @@ public class ObjectIdTests
 
     public static IEnumerable<object[]> ToByteSpan_TestCases()
     {
-        yield return [new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } ];
-        yield return [new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 } ];
-        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 } ];
+        yield return [new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }];
+        yield return [new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }, new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }];
+        yield return [new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255 }];
     }
 
     [Theory]
@@ -427,7 +427,22 @@ public class ObjectIdTests
         Assert.False(ObjectId.TryParse("102030405060708090a0b0c", out objectId1)); // too short
         Assert.False(ObjectId.TryParse("x102030405060708090a0b0c", out objectId1)); // invalid character
         Assert.False(ObjectId.TryParse("00102030405060708090a0b0c", out objectId1)); // too long
-        Assert.False(ObjectId.TryParse(null, out objectId1)); // should return false not throw ArgumentNullException
+        Assert.False(ObjectId.TryParse(default(string), out objectId1)); // should return false not throw ArgumentNullException
+    }
+
+    [Fact]
+    public void TestTryParseSpan()
+    {
+        ObjectId objectId1, objectId2;
+        Assert.True(ObjectId.TryParse("0102030405060708090a0b0c".AsSpan(), out objectId1)); // lower case
+        Assert.True(ObjectId.TryParse("0102030405060708090A0B0C".AsSpan(), out objectId2)); // upper case
+        Assert.True(objectId1.ToByteArray().SequenceEqual(objectId2.ToByteArray()));
+        Assert.True(objectId1.ToString() == "0102030405060708090a0b0c"); // ToString returns lower case
+        Assert.True(objectId1.ToString() == objectId2.ToString());
+        Assert.False(ObjectId.TryParse("102030405060708090a0b0c".AsSpan(), out objectId1)); // too short
+        Assert.False(ObjectId.TryParse("x102030405060708090a0b0c".AsSpan(), out objectId1)); // invalid character
+        Assert.False(ObjectId.TryParse("00102030405060708090a0b0c".AsSpan(), out objectId1)); // too long
+        Assert.False(ObjectId.TryParse(ReadOnlySpan<char>.Empty, out objectId1)); // should return false not throw ArgumentNullException
     }
 
     [Fact]

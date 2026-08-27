@@ -39,8 +39,8 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         }
 
         // private fields
-        private readonly IBsonSerializer<GeoJsonBoundingBox<TCoordinates>> _boundingBoxSerializer = BsonSerializer.LookupSerializer<GeoJsonBoundingBox<TCoordinates>>();
-        private readonly IBsonSerializer<GeoJsonCoordinateReferenceSystem> _coordinateReferenceSystemSerializer = BsonSerializer.LookupSerializer<GeoJsonCoordinateReferenceSystem>();
+        private readonly IBsonSerializer<GeoJsonBoundingBox<TCoordinates>> _boundingBoxSerializer;
+        private readonly IBsonSerializer<GeoJsonCoordinateReferenceSystem> _coordinateReferenceSystemSerializer;
         private readonly string _type;
 
         // constructors
@@ -50,8 +50,16 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         /// <param name="type">The type.</param>
         /// <param name="derivedMembers">The derived members.</param>
         public GeoJsonObjectSerializerHelper(string type, params SerializerHelper.Member[] derivedMembers)
+            : this(BsonSerializer.DefaultSerializationDomain, type, derivedMembers)
+        {
+        }
+
+        internal GeoJsonObjectSerializerHelper(IBsonSerializationDomain serializationDomain, string type, params SerializerHelper.Member[] derivedMembers)
             : base(CreateCombinedMembers(derivedMembers))
         {
+            var serializerRegistry = serializationDomain.SerializerRegistry;
+            _boundingBoxSerializer = serializerRegistry.GetSerializer<GeoJsonBoundingBox<TCoordinates>>();
+            _coordinateReferenceSystemSerializer = serializerRegistry.GetSerializer<GeoJsonCoordinateReferenceSystem>();
             _type = type;
         }
 

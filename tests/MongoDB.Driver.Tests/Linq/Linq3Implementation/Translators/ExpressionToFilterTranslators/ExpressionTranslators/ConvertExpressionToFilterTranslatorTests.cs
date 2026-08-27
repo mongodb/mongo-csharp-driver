@@ -113,17 +113,17 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             CreateCollection(
                 collection,
                 new Data { Id = 1, Enum = Enum.One, NullableEnum = Enum.One, EnumAsInt = 1, EnumAsNullableInt = 1 },
-                new Data { Id = 2, Enum = Enum.Two, NullableEnum = Enum.Two, EnumAsInt = 2, EnumAsNullableInt = 2, AdditionalValue = "value"});
+                new Data { Id = 2, Enum = Enum.Two, NullableEnum = Enum.Two, EnumAsInt = 2, EnumAsNullableInt = 2, AdditionalValue = "value" });
             return collection;
         }
 
         private interface IData
         {
-            public int Id { get; set; }
-            public Enum Enum { get; set; }
-            public Enum? NullableEnum { get; set; }
-            public int EnumAsInt { get; set; }
-            public int? EnumAsNullableInt { get; set; }
+            int Id { get; set; }
+            Enum Enum { get; set; }
+            Enum? NullableEnum { get; set; }
+            int EnumAsInt { get; set; }
+            int? EnumAsNullableInt { get; set; }
         }
 
         private class Data : IData

@@ -127,9 +127,9 @@ namespace MongoDB.Driver.Core.Operations
             set { _skip = value; }
         }
 
-        public BsonDocument CreateCommand(OperationContext operationContext, ICoreSession session, ConnectionDescription connectionDescription)
+        public BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription)
         {
-            var readConcern = ReadConcernHelper.GetReadConcernForCommand(session, connectionDescription, _readConcern);
+            var readConcern = ReadConcernHelper.GetReadConcernForCommand(operationContext.Session, connectionDescription, _readConcern);
             return new BsonDocument
             {
                 { "count", _collectionNamespace.CollectionName },

@@ -333,6 +333,23 @@ namespace MongoDB.Driver.Tests.Search
         }
 
         [Fact]
+        public void Compound_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Compound()
+                        .Must(
+                            Builders<Movie>.Search.Text(m => m.Title, "life"),
+                            Builders<Movie>.Search.Text(m => m.Title, "liberty"))
+                        .DoesNotAffect("year"),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
+        }
+
+        [Fact]
         public void Count_total()
         {
             var results = GetTestCollection().Aggregate()
@@ -408,7 +425,7 @@ namespace MongoDB.Driver.Tests.Search
             var testGuid = Guid.Parse("b52af144-bc97-454f-a578-418a64fa95bf");
 
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid,  testGuid))
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestGuid, testGuid))
                 .Single();
 
             result.Name.Should().Be("test6");
@@ -418,7 +435,7 @@ namespace MongoDB.Driver.Tests.Search
         public void EqualsNull()
         {
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.Equals(c => c.TestString,  null))
+                .Search(Builders<TestClass>.Search.Equals(c => c.TestString, null))
                 .Single();
 
             result.Name.Should().Be("testNull");
@@ -450,6 +467,19 @@ namespace MongoDB.Driver.Tests.Search
                 .ToList();
 
             results.Should().ContainSingle().Which.Title.Should().Be("A Corner in Wheat");
+        }
+
+        [Fact]
+        public void Equals_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Equals(x => x.Runtime, 232, new EqualsSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
         }
 
         [Fact]
@@ -549,13 +579,26 @@ namespace MongoDB.Driver.Tests.Search
                 .Aggregate()
                 .Search(
                     Builders<Movie>.Search.In(x => x.Runtime, new[] { 31, 231 }),
-                    new() { Sort = Builders<Movie>.Sort.Descending(x => x.Runtime)})
+                    new() { Sort = Builders<Movie>.Sort.Descending(x => x.Runtime) })
                 .Limit(10)
                 .ToList();
 
             results.Count.Should().Be(2);
             results[0].Runtime.Should().Be(231);
             results[1].Runtime.Should().Be(31);
+        }
+
+        [Fact]
+        public void In_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.In(x => x.Runtime, [231], new InSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
         }
 
         [Fact]
@@ -567,7 +610,7 @@ namespace MongoDB.Driver.Tests.Search
             };
 
             var result = GetExtraTestsCollection().Aggregate()
-                .Search(Builders<TestClass>.Search.In(c => c.TestGuid,  testGuids))
+                .Search(Builders<TestClass>.Search.In(c => c.TestGuid, testGuids))
                 .Limit(10)
                 .ToList();
 
@@ -741,6 +784,19 @@ namespace MongoDB.Driver.Tests.Search
                     GeoBuilders.Search.Range(x => x.Beds, SearchRangeV2Builder.Gte(14).Lte(14))));
 
             results.Should().ContainSingle().Which.Name.Should().Be("House close to station & direct to opera house....");
+        }
+
+        [Fact]
+        public void Range_with_doesNotAffect()
+        {
+            var results = GetMoviesCollection<Movie>()
+                .Aggregate()
+                .SearchMeta(Builders<Movie>.Search.Facet(
+                    Builders<Movie>.Search.Range(x => x.Runtime, new SearchRange<int>(230, 233, false, false), new RangeSearchOperatorOptions<Movie> { DoesNotAffect = ["year"] }),
+                    Builders<Movie>.SearchFacet.Number("year", x => x.Year, 1900, 1950, 2000, 2100)))
+                .Single();
+
+            results.Facet["year"].Buckets.Should().NotContain(x => x.Count <= 1);
         }
 
         [Fact]
@@ -933,7 +989,7 @@ namespace MongoDB.Driver.Tests.Search
                 .ToList();
 
             baseSearchResults.Count.Should().Be(limitVal);
-            baseSearchResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            baseSearchResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             baseSearchResults[0].Title.Should().Be(titles[0]);
             baseSearchResults[1].Title.Should().Be(titles[1]);
             baseSearchResults[2].Title.Should().Be(titles[2]);
@@ -951,7 +1007,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // Only two flower-titled docs remain after the 2nd base result.
             searchAfterResults.Count.Should().Be(2);
-            searchAfterResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            searchAfterResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             searchAfterResults[0].Title.Should().Be(titles[2]);
             searchAfterResults[1].Title.Should().Be(titles[3]);
 
@@ -968,7 +1024,7 @@ namespace MongoDB.Driver.Tests.Search
 
             // We only get the first 3 elements of the base search
             searchBeforeResults.Count.Should().Be(3);
-            searchBeforeResults.ForEach( m => m.PaginationToken.Should().NotBeNullOrEmpty());
+            searchBeforeResults.ForEach(m => m.PaginationToken.Should().NotBeNullOrEmpty());
             // With searchBefore the results are reversed
             searchBeforeResults[0].Title.Should().Be(titles[2]);
             searchBeforeResults[1].Title.Should().Be(titles[1]);
@@ -1165,7 +1221,7 @@ namespace MongoDB.Driver.Tests.Search
             var result =
                 GetMoviesCollection<Movie>().Aggregate()
                     .Search(
-                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any}),
+                        Builders<Movie>.Search.Text("plot", "attire", new SearchTextOptions<Movie> { Synonyms = "attireSynonyms", MatchCriteria = MatchCriteria.Any }),
                         indexName: "synonyms-tests")
                     .Project<Movie>(Builders<Movie>.Projection.Include("Title").Exclude("_id"))
                     .Limit(5)
@@ -1465,6 +1521,9 @@ namespace MongoDB.Driver.Tests.Search
 
             [BsonElement("title")]
             public string Title { get; set; }
+
+            [BsonElement("year")]
+            public int Year { get; set; }
 
             [BsonElement("runtime")]
             public int Runtime { get; set; }

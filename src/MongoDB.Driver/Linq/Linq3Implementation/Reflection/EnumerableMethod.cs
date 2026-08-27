@@ -182,6 +182,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumSingle;
         private static readonly MethodInfo __sumSingleWithSelector;
         private static readonly MethodInfo __take;
+        private static readonly MethodInfo __takeLast = null; // null when target framework does not have this method
         private static readonly MethodInfo __takeWhile;
         private static readonly MethodInfo __takeWhileWithPredicateTakingIndex;
         private static readonly MethodInfo __thenBy;
@@ -364,6 +365,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumSingle = ReflectionInfo.Method((IEnumerable<float> source) => source.Sum());
             __sumSingleWithSelector = ReflectionInfo.Method((IEnumerable<object> source, Func<object, float> selector) => source.Sum(selector));
             __take = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.Take(count));
+#if NET6_0_OR_GREATER
+            __takeLast = ReflectionInfo.Method((IEnumerable<object> source, int count) => source.TakeLast(count));
+#endif
             __takeWhile = ReflectionInfo.Method((IEnumerable<object> source, Func<object, bool> predicate) => source.TakeWhile(predicate));
             __takeWhileWithPredicateTakingIndex = ReflectionInfo.Method((IEnumerable<object> source, Func<object, int, bool> predicate) => source.TakeWhile(predicate));
             __thenBy = ReflectionInfo.Method((IOrderedEnumerable<object> source, Func<object, object> keySelector) => source.ThenBy(keySelector));
@@ -479,7 +483,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageSingleWithSelector => __averageSingleWithSelector;
         public static MethodInfo Bottom => __bottom;
         public static MethodInfo BottomN => __bottomN;
-        public static MethodInfo BottomNWithComputedN  => __bottomNWithComputedN;
+        public static MethodInfo BottomNWithComputedN => __bottomNWithComputedN;
         public static MethodInfo Cast => __cast;
         public static MethodInfo Concat => __concat;
         public static MethodInfo Contains => __contains;
@@ -605,6 +609,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumSingle => __sumSingle;
         public static MethodInfo SumSingleWithSelector => __sumSingleWithSelector;
         public static MethodInfo Take => __take;
+        public static MethodInfo TakeLast => __takeLast;
         public static MethodInfo TakeWhile => __takeWhile;
         public static MethodInfo TakeWhileWithPredicateTakingIndex => __takeWhileWithPredicateTakingIndex;
         public static MethodInfo ThenBy => __thenBy;
@@ -628,38 +633,31 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet ReverseOverloads => __reverseOverloads;
 
         // public methods
-        public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+        public static bool IsContainsMethod(MethodInfo method)
         {
-            var method = methodCallExpression.Method;
             var parameters = method.GetParameters();
-            var arguments = methodCallExpression.Arguments;
-
             if (method.Name == "Contains" && method.ReturnType == typeof(bool))
             {
                 if (method.IsStatic)
                 {
-                    if (parameters.Length == 2)
-                    {
-                        if (parameters[0].ParameterType.ImplementsIEnumerableOf(parameters[1].ParameterType))
-                        {
-                            sourceExpression = arguments[0];
-                            valueExpression = arguments[1];
-                            return true;
-                        }
-                    }
+                    return parameters.Length == 2 && parameters[0].ParameterType.ImplementsIEnumerableOf(parameters[1].ParameterType);
                 }
-                else
-                {
-                    if (parameters.Length == 1)
-                    {
-                        if (method.DeclaringType.ImplementsIEnumerableOf(parameters[0].ParameterType))
-                        {
-                            sourceExpression = methodCallExpression.Object;
-                            valueExpression = arguments[0];
-                            return true;
-                        }
-                    }
-                }
+
+                return parameters.Length == 1 && method.DeclaringType.ImplementsIEnumerableOf(parameters[0].ParameterType);
+            }
+
+            return false;
+        }
+
+        public static bool IsContainsMethod(MethodCallExpression methodCallExpression, out Expression sourceExpression, out Expression valueExpression)
+        {
+            var method = methodCallExpression.Method;
+            if (IsContainsMethod(method))
+            {
+                var arguments = methodCallExpression.Arguments;
+                sourceExpression = method.IsStatic ? arguments[0] : methodCallExpression.Object;
+                valueExpression = method.IsStatic ? arguments[1] : arguments[0];
+                return true;
             }
 
             sourceExpression = null;

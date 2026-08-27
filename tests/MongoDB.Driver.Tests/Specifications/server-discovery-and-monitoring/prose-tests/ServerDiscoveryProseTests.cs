@@ -104,9 +104,12 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
         // https://github.com/mongodb/specifications/blob/a8d34be0df234365600a9269af5a463f581562fd/source/server-discovery-and-monitoring/server-discovery-and-monitoring-tests.md?plain=1#L176
         [Theory]
         [ParameterAttributeData]
-        public async Task Connection_Pool_Backpressure([Values(true, false)]bool async)
+        public async Task Connection_Pool_Backpressure([Values(true, false)] bool async)
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.23");
+#if MACOS
+            RequireServer.Check().VersionLessThan("8.99.99"); // Skip the test on MacOS, more details in CSHARP-6102
+#endif
 
             var setupClient = DriverTestConfiguration.Client;
             var adminDatabase = setupClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);

@@ -29,58 +29,60 @@ namespace MongoDB.Driver.SmokeTests.Sdk
         [Fact]
         public void MongoClient_should_create_activities_when_tracing_enabled()
         {
-            using var activityListener = CreateActivityListener(out var capturedActivities);
-
-            var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
-            var mongoClient = new MongoClient(settings);
-
-            try
+            using (var activityListener = CreateActivityListener(out var capturedActivities))
             {
-                var database = mongoClient.GetDatabase("test");
-                var collection = database.GetCollection<BsonDocument>("smoketest");
+                var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
+                var mongoClient = new MongoClient(settings);
 
-                collection.InsertOne(new BsonDocument("name", "test"));
-                collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
-                collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
+                try
+                {
+                    var database = mongoClient.GetDatabase("test");
+                    var collection = database.GetCollection<BsonDocument>("smoketest");
+
+                    collection.InsertOne(new BsonDocument("name", "test"));
+                    collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
+                    collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
+                }
+                finally
+                {
+                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
+                }
+
+                capturedActivities.Should().HaveCount(7);
+
+                var operationActivities = capturedActivities.Where(a => a.GetTagItem("db.operation.name") != null).ToList();
+                var commandActivities = capturedActivities.Where(a => a.GetTagItem("db.command.name") != null).ToList();
+
+                operationActivities.Should().HaveCount(3);
+                commandActivities.Should().HaveCount(4);
             }
-            finally
-            {
-                ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
-            }
-
-            capturedActivities.Should().HaveCount(7);
-
-            var operationActivities = capturedActivities.Where(a => a.GetTagItem("db.operation.name") != null).ToList();
-            var commandActivities = capturedActivities.Where(a => a.GetTagItem("db.command.name") != null).ToList();
-
-            operationActivities.Should().HaveCount(3);
-            commandActivities.Should().HaveCount(4);
         }
 
         [Fact]
         public void MongoClient_should_not_create_activities_when_tracing_disabled()
         {
-            using var activityListener = CreateActivityListener(out var capturedActivities);
-
-            var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
-            settings.TracingOptions = new TracingOptions { Disabled = true };
-            var mongoClient = new MongoClient(settings);
-
-            try
+            using (CreateActivityListener(out var capturedActivities))
             {
-                var database = mongoClient.GetDatabase("test");
-                var collection = database.GetCollection<BsonDocument>("smoketest");
+                var settings = MongoClientSettings.FromConnectionString(InfrastructureUtilities.MongoUri);
+                settings.TracingOptions = new TracingOptions { Disabled = true };
+                var mongoClient = new MongoClient(settings);
 
-                collection.InsertOne(new BsonDocument("name", "test"));
-                collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
-                collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
-            }
-            finally
-            {
-                ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
-            }
+                try
+                {
+                    var database = mongoClient.GetDatabase("test");
+                    var collection = database.GetCollection<BsonDocument>("smoketest");
 
-            capturedActivities.Should().BeEmpty();
+                    collection.InsertOne(new BsonDocument("name", "test"));
+                    collection.Find(Builders<BsonDocument>.Filter.Empty).FirstOrDefault();
+                    collection.DeleteOne(Builders<BsonDocument>.Filter.Eq("name", "test"));
+                }
+                finally
+                {
+                    ClusterRegistry.Instance.UnregisterAndDisposeCluster(mongoClient.Cluster);
+                }
+
+                capturedActivities.Should().BeEmpty();
+            }
         }
 
         private static ActivityListener CreateActivityListener(out IReadOnlyCollection<Activity> capturedActivities)

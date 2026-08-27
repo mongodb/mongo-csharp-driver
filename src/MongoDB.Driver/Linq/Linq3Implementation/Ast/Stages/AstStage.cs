@@ -33,7 +33,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
             BsonValue @default = null,
             IEnumerable<AstAccumulatorField> output = null)
         {
-            return new AstBucketStage(groupBy, boundaries,  @default, output);
+            return new AstBucketStage(groupBy, boundaries, @default, output);
         }
 
         public static AstStage BucketAuto(

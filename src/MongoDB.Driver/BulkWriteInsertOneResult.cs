@@ -26,19 +26,6 @@ namespace MongoDB.Driver
         /// <summary>
         /// The id of the inserted document.
         /// </summary>
-        [Obsolete("InsertedId is deprecated and will be removed in future versions. Use DocumentId instead.")]
-        public BsonValue InsertedId
-        {
-            get => BsonValue.Create(DocumentId);
-            init
-            {
-                DocumentId = value;
-            }
-        }
-
-        /// <summary>
-        /// The id of the inserted document.
-        /// </summary>
         public object DocumentId { get; init; }
     }
 }

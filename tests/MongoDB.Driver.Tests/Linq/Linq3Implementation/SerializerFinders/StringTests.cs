@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using FluentAssertions;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
@@ -34,7 +35,7 @@ public class StringTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -59,7 +60,7 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => string.Concat(model.A, model.B, model.C, model.D)), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => string.Concat(new string[] { model.A, model.B })), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Contains("test")), typeof(BooleanSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Contains('x')), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Contains('x', StringComparison.Ordinal)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Contains("test", StringComparison.Ordinal)), typeof(BooleanSerializer)],
@@ -67,7 +68,7 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => model.Name.EndsWith("suffix")), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.EndsWith("suffix", StringComparison.Ordinal)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.EndsWith("suffix", true, CultureInfo.InvariantCulture)), typeof(BooleanSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => model.Name.EndsWith('x')), typeof(BooleanSerializer)],
 #endif
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Equals("other")), typeof(BooleanSerializer)],
@@ -108,7 +109,7 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix")), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix", StringComparison.Ordinal)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith("prefix", true, CultureInfo.InvariantCulture)), typeof(BooleanSerializer)],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StartsWith('x')), typeof(BooleanSerializer)],
 #endif
         [TestHelpers.MakeLambda((MyModel model) => model.Name.StringIn("a", "b")), typeof(BooleanSerializer)],
@@ -137,7 +138,7 @@ public class StringTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out var serializer).Should().BeTrue();
         serializer.Should().BeOfType(typeof(UnknowableSerializer<>).MakeGenericType(expression.Body.Type));
@@ -151,7 +152,7 @@ public class StringTests
         [TestHelpers.MakeLambda((MyModel model) => new Regex("pattern").Replace(model.Name, m => m.Value))],
         [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value))],
         [TestHelpers.MakeLambda((MyModel model) => Regex.Replace(model.Name, "pattern", m => m.Value, RegexOptions.IgnoreCase))],
-#if NETSTANDARD2_1_OR_GREATER || NET6_0_OR_GREATER
+#if NET6_0_OR_GREATER
         // StringComparison and CultureInfo overloads are not in ReplaceOverloads
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", StringComparison.Ordinal))],
         [TestHelpers.MakeLambda((MyModel model) => model.Name.Replace("old", "new", false, CultureInfo.InvariantCulture))],

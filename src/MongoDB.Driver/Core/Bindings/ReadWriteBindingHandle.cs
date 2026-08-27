@@ -41,11 +41,6 @@ namespace MongoDB.Driver.Core.Bindings
             get { return _reference.Instance.ReadPreference; }
         }
 
-        public ICoreSessionHandle Session
-        {
-            get { return _reference.Instance.Session; }
-        }
-
         public IChannelSourceHandle GetReadChannelSource(OperationContext operationContext)
         {
             ThrowIfDisposed();

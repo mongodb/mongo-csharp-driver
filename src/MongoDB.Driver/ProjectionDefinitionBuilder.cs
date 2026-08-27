@@ -977,7 +977,8 @@ namespace MongoDB.Driver
                     if (projection is CombinedProjectionDefinition<TSource> combinedProjection)
                     {
                         current.AddRange(combinedProjection._projections);
-                    } else
+                    }
+                    else
                         current.Add(projection);
                     return current;
                 })

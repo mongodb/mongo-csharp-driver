@@ -34,7 +34,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
             var method = expression.Method;
             var arguments = expression.Arguments;
 
-            if (method.Is(QueryableMethod.Join))
+            var isLeftJoin = method.IsOneOf(MongoQueryableMethod.LeftJoin, QueryableMethod.LeftJoin);
+            if (isLeftJoin || method.Is(QueryableMethod.Join))
             {
                 var outerExpression = arguments[0];
                 var innerExpression = arguments[1];
@@ -63,17 +64,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     AstProject.Exclude("_id"));
                 var wrappedOuterSerializer = WrappedValueSerializer.Create("_outer", outerSerializer);
 
+                // Only a bare collection is supported as the inner sequence. A non-collection inner sequence
+                // (e.g. one with OrderBy/Take/Skip) would be translated into a correlated $lookup pipeline that
+                // applies per outer document rather than once globally, producing wrong results. Reject it here;
+                // proper support for such subqueries is tracked in CSHARP-6118.
                 var (innerCollectionName, innerSerializer) = innerExpression.GetCollectionInfoFromQueryable(containerExpression: expression);
+
                 var localField = outerKeySelectorLambda.TranslateToDottedFieldName(context, wrappedOuterSerializer);
                 var foreignField = innerKeySelectorLambda.TranslateToDottedFieldName(context, innerSerializer);
 
-                var lookupStage = AstStage.Lookup(
-                    from: innerCollectionName,
-                    localField,
-                    foreignField,
-                    @as: "_inner");
+                var lookupStage = AstStage.Lookup(from: innerCollectionName, localField, foreignField, @as: "_inner");
 
-                var unwindStage = AstStage.Unwind("_inner");
+                var unwindStage = AstStage.Unwind("_inner", preserveNullAndEmptyArrays: isLeftJoin ? true : null);
 
                 var outerParameter = resultSelectorLambda.Parameters[0];
                 var outerField = AstExpression.GetField(AstExpression.RootVar, "_outer");

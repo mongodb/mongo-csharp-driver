@@ -20,7 +20,6 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages
     internal abstract class MongoDBMessage : IEncodableMessage
     {
         public virtual bool MayBeCompressed => false;
-        public abstract MongoDBMessageType MessageType { get; }
 
         public abstract IMessageEncoder GetEncoder(IMessageEncoderFactory encoderFactory);
     }

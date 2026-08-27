@@ -24,6 +24,7 @@ using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Logging;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
@@ -130,6 +131,18 @@ namespace MongoDB.Driver
         }
 
         // public methods
+        /// <summary>
+        /// Appends the specified library information to the metadata sent to the server in the connection handshake.
+        /// Only connections opened after this call are affected.
+        /// </summary>
+        /// <param name="libraryInfo">The library information to append.</param>
+        public void AppendMetadata(LibraryInfo libraryInfo)
+        {
+            ThrowIfDisposed();
+            Ensure.IsNotNull(libraryInfo, nameof(libraryInfo));
+            _cluster.AppendClientMetadata(libraryInfo);
+        }
+
         /// <inheritdoc/>
         public ClientBulkWriteResult BulkWrite(IReadOnlyList<BulkWriteModel> models, ClientBulkWriteOptions options = null, CancellationToken cancellationToken = default)
         {
@@ -538,7 +551,7 @@ namespace MongoDB.Driver
                 AuthorizedDatabases = options.AuthorizedDatabases,
                 Comment = options.Comment,
                 EnableOverloadRetargeting = _settings.EnableOverloadRetargeting,
-                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry, translationOptions: translationOptions)),
+                Filter = options.Filter?.Render(new(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions)),
                 MaxAdaptiveRetries = _settings.MaxAdaptiveRetries,
                 NameOnly = options.NameOnly,
                 RetryRequested = _settings.RetryReads
@@ -570,7 +583,8 @@ namespace MongoDB.Driver
                 _settings.RetryReads,
                 _settings.MaxAdaptiveRetries,
                 _settings.EnableOverloadRetargeting,
-                _settings.TranslationOptions);
+                _settings.TranslationOptions,
+                _settings.SerializationDomain);
 
         private OperationContext CreateOperationContext(IClientSessionHandle session, TimeSpan? timeout, string operationName, CancellationToken cancellationToken)
         {
@@ -590,35 +604,39 @@ namespace MongoDB.Driver
                     : operationContext.Fork();
             }
 
-            return isTracingEnabled
-                ? new OperationContext(timeout ?? _settings.Timeout, operationName, "admin", null, isTracingEnabled, cancellationToken)
-                : new OperationContext(timeout ?? _settings.Timeout, cancellationToken);
+            return new OperationContext(session.WrappedCoreSession, timeout ?? _settings.Timeout, cancellationToken)
+            {
+                IsTracingEnabled = isTracingEnabled,
+                OperationName = isTracingEnabled ? operationName : null,
+                DatabaseName = isTracingEnabled ? "admin" : null,
+                CollectionName = null,
+            };
         }
 
         private TResult ExecuteReadOperation<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteReadOperation(operationContext, session, operation, readPreference, false);
+            return _operationExecutor.ExecuteReadOperation(operationContext, operation, readPreference, false);
         }
 
         private async Task<TResult> ExecuteReadOperationAsync<TResult>(IClientSessionHandle session, IReadOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             var readPreference = session.GetEffectiveReadPreference(_settings.ReadPreference);
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, session, operation, readPreference, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteReadOperationAsync(operationContext, operation, readPreference, false).ConfigureAwait(false);
         }
 
         private TResult ExecuteWriteOperation<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return _operationExecutor.ExecuteWriteOperation(operationContext, session, operation, false);
+            return _operationExecutor.ExecuteWriteOperation(operationContext, operation, false);
         }
 
         private async Task<TResult> ExecuteWriteOperationAsync<TResult>(IClientSessionHandle session, IWriteOperation<TResult> operation, TimeSpan? timeout, CancellationToken cancellationToken)
         {
             using var operationContext = CreateOperationContext(session, timeout, operation.OperationName, cancellationToken);
-            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, session, operation, false).ConfigureAwait(false);
+            return await _operationExecutor.ExecuteWriteOperationAsync(operationContext, operation, false).ConfigureAwait(false);
         }
 
         private MessageEncoderSettings GetMessageEncoderSettings()
@@ -637,8 +655,7 @@ namespace MongoDB.Driver
         private RenderArgs<BsonDocument> GetRenderArgs()
         {
             var translationOptions = Settings.TranslationOptions;
-            var serializerRegistry = BsonSerializer.SerializerRegistry;
-            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, serializerRegistry, translationOptions: translationOptions);
+            return new RenderArgs<BsonDocument>(BsonDocumentSerializer.Instance, _settings.SerializationDomain, translationOptions: translationOptions);
         }
 
         private IClientSessionHandle StartSession(ClientSessionOptions options)

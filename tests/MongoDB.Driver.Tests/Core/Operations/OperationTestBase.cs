@@ -1,4 +1,4 @@
-﻿/* Copyright 2015-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -139,10 +139,12 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation)
         {
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                return operation.Execute(operationContext, bindingHandle);
             }
         }
 
@@ -160,42 +162,37 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IClusterInternal cluster, bool async)
         {
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadBinding(cluster))
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
                 return async ?
-                    await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle) :
-                    operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                    await operation.ExecuteAsync(operationContext, bindingHandle) :
+                    operation.Execute(operationContext, bindingHandle);
             }
         }
 
-        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, IReadBinding binding, bool async)
+        private protected TResult ExecuteOperation<TResult>(OperationContext operationContext, IReadOperation<TResult> operation, IReadBinding binding, bool async)
         {
             if (async)
             {
-                return operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(operationContext, binding).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(OperationContext.NoTimeout, binding);
-            }
-        }
-
-        private protected TResult ExecuteOperation<TResult>(IReadOperation<TResult> operation, ReadPreference readPreference, bool async)
-        {
-            using (var binding = CreateReadBinding(readPreference))
-            using (var bindingHandle = new ReadBindingHandle(binding))
-            {
-                return ExecuteOperation(operation, bindingHandle, async);
+                return operation.Execute(operationContext, binding);
             }
         }
 
         private protected TResult ExecuteOperationSync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding(useImplicitSession))
+            using (var session = CreateSession(useImplicitSession))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                return operation.Execute(operationContext, bindingHandle);
             }
         }
 
@@ -211,66 +208,62 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
+        private protected TResult ExecuteOperation<TResult>(OperationContext operationContext, IWriteOperation<TResult> operation, IReadWriteBinding binding, bool async)
         {
             if (async)
             {
-                return operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult();
+                return operation.ExecuteAsync(operationContext, binding).GetAwaiter().GetResult();
             }
             else
             {
-                return operation.Execute(OperationContext.NoTimeout, binding);
+                return operation.Execute(operationContext, binding);
             }
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation)
         {
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadBinding())
             using (var bindingHandle = new ReadBindingHandle(binding))
             {
-                return await ExecuteOperationAsync(operation, bindingHandle);
+                return await operation.ExecuteAsync(operationContext, bindingHandle);
             }
-        }
-
-        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IReadOperation<TResult> operation, IReadBinding binding)
-        {
-            return await operation.ExecuteAsync(OperationContext.NoTimeout, binding);
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, bool useImplicitSession = false)
         {
-            using (var binding = CreateReadWriteBinding(useImplicitSession))
+            using (var session = CreateSession(useImplicitSession))
+            using (var operationContext = new OperationContext(session))
+            using (var binding = CreateReadWriteBinding())
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
-                return await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle);
+                return await operation.ExecuteAsync(operationContext, bindingHandle);
             }
         }
 
         private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IClusterInternal cluster, bool async)
         {
+            using (var session = CreateSession())
+            using (var operationContext = new OperationContext(session))
             using (var binding = CreateReadWriteBinding(cluster: cluster))
             using (var bindingHandle = new ReadWriteBindingHandle(binding))
             {
                 if (async)
                 {
-                    return await operation.ExecuteAsync(OperationContext.NoTimeout, bindingHandle);
+                    return await operation.ExecuteAsync(operationContext, bindingHandle);
                 }
                 else
                 {
-                    return operation.Execute(OperationContext.NoTimeout, bindingHandle);
+                    return operation.Execute(operationContext, bindingHandle);
                 }
             }
         }
 
-        private protected TResult ExecuteOperation<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding, bool async)
+        private protected TResult ExecuteOperation<TResult>(OperationContext operationContext, IWriteOperation<TResult> operation, IWriteBinding binding, bool async)
             => async ?
-                operation.ExecuteAsync(OperationContext.NoTimeout, binding).GetAwaiter().GetResult() :
-                operation.Execute(OperationContext.NoTimeout, binding);
-
-        private protected async Task<TResult> ExecuteOperationAsync<TResult>(IWriteOperation<TResult> operation, IWriteBinding binding)
-        {
-            return await operation.ExecuteAsync(OperationContext.NoTimeout, binding);
-        }
+                operation.ExecuteAsync(operationContext, binding).GetAwaiter().GetResult() :
+                operation.Execute(operationContext, binding);
 
         private protected void CreateIndexes(params CreateIndexRequest[] requests)
         {
@@ -289,14 +282,16 @@ namespace MongoDB.Driver.Core.Operations
 
         private protected IReadBinding CreateReadBinding(ReadPreference readPreference, IClusterInternal cluster = null)
         {
-            return new ReadPreferenceBinding(cluster ?? _cluster, readPreference, _session.Fork());
+            return new ReadPreferenceBinding(cluster ?? _cluster, readPreference);
         }
 
-        private protected IReadWriteBinding CreateReadWriteBinding(bool useImplicitSession = false, IClusterInternal cluster = null)
+        private protected IReadWriteBinding CreateReadWriteBinding(IClusterInternal cluster = null) =>
+            new WritableServerBinding(cluster ?? _cluster);
+
+        private protected ICoreSessionHandle CreateSession(bool useImplicitSession = false, IClusterInternal cluster = null)
         {
             var options = new CoreSessionOptions(isImplicit: useImplicitSession);
-            var session = CoreTestConfiguration.StartSession(cluster ?? _cluster, options);
-            return new WritableServerBinding(cluster ?? _cluster, session);
+            return CoreTestConfiguration.StartSession(cluster ?? _cluster, options);
         }
 
         protected void Insert(params BsonDocument[] documents)
@@ -553,16 +548,17 @@ namespace MongoDB.Driver.Core.Operations
             using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
             {
                 using (var session = CreateSession(cluster, useImplicitSession))
-                using (var binding = new WritableServerBinding(cluster, session.Fork()))
+                using (var binding = new WritableServerBinding(cluster))
                 {
                     Exception exception;
+                    using var operationContext = new OperationContext(session);
                     if (async)
                     {
-                        exception = Record.Exception(() => executeAsync(binding, OperationContext.NoTimeout).GetAwaiter().GetResult());
+                        exception = Record.Exception(() => executeAsync(binding, operationContext).GetAwaiter().GetResult());
                     }
                     else
                     {
-                        exception = Record.Exception(() => execute(binding, OperationContext.NoTimeout));
+                        exception = Record.Exception(() => execute(binding, operationContext));
                     }
 
                     assertResults(eventCapturer, session, exception);
@@ -578,7 +574,6 @@ namespace MongoDB.Driver.Core.Operations
                 var commandStartedEvent = (CommandStartedEvent)eventCapturer.Next();
                 var command = commandStartedEvent.Command;
                 command.Contains("lsid").Should().BeFalse();
-                session.ReferenceCount().Should().Be(2);
             }
             else
             {
@@ -600,8 +595,6 @@ namespace MongoDB.Driver.Core.Operations
             {
                 command["lsid"].Should().Be(session.Id);
             }
-
-            session.ReferenceCount().Should().Be(2);
         }
 
         private ICoreSessionHandle CreateSession(IClusterInternal cluster, bool useImplicitSession)

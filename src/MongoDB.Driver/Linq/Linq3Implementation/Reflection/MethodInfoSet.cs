@@ -40,7 +40,7 @@ internal class MethodInfoSet : IReadOnlyMethodInfoSet
 
         foreach (var methodSet in methodSets)
         {
-           hashSet.UnionWith(methodSet.Where(m => m != null));
+            hashSet.UnionWith(methodSet.Where(m => m != null));
         }
 
         return Create(hashSet);

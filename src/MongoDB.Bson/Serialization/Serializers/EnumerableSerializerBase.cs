@@ -29,13 +29,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
         private readonly Lazy<IBsonSerializer> _lazyItemSerializer;
+        private protected readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializationDomain.Default)
         {
         }
 
@@ -44,12 +45,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="itemSerializer">The item serializer.</param>
         protected EnumerableSerializerBase(IBsonSerializer itemSerializer)
+            : this(BsonSerializationDomain.Default, itemSerializer)
+        {
+        }
+
+        internal EnumerableSerializerBase(IBsonSerializationDomain serializationDomain, IBsonSerializer itemSerializer)
         {
             if (itemSerializer == null)
             {
                 throw new ArgumentNullException("itemSerializer");
             }
 
+            _serializationDomain = serializationDomain;
             _lazyItemSerializer = new Lazy<IBsonSerializer>(() => itemSerializer);
         }
 
@@ -64,7 +71,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
+            _serializationDomain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
             _lazyItemSerializer = new Lazy<IBsonSerializer>(() => serializerRegistry.GetSerializer(typeof(object)));
+        }
+
+        internal EnumerableSerializerBase(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+            _lazyItemSerializer = new Lazy<IBsonSerializer>(() => serializationDomain.SerializerRegistry.GetSerializer(typeof(object)));
         }
 
         /// <summary>
@@ -112,7 +126,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return FinalizeResult(accumulator);
 
                 case BsonType.Document:
-                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_serializationDomain, _discriminatorConvention, this);
                     if (serializer.IsPositionedAtDiscriminatedWrapper(context))
                     {
                         return (TValue)serializer.Deserialize(context);
@@ -183,7 +197,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_serializationDomain, _discriminatorConvention, this);
                     serializer.Serialize(context, value);
                 }
             }
@@ -228,13 +242,14 @@ namespace MongoDB.Bson.Serialization.Serializers
         // private fields
         private readonly IDiscriminatorConvention _discriminatorConvention = new ScalarDiscriminatorConvention("_t");
         private readonly Lazy<IBsonSerializer<TItem>> _lazyItemSerializer;
+        private protected readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="EnumerableSerializerBase{TValue, TItem}"/> class.
         /// </summary>
         protected EnumerableSerializerBase()
-            : this(BsonSerializer.SerializerRegistry)
+            : this(BsonSerializationDomain.Default)
         {
         }
 
@@ -243,12 +258,18 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// </summary>
         /// <param name="itemSerializer">The item serializer.</param>
         protected EnumerableSerializerBase(IBsonSerializer<TItem> itemSerializer)
+            : this(BsonSerializationDomain.Default, itemSerializer)
+        {
+        }
+
+        internal EnumerableSerializerBase(IBsonSerializationDomain serializationDomain, IBsonSerializer<TItem> itemSerializer)
         {
             if (itemSerializer == null)
             {
                 throw new ArgumentNullException("itemSerializer");
             }
 
+            _serializationDomain = serializationDomain;
             _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => itemSerializer);
         }
 
@@ -263,7 +284,14 @@ namespace MongoDB.Bson.Serialization.Serializers
                 throw new ArgumentNullException("serializerRegistry");
             }
 
+            _serializationDomain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
             _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => serializerRegistry.GetSerializer<TItem>());
+        }
+
+        internal EnumerableSerializerBase(IBsonSerializationDomain serializationDomain)
+        {
+            _serializationDomain = serializationDomain;
+            _lazyItemSerializer = new Lazy<IBsonSerializer<TItem>>(() => serializationDomain.SerializerRegistry.GetSerializer<TItem>());
         }
 
         // public properties
@@ -312,7 +340,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                     return FinalizeResult(accumulator);
 
                 case BsonType.Document:
-                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_serializationDomain, _discriminatorConvention, this);
                     if (serializer.IsPositionedAtDiscriminatedWrapper(context))
                     {
                         return (TValue)serializer.Deserialize(context);
@@ -384,7 +412,7 @@ namespace MongoDB.Bson.Serialization.Serializers
                 }
                 else
                 {
-                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_discriminatorConvention, this);
+                    var serializer = new DiscriminatedWrapperSerializer<TValue>(_serializationDomain, _discriminatorConvention, this);
                     serializer.Serialize(context, value);
                 }
             }
@@ -419,4 +447,3 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected abstract TValue FinalizeResult(object accumulator);
     }
 }
-

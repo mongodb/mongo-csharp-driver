@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             _eventSubscriber.Capture<ServerDescriptionChangedEvent>(e => true);
             _eventSubscriber.Capture<ServerClosedEvent>(e => true);
             _serverFactory = new MockClusterableServerFactory(LoggerFactory, _eventSubscriber);
-            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory)
+            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory, new ClientMetadata(null, null))
                 .CreateCluster();
         }
 

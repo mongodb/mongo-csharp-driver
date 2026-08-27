@@ -555,7 +555,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             // Passing in an eventCapturer results in Server being used instead of a Mock
             _serverFactory = new MockClusterableServerFactory(LoggerFactory, new EventCapturer());
             _eventSubscriber = new Mock<IEventSubscriber>().Object;
-            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory)
+            return new ClusterFactory(settings, _serverFactory, _eventSubscriber, LoggerFactory, new ClientMetadata(null, null))
                 .CreateCluster();
         }
 

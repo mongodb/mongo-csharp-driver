@@ -266,11 +266,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
 
         private interface IBaseInterface
         {
-            public int Id { get; set; }
-            public Enum Enum { get; set; }
-            public Enum? NullableEnum { get; set; }
-            public int EnumAsInt { get; set; }
-            public int? EnumAsNullableInt { get; set; }
+            int Id { get; set; }
+            Enum Enum { get; set; }
+            Enum? NullableEnum { get; set; }
+            int EnumAsInt { get; set; }
+            int? EnumAsNullableInt { get; set; }
         }
 
         private class BaseClass : IBaseInterface

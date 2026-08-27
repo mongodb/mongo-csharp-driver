@@ -13,13 +13,9 @@
 * limitations under the License.
 */
 
-using System;
-using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -136,65 +132,36 @@ namespace MongoDB.Driver.Core.Operations
 
         public TResult ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = operation.Execute(operationContext, channelBinding))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
+                return operation.Execute(operationContext, channelBinding);
             }
         }
 
         public async Task<TResult> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
-                using (var rawBsonDocument = await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false))
-                {
-                    return ProcessCommandResult(channel.ConnectionDescription.ConnectionId, rawBsonDocument);
-                }
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
+                return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
-        public abstract BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber);
-
-        protected abstract IElementNameValidator GetCommandValidator();
+        public abstract BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber);
 
         private EventContext.OperationNameDisposer BeginOperation() => EventContext.BeginOperation(OperationName);
 
-        private WriteCommandOperation<RawBsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        private WriteCommandOperation<TResult> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
-            return new WriteCommandOperation<RawBsonDocument>(_collectionNamespace.DatabaseNamespace, command, RawBsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
-            {
-                CommandValidator = GetCommandValidator()
-            };
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        private TResult ProcessCommandResult(ConnectionId connectionId, RawBsonDocument rawBsonDocument)
-        {
-            var binaryReaderSettings = new BsonBinaryReaderSettings
-            {
-                Encoding = _messageEncoderSettings.GetOrDefault<UTF8Encoding>(MessageEncoderSettingsName.ReadEncoding, Utf8Encodings.Strict)
-            };
-
-            using (var stream = new ByteBufferStream(rawBsonDocument.Slice, ownsBuffer: false))
-            using (var reader = new BsonBinaryReader(stream, binaryReaderSettings))
-            {
-                var context = BsonDeserializationContext.CreateRoot(reader);
-                return _resultSerializer.Deserialize(context);
-            }
+            var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
+            return new WriteCommandOperation<TResult>(_collectionNamespace.DatabaseNamespace, command, _resultSerializer, _messageEncoderSettings, OperationName);
         }
     }
 }

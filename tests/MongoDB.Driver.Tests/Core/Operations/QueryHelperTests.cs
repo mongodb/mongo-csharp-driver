@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,20 +22,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class QueryHelperTests
     {
-        [Theory]
-        [InlineData(null, null, 0)]
-        [InlineData(null, 20, 20)]
-        [InlineData(20, null, 20)]
-        [InlineData(10, 20, 10)]
-        [InlineData(20, 10, 10)]
-        [InlineData(-20, 10, -20)]
-        public void CalculateFirstBatchSize_should_return_the_correct_result(int? limit, int? batchSize, int expectedResult)
-        {
-            var result = QueryHelper.CalculateFirstBatchSize(limit, batchSize);
-
-            result.Should().Be(expectedResult);
-        }
-
         [Fact]
         public void CreateReadPreferenceDocument_should_return_null_when_the_serverType_is_not_a_shard_router()
         {

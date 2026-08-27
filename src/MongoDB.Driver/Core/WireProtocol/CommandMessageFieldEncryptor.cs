@@ -42,14 +42,14 @@ namespace MongoDB.Driver.Core.WireProtocol
         }
 
         // public static methods
-        public CommandRequestMessage EncryptFields(string databaseName, CommandRequestMessage unencryptedRequestMessage, CancellationToken cancellationToken)
+        public RequestCommandMessage EncryptFields(string databaseName, RequestCommandMessage unencryptedRequestMessage, CancellationToken cancellationToken)
         {
             var unencryptedCommandBytes = GetUnencryptedCommandBytes(unencryptedRequestMessage);
             var encryptedCommandBytes = _commandFieldEncryptor.EncryptFields(databaseName, unencryptedCommandBytes, cancellationToken);
             return CreateEncryptedRequestMessage(unencryptedRequestMessage, encryptedCommandBytes);
         }
 
-        public async Task<CommandRequestMessage> EncryptFieldsAsync(string databaseName, CommandRequestMessage unencryptedRequestMessage, CancellationToken cancellationToken)
+        public async Task<RequestCommandMessage> EncryptFieldsAsync(string databaseName, RequestCommandMessage unencryptedRequestMessage, CancellationToken cancellationToken)
         {
             var unencryptedCommandBytes = GetUnencryptedCommandBytes(unencryptedRequestMessage);
             var encryptedCommandBytes = await _commandFieldEncryptor.EncryptFieldsAsync(databaseName, unencryptedCommandBytes, cancellationToken).ConfigureAwait(false);
@@ -146,10 +146,9 @@ namespace MongoDB.Driver.Core.WireProtocol
             outputStream.BackpatchSize(arrayStartPosition);
         }
 
-        private CommandRequestMessage CreateEncryptedRequestMessage(CommandRequestMessage unencryptedRequestMessage, byte[] encryptedDocumentBytes)
+        private RequestCommandMessage CreateEncryptedRequestMessage(RequestCommandMessage unencryptedRequestMessage, byte[] encryptedDocumentBytes)
         {
-            var unencryptedCommandMessage = unencryptedRequestMessage.WrappedMessage;
-            var unencryptedType0Section = unencryptedCommandMessage.Sections.OfType<Type0CommandMessageSection>().Single();
+            var unencryptedType0Section = unencryptedRequestMessage.Sections.OfType<Type0CommandMessageSection>().Single();
 
             var encryptedDocument = new RawBsonDocument(encryptedDocumentBytes);
             var encryptedSections = new[] { new Type0CommandMessageSection<RawBsonDocument>(
@@ -158,15 +157,13 @@ namespace MongoDB.Driver.Core.WireProtocol
                 unencryptedType0Section.DatabaseNamespace,
                 unencryptedType0Section.SessionId,
                 unencryptedType0Section.TransactionNumber) };
-            var encryptedCommandMessage = new CommandMessage(
-                unencryptedCommandMessage.RequestId,
-                unencryptedCommandMessage.ResponseTo,
+            return new RequestCommandMessage(
+                unencryptedRequestMessage.RequestId,
                 encryptedSections,
-                unencryptedCommandMessage.MoreToCome);
-            return new CommandRequestMessage(encryptedCommandMessage);
+                unencryptedRequestMessage.MoreToCome);
         }
 
-        private byte[] GetUnencryptedCommandBytes(CommandRequestMessage unencryptedRequestMessage)
+        private byte[] GetUnencryptedCommandBytes(RequestCommandMessage unencryptedRequestMessage)
         {
             using (var stream = new MemoryStream())
             {
@@ -178,11 +175,11 @@ namespace MongoDB.Driver.Core.WireProtocol
 
         private void WriteUnencryptedRequestMessageToStream(
             Stream stream,
-            CommandRequestMessage unencryptedRequestMessage)
+            RequestCommandMessage unencryptedRequestMessage)
         {
             var clonedMessageEncoderSettings = _messageEncoderSettings.Clone();
             var encoderFactory = new BinaryMessageEncoderFactory(stream, clonedMessageEncoderSettings, compressorSource: null);
-            var encoder = encoderFactory.GetCommandRequestMessageEncoder();
+            var encoder = encoderFactory.GetCommandMessageEncoder();
             encoder.WriteMessage(unencryptedRequestMessage);
         }
     }

@@ -1041,24 +1041,6 @@ namespace MongoDB.Driver
         /// <typeparam name="TNewResult">The type of the new result.</typeparam>
         /// <param name="aggregate">The aggregate.</param>
         /// <param name="field">The field to unwind.</param>
-        /// <param name="newResultSerializer">The new result serializer.</param>
-        /// <returns>
-        /// The fluent aggregate interface.
-        /// </returns>
-        [Obsolete("Use the Unwind overload which takes an options parameter.")]
-        public static IAggregateFluent<TNewResult> Unwind<TResult, TNewResult>(this IAggregateFluent<TResult> aggregate, Expression<Func<TResult, object>> field, IBsonSerializer<TNewResult> newResultSerializer)
-        {
-            Ensure.IsNotNull(aggregate, nameof(aggregate));
-            return aggregate.AppendStage(PipelineStageDefinitionBuilder.Unwind(field, new AggregateUnwindOptions<TNewResult> { ResultSerializer = newResultSerializer }));
-        }
-
-        /// <summary>
-        /// Appends an unwind stage to the pipeline.
-        /// </summary>
-        /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <typeparam name="TNewResult">The type of the new result.</typeparam>
-        /// <param name="aggregate">The aggregate.</param>
-        /// <param name="field">The field to unwind.</param>
         /// <param name="options">The options.</param>
         /// <returns>
         /// The fluent aggregate interface.

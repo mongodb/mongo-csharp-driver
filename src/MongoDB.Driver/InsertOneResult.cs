@@ -1,0 +1,97 @@
+﻿/* Copyright 2010-present MongoDB Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+using System;
+using MongoDB.Bson.Serialization;
+
+namespace MongoDB.Driver;
+
+/// <summary>
+/// The result of an insert one operation.
+/// </summary>
+public abstract class InsertOneResult
+{
+    private protected InsertOneResult()
+    {
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the result is acknowledged.
+    /// </summary>
+    public abstract bool IsAcknowledged { get; }
+
+    /// <summary>
+    /// Gets the id of the inserted document. If IsAcknowledged is false, this will throw an exception.
+    /// </summary>
+    public abstract object InsertedId { get; }
+
+    internal static InsertOneResult FromBulkWriteResult<TDocument>(
+        BulkWriteResult<TDocument> bulkWriteResult,
+        IBsonSerializer<TDocument> documentSerializer)
+    {
+        if (!bulkWriteResult.IsAcknowledged)
+        {
+            return Unacknowledged.Instance;
+        }
+
+        var insertOneModel = (InsertOneModel<TDocument>)bulkWriteResult.ProcessedRequests[0];
+        var insertedId = documentSerializer.GetDocumentId(insertOneModel.Document);
+        return new Acknowledged(insertedId);
+    }
+
+    /// <summary>
+    /// The result of an acknowledged insert one operation.
+    /// </summary>
+    public sealed class Acknowledged : InsertOneResult
+    {
+        private readonly object _insertedId;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Acknowledged"/> class.
+        /// </summary>
+        /// <param name="insertedId">The id of the inserted document.</param>
+        public Acknowledged(object insertedId)
+        {
+            _insertedId = insertedId;
+        }
+
+        /// <inheritdoc/>
+        public override bool IsAcknowledged => true;
+
+        /// <inheritdoc/>
+        public override object InsertedId => _insertedId;
+    }
+
+    /// <summary>
+    /// The result of an unacknowledged insert one operation.
+    /// </summary>
+    public sealed class Unacknowledged : InsertOneResult
+    {
+        /// <summary>
+        /// Gets the instance.
+        /// </summary>
+        public static Unacknowledged Instance { get; } = new Unacknowledged();
+
+        private Unacknowledged()
+        {
+        }
+
+        /// <inheritdoc/>
+        public override bool IsAcknowledged => false;
+
+        /// <inheritdoc/>
+        public override object InsertedId => throw new NotSupportedException("Only acknowledged writes support the InsertedId property.");
+    }
+}

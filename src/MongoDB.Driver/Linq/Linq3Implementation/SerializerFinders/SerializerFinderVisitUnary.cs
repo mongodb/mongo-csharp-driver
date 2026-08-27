@@ -35,6 +35,7 @@ internal partial class SerializerFinderVisitor
         switch (unaryOperator)
         {
             case ExpressionType.Negate:
+            case ExpressionType.NegateChecked:
                 DeduceNegateSerializers(); // TODO: fold into general case?
                 break;
 
@@ -286,7 +287,7 @@ internal partial class SerializerFinderVisitor
 
             static bool IsConvertToNullableType(Type targetType, out Type valueType)
             {
-                return targetType.IsNullable(out  valueType);
+                return targetType.IsNullable(out valueType);
             }
 
             static bool IsConvertIntegralTypeToEnum(Type sourceType, Type targetType)

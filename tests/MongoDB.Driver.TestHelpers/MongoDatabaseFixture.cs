@@ -82,9 +82,9 @@ namespace MongoDB.Driver.Tests
         }
 
         protected virtual void InitializeFixture()
-        {}
+        { }
 
         protected virtual void InitializeTestCase()
-        {}
+        { }
     }
 }

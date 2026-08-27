@@ -31,6 +31,7 @@ namespace MongoDB.Bson.Serialization.Conventions
 
         // private fields
         private string _elementName;
+        private protected readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -38,7 +39,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="elementName">The element name.</param>
         protected StandardDiscriminatorConvention(string elementName)
+            : this(BsonSerializationDomain.Default, elementName)
         {
+        }
+
+        private protected StandardDiscriminatorConvention(IBsonSerializationDomain serializationDomain, string elementName)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentException("Serialization domain cannot be null.", nameof(serializationDomain));
+            }
             if (string.IsNullOrEmpty(elementName))
             {
                 throw new ArgumentException("Discriminator element name name cannot be null or empty.", nameof(elementName));
@@ -48,6 +58,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                 throw new ArgumentException("Discriminator element name cannot contain nulls.", nameof(elementName));
             }
 
+            _serializationDomain = serializationDomain;
             _elementName = elementName;
         }
 
@@ -102,10 +113,10 @@ namespace MongoDB.Bson.Serialization.Conventions
             if (bsonType == BsonType.Document)
             {
                 // ensure KnownTypes of nominalType are registered (so IsTypeDiscriminated returns correct answer)
-                BsonSerializer.EnsureKnownTypesAreRegistered(nominalType);
+                _serializationDomain.EnsureKnownTypesAreRegistered(nominalType);
 
                 // we can skip looking for a discriminator if nominalType has no discriminated sub types
-                if (BsonSerializer.IsTypeDiscriminated(nominalType))
+                if (_serializationDomain.IsTypeDiscriminated(nominalType))
                 {
                     var bookmark = bsonReader.GetBookmark();
                     bsonReader.ReadStartDocument();
@@ -118,7 +129,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                         {
                             discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                         }
-                        actualType = BsonSerializer.LookupActualType(nominalType, discriminator);
+                        actualType = _serializationDomain.LookupActualType(nominalType, discriminator);
                     }
                     bsonReader.ReturnToBookmark(bookmark);
                     return actualType;

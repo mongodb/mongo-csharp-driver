@@ -101,13 +101,7 @@ namespace MongoDB.Driver.Tests
                 Timeout = TimeSpan.FromSeconds(13),
 #endif
                 Username = "username",
-#pragma warning disable 618
-                UseSsl = true,
-#pragma warning restore 618
                 UseTls = true,
-#pragma warning disable 618
-                VerifySslCertificate = false,
-#pragma warning restore 618
                 W = 2,
 #pragma warning disable 618
                 WaitQueueSize = 123,
@@ -202,13 +196,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(13), builder.Timeout);
 #endif
                 Assert.Equal("username", builder.Username);
-#pragma warning disable 618
-                Assert.Equal(true, builder.UseSsl);
-#pragma warning restore 618
                 Assert.Equal(true, builder.UseTls);
-#pragma warning disable 618
-                Assert.Equal(false, builder.VerifySslCertificate);
-#pragma warning restore 618
                 Assert.Equal(2, ((WriteConcern.WCount)builder.W).Value);
 #pragma warning disable 618
                 Assert.Equal(0.0, builder.WaitQueueMultiple);
@@ -350,7 +338,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoUrlBuilder { Server = _localhost };
 
-            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = {{ "Level", 1 }} };
+            var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = { { "Level", 1 } } };
             subject.Compressors = new[] { zlibCompressor };
             var connectionString = subject.ToString();
 
@@ -462,13 +450,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.Timeout);
                 Assert.Equal(MongoInternalDefaults.MongoClientSettings.SrvServiceName, builder.SrvServiceName);
                 Assert.Equal(null, builder.Username);
-#pragma warning disable 618
-                Assert.Equal(false, builder.UseSsl);
-#pragma warning restore 618
                 Assert.Equal(false, builder.UseTls);
-#pragma warning disable 618
-                Assert.Equal(true, builder.VerifySslCertificate);
-#pragma warning restore 618
                 Assert.Equal(null, builder.W);
 #pragma warning disable 618
                 Assert.Equal(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
@@ -717,7 +699,8 @@ namespace MongoDB.Driver.Tests
         {
             var maxConnectionIdleTime = (ms == null) ? (TimeSpan?)null : TimeSpan.FromMilliseconds(ms.Value);
             var built = new MongoUrlBuilder { Server = _localhost };
-            if (maxConnectionIdleTime != null) { built.MaxConnectionIdleTime = maxConnectionIdleTime.Value; };
+            if (maxConnectionIdleTime != null) { built.MaxConnectionIdleTime = maxConnectionIdleTime.Value; }
+            ;
 
             var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))

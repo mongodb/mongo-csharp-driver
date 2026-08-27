@@ -71,7 +71,7 @@ namespace MongoDB.Driver.Core.Misc
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Wait_should_throw_on_cancellation([Values(true, false)]bool async)
+        public async Task Wait_should_throw_on_cancellation([Values(true, false)] bool async)
         {
             var task = CreateSubject(true);
             using var cts = new CancellationTokenSource(5);

@@ -70,7 +70,20 @@ namespace MongoDB.Bson.Serialization
             IBsonWriter writer,
             Action<Builder> configurator = null)
         {
-            var builder = new Builder(null, writer);
+            var builder = new Builder(writer, BsonSerializationDomain.Default);
+            if (configurator != null)
+            {
+                configurator(builder);
+            }
+            return builder.Build();
+        }
+
+        internal static BsonSerializationContext CreateRoot(
+            IBsonWriter writer,
+            IBsonSerializationDomain serializationDomain,
+            Action<Builder> configurator = null)
+        {
+            var builder = new Builder(writer, serializationDomain);
             if (configurator != null)
             {
                 configurator(builder);
@@ -107,24 +120,30 @@ namespace MongoDB.Bson.Serialization
             private IBsonWriter _writer;
 
             // constructors
+            internal Builder(IBsonWriter writer, IBsonSerializationDomain serializationDomain)
+            {
+                if (writer == null)
+                {
+                    throw new ArgumentNullException(nameof(writer));
+                }
+                if (serializationDomain == null)
+                {
+                    throw new ArgumentNullException(nameof(serializationDomain));
+                }
+
+                _writer = writer;
+                _isDynamicType = BuildDefaultIsDynamicType(serializationDomain);
+            }
+
             internal Builder(BsonSerializationContext other, IBsonWriter writer)
             {
                 if (writer == null)
                 {
-                    throw new ArgumentNullException("writer");
+                    throw new ArgumentNullException(nameof(writer));
                 }
 
                 _writer = writer;
-                if (other != null)
-                {
-                    _isDynamicType = other._isDynamicType;
-                }
-                else
-                {
-                    _isDynamicType = t =>
-                        (BsonDefaults.DynamicArraySerializer != null && t == BsonDefaults.DynamicArraySerializer.ValueType) ||
-                        (BsonDefaults.DynamicDocumentSerializer != null && t == BsonDefaults.DynamicDocumentSerializer.ValueType);
-                }
+                _isDynamicType = other?._isDynamicType;
             }
 
             // properties
@@ -156,6 +175,14 @@ namespace MongoDB.Bson.Serialization
             internal BsonSerializationContext Build()
             {
                 return new BsonSerializationContext(_writer, _isDynamicType);
+            }
+
+            private static Func<Type, bool> BuildDefaultIsDynamicType(IBsonSerializationDomain serializationDomain)
+            {
+                var bsonDefaults = serializationDomain.BsonDefaults;
+                return t =>
+                    (bsonDefaults.DynamicArraySerializer != null && t == bsonDefaults.DynamicArraySerializer.ValueType) ||
+                    (bsonDefaults.DynamicDocumentSerializer != null && t == bsonDefaults.DynamicDocumentSerializer.ValueType);
             }
         }
     }

@@ -34,7 +34,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         var collection = Fixture.Collection;
 
         var queryable = collection.AsQueryable()
-            .Select(d => new KeyValuePair<string,int>("X", d.X));
+            .Select(d => new KeyValuePair<string, int>("X", d.X));
 
         var stages = Translate(collection, queryable);
         AssertStages(stages, "{ $project : { k : 'X', v : '$X', _id : 0 } }");
@@ -44,7 +44,7 @@ public class NewKeyValuePairExpressionToAggregationExpressionTranslatorTests : L
         result.Value.Should().Be(42);
     }
 
-#if NET6_0_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#if NET6_0_OR_GREATER
     [Fact]
     public void KeyValuePair_Create_should_translate()
     {

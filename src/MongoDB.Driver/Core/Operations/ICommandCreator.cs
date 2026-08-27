@@ -14,7 +14,6 @@
 */
 
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 
 namespace MongoDB.Driver.Core.Operations
@@ -28,12 +27,10 @@ namespace MongoDB.Driver.Core.Operations
         /// Creates a command to be executed.
         /// </summary>
         /// <param name="operationContext">The operation context.</param>
-        /// <param name="session">The session.</param>
         /// <param name="connectionDescription">The connection description.</param>
         /// <returns>The command document.</returns>
         BsonDocument CreateCommand(
             OperationContext operationContext,
-            ICoreSession session,
             ConnectionDescription connectionDescription);
     }
 }

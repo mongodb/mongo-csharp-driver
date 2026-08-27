@@ -317,7 +317,9 @@ namespace MongoDB.Driver.Tests.Search
             var indexModel = new CreateVectorSearchIndexModel<EntityWithVector>(
                 e => e.Floats, indexName, VectorSimilarity.Cosine, dimensions: 2)
             {
-                HnswMaxEdges = 18, HnswNumEdgeCandidates = 102, Quantization = VectorQuantization.Scalar
+                HnswMaxEdges = 18,
+                HnswNumEdgeCandidates = 102,
+                Quantization = VectorQuantization.Scalar
             };
 
             var collection = _database.GetCollection<EntityWithVector>(_collection.CollectionNamespace.CollectionName);

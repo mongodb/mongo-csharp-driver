@@ -46,7 +46,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             AssertStages(stages, "{ $project : { _v : { $sigmoid : '$X' }, _id : 0 } }");
 
             var result = queryable.ToList();
-            result.Should().BeEquivalentTo(new[] { 0.7310585786300049, 0.9933071490757153, 0.999997739675702, 0.9999999992417439});
+            result.Should().BeEquivalentTo(new[] { 0.7310585786300049, 0.9933071490757153, 0.999997739675702, 0.9999999992417439 });
         }
 
         [Fact]

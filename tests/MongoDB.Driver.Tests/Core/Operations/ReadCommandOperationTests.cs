@@ -18,15 +18,14 @@ using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.WireProtocol;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -45,10 +44,7 @@ namespace MongoDB.Driver.Core.Operations
 
             var result = new ReadCommandOperation<BsonDocument>(databaseNamespace, command, resultSerializer, messageEncoderSettings);
 
-            result.AdditionalOptions.Should().BeNull();
             result.Command.Should().BeSameAs(command);
-            result.CommandValidator.Should().BeOfType<NoOpElementNameValidator>();
-            result.Comment.Should().BeNull();
             result.DatabaseNamespace.Should().BeSameAs(databaseNamespace);
             result.MessageEncoderSettings.Should().BeSameAs(messageEncoderSettings);
             result.ResultSerializer.Should().BeSameAs(resultSerializer);
@@ -90,20 +86,18 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        null, // additionalOptions
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -115,13 +109,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        null, // additionalOptions
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -132,139 +123,27 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void Execute_should_call_channel_Command_with_wrapped_command_when_additionalOptions_need_wrapping(
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            subject.AdditionalOptions = new BsonDocument("additional", 1);
-            subject.Comment = "comment";
-            var readPreference = ReadPreference.Primary;
-            var serverDescription = CreateServerDescription(ServerType.Standalone);
-            var mockChannel = CreateMockChannel();
-            var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
-            var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
-
-            ExecuteOperation(subject, binding, async);
-            if (async)
-            {
-                mockChannel.Verify(
-                    c => c.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-            else
-            {
-                mockChannel.Verify(
-                    c => c.Command(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Execute_should_call_channel_Command_with_wrapped_command_when_comment_needs_wrapping(
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            subject.Comment = "comment";
-            var readPreference = ReadPreference.Primary;
-            var serverDescription = CreateServerDescription(ServerType.Standalone);
-            var mockChannel = CreateMockChannel();
-            var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
-            var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\" }");
-
-            ExecuteOperation(subject, binding, async);
-            if (async)
-            {
-                mockChannel.Verify(
-                    c => c.CommandAsync(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-            else
-            {
-                mockChannel.Verify(
-                    c => c.Command(
-                        It.IsAny<OperationContext>(),
-                        binding.Session,
-                        readPreference,
-                        subject.DatabaseNamespace,
-                        subject.Command,
-                        null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
-                        null, // postWriteAction
-                        CommandResponseHandling.Return,
-                        subject.ResultSerializer,
-                        subject.MessageEncoderSettings),
-                    Times.Once);
-            }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Execute_should_call_channel_Command_with_wrapped_command_when_readPreference_needs_wrapping(
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject<BsonDocument>();
-            subject.AdditionalOptions = new BsonDocument("additional", 1);
-            subject.Comment = "comment";
             var readPreference = ReadPreference.Secondary;
             var serverDescription = CreateServerDescription(ServerType.ShardRouter);
             var mockChannel = CreateMockChannel();
             var channelSource = CreateMockChannelSource(serverDescription, mockChannel.Object).Object;
             var binding = CreateMockReadBinding(readPreference, channelSource).Object;
-            var additionalOptions = BsonDocument.Parse("{ $comment : \"comment\", additional : 1 }");
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannel.Verify(
                     c => c.CommandAsync(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -276,13 +155,10 @@ namespace MongoDB.Driver.Core.Operations
                 mockChannel.Verify(
                     c => c.Command(
                         It.IsAny<OperationContext>(),
-                        binding.Session,
                         readPreference,
                         subject.DatabaseNamespace,
                         subject.Command,
                         null, // commandPayloads
-                        subject.CommandValidator,
-                        additionalOptions,
                         null, // postWriteAction
                         CommandResponseHandling.Return,
                         subject.ResultSerializer,
@@ -301,8 +177,9 @@ namespace MongoDB.Driver.Core.Operations
             var mockChannel = CreateMockChannel();
             var mockChannelSource = CreateMockChannelSource(serverDescription, mockChannel.Object);
             var binding = CreateMockReadBinding(readPreference, mockChannelSource.Object).Object;
+            using var operationContext = new OperationContext(OperationTestHelper.CreateSession());
 
-            ExecuteOperation(subject, binding, async);
+            ExecuteOperation(operationContext, subject, binding, async);
             if (async)
             {
                 mockChannelSource.Verify(c => c.GetChannelAsync(It.IsAny<OperationContext>()), Times.Once);
@@ -317,9 +194,7 @@ namespace MongoDB.Driver.Core.Operations
         private Mock<IReadBinding> CreateMockReadBinding(ReadPreference readPreference, IChannelSourceHandle channelSource)
         {
             var mockBinding = new Mock<IReadBinding>();
-            var mockSession = new Mock<ICoreSessionHandle>();
             mockBinding.SetupGet(b => b.ReadPreference).Returns(readPreference);
-            mockBinding.SetupGet(b => b.Session).Returns(mockSession.Object);
             mockBinding.Setup(b => b.GetReadChannelSource(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(channelSource);
             mockBinding.Setup(b => b.GetReadChannelSourceAsync(It.IsAny<OperationContext>(), It.IsAny<IReadOnlyCollection<ServerDescription>>())).Returns(Task.FromResult(channelSource));
             return mockBinding;

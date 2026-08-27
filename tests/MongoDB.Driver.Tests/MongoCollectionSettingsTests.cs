@@ -14,8 +14,8 @@
 */
 
 using System;
-using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Xunit;
 
@@ -38,6 +38,19 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(ReadConcern.Majority, settings.ReadConcern);
             Assert.Same(ReadPreference.Primary, settings.ReadPreference);
             Assert.Same(WriteConcern.Acknowledged, settings.WriteConcern);
+        }
+
+        [Fact]
+        public void TestApplyDefaultValues()
+        {
+            var domain = BsonSerializationDomain.CreateWithDefaultConfiguration("FromClient");
+            var clientSettings = new MongoClientSettings { SerializationDomain = domain };
+            var databaseSettings = new MongoDatabaseSettings();
+            databaseSettings.ApplyDefaultValues(clientSettings);
+
+            var settings = new MongoCollectionSettings();
+            settings.ApplyDefaultValues(databaseSettings);
+            Assert.Same(domain, settings.SerializationDomain);
         }
 
         [Fact]
@@ -165,6 +178,13 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(readPreference, settings.ReadPreference);
             Assert.Throws<InvalidOperationException>(() => { settings.ReadPreference = readPreference; });
+        }
+
+        [Fact]
+        public void TestSerializationDomain()
+        {
+            var settings = new MongoCollectionSettings();
+            Assert.Same(BsonSerializer.DefaultSerializationDomain, settings.SerializationDomain);
         }
 
         [Fact]

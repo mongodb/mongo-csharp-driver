@@ -38,6 +38,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
         }
 
+        internal DictionaryInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain, DictionaryRepresentation.Document)
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DictionaryInterfaceImplementerSerializer{TDictionary}"/> class.
         /// </summary>
@@ -191,6 +196,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// Initializes a new instance of the <see cref="DictionaryInterfaceImplementerSerializer{TDictionary, TKey, TValue}"/> class.
         /// </summary>
         public DictionaryInterfaceImplementerSerializer()
+        {
+        }
+
+        internal DictionaryInterfaceImplementerSerializer(IBsonSerializationDomain serializationDomain)
+            : base(serializationDomain, DictionaryRepresentation.Document)
         {
         }
 

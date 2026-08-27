@@ -276,6 +276,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether overload retargeting is enabled.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public bool? EnableOverloadRetargeting
         {
             get { return _enableOverloadRetargeting; }
@@ -378,6 +379,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum number of adaptive retries.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public int? MaxAdaptiveRetries
         {
             get { return _maxAdaptiveRetries; }
@@ -704,32 +706,12 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl
-        {
-            get { return _useTls; }
-            set { _useTls = value; }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls
         {
             get => _useTls;
             set => _useTls = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate
-        {
-            get => !_allowInsecureTls;
-            set => _allowInsecureTls = !value;
         }
 
         /// <summary>
@@ -1085,7 +1067,7 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("retryWrites={0}&", JsonConvert.ToString(_retryWrites.Value));
             }
-            if(!string.IsNullOrEmpty(_proxyHost))
+            if (!string.IsNullOrEmpty(_proxyHost))
             {
                 query.AppendFormat("proxyHost={0}&", _proxyHost);
             }

@@ -118,7 +118,7 @@ namespace MongoDB.Driver.Search
         }
 
         public override BsonDocument Render(RenderArgs<TDocument> args) =>
-            new("boost",  new BsonDocument("value", _value));
+            new("boost", new BsonDocument("value", _value));
     }
 
     internal sealed class ConstantSearchScoreDefinition<TDocument> : SearchScoreDefinition<TDocument>

@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Fact]
         public void constructor_with_clientCertificates_should_initialize_instance()
         {
-            var clientCertificates = new [] { X509CertificateLoader.LoadCertificate(__testCert) };
+            var clientCertificates = new[] { X509CertificateLoader.LoadCertificate(__testCert) };
 
             var subject = new SslStreamSettings(clientCertificates: clientCertificates);
 

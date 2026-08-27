@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyTitle>MongoDB.Driver.Authentication.AWS</AssemblyTitle>
     <Product>MongoDB.Driver.Authentication.AWS</Product>
     <PackageId>MongoDB.Driver.Authentication.AWS</PackageId>
@@ -14,10 +10,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.100.14" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.0.100.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MongoDB.Driver\MongoDB.Driver.csproj" />
+  </ItemGroup>
+
+  <!-- An empty netstandard2.0 asset group, so NuGet considers this package directly
+       compatible with netstandard2.0 and never applies AssetTargetFallback to it. Without
+       it, a .NET Standard or pre-6.0 .NET Core project is silently given lib/net472 with
+       only warning NU1701; with it, no assemblies resolve and MongoDB.Bson's guard reports
+       MONGO1001 instead. Compatibility is computed per package, so MongoDB.Bson's guard
+       does not cover this one. See src/MongoDB.Bson/build/MongoDB.Bson.targets. -->
+  <ItemGroup>
+    <None Include="..\MongoDB.Shared\EmptyPackageAssetPlaceholder\_._" Pack="true" PackagePath="buildTransitive\netstandard2.0" />
   </ItemGroup>
 </Project>

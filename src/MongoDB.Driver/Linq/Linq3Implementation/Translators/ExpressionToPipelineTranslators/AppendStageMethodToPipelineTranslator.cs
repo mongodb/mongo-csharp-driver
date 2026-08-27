@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
 
                 var sourceSerializer = pipeline.OutputSerializer;
                 var stageExpression = arguments[1];
-                var renderedStage = TranslateStage(expression, stageExpression, sourceSerializer, BsonSerializer.SerializerRegistry, context.TranslationOptions);
+                var renderedStage = TranslateStage(expression, stageExpression, sourceSerializer, context.SerializationDomain.SerializerRegistry, context.TranslationOptions);
                 var stage = AstStage.Universal(renderedStage.Document);
 
                 var resultSerializerExpression = arguments[2];

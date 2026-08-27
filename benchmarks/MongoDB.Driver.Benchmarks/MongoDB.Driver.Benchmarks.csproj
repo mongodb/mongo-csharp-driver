@@ -1,8 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>..\..\MongoDB.ruleset</CodeAnalysisRuleSet>
     <RootNamespace>MongoDB.Benchmarks</RootNamespace>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>None</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -33,12 +36,5 @@
     <ProjectReference Include="..\..\src\MongoDB.Driver\MongoDB.Driver.csproj" />
     <ProjectReference Include="..\..\src\MongoDB.Driver.Encryption\MongoDB.Driver.Encryption.csproj" />
     <ProjectReference Include="..\..\tests\MongoDB.Driver.TestHelpers\MongoDB.Driver.TestHelpers.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- CSHARP-6038: SharpCompress directory-traversal advisory does not affect the driver,
-         which only uses in-memory ZLib stream compression and never calls IArchive.WriteToDirectory.
-         Remove once the SharpCompress dependency is dropped. -->
-    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-6c8g-7p36-r338" />
   </ItemGroup>
 </Project>

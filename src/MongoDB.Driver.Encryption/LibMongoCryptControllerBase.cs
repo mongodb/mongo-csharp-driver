@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -39,8 +40,8 @@ namespace MongoDB.Driver.Encryption
         protected readonly CollectionNamespace _keyVaultNamespace;
 
         // private fields
+        private readonly IStreamFactory _kmsStreamFactory;
         private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders;
-        private readonly IStreamFactory _networkStreamFactory;
         private readonly IReadOnlyDictionary<string, SslSettings> _tlsOptions;
 
         // constructors
@@ -49,15 +50,16 @@ namespace MongoDB.Driver.Encryption
              IMongoClient keyVaultClient,
              CollectionNamespace keyVaultNamespace,
              IReadOnlyDictionary<string, IReadOnlyDictionary<string, object>> kmsProviders,
-             IReadOnlyDictionary<string, SslSettings> tlsOptions)
+             IReadOnlyDictionary<string, SslSettings> tlsOptions,
+             IKmsConnector kmsConnector)
         {
             _cryptClient = Ensure.IsNotNull(cryptClient, nameof(cryptClient));
             _keyVaultClient = Ensure.IsNotNull(keyVaultClient, nameof(keyVaultClient)); // _keyVaultClient might not be fully constructed at this point, don't call any instance methods on it yet
             _keyVaultNamespace = Ensure.IsNotNull(keyVaultNamespace, nameof(keyVaultNamespace));
             _keyVaultCollection = new Lazy<IMongoCollection<BsonDocument>>(GetKeyVaultCollection); // delay use _keyVaultClient
             _kmsProviders = Ensure.IsNotNull(kmsProviders, nameof(kmsProviders));
-            _networkStreamFactory = new NetworkStreamFactory();
             _tlsOptions = Ensure.IsNotNull(tlsOptions, nameof(tlsOptions));
+            _kmsStreamFactory = kmsConnector != null ? new KmsConnectorStreamFactory(kmsConnector) : new NetworkStreamFactory(); // kmsConnector is optional; null means connect directly to the KMS host
         }
 
         // public properties
@@ -237,7 +239,7 @@ namespace MongoDB.Driver.Encryption
         {
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = _keyVaultCollection.Value.FindSync(filter, cancellationToken: cancellationToken);
             var results = cursor.ToList(cancellationToken);
@@ -267,7 +269,7 @@ namespace MongoDB.Driver.Encryption
         {
             using var binary = context.GetOperation();
             var filterBytes = binary.ToArray();
-            using var filterDocument = new RawBsonDocument(filterBytes);
+            var filterDocument = BsonSerializer.Deserialize<BsonDocument>(filterBytes);
             var filter = new BsonDocumentFilterDefinition<BsonDocument>(filterDocument);
             var cursor = await _keyVaultCollection.Value.FindAsync(filter, cancellationToken: cancellationToken).ConfigureAwait(false);
             var results = await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
@@ -287,7 +289,7 @@ namespace MongoDB.Driver.Encryption
                 var endpoint = CreateKmsEndPoint(request.Endpoint);
 
                 var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _kmsStreamFactory);
                 using var sslStream = sslStreamFactory.CreateStream(endpoint, cancellation);
 
                 var sleepMs = request.Sleep;
@@ -331,7 +333,7 @@ namespace MongoDB.Driver.Encryption
                 var endpoint = CreateKmsEndPoint(request.Endpoint);
 
                 var tlsStreamSettings = GetTlsStreamSettings(request.KmsProvider);
-                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _networkStreamFactory);
+                var sslStreamFactory = new SslStreamFactory(tlsStreamSettings, _kmsStreamFactory);
                 using var sslStream = await sslStreamFactory.CreateStreamAsync(endpoint, cancellation).ConfigureAwait(false);
 
                 var sleepMs = request.Sleep;

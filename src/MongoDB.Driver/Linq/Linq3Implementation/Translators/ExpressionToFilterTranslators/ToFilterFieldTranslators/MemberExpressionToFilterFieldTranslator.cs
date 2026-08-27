@@ -86,7 +86,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
             }
 
-            if (DocumentSerializerHelper.AreMembersRepresentedAsFields(fieldSerializer , out var documentSerializer) &&
+            if (DocumentSerializerHelper.AreMembersRepresentedAsFields(fieldSerializer, out var documentSerializer) &&
                 documentSerializer.TryGetMemberSerializationInfo(memberExpression.Member.Name, out BsonSerializationInfo memberSerializationInfo))
             {
                 var subFieldSerializer = memberSerializationInfo.Serializer;

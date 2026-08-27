@@ -21,7 +21,7 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionToPipelineTranslators
 {
-    public class UnionMethodToPipelineTranslatorTests: Linq3IntegrationTest
+    public class UnionMethodToPipelineTranslatorTests : Linq3IntegrationTest
     {
         private readonly IMongoCollection<Company> _firstCollection;
         private readonly IMongoCollection<Company> _secondCollection;

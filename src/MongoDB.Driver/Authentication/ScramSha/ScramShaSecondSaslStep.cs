@@ -87,7 +87,7 @@ namespace MongoDB.Driver.Authentication.ScramSha
             var proof = "p=" + Convert.ToBase64String(clientProof);
             var clientFinalMessage = clientFinalMessageWithoutProof + "," + proof;
 
-            return(encoding.GetBytes(clientFinalMessage), new ScramShaLastSaslStep(serverSignature));
+            return (encoding.GetBytes(clientFinalMessage), new ScramShaLastSaslStep(serverSignature));
         }
 
         public Task<(byte[] BytesToSendToServer, ISaslStep NextStep)> ExecuteAsync(

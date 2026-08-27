@@ -18,7 +18,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
-using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.TestHelpers;
@@ -149,9 +148,10 @@ namespace MongoDB.Driver.Core.Operations
         {
             var subject = new EstimatedDocumentCountOperation(_collectionNamespace, _messageEncoderSettings);
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = CreateCommand(subject, connectionDescription, session);
+            var result = CreateCommand(operationContext, subject, connectionDescription);
 
             AssertCommandDocument(result);
         }
@@ -170,9 +170,10 @@ namespace MongoDB.Driver.Core.Operations
                 MaxTime = TimeSpan.FromTicks(maxTimeTicks)
             };
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = CreateCommand(subject, connectionDescription, session);
+            var result = CreateCommand(operationContext, subject, connectionDescription);
 
             AssertCommandDocument(result, expectedMaxTimeMS: expectedMaxTimeMS);
         }
@@ -189,9 +190,10 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            var session = OperationTestHelper.CreateSession();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = CreateCommand(subject, connectionDescription, session);
+            var result = CreateCommand(operationContext, subject, connectionDescription);
 
             AssertCommandDocument(result, readConcern: readConcern.IsServerDefault ? null : readConcern.ToBsonDocument());
         }
@@ -208,9 +210,10 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
-            var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+            using var session = OperationTestHelper.CreateSession(true, new BsonTimestamp(100));
+            using var operationContext = new OperationContext(session);
 
-            var result = CreateCommand(subject, connectionDescription, session);
+            var result = CreateCommand(operationContext, subject, connectionDescription);
 
             var expectedReadConcernDocument = readConcern.ToBsonDocument();
             expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);
@@ -242,7 +245,10 @@ namespace MongoDB.Driver.Core.Operations
 
             using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
-                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
+                using var session = OperationTestHelper.CreateSession();
+                using var operationContext = new OperationContext(session);
+
+                var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, failPoint.Binding, async));
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
@@ -325,10 +331,10 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private BsonDocument CreateCommand(EstimatedDocumentCountOperation subject, ConnectionDescription connectionDescription, ICoreSession session)
+        private BsonDocument CreateCommand(OperationContext operationContext, EstimatedDocumentCountOperation subject, ConnectionDescription connectionDescription)
         {
             var countOperation = (CountOperation)subject.CreateCountOperation();
-            return countOperation.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            return countOperation.CreateCommand(operationContext, connectionDescription);
         }
 
         private void EnsureTestData()

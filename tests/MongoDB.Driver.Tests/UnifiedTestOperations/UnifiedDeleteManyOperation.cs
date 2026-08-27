@@ -93,6 +93,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "collation":
+                        options ??= new DeleteOptions();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
+                        break;
                     case "comment":
                         options ??= new DeleteOptions();
                         options.Comment = argument.Value;
@@ -130,7 +134,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "deletedCount", result.DeletedCount }
+                { "deletedCount", () => result.DeletedCount, result.IsAcknowledged }
             };
 
             return OperationResult.FromResult(document);

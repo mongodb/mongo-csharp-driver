@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannel(ChannelSource.GetChannel(operationContext));
-                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, operationContext.Session);
             }
             catch
             {
@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Core.Operations
                 }
                 operationContext.ThrowIfTimedOutOrCanceled();
                 ReplaceChannel(await ChannelSource.GetChannelAsync(operationContext).ConfigureAwait(false));
-                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, Binding.Session);
+                ChannelPinningHelper.PinChannellIfRequired(ChannelSource, Channel, operationContext.Session);
             }
             catch
             {

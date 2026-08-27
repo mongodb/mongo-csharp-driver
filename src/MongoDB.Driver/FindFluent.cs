@@ -58,34 +58,6 @@ namespace MongoDB.Driver
             return Project(projection);
         }
 
-        [Obsolete("Use CountDocuments instead.")]
-        public override long Count(CancellationToken cancellationToken)
-        {
-            var options = CreateCountOptions();
-            if (_session == null)
-            {
-                return _collection.Count(_filter, options, cancellationToken);
-            }
-            else
-            {
-                return _collection.Count(_session, _filter, options, cancellationToken);
-            }
-        }
-
-        [Obsolete("Use CountDocumentsAsync instead.")]
-        public override Task<long> CountAsync(CancellationToken cancellationToken)
-        {
-            var options = CreateCountOptions();
-            if (_session == null)
-            {
-                return _collection.CountAsync(_filter, options, cancellationToken);
-            }
-            else
-            {
-                return _collection.CountAsync(_session, _filter, options, cancellationToken);
-            }
-        }
-
         public override long CountDocuments(CancellationToken cancellationToken)
         {
             var options = CreateCountOptions();
@@ -136,9 +108,6 @@ namespace MongoDB.Driver
                 MaxTime = _options.MaxTime,
                 Min = _options.Min,
                 NoCursorTimeout = _options.NoCursorTimeout,
-#pragma warning disable 618
-                OplogReplay = _options.OplogReplay,
-#pragma warning restore 618
                 Projection = projection,
                 ReturnKey = _options.ReturnKey,
                 ShowRecordId = _options.ShowRecordId,
@@ -284,7 +253,7 @@ namespace MongoDB.Driver
         {
             var args = new RenderArgs<TDocument>(
                 _collection.DocumentSerializer,
-                _collection.Settings.SerializerRegistry,
+                _collection.Settings.SerializationDomain,
                 renderForFind: renderForFind,
                 translationOptions: translationOptions);
 

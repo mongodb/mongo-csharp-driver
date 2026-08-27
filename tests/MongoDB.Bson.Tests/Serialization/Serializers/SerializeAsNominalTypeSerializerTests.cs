@@ -87,7 +87,7 @@ namespace MongoDB.Bson.Serialization.Serializers
 
         public class C { }
 
-        public class  D : C {  }
+        public class D : C { }
 
         public class CSerializer1 : SerializerBase<C> { }
 

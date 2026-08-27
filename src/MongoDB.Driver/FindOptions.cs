@@ -38,7 +38,6 @@ namespace MongoDB.Driver
         private TimeSpan? _maxTime;
         private BsonDocument _min;
         private bool? _noCursorTimeout;
-        private bool? _oplogReplay;
         private bool? _returnKey;
         private bool? _showRecordId;
         private TimeSpan? _timeout;
@@ -169,16 +168,6 @@ namespace MongoDB.Driver
         {
             get { return _noCursorTimeout; }
             set { _noCursorTimeout = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets whether the OplogReplay bit will be set.
-        /// </summary>
-        [Obsolete("OplogReplay is ignored by server versions 4.4.0 and newer.")]
-        public bool? OplogReplay
-        {
-            get { return _oplogReplay; }
-            set { _oplogReplay = value; }
         }
 
         /// <summary>

@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
@@ -53,13 +52,10 @@ namespace MongoDB.Driver.Core.Servers
         // methods
         public TResult Command<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
@@ -71,14 +67,18 @@ namespace MongoDB.Driver.Core.Servers
                 roundTripTime = selectedServer.DescriptionWhenSelected.AverageRoundTripTime;
             }
 
+            if (_server.ClusterClock == null)
+            {
+                throw new InvalidOperationException("ClusterClock should be not-null.");
+            }
+
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(session),
+                operationContext.Session,
+                _server.ClusterClock,
                 readPreference,
                 databaseNamespace,
                 command,
                 commandPayloads,
-                commandValidator,
-                additionalOptions,
                 postWriteAction,
                 responseHandling,
                 resultSerializer,
@@ -86,18 +86,15 @@ namespace MongoDB.Driver.Core.Servers
                 _server.ServerApi,
                 roundTripTime);
 
-            return ExecuteProtocol(operationContext, protocol, session);
+            return ExecuteProtocol(operationContext, protocol, operationContext.Session);
         }
 
         public Task<TResult> CommandAsync<TResult>(
             OperationContext operationContext,
-            ICoreSession session,
             ReadPreference readPreference,
             DatabaseNamespace databaseNamespace,
             BsonDocument command,
             IEnumerable<BatchableCommandMessageSection> commandPayloads,
-            IElementNameValidator commandValidator,
-            BsonDocument additionalOptions,
             Action<IMessageEncoderPostProcessor> postWriteAction,
             CommandResponseHandling responseHandling,
             IBsonSerializer<TResult> resultSerializer,
@@ -109,14 +106,18 @@ namespace MongoDB.Driver.Core.Servers
                 roundTripTime = selectedServer.DescriptionWhenSelected.AverageRoundTripTime;
             }
 
+            if (_server.ClusterClock == null)
+            {
+                throw new InvalidOperationException("ClusterClock should be not-null.");
+            }
+
             var protocol = new CommandWireProtocol<TResult>(
-                CreateClusterClockAdvancingCoreSession(session),
+                operationContext.Session,
+                _server.ClusterClock,
                 readPreference,
                 databaseNamespace,
                 command,
                 commandPayloads,
-                commandValidator,
-                additionalOptions,
                 postWriteAction,
                 responseHandling,
                 resultSerializer,
@@ -124,7 +125,7 @@ namespace MongoDB.Driver.Core.Servers
                 _server.ServerApi,
                 roundTripTime);
 
-            return ExecuteProtocolAsync(operationContext, protocol, session);
+            return ExecuteProtocolAsync(operationContext, protocol, operationContext.Session);
         }
 
         public void Dispose()
@@ -138,11 +139,6 @@ namespace MongoDB.Driver.Core.Servers
 
                 _connection.Dispose();
             }
-        }
-
-        private ICoreSession CreateClusterClockAdvancingCoreSession(ICoreSession session)
-        {
-            return new ClusterClockAdvancingCoreSession(session, _server.ClusterClock);
         }
 
         private TResult ExecuteProtocol<TResult>(OperationContext operationContext, IWireProtocol<TResult> protocol, ICoreSession session)

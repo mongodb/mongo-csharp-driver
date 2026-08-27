@@ -62,7 +62,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         // https://github.com/mongodb/specifications/blob/44176c1b633819b5a070e05148a989d0c79d406d/source/auth/tests/mongodb-oidc.md?plain=1#L47
         [Theory]
         [ParameterAttributeData]
-        public async Task Callback_authentication_callback_called_during_authentication([Values(false, true)]bool async)
+        public async Task Callback_authentication_callback_called_during_authentication([Values(false, true)] bool async)
         {
             EnsureOidcIsConfigured();
 
@@ -85,7 +85,7 @@ namespace MongoDB.Driver.Tests.Specifications.auth
         // https://github.com/mongodb/specifications/blob/44176c1b633819b5a070e05148a989d0c79d406d/source/auth/tests/mongodb-oidc.md?plain=1#L54
         [Theory]
         [ParameterAttributeData]
-        public async Task Callback_authentication_callback_called_once_for_multiple_connections([Values(false, true)]bool async)
+        public async Task Callback_authentication_callback_called_once_for_multiple_connections([Values(false, true)] bool async)
         {
             EnsureOidcIsConfigured();
 

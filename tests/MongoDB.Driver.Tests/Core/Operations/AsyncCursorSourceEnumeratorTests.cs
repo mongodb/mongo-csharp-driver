@@ -171,6 +171,7 @@ namespace MongoDB.Driver.Tests.Core.Operations
 
             return new AsyncCursor<BsonDocument>(
                 channelSource: new Mock<IChannelSource>().Object,
+                session: Mock.Of<ICoreSessionHandle>(),
                 collectionNamespace: new CollectionNamespace("test", "collection"),
                 comment: null,
                 firstBatch: firstBatch,

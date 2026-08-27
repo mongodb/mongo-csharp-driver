@@ -1,4 +1,4 @@
-/* Copyright 2021-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 */
 
 using System.Net;
-using System;
-using System.Runtime.Serialization;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
@@ -45,16 +43,6 @@ namespace MongoDB.Driver
         /// <param name="message">The error message.</param>
         public MongoConnectionPoolPausedException(string message)
             : base(message, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MongoConnectionPoolPausedException"/> class.
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        protected MongoConnectionPoolPausedException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

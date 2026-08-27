@@ -17,6 +17,7 @@ using System;
 using System.Linq.Expressions;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Linq.Linq3Implementation.SerializerFinders;
 using Xunit;
@@ -31,7 +32,7 @@ public class MqlTests
     {
         var serializerMap = TestHelpers.CreateSerializerMap(expression);
 
-        SerializerFinder.FindSerializers(expression.Body, null, serializerMap);
+        SerializerFinder.FindSerializers(BsonSerializer.DefaultSerializationDomain, expression.Body, null, serializerMap);
 
         serializerMap.IsKnown(expression.Body, out _).Should().BeTrue();
         serializerMap.GetSerializer(expression.Body).Should().BeOfType(expectedSerializerType);
@@ -44,8 +45,12 @@ public class MqlTests
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd")), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd", "UTC")), typeof(DateTimeSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.DateFromString(model.DateString, "yyyy-MM-dd", "UTC", null, null)), typeof(NullableSerializer<DateTime>)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.EncStrContains(model.Field, "value")), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.EncStrEndsWith(model.Field, "value")), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.EncStrNormalizedEq(model.Field, "value")), typeof(BooleanSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.EncStrStartsWith(model.Field, "value")), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.Exists(model.Field)), typeof(BooleanSerializer)],
-        [TestHelpers.MakeLambda((MyModel model) => Mql.Hash(model.Data, MqlHashAlgorithm.SHA256)), typeof(BsonBinaryDataSerializer)],
+        [TestHelpers.MakeLambda((MyModel model) => Mql.Hash(model.Data, MqlHashAlgorithm.SHA256)), typeof(BsonValueCSharpNullSerializer<BsonBinaryData>)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.HexHash(model.Data, MqlHashAlgorithm.SHA256)), typeof(StringSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.IsMissing(model.Field)), typeof(BooleanSerializer)],
         [TestHelpers.MakeLambda((MyModel model) => Mql.IsNullOrMissing(model.Field)), typeof(BooleanSerializer)],

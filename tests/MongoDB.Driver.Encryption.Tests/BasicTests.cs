@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Xunit;
 using System.Text;
 using FluentAssertions;
+using MongoDB.Bson;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Encryption.Tests
@@ -418,7 +418,9 @@ namespace MongoDB.Driver.Encryption.Tests
         [Theory]
         [InlineData("aws")]
         [InlineData("azure")]
-#if NETCOREAPP3_0
+        // GCP requires RSA signing, which SigningRSAESPKCSCallback does not support on .NET Framework
+        // (it throws PlatformNotSupportedException there).
+#if !NET472
         [InlineData("gcp")]
 #endif
         [InlineData("kmip")]
@@ -680,7 +682,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null, textOptions: null);
         }
 
-        static IEnumerable<string> FindTestDirectories()
+        private static IEnumerable<string> FindTestDirectories()
         {
             string[] searchPaths = new[] { Path.Combine("..", "test", "example"), Path.Combine("..", "test", "data") };
             var assemblyLocation = Path.GetDirectoryName(typeof(BasicTests).GetTypeInfo().Assembly.Location);
@@ -702,7 +704,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return testDirs;
         }
 
-        static string ReadHttpTestFile(string file)
+        private static string ReadHttpTestFile(string file)
         {
             // The HTTP tests assume \r\n
             // And git strips \r on Unix machines by default so fix up the files
@@ -719,7 +721,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return builder.ToString();
         }
 
-        static BsonDocument ReadJsonTestFile(string file)
+        private static BsonDocument ReadJsonTestFile(string file)
         {
             var text = ReadTestFile(file);
 
@@ -736,7 +738,7 @@ namespace MongoDB.Driver.Encryption.Tests
             return BsonUtil.FromJSON(text);
         }
 
-        static string ReadTestFile(string fileName)
+        private static string ReadTestFile(string fileName)
         {
             return FindTestDirectories()
                 .Select(directory => Path.Combine(directory, fileName))

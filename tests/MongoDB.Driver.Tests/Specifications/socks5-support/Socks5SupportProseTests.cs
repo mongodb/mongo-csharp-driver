@@ -62,9 +62,9 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
 
         return
             (from tc in testCases
-                from useTls in new[] { true, false }
-                from isAsync in new[] { true, false }
-                select new { tc.ConnectionString, tc.ExpectedResult, useTls, isAsync })
+             from useTls in new[] { true, false }
+             from isAsync in new[] { true, false }
+             select new { tc.ConnectionString, tc.ExpectedResult, useTls, isAsync })
             .Select((x, i) => new object[]
             {
                 $"{i}_{(x.useTls ? "Tls" : "NoTls")}_{(x.isAsync ? "Async" : "Sync")}",
@@ -98,7 +98,7 @@ public class Socks5SupportProseTests(ITestOutputHelper testOutputHelper)
         {
             //Convert the hosts to a format that can be used in the connection string (host:port), and join them into a string.
             actualHosts = CoreTestConfiguration.ConnectionString.Hosts.Select(h => h.GetHostAndPort()).ToList();
-            var stringHosts = string.Join(",", actualHosts.Select( h => $"{h.Host}:{h.Port}"));
+            var stringHosts = string.Join(",", actualHosts.Select(h => $"{h.Host}:{h.Port}"));
             connectionString = connectionString.Replace("<replicaset>", stringHosts);
         }
 

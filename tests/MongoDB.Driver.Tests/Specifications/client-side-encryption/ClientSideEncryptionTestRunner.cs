@@ -18,12 +18,13 @@ using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
-using MongoDB.TestHelpers.XunitExtensions;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests.Specifications.Runner;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
 {
@@ -57,6 +58,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
             {
                 // kmip requires configuring kms mock server
                 RequireEnvironment.Check().EnvironmentVariable("KMS_MOCK_SERVERS_ENABLED");
+            }
+
+            if (testCase.Name.Contains("legacy.count.json"))
+            {
+                throw new SkipException(".NET/C# driver does not implement a Count helper.");
             }
 
             RequirePlatform
@@ -340,14 +346,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
     // nested types
     public class TestCaseFactory : JsonDrivenTestCaseFactory
     {
-        #region static
-        private static readonly string[] __versionedApiIgnoredTestNames =
-        {
-            // https://jira.mongodb.org/browse/SERVER-58293
-            "explain.json:Explain a find with deterministic encryption"
-        };
-        #endregion
-
         // protected properties
         protected override string PathPrefix => "MongoDB.Driver.Tests.Specifications.client_side_encryption.tests.legacy.";
 
@@ -355,10 +353,6 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
         protected override IEnumerable<JsonDrivenTestCase> CreateTestCases(BsonDocument document)
         {
             var testCases = base.CreateTestCases(document);
-            if (CoreTestConfiguration.RequireApiVersion)
-            {
-                testCases = testCases.Where(test => !__versionedApiIgnoredTestNames.Any(ignoredName => test.Name.EndsWith(ignoredName)));
-            }
             foreach (var testCase in testCases)
             {
                 foreach (var async in new[] { false, true })

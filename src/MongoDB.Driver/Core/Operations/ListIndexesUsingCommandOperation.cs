@@ -1,4 +1,4 @@
-﻿/* Copyright 2013-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     var result = operation.Execute(operationContext, context);
-                    return CreateCursor(context.ChannelSource, context.Channel, result);
+                    return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
                 {
@@ -136,7 +136,7 @@ namespace MongoDB.Driver.Core.Operations
                 try
                 {
                     var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-                    return CreateCursor(context.ChannelSource, context.Channel, result);
+                    return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
                 }
                 catch (MongoCommandException ex) when (IsCollectionNotFoundException(ex))
                 {
@@ -162,13 +162,14 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private IAsyncCursor<BsonDocument> CreateCursor(IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument result)
+        private IAsyncCursor<BsonDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument result)
         {
             var cursorDocument = result["cursor"].AsBsonDocument;
             var cursorId = cursorDocument["id"].ToInt64();
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
             var cursor = new AsyncCursor<BsonDocument>(
                 getMoreChannelSource,
+                operationContext.Session.Fork(),
                 CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
                 _comment,
                 cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),

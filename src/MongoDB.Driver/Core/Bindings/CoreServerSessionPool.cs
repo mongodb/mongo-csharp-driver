@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
@@ -128,16 +127,14 @@ namespace MongoDB.Driver
                     }
 
                     var endSessionCommand = new BsonDocument("endSessions", new BsonArray(batch.Take(batchSize).Select(s => s.Id)));
-                    var operationContext = OperationContext.NoTimeout;
+                    using var session = NoCoreSession.NewHandle();
+                    using var operationContext = new OperationContext(session);
                     using var channel = server.GetChannel(operationContext);
                     channel.Command(
                         operationContext,
-                        NoCoreSession.Instance,
                         ReadPreference.PrimaryPreferred,
                         DatabaseNamespace.Admin,
                         endSessionCommand,
-                        null,
-                        NoOpElementNameValidator.Instance,
                         null,
                         null,
                         CommandResponseHandling.Return,
@@ -152,7 +149,7 @@ namespace MongoDB.Driver
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger?.LogError(ex, "Error closing server session pool for {clusterId}.", _cluster.ClusterId);
             }

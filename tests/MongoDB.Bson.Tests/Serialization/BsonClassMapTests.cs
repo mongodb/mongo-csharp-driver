@@ -357,7 +357,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             public bool ShouldSerializeAsOfUtc()
             {
-                return this.AsOfUtc != DateTime.MinValue;
+                return AsOfUtc != DateTime.MinValue;
             }
         }
 
@@ -729,7 +729,7 @@ namespace MongoDB.Bson.Tests.Serialization
             public int X { get; set; }
             public int Y { get; set; }
             [BsonExtraElements]
-            BsonDocument ExtraElements { get; set; }
+            private BsonDocument ExtraElements { get; set; }
         }
 
         private class D : C

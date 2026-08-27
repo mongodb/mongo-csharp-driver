@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     {
         private readonly IMongoCollection<BsonDocument> _collection;
         private readonly FilterDefinition<BsonDocument> _filter;
-        private readonly UpdateOptions _options;
+        private readonly UpdateOptions<BsonDocument> _options;
         private readonly IClientSessionHandle _session;
         private readonly UpdateDefinition<BsonDocument> _update;
 
@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             IMongoCollection<BsonDocument> collection,
             FilterDefinition<BsonDocument> filter,
             UpdateDefinition<BsonDocument> update,
-            UpdateOptions options)
+            UpdateOptions<BsonDocument> options)
         {
             _session = session;
             _collection = collection;
@@ -112,9 +112,22 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             {
                 switch (argument.Name)
                 {
+                    case "arrayFilters":
+                        options ??= new UpdateOptions<BsonDocument>();
+                        options.ArrayFilters = argument
+                            .Value
+                            .AsBsonArray
+                            .Cast<BsonDocument>()
+                            .Select(x => new BsonDocumentArrayFilterDefinition<BsonValue>(x))
+                            .ToList<ArrayFilterDefinition>();
+                        break;
                     case "bypassDocumentValidation":
                         options ??= new();
                         options.BypassDocumentValidation = argument.Value.AsBoolean;
+                        break;
+                    case "collation":
+                        options ??= new UpdateOptions<BsonDocument>();
+                        options.Collation = Collation.FromBsonDocument(argument.Value.AsBsonDocument);
                         break;
                     case "comment":
                         options ??= new UpdateOptions<BsonDocument>();
@@ -174,10 +187,10 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var document = new BsonDocument
             {
-                { "matchedCount", result.MatchedCount },
-                { "modifiedCount", result.ModifiedCount },
-                { "upsertedCount", result.UpsertedId == null ? 0 : 1 },
-                { "upsertedId", result.UpsertedId, result.UpsertedId != null}
+                { "matchedCount", () => result.MatchedCount, result.IsAcknowledged },
+                { "modifiedCount", () => result.ModifiedCount, result.IsAcknowledged },
+                { "upsertedCount", () => result.UpsertedId == null ? 0 : 1, result.IsAcknowledged },
+                { "upsertedId", () => result.UpsertedId, result.IsAcknowledged && result.UpsertedId != null}
             };
 
             return OperationResult.FromResult(document);

@@ -13,10 +13,8 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Operations;
@@ -55,25 +53,6 @@ namespace MongoDB.Driver
             }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            _writeConcernError = (WriteConcernError)info.GetValue("_writeConcernError", typeof(WriteConcernError));
-            _writeErrors = (IReadOnlyList<BulkWriteError>)info.GetValue("_writeErrors", typeof(IReadOnlyList<BulkWriteError>));
-            if (_writeConcernError != null)
-            {
-                foreach (var errorLabel in _writeConcernError.ErrorLabels)
-                {
-                    AddErrorLabel(errorLabel);
-                }
-            }
-        }
-
         // properties
         /// <summary>
         /// Gets the write concern error.
@@ -89,19 +68,6 @@ namespace MongoDB.Driver
         public IReadOnlyList<BulkWriteError> WriteErrors
         {
             get { return _writeErrors; }
-        }
-
-        // methods
-        /// <summary>
-        /// Gets the object data.
-        /// </summary>
-        /// <param name="info">The information.</param>
-        /// <param name="context">The context.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("_writeConcernError", _writeConcernError);
-            info.AddValue("_writeErrors", _writeErrors);
         }
 
         // private static methods
@@ -159,21 +125,6 @@ namespace MongoDB.Driver
             _unprocessedRequests = unprocessedRequests.ToList();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the MongoQueryException class (this overload supports deserialization).
-        /// </summary>
-        /// <param name="info">The SerializationInfo.</param>
-        /// <param name="context">The StreamingContext.</param>
-        public MongoBulkWriteException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            if (typeof(TDocument).IsSerializable)
-            {
-                _result = (BulkWriteResult<TDocument>)info.GetValue("_result", typeof(BulkWriteResult<TDocument>));
-                _unprocessedRequests = (IReadOnlyList<WriteModel<TDocument>>)info.GetValue("_unprocessedRequests", typeof(IReadOnlyList<WriteModel<TDocument>>));
-            }
-        }
-
         // public properties
         /// <summary>
         /// Gets the result of the bulk write operation.
@@ -189,22 +140,6 @@ namespace MongoDB.Driver
         public IReadOnlyList<WriteModel<TDocument>> UnprocessedRequests
         {
             get { return _unprocessedRequests; }
-        }
-
-        // methods
-        /// <summary>
-        /// Gets the object data.
-        /// </summary>
-        /// <param name="info">The information.</param>
-        /// <param name="context">The context.</param>
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            if (typeof(TDocument).IsSerializable)
-            {
-                info.AddValue("_result", _result);
-                info.AddValue("_unprocessedRequests", _unprocessedRequests);
-            }
         }
 
         // internal static methods

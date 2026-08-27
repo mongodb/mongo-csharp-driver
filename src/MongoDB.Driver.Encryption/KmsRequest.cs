@@ -105,17 +105,17 @@ namespace MongoDB.Driver.Encryption
         /// <param name="buffer">The response.</param>
         public void Feed(byte[] buffer)
         {
-                unsafe
+            unsafe
+            {
+                fixed (byte* p = buffer)
                 {
-                    fixed (byte* p = buffer)
+                    IntPtr ptr = (IntPtr)p;
+                    using (PinnedBinary pinned = new PinnedBinary(ptr, (uint)buffer.Length))
                     {
-                        IntPtr ptr = (IntPtr)p;
-                        using (PinnedBinary pinned = new PinnedBinary(ptr, (uint)buffer.Length))
-                        {
-                            Check(Library.mongocrypt_kms_ctx_feed(_id, pinned.Handle));
-                        }
+                        Check(Library.mongocrypt_kms_ctx_feed(_id, pinned.Handle));
                     }
                 }
+            }
         }
 
         void IStatus.Check(Status status)

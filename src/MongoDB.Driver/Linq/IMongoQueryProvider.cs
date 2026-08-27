@@ -48,6 +48,11 @@ namespace MongoDB.Driver.Linq
     internal interface IMongoQueryProviderInternal : IMongoQueryProvider
     {
         /// <summary>
+        /// Gets the client that owns the collection or database being queried.
+        /// </summary>
+        IMongoClient Client { get; }
+
+        /// <summary>
         /// Gets the collection namespace.
         /// </summary>
         CollectionNamespace CollectionNamespace { get; }
@@ -56,6 +61,11 @@ namespace MongoDB.Driver.Linq
         /// Gets the pipeline input serializer (the DocumentSerializer for collection queries and NoPipelineInputSerializer for database queries).
         /// </summary>
         IBsonSerializer PipelineInputSerializer { get; }
+
+        /// <summary>
+        /// Gets the serialization domain.
+        /// </summary>
+        IBsonSerializationDomain SerializationDomain { get; }
 
         /// <summary>
         /// Gets the translation options.

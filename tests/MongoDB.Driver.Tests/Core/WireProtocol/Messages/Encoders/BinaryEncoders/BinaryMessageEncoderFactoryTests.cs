@@ -16,8 +16,6 @@
 using System;
 using System.IO;
 using FluentAssertions;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Serializers;
 using Xunit;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
@@ -52,48 +50,5 @@ namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders
             }
         }
 
-        [Fact]
-        public void GetCommandRequestMessageEncoder_should_return_a_CommandRequestMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetCommandRequestMessageEncoder();
-                encoder.Should().BeOfType<CommandRequestMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetCommandResponseMessageEncoder_should_return_a_CommandResponseMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetCommandResponseMessageEncoder();
-                encoder.Should().BeOfType<CommandResponseMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetQueryMessageEncoder_should_return_a_QueryMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetQueryMessageEncoder();
-                encoder.Should().BeOfType<QueryMessageBinaryEncoder>();
-            }
-        }
-
-        [Fact]
-        public void GetReplyMessageEncoder_should_return_a_ReplyMessageBinaryEncoder()
-        {
-            using (var stream = new MemoryStream())
-            {
-                var encoderFactory = new BinaryMessageEncoderFactory(stream, null);
-                var encoder = encoderFactory.GetReplyMessageEncoder<BsonDocument>(BsonDocumentSerializer.Instance);
-                encoder.Should().BeOfType<ReplyMessageBinaryEncoder<BsonDocument>>();
-            }
-        }
     }
 }

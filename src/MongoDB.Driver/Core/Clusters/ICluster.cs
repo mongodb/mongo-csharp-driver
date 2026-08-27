@@ -62,6 +62,8 @@ namespace MongoDB.Driver.Core.Clusters
 
         ICoreServerSession AcquireServerSession();
 
+        void AppendClientMetadata(LibraryInfo libraryInfo);
+
         void Initialize();
 
         IServer SelectServer(OperationContext operationContext, IServerSelector selector);

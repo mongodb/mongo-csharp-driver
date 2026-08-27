@@ -27,11 +27,11 @@ namespace MongoDB.Driver.Tests;
 [Trait("Category", "X509")]
 public class X509Tests
 {
-    const string MONGODB_X509_CLIENT_CERTIFICATE_PATH = "MONGO_X509_CLIENT_CERTIFICATE_PATH";
-    const string MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_CERTIFICATE_PASSWORD";
+    private const string MONGODB_X509_CLIENT_CERTIFICATE_PATH = "MONGO_X509_CLIENT_CERTIFICATE_PATH";
+    private const string MONGODB_X509_CLIENT_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_CERTIFICATE_PASSWORD";
 
-    const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH";
-    const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD";
+    private const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PATH";
+    private const string MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD = "MONGO_X509_CLIENT_NO_USER_CERTIFICATE_PASSWORD";
 
     [Fact]
     public void Authentication_succeeds_with_MONGODB_X509_mechanism()
@@ -70,7 +70,7 @@ public class X509Tests
     private void AssertAuthenticationSucceeds(MongoClientSettings settings)
     {
         using var client = DriverTestConfiguration.CreateMongoClient(settings);
-        _ =  client.ListDatabaseNames().ToList();
+        _ = client.ListDatabaseNames().ToList();
     }
 
     private void AssertAuthenticationFails(MongoClientSettings settings, string innerExceptionMessage = null)

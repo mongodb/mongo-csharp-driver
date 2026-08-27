@@ -170,7 +170,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             RequireServer.Check().Supports(Feature.MedianOperator);
 
-            var result = Group(x => x.A, g => new { Result = g.Median(x=> x.C.E.F) });
+            var result = Group(x => x.A, g => new { Result = g.Median(x => x.C.E.F) });
 
             AssertStages(
                 result.Stages,
@@ -643,7 +643,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
 
             var context = TranslationContext.Create(queryable, translationOptions: null);
             var pipeline = ExpressionToPipelineTranslator.Translate(context, queryable.Expression);
-            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast);
+            var optimizedAstPipeline = AstPipelineOptimizer.Optimize(pipeline.Ast, translationOptions: null);
             pipeline = new TranslatedPipeline(optimizedAstPipeline, pipeline.OutputSerializer);
 
             var stages = pipeline.Ast.Stages.Select(s => s.Render()).Cast<BsonDocument>().ToList();

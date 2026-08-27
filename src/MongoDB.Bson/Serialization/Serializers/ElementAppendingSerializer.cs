@@ -89,7 +89,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var writer = context.Writer;
             var elementAppendingWriter = new ElementAppendingBsonWriter(writer, _elements, _writerSettingsConfigurator);
-            var elementAppendingContext = BsonSerializationContext.CreateRoot(elementAppendingWriter, builder => ConfigureElementAppendingContext(builder, context));
+            // Default domain is intentional: this serializer is only used by the wire protocol to wrap BsonDocumentSerializer with protocol metadata (lsid, txnNumber, maxTimeMS), both of which are domain-agnostic.
+            var elementAppendingContext = BsonSerializationContext.CreateRoot(elementAppendingWriter, BsonSerializationDomain.Default, builder => ConfigureElementAppendingContext(builder, context));
             _documentSerializer.Serialize(elementAppendingContext, args, value);
         }
 

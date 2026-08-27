@@ -24,13 +24,14 @@ namespace MongoDB.Bson.Serialization.Conventions
     /// <summary>
     /// Represents the object discriminator convention.
     /// </summary>
-    public class ObjectDiscriminatorConvention : IDiscriminatorConvention
+    public class ObjectDiscriminatorConvention : IDiscriminatorConvention, IHasSerializationDomain
     {
         // private static fields
         private static ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
 
         // private fields
         private string _elementName;
+        private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors
         /// <summary>
@@ -38,7 +39,16 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="elementName">The element name.</param>
         public ObjectDiscriminatorConvention(string elementName)
+            : this(BsonSerializationDomain.Default, elementName)
         {
+        }
+
+        internal ObjectDiscriminatorConvention(IBsonSerializationDomain serializationDomain, string elementName)
+        {
+            if (serializationDomain == null)
+            {
+                throw new ArgumentNullException("serializationDomain");
+            }
             if (elementName == null)
             {
                 throw new ArgumentNullException("elementName");
@@ -47,6 +57,8 @@ namespace MongoDB.Bson.Serialization.Conventions
             {
                 throw new ArgumentException("Element names cannot contain nulls.", "elementName");
             }
+
+            _serializationDomain = serializationDomain;
             _elementName = elementName;
         }
 
@@ -67,6 +79,8 @@ namespace MongoDB.Bson.Serialization.Conventions
         {
             get { return _elementName; }
         }
+
+        IBsonSerializationDomain IHasSerializationDomain.SerializationDomain => _serializationDomain;
 
         // public methods
         /// <inheritdoc/>
@@ -135,7 +149,7 @@ namespace MongoDB.Bson.Serialization.Conventions
                     {
                         discriminator = discriminator.AsBsonArray.Last(); // last item is leaf class discriminator
                     }
-                    actualType = BsonSerializer.LookupActualType(nominalType, discriminator);
+                    actualType = _serializationDomain.LookupActualType(nominalType, discriminator);
                 }
                 bsonReader.ReturnToBookmark(bookmark);
                 return actualType;

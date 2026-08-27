@@ -18,114 +18,56 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 
-namespace MongoDB.Driver
+namespace MongoDB.Driver;
+
+/// <summary>
+/// Options for updating a single document.
+/// </summary>
+public sealed class UpdateOptions<T>
 {
     /// <summary>
-    /// Options for updating a single document.
+    /// Gets or sets the array filters.
     /// </summary>
-    public class UpdateOptions
-    {
-        // fields
-        private IEnumerable<ArrayFilterDefinition> _arrayFilters;
-        private bool? _bypassDocumentValidation;
-        private Collation _collation;
-        private BsonValue _comment;
-        private BsonValue _hint;
-        private bool _isUpsert;
-        private BsonDocument _let;
-        private TimeSpan? _timeout;
-
-        // properties
-        /// <summary>
-        /// Gets or sets the array filters.
-        /// </summary>
-        /// <value>
-        /// The array filters.
-        /// </value>
-        public IEnumerable<ArrayFilterDefinition> ArrayFilters
-        {
-            get { return _arrayFilters; }
-            set { _arrayFilters = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to bypass document validation.
-        /// </summary>
-        public bool? BypassDocumentValidation
-        {
-            get { return _bypassDocumentValidation; }
-            set { _bypassDocumentValidation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the collation.
-        /// </summary>
-        public Collation Collation
-        {
-            get { return _collation; }
-            set { _collation = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the comment.
-        /// </summary>
-        public BsonValue Comment
-        {
-            get { return _comment; }
-            set { _comment = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the hint.
-        /// </summary>
-        public BsonValue Hint
-        {
-            get { return _hint; }
-            set { _hint = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
-        /// </summary>
-        public bool IsUpsert
-        {
-            get { return _isUpsert; }
-            set { _isUpsert = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the let document.
-        /// </summary>
-        public BsonDocument Let
-        {
-            get { return _let; }
-            set { _let = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the operation timeout.
-        /// </summary>
-        // TODO: CSOT: Make it public when CSOT will be ready for GA
-        internal TimeSpan? Timeout
-        {
-            get => _timeout;
-            set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
-        }
-    }
+    public IEnumerable<ArrayFilterDefinition> ArrayFilters { get; set; }
 
     /// <summary>
-    /// Options for updating a single document and specifying a sort order.
+    /// Gets or sets a value indicating whether to bypass document validation.
     /// </summary>
-    public sealed class UpdateOptions<T> : UpdateOptions
-    {
-        private SortDefinition<T> _sort;
+    public bool? BypassDocumentValidation { get; set; }
 
-        /// <summary>
-        /// Gets or sets the sort definition.
-        /// </summary>
-        public SortDefinition<T> Sort
-        {
-            get { return _sort; }
-            set { _sort = value; }
-        }
-    }}
+    /// <summary>
+    /// Gets or sets the collation.
+    /// </summary>
+    public Collation Collation { get; set; }
+
+    /// <summary>
+    /// Gets or sets the comment.
+    /// </summary>
+    public BsonValue Comment { get; set; }
+
+    /// <summary>
+    /// Gets or sets the hint.
+    /// </summary>
+    public BsonValue Hint { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to insert the document if it doesn't already exist.
+    /// </summary>
+    public bool IsUpsert { get; set; }
+
+    /// <summary>
+    /// Gets or sets the let document.
+    /// </summary>
+    public BsonDocument Let { get; set; }
+
+    /// <summary>
+    /// Gets or sets the sort definition.
+    /// </summary>
+    public SortDefinition<T> Sort { get; set; }
+
+    /// <summary>
+    /// Gets or sets the operation timeout.
+    /// </summary>
+    // TODO: CSOT: Make it public when CSOT will be ready for GA
+    internal TimeSpan? Timeout { get; set => field = Ensure.IsNullOrValidTimeout(value, nameof(Timeout)); }
+}

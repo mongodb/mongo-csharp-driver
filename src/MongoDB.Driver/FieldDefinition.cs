@@ -91,17 +91,6 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="fieldName">The field name.</param>
         /// <param name="fieldSerializer">The field serializer.</param>
-        [Obsolete("Use the constructor that takes 4 arguments instead.")]
-        public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer)
-            : this(fieldName, fieldSerializer, fieldSerializer, fieldSerializer)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RenderedFieldDefinition{TField}" /> class.
-        /// </summary>
-        /// <param name="fieldName">The field name.</param>
-        /// <param name="fieldSerializer">The field serializer.</param>
         /// <param name="valueSerializer">The value serializer.</param>
         /// <param name="underlyingSerializer">The underlying serializer.</param>
         public RenderedFieldDefinition(string fieldName, IBsonSerializer<TField> fieldSerializer, IBsonSerializer<TField> valueSerializer, IBsonSerializer underlyingSerializer)
@@ -259,7 +248,7 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition Render(RenderArgs<TDocument> args)
         {
             return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
-                args.SerializerRegistry, args.TranslationOptions, args.SubPathRoot);
+                args.SerializationDomain, args.TranslationOptions, args.SubPathRoot);
         }
     }
 
@@ -293,7 +282,7 @@ namespace MongoDB.Driver
         public override RenderedFieldDefinition<TField> Render(RenderArgs<TDocument> args)
         {
             return LinqProviderAdapter.TranslateExpressionToField(_expression, args.DocumentSerializer,
-                args.SerializerRegistry, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray,
+                args.SerializationDomain, args.TranslationOptions, args.PathRenderArgs.AllowScalarValueForArray,
                 args.SubPathRoot);
         }
     }

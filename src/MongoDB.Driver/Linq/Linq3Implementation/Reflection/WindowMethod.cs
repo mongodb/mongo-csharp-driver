@@ -33,6 +33,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __averageWithNullableInt64;
         private static readonly MethodInfo __averageWithNullableSingle;
         private static readonly MethodInfo __averageWithSingle;
+        private static readonly MethodInfo __bottom;
+        private static readonly MethodInfo __bottomN;
+        private static readonly MethodInfo __concatArrays;
         private static readonly MethodInfo __count;
         private static readonly MethodInfo __covariancePopulationWithDecimals;
         private static readonly MethodInfo __covariancePopulationWithDoubles;
@@ -72,6 +75,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __exponentialMovingAverageWithInt64;
         private static readonly MethodInfo __exponentialMovingAverageWithSingle;
         private static readonly MethodInfo __first;
+        private static readonly MethodInfo __firstN;
         private static readonly MethodInfo __integralWithDecimal;
         private static readonly MethodInfo __integralWithDecimalAndUnit;
         private static readonly MethodInfo __integralWithDouble;
@@ -83,8 +87,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __integralWithSingle;
         private static readonly MethodInfo __integralWithSingleAndUnit;
         private static readonly MethodInfo __last;
+        private static readonly MethodInfo __lastN;
         private static readonly MethodInfo __locf;
         private static readonly MethodInfo __max;
+        private static readonly MethodInfo __maxN;
         private static readonly MethodInfo __medianWithDecimal;
         private static readonly MethodInfo __medianWithDouble;
         private static readonly MethodInfo __medianWithInt32;
@@ -96,6 +102,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __medianWithNullableSingle;
         private static readonly MethodInfo __medianWithSingle;
         private static readonly MethodInfo __min;
+        private static readonly MethodInfo __minMaxScalerWithDecimal;
+        private static readonly MethodInfo __minMaxScalerWithDouble;
+        private static readonly MethodInfo __minMaxScalerWithInt32;
+        private static readonly MethodInfo __minMaxScalerWithInt64;
+        private static readonly MethodInfo __minMaxScalerWithNullableDecimal;
+        private static readonly MethodInfo __minMaxScalerWithNullableDouble;
+        private static readonly MethodInfo __minMaxScalerWithNullableInt32;
+        private static readonly MethodInfo __minMaxScalerWithNullableInt64;
+        private static readonly MethodInfo __minMaxScalerWithNullableSingle;
+        private static readonly MethodInfo __minMaxScalerWithSingle;
+        private static readonly MethodInfo __minN;
         private static readonly MethodInfo __percentileWithDecimal;
         private static readonly MethodInfo __percentileWithDouble;
         private static readonly MethodInfo __percentileWithInt32;
@@ -108,6 +125,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __percentileWithSingle;
         private static readonly MethodInfo __push;
         private static readonly MethodInfo __rank;
+        private static readonly MethodInfo __setUnion;
         private static readonly MethodInfo __shift;
         private static readonly MethodInfo __shiftWithDefaultValue;
         private static readonly MethodInfo __standardDeviationPopulationWithDecimal;
@@ -140,6 +158,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly MethodInfo __sumWithNullableInt64;
         private static readonly MethodInfo __sumWithNullableSingle;
         private static readonly MethodInfo __sumWithSingle;
+        private static readonly MethodInfo __top;
+        private static readonly MethodInfo __topN;
 
         // sets of methods
         private static readonly IReadOnlyMethodInfoSet __averageOverloads;
@@ -149,7 +169,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         private static readonly IReadOnlyMethodInfoSet __exponentialMovingAverageOverloads;
         private static readonly IReadOnlyMethodInfoSet __integralOverloads;
         private static readonly IReadOnlyMethodInfoSet __medianOverloads;
+        private static readonly IReadOnlyMethodInfoSet __minMaxScalerOverloads;
         private static readonly IReadOnlyMethodInfoSet __percentileOverloads;
+        private static readonly IReadOnlyMethodInfoSet __pickOverloads;
         private static readonly IReadOnlyMethodInfoSet __standardDeviationPopulationOverloads;
         private static readonly IReadOnlyMethodInfoSet __standardDeviationSampleOverloads;
         private static readonly IReadOnlyMethodInfoSet __sumOverloads;
@@ -174,6 +196,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __averageWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
             __averageWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Average(selector, window));
+            __bottom = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Bottom(sortBy, selector, window));
+            __bottomN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.BottomN(sortBy, selector, n, window));
+            __concatArrays = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.ConcatArrays(selector, window));
             __count = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SetWindowFieldsWindow window) => partition.Count(window));
             __covariancePopulationWithDecimals = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector1, Func<object, decimal> selector2, SetWindowFieldsWindow window) => partition.CovariancePopulation(selector1, selector2, window));
             __covariancePopulationWithDoubles = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector1, Func<object, double> selector2, SetWindowFieldsWindow window) => partition.CovariancePopulation(selector1, selector2, window));
@@ -205,7 +230,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __derivativeWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, SetWindowFieldsWindow window) => partition.Derivative(selector, window));
             __derivativeWithInt64AndUnit = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, WindowTimeUnit unit, SetWindowFieldsWindow window) => partition.Derivative(selector, unit, window));
             __derivativeWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Derivative(selector, window));
-            __derivativeWithSingleAndUnit = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, WindowTimeUnit unit, SetWindowFieldsWindow window) => partition.Derivative(selector, unit, window));;
+            __derivativeWithSingleAndUnit = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, WindowTimeUnit unit, SetWindowFieldsWindow window) => partition.Derivative(selector, unit, window)); ;
             __documentNumber = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition) => partition.DocumentNumber());
             __exponentialMovingAverageWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, ExponentialMovingAverageWeighting weighting, SetWindowFieldsWindow window) => partition.ExponentialMovingAverage(selector, weighting, window));
             __exponentialMovingAverageWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, ExponentialMovingAverageWeighting weighting, SetWindowFieldsWindow window) => partition.ExponentialMovingAverage(selector, weighting, window));
@@ -213,6 +238,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __exponentialMovingAverageWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, ExponentialMovingAverageWeighting weighting, SetWindowFieldsWindow window) => partition.ExponentialMovingAverage(selector, weighting, window));
             __exponentialMovingAverageWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, ExponentialMovingAverageWeighting weighting, SetWindowFieldsWindow window) => partition.ExponentialMovingAverage(selector, weighting, window));
             __first = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.First(selector, window));
+            __firstN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.FirstN(selector, n, window));
             __integralWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Integral(selector, window));
             __integralWithDecimalAndUnit = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, WindowTimeUnit unit, SetWindowFieldsWindow window) => partition.Integral(selector, unit, window));
             __integralWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Integral(selector, window));
@@ -224,8 +250,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __integralWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Integral(selector, window));
             __integralWithSingleAndUnit = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, WindowTimeUnit unit, SetWindowFieldsWindow window) => partition.Integral(selector, unit, window)); ;
             __last = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Last(selector, window));
+            __lastN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.LastN(selector, n, window));
             __locf = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Locf(selector, window));
             __max = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Max(selector, window));
+            __maxN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.MaxN(selector, n, window));
             __medianWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __medianWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __medianWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
@@ -237,6 +265,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __medianWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __medianWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Median(selector, window));
             __min = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Min(selector, window));
+            __minMaxScalerWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minMaxScalerWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, double min, double max, SetWindowFieldsWindow window) => partition.MinMaxScaler(selector, min, max, window));
+            __minN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.MinN(selector, n, window));
             __percentileWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __percentileWithDouble = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, double> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __percentileWithInt32 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, int> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
@@ -249,6 +288,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __percentileWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, IEnumerable<double> percentiles, SetWindowFieldsWindow window) => partition.Percentile(selector, percentiles, window));
             __push = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Push(selector, window));
             __rank = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition) => partition.Rank());
+            __setUnion = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, IEnumerable<object>> selector, SetWindowFieldsWindow window) => partition.SetUnion(selector, window));
             __shift = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int by) => partition.Shift(selector, by));
             __shiftWithDefaultValue = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, object> selector, int by, object defaultValue) => partition.Shift(selector, by, defaultValue));
             __standardDeviationPopulationWithDecimal = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, decimal> selector, SetWindowFieldsWindow window) => partition.StandardDeviationPopulation(selector, window));
@@ -281,6 +321,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
             __sumWithNullableInt64 = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, long?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithNullableSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float?> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
             __sumWithSingle = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, Func<object, float> selector, SetWindowFieldsWindow window) => partition.Sum(selector, window));
+            __top = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, SetWindowFieldsWindow window) => partition.Top(sortBy, selector, window));
+            __topN = ReflectionInfo.Method((ISetWindowFieldsPartition<object> partition, SortDefinition<object> sortBy, Func<object, object> selector, int n, SetWindowFieldsWindow window) => partition.TopN(sortBy, selector, n, window));
 
             // initialize sets of methods after methods
             __averageOverloads = MethodInfoSet.Create(
@@ -376,6 +418,20 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __medianWithSingle
             ]);
 
+            __minMaxScalerOverloads = MethodInfoSet.Create(
+            [
+                __minMaxScalerWithDecimal,
+                __minMaxScalerWithDouble,
+                __minMaxScalerWithInt32,
+                __minMaxScalerWithInt64,
+                __minMaxScalerWithNullableDecimal,
+                __minMaxScalerWithNullableDouble,
+                __minMaxScalerWithNullableInt32,
+                __minMaxScalerWithNullableInt64,
+                __minMaxScalerWithNullableSingle,
+                __minMaxScalerWithSingle
+            ]);
+
             __percentileOverloads = MethodInfoSet.Create(
             [
                 __percentileWithDecimal,
@@ -388,6 +444,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
                 __percentileWithNullableInt64,
                 __percentileWithNullableSingle,
                 __percentileWithSingle
+            ]);
+
+            __pickOverloads = MethodInfoSet.Create(
+            [
+                __bottom,
+                __bottomN,
+                __firstN,
+                __lastN,
+                __maxN,
+                __minN,
+                __top,
+                __topN
             ]);
 
             __standardDeviationPopulationOverloads = MethodInfoSet.Create(
@@ -464,6 +532,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo AverageWithNullableInt64 => __averageWithNullableInt64;
         public static MethodInfo AverageWithNullableSingle => __averageWithNullableSingle;
         public static MethodInfo AverageWithSingle => __averageWithSingle;
+        public static MethodInfo Bottom => __bottom;
+        public static MethodInfo BottomN => __bottomN;
+        public static MethodInfo ConcatArrays => __concatArrays;
         public static MethodInfo Count => __count;
         public static MethodInfo CovariancePopulationWithDecimals => __covariancePopulationWithDecimals;
         public static MethodInfo CovariancePopulationWithDoubles => __covariancePopulationWithDoubles;
@@ -503,6 +574,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo ExponentialMovingAverageWithInt64 => __exponentialMovingAverageWithInt64;
         public static MethodInfo ExponentialMovingAverageWithSingle => __exponentialMovingAverageWithSingle;
         public static MethodInfo First => __first;
+        public static MethodInfo FirstN => __firstN;
         public static MethodInfo IntegralWithDecimal => __integralWithDecimal;
         public static MethodInfo IntegralWithDecimalAndUnit => __integralWithDecimalAndUnit;
         public static MethodInfo IntegralWithDouble => __integralWithDouble;
@@ -514,8 +586,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo IntegralWithSingle => __integralWithSingle;
         public static MethodInfo IntegralWithSingleAndUnit => __integralWithSingleAndUnit;
         public static MethodInfo Last => __last;
+        public static MethodInfo LastN => __lastN;
         public static MethodInfo Locf => __locf;
         public static MethodInfo Max => __max;
+        public static MethodInfo MaxN => __maxN;
         public static MethodInfo MedianWithDecimal => __medianWithDecimal;
         public static MethodInfo MedianWithDouble => __medianWithDouble;
         public static MethodInfo MedianWithInt32 => __medianWithInt32;
@@ -527,6 +601,17 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo MedianWithNullableSingle => __medianWithNullableSingle;
         public static MethodInfo MedianWithSingle => __medianWithSingle;
         public static MethodInfo Min => __min;
+        public static MethodInfo MinMaxScalerWithDecimal => __minMaxScalerWithDecimal;
+        public static MethodInfo MinMaxScalerWithDouble => __minMaxScalerWithDouble;
+        public static MethodInfo MinMaxScalerWithInt32 => __minMaxScalerWithInt32;
+        public static MethodInfo MinMaxScalerWithInt64 => __minMaxScalerWithInt64;
+        public static MethodInfo MinMaxScalerWithNullableDecimal => __minMaxScalerWithNullableDecimal;
+        public static MethodInfo MinMaxScalerWithNullableDouble => __minMaxScalerWithNullableDouble;
+        public static MethodInfo MinMaxScalerWithNullableInt32 => __minMaxScalerWithNullableInt32;
+        public static MethodInfo MinMaxScalerWithNullableInt64 => __minMaxScalerWithNullableInt64;
+        public static MethodInfo MinMaxScalerWithNullableSingle => __minMaxScalerWithNullableSingle;
+        public static MethodInfo MinMaxScalerWithSingle => __minMaxScalerWithSingle;
+        public static MethodInfo MinN => __minN;
         public static MethodInfo PercentileWithDecimal => __percentileWithDecimal;
         public static MethodInfo PercentileWithDouble => __percentileWithDouble;
         public static MethodInfo PercentileWithInt32 => __percentileWithInt32;
@@ -539,6 +624,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo PercentileWithSingle => __percentileWithSingle;
         public static MethodInfo Push => __push;
         public static MethodInfo Rank => __rank;
+        public static MethodInfo SetUnion => __setUnion;
         public static MethodInfo Shift => __shift;
         public static MethodInfo ShiftWithDefaultValue => __shiftWithDefaultValue;
         public static MethodInfo StandardDeviationPopulationWithDecimal => __standardDeviationPopulationWithDecimal;
@@ -571,6 +657,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static MethodInfo SumWithNullableInt64 => __sumWithNullableInt64;
         public static MethodInfo SumWithNullableSingle => __sumWithNullableSingle;
         public static MethodInfo SumWithSingle => __sumWithSingle;
+        public static MethodInfo Top => __top;
+        public static MethodInfo TopN => __topN;
 
         // sets of methods
         public static IReadOnlyMethodInfoSet AverageOverloads => __averageOverloads;
@@ -580,7 +668,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
         public static IReadOnlyMethodInfoSet ExponentialMovingAverageOverloads => __exponentialMovingAverageOverloads;
         public static IReadOnlyMethodInfoSet IntegralOverloads => __integralOverloads;
         public static IReadOnlyMethodInfoSet MedianOverloads => __medianOverloads;
+        public static IReadOnlyMethodInfoSet MinMaxScalerOverloads => __minMaxScalerOverloads;
         public static IReadOnlyMethodInfoSet PercentileOverloads => __percentileOverloads;
+        public static IReadOnlyMethodInfoSet PickOverloads => __pickOverloads;
         public static IReadOnlyMethodInfoSet StandardDeviationPopulationOverloads => __standardDeviationPopulationOverloads;
         public static IReadOnlyMethodInfoSet StandardDeviationSampleOverloads => __standardDeviationSampleOverloads;
         public static IReadOnlyMethodInfoSet SumOverloads => __sumOverloads;

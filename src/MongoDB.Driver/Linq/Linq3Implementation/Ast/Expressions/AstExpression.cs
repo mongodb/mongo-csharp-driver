@@ -415,6 +415,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             }
         }
 
+        public static AstEncStrExpression EncStrExpression(AstEncStrOperator @operator, AstExpression input, AstExpression value)
+            => new AstEncStrExpression(@operator, input, value);
+
         public static AstExpression Eq(AstExpression arg1, AstExpression arg2)
         {
             return new AstBinaryExpression(AstBinaryOperator.Eq, arg1, arg2);
@@ -637,6 +640,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
             return new AstMedianWindowExpression(input, window);
         }
 
+        public static AstWindowExpression MinMaxScalerWindowExpression(AstExpression input, AstExpression min, AstExpression max, AstWindow window)
+        {
+            return new AstMinMaxScalerWindowExpression(input, min, max, window);
+        }
+
         public static AstExpression Min(AstExpression array)
         {
             return new AstUnaryExpression(AstUnaryOperator.Min, array);
@@ -716,6 +724,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
         public static AstExpression PickAccumulatorExpression(AstPickAccumulatorOperator @operator, AstSortFields sortBy, AstExpression selector, AstExpression n)
         {
             return new AstPickAccumulatorExpression(@operator, sortBy, selector, n);
+        }
+
+        public static AstWindowExpression PickWindowExpression(AstPickAccumulatorOperator @operator, AstSortFields sortBy, AstExpression selector, AstExpression n, AstWindow window)
+        {
+            return new AstPickWindowExpression(@operator, sortBy, selector, n, window);
         }
 
         public static AstExpression Pow(AstExpression arg, AstExpression exponent)

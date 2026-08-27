@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#if CSHARP_14
-
 using FluentAssertions;
 using Xunit;
 
@@ -40,7 +38,7 @@ public class MyPoco
 
 public static class MyPocoExtensions
 {
-// Until resolution of https://github.com/dotnet/sdk/issues/51681
+    // Until resolution of https://github.com/dotnet/sdk/issues/51681
 #pragma warning disable CA1034
     extension(MyPoco myPoco)
 #pragma warning restore CA1034
@@ -53,5 +51,3 @@ public static class MyPocoExtensions
         }
     }
 }
-
-#endif

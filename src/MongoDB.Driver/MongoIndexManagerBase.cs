@@ -41,15 +41,6 @@ namespace MongoDB.Driver
 
         // public methods
         /// <inheritdoc />
-        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
-        public virtual string CreateOne(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var model = new CreateIndexModel<TDocument>(keys, options);
-            var result = CreateMany(new[] { model }, cancellationToken);
-            return result.Single();
-        }
-
-        /// <inheritdoc />
         public virtual string CreateOne(
             CreateIndexModel<TDocument> model,
             CreateOneIndexOptions options = null,
@@ -57,15 +48,6 @@ namespace MongoDB.Driver
         {
             var createManyIndexOptions = ToCreateManyIndexesOptions(options);
             var result = CreateMany(new[] { model }, createManyIndexOptions, cancellationToken);
-            return result.Single();
-        }
-
-        /// <inheritdoc />
-        [Obsolete("Use CreateOne with a CreateIndexModel instead.")]
-        public virtual string CreateOne(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var model = new CreateIndexModel<TDocument>(keys, options);
-            var result = CreateMany(session, new[] { model }, cancellationToken);
             return result.Single();
         }
 
@@ -82,15 +64,6 @@ namespace MongoDB.Driver
         }
 
         /// <inheritdoc />
-        [Obsolete("Use CreateOneAsync with a CreateIndexModel instead.")]
-        public virtual async Task<string> CreateOneAsync(IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var model = new CreateIndexModel<TDocument>(keys, options);
-            var result = await CreateManyAsync(new[] { model }, cancellationToken).ConfigureAwait(false);
-            return result.Single();
-        }
-
-        /// <inheritdoc />
         public virtual async Task<string> CreateOneAsync(
             CreateIndexModel<TDocument> model,
             CreateOneIndexOptions options = null,
@@ -98,15 +71,6 @@ namespace MongoDB.Driver
         {
             var createManyIndexOptions = ToCreateManyIndexesOptions(options);
             var result = await CreateManyAsync(new[] { model }, createManyIndexOptions, cancellationToken).ConfigureAwait(false);
-            return result.Single();
-        }
-
-        /// <inheritdoc />
-        [Obsolete("Use CreateOneAsync with a CreateIndexModel instead.")]
-        public virtual async Task<string> CreateOneAsync(IClientSessionHandle session, IndexKeysDefinition<TDocument> keys, CreateIndexOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var model = new CreateIndexModel<TDocument>(keys, options);
-            var result = await CreateManyAsync(session, new[] { model }, cancellationToken).ConfigureAwait(false);
             return result.Single();
         }
 

@@ -3,7 +3,6 @@
 
   <PropertyGroup>
     <IsTestProject>false</IsTestProject>
-    <CodeAnalysisRuleSet>..\..\MongoDBTest.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup>

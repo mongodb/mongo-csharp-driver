@@ -12,10 +12,6 @@ TEST_CATEGORY=${TEST_CATEGORY:-Integration}
 TEST_PROJECT_PATH=${TEST_PROJECT_PATH:-./tests/**/[!AtlasConnectivity]*.Tests.csproj}
 CONFIGURATION=${CONFIGURATION:-'Release'}
 
-if [ "$FRAMEWORK" = "netstandard2.1" ]; then
-  FRAMEWORK="netcoreapp3.1"
-fi
-
 FILTER_PARAMETER=""
 echo TEST_CATEGORY: ${TEST_CATEGORY}
 if [[ -n "${TEST_CATEGORY}" ]]; then

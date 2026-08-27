@@ -16,7 +16,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET6_0_OR_GREATER
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Reflection
 {

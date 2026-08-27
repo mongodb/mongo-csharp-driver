@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                                 switch (expectedItem.Name)
                                 {
                                     case "escCollection":
-                                    case "ecocCollection" :
+                                    case "ecocCollection":
                                     case "eccCollection":
                                         {
                                             var collectionValue = expectedValue[expectedItem.Name];

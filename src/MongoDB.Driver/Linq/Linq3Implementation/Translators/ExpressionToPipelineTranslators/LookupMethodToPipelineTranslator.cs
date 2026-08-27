@@ -242,12 +242,12 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 (queryableParameter, IQueryableSerializer.Create(documentSerializer)),
             };
 
-            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
+            context = TranslationContext.Create(context.SerializationDomain, pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);
 
-            var provider = new MongoQueryProvider<TDocument>(documentSerializer, session: null, options: null);
+            var provider = new MongoQueryProvider<TDocument>(serializationDomain: context.SerializationDomain, pipelineInputSerializer: documentSerializer, session: null, options: null);
             var queryable = new MongoQuery<TDocument, TDocument>(provider);
 
             body = ExpressionReplacer.Replace(body, queryableParameter, Expression.Constant(queryable));
@@ -299,7 +299,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                 (queryableParameter, context.GetSerializer(queryableParameter))
             ];
 
-            context = TranslationContext.Create(pipelineLambda, initialNodeSerializers, context.TranslationOptions);
+            context = TranslationContext.Create(context.SerializationDomain, pipelineLambda, initialNodeSerializers, context.TranslationOptions);
             var localAst = AstExpression.Var("local");
             var localSymbol = context.CreateSymbol(localParameter, localAst, localSerializer);
             context = context.WithSymbol(localSymbol);

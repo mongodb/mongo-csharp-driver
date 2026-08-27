@@ -20,10 +20,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.TestHelpers.XunitExtensions;
-using MongoDB.Driver.Tests;
-using Xunit;
 using MongoDB.Driver.GridFS;
+using MongoDB.Driver.Tests;
+using MongoDB.TestHelpers.XunitExtensions;
+using Xunit;
 
 namespace MongoDB.Driver.Tests.GridFS
 {
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests.GridFS
             }
 
             var exception = async
-                ? await Record.ExceptionAsync(() =>  bucket.UploadFromBytesAsync(fileId, fileName, content2, uploadOptions))
+                ? await Record.ExceptionAsync(() => bucket.UploadFromBytesAsync(fileId, fileName, content2, uploadOptions))
                 : Record.Exception(() => bucket.UploadFromBytes(fileId, fileName, content2, uploadOptions));
             exception.Should().BeOfType<MongoBulkWriteException<BsonDocument>>();
 

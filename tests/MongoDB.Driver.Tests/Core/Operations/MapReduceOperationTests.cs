@@ -451,8 +451,10 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning disable CS0618 // Type or member is obsolete
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var exception = Record.Exception(() => ExecuteOperation(subject, (IReadBinding)null, async));
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, (IReadBinding)null, async));
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("binding");
@@ -468,10 +470,12 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings);
 #pragma warning restore CS0618 // Type or member is obsolete
             subject.MaxTime = TimeSpan.FromSeconds(9001);
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
             using (var failPoint = FailPoint.ConfigureAlwaysOn(FailPointName.MaxTimeAlwaysTimeout))
             {
-                var exception = Record.Exception(() => ExecuteOperation(subject, failPoint.Binding, async));
+                var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, failPoint.Binding, async));
 
                 exception.Should().BeOfType<MongoExecutionTimeoutException>();
             }
@@ -504,10 +508,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 ReadConcern = readConcern
             };
-            var session = OperationTestHelper.CreateSession();
             var connectionDescription = OperationTestHelper.CreateConnectionDescription();
+            using var session = OperationTestHelper.CreateSession();
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, connectionDescription);
 
             var expectedResult = new BsonDocument
             {
@@ -533,10 +538,11 @@ namespace MongoDB.Driver.Core.Operations
             {
                 ReadConcern = readConcern
             };
-            var session = OperationTestHelper.CreateSession(isCausallyConsistent: true, operationTime: new BsonTimestamp(100));
             var connectionDescription = OperationTestHelper.CreateConnectionDescription(supportsSessions: true);
+            using var session = OperationTestHelper.CreateSession(isCausallyConsistent: true, operationTime: new BsonTimestamp(100));
+            using var operationContext = new OperationContext(session);
 
-            var result = subject.CreateCommand(OperationContext.NoTimeout, session, connectionDescription);
+            var result = subject.CreateCommand(operationContext, connectionDescription);
 
             var expectedReadConcernDocument = readConcern.ToBsonDocument();
             expectedReadConcernDocument["afterClusterTime"] = new BsonTimestamp(100);

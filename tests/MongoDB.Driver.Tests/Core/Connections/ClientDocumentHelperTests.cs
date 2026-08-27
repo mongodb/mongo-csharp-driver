@@ -66,7 +66,8 @@ namespace MongoDB.Driver.Core.Connections
             var (libraryInfo, driverDocumentStringCombined) = ParselibraryInfo();
 
             var envDocument = env != null ? new BsonDocument("name", env) : null;
-            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, libraryInfo);
+            var libraryInfos = libraryInfo == null ? null : new[] { libraryInfo };
+            var result = ClientDocumentHelper.CreateClientDocument(applicationName, driverDocument, osDocument, platformString, envDocument, libraryInfos);
 
             var applicationNameElement = applicationName == null ? null : $"application : {{ name : '{applicationName}' }},";
             var envElement = envDocument == null ? null : $", env : {{ name : '{env}' }}";
@@ -105,7 +106,7 @@ namespace MongoDB.Driver.Core.Connections
             var libraryInfo = libName != null ? new LibraryInfo(libName, libVersion) : null;
 
             ClientDocumentHelper.Initialize();
-            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo)["driver"];
+            var driverDocument = ClientDocumentHelper.CreateClientDocument(null, libraryInfo == null ? null : new[] { libraryInfo })["driver"];
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
 
@@ -117,6 +118,21 @@ namespace MongoDB.Driver.Core.Connections
             {
                 driverDocument["version"].AsString.Should().NotContain("|");
             }
+        }
+
+        [Theory]
+        [InlineData(null, "net45")]
+        [InlineData("", "net45")]
+        [InlineData("lib-platform", "net45|lib-platform")]
+        public void CreateClientDocument_should_append_library_info_platform_to_platform_field(string libraryPlatform, string expectedPlatform)
+        {
+            var driverDocument = BsonDocument.Parse("{ name : 'mongo-csharp-driver', version : '3.6.0' }");
+            var osDocument = BsonDocument.Parse("{ type : 'Windows', name : 'Windows 10', architecture : 'x86_64', version : '10.0' }");
+            var libraryInfo = new LibraryInfo("lib", "1.0", libraryPlatform);
+
+            var result = ClientDocumentHelper.CreateClientDocument(null, driverDocument, osDocument, "net45", envDocument: null, new[] { libraryInfo });
+
+            result["platform"].AsString.Should().Be(expectedPlatform);
         }
 
         [Fact]
@@ -146,8 +162,8 @@ namespace MongoDB.Driver.Core.Connections
         [InlineData(false, false, "{ name : 'vercel' }")]
         public void CreateEnvDocument_should_return_expected_result(bool isDockerToBeDetected, bool isKubernetesToBeDetected, string expected)
         {
-            var fileSystemProviderMock  = new Mock<IFileSystemProvider>();
-            var env = new List<string>{ "VERCEL" };
+            var fileSystemProviderMock = new Mock<IFileSystemProvider>();
+            var env = new List<string> { "VERCEL" };
             if (isKubernetesToBeDetected)
             {
                 env.Add("KUBERNETES_SERVICE_HOST");
@@ -214,7 +230,7 @@ namespace MongoDB.Driver.Core.Connections
             var expectedResult = CreateClientDocument();
             if (timesCalled < 5)
             {
-                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform"};
+                var optionalFieldNames = new[] { "!env.name", "!os.type", "env.name", "platform" };
                 for (var i = 0; i < timesCalled; i++)
                 {
                     var dottedFieldName = optionalFieldNames[i];
@@ -228,21 +244,21 @@ namespace MongoDB.Driver.Core.Connections
             result.Should().Be(expectedResult);
         }
 
-        const string awsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
-        const string azureEnv = "FUNCTIONS_WORKER_RUNTIME";
-        const string gcpEnv = "K_SERVICE";
-        const string vercelEnv = "VERCEL";
+        private const string AwsEnv = "AWS_EXECUTION_ENV=AWS_Lambda_java8";
+        private const string AzureEnv = "FUNCTIONS_WORKER_RUNTIME";
+        private const string GcpEnv = "K_SERVICE";
+        private const string VercelEnv = "VERCEL";
 
-        const string awsLambdaName = "aws.lambda";
-        const string azureFuncName = "azure.func";
-        const string gcpFuncName = "gcp.func";
-        const string vercelName = "vercel";
+        private const string AwsLambdaName = "aws.lambda";
+        private const string AzureFuncName = "azure.func";
+        private const string GcpFuncName = "gcp.func";
+        private const string VercelName = "vercel";
 
         [Theory]
         [ParameterAttributeData]
         public void Prefer_vercel_over_aws_env_name_when_both_specified(
-            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string left,
-            [Values(awsEnv, azureEnv, gcpEnv, vercelEnv)] string right)
+            [Values(AwsEnv, AzureEnv, GcpEnv, VercelEnv)] string left,
+            [Values(AwsEnv, AzureEnv, GcpEnv, VercelEnv)] string right)
         {
             var environmentVariableProviderMock = EnvironmentVariableProviderMock.Create(left, right);
 
@@ -253,17 +269,17 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var expectedName = left switch
                 {
-                    awsEnv => awsLambdaName,
-                    azureEnv => azureFuncName,
-                    gcpEnv => gcpFuncName,
-                    vercelEnv => vercelName,
+                    AwsEnv => AwsLambdaName,
+                    AzureEnv => AzureFuncName,
+                    GcpEnv => GcpFuncName,
+                    VercelEnv => VercelName,
                     _ => throw new Exception($"Unexpected env {left}."),
                 };
                 clientEnvDocument["name"].Should().Be(BsonValue.Create(expectedName));
             }
-            else if ((left == awsEnv && right == vercelEnv) || (left == vercelEnv && right == awsEnv)) // exception
+            else if ((left == AwsEnv && right == VercelEnv) || (left == VercelEnv && right == AwsEnv)) // exception
             {
-                clientEnvDocument["name"].Should().Be(BsonValue.Create(vercelName));
+                clientEnvDocument["name"].Should().Be(BsonValue.Create(VercelName));
             }
             else
             {

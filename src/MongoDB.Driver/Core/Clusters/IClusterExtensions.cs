@@ -1,4 +1,4 @@
-/* Copyright 2019–present MongoDB Inc.
+/* Copyright 2010–present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -26,11 +26,10 @@ namespace MongoDB.Driver.Core.Clusters
         public static IServer SelectServerAndPinIfNeeded(
             this IClusterInternal cluster,
             OperationContext operationContext,
-            ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var pinnedServer = GetPinnedServerIfValid(cluster, session);
+            var pinnedServer = GetPinnedServerIfValid(cluster, operationContext.Session);
             if (pinnedServer != null)
             {
                 return pinnedServer;
@@ -44,18 +43,17 @@ namespace MongoDB.Driver.Core.Clusters
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
             var server = cluster.SelectServer(operationContext, selector);
-            PinServerIfNeeded(cluster, session, server);
+            PinServerIfNeeded(cluster, operationContext.Session, server);
             return server;
         }
 
         public static async Task<IServer> SelectServerAndPinIfNeededAsync(
             this IClusterInternal cluster,
             OperationContext operationContext,
-            ICoreSessionHandle session,
             IServerSelector selector,
             IReadOnlyCollection<ServerDescription> deprioritizedServers)
         {
-            var pinnedServer = GetPinnedServerIfValid(cluster, session);
+            var pinnedServer = GetPinnedServerIfValid(cluster, operationContext.Session);
             if (pinnedServer != null)
             {
                 return pinnedServer;
@@ -69,12 +67,12 @@ namespace MongoDB.Driver.Core.Clusters
             // Server selection also updates the cluster type, allowing us to determine if the server
             // should be pinned.
             var server = await cluster.SelectServerAsync(operationContext, selector).ConfigureAwait(false);
-            PinServerIfNeeded(cluster, session, server);
+            PinServerIfNeeded(cluster, operationContext.Session, server);
 
             return server;
         }
 
-        private static void PinServerIfNeeded(ICluster cluster, ICoreSessionHandle session, IServer server)
+        private static void PinServerIfNeeded(ICluster cluster, ICoreSession session, IServer server)
         {
             if (cluster.Description.Type == ClusterType.Sharded && session.IsInTransaction)
             {
@@ -82,7 +80,7 @@ namespace MongoDB.Driver.Core.Clusters
             }
         }
 
-        private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSessionHandle session)
+        private static IServer GetPinnedServerIfValid(ICluster cluster, ICoreSession session)
         {
             if (cluster.Description.Type == ClusterType.Sharded
                 && session.IsInTransaction

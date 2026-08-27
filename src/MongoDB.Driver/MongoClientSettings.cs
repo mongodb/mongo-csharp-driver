@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
@@ -68,6 +69,7 @@ namespace MongoDB.Driver
         private bool _retryReads;
         private bool _retryWrites;
         private ConnectionStringScheme _scheme;
+        private IBsonSerializationDomain _serializationDomain;
         private ServerApi _serverApi;
         private List<MongoServerAddress> _servers;
         private ServerMonitoringMode _serverMonitoringMode;
@@ -124,6 +126,7 @@ namespace MongoDB.Driver
             _retryReads = true;
             _retryWrites = true;
             _scheme = ConnectionStringScheme.MongoDB;
+            _serializationDomain = BsonSerializer.DefaultSerializationDomain;
             _serverApi = null;
             _servers = new List<MongoServerAddress> { new MongoServerAddress("localhost") };
             _serverMonitoringMode = ServerMonitoringMode.Auto;
@@ -276,6 +279,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether overload retargeting is enabled.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public bool EnableOverloadRetargeting
         {
             get { return _enableOverloadRetargeting; }
@@ -388,6 +392,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets the maximum number of adaptive retries for overload errors.
         /// </summary>
+        /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
         public int MaxAdaptiveRetries
         {
             get { return _maxAdaptiveRetries; }
@@ -531,6 +536,18 @@ namespace MongoDB.Driver
                 _readPreference = value;
             }
         }
+
+        internal IBsonSerializationDomain SerializationDomain
+        {
+            get => _serializationDomain ?? BsonSerializer.DefaultSerializationDomain;
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                _serializationDomain = value ?? throw new ArgumentNullException(nameof(value));
+            }
+        }
+
+        IBsonSerializationDomain IInheritableMongoClientSettings.SerializationDomain => SerializationDomain;
 
         /// <summary>
         /// Gets or sets the name of the replica set.
@@ -756,20 +773,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use SSL.
-        /// </summary>
-        [Obsolete("Use UseTls instead.")]
-        public bool UseSsl
-        {
-            get { return _useTls; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _useTls = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to use TLS.
         /// </summary>
         public bool UseTls
@@ -779,21 +782,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _useTls = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to verify an SSL certificate.
-        /// </summary>
-        [Obsolete("Use AllowInsecureTls instead.")]
-        public bool VerifySslCertificate
-        {
-            get { return !_allowInsecureTls; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                // use property instead of private field because setter has additional side effects
-                AllowInsecureTls = !value;
             }
         }
 
@@ -1013,6 +1001,7 @@ namespace MongoDB.Driver
             clone._retryReads = _retryReads;
             clone._retryWrites = _retryWrites;
             clone._scheme = _scheme;
+            clone._serializationDomain = _serializationDomain;
             clone._serverApi = _serverApi;
             clone._servers = new List<MongoServerAddress>(_servers);
             clone._serverMonitoringMode = _serverMonitoringMode;
@@ -1087,6 +1076,7 @@ namespace MongoDB.Driver
                 _retryReads == rhs._retryReads &&
                 _retryWrites == rhs._retryWrites &&
                 _scheme == rhs._scheme &&
+                object.ReferenceEquals(_serializationDomain, rhs._serializationDomain) &&
                 _serverApi == rhs._serverApi &&
                 _servers.SequenceEqual(rhs._servers) &&
                 _serverMonitoringMode == rhs._serverMonitoringMode &&
@@ -1178,6 +1168,7 @@ namespace MongoDB.Driver
                 .Hash(_retryReads)
                 .Hash(_retryWrites)
                 .Hash(_scheme)
+                .Hash(_serializationDomain)
                 .Hash(_serverApi)
                 .HashElements(_servers)
                 .Hash(_serverMonitoringMode)
@@ -1274,7 +1265,7 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("SslSettings={0};", _sslSettings);
             }
-            if(_timeout != null)
+            if (_timeout != null)
             {
                 sb.AppendFormat("Timeout={0};", _timeout);
             }

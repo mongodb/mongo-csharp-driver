@@ -183,15 +183,15 @@ namespace MongoDB.Driver.Core.Operations
 
         // methods
         /// <inheritdoc/>
-        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber = null)
+        protected internal override BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
-            var command = base.CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            var command = base.CreateCommand(operationContext, connectionDescription, transactionNumber);
 
             if (_bypassDocumentValidation.HasValue)
             {
                 command.Add("bypassDocumentValidation", _bypassDocumentValidation.Value);
             }
-            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, session, _writeConcern);
+            var writeConcern = WriteConcernHelper.GetEffectiveWriteConcern(operationContext, _writeConcern);
             if (writeConcern != null)
             {
                 command.Add("writeConcern", writeConcern.ToBsonDocument());
@@ -255,9 +255,9 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
                 return operation.Execute(operationContext, channelBinding);
             }
         }
@@ -269,18 +269,18 @@ namespace MongoDB.Driver.Core.Operations
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
-            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel, binding.Session.Fork()))
+            using (var channelBinding = new ChannelReadWriteBinding(channelSource.Server, channel))
             {
-                var operation = CreateOperation(operationContext, channelBinding.Session, channel.ConnectionDescription, transactionNumber);
+                var operation = CreateOperation(operationContext, channel.ConnectionDescription, transactionNumber);
                 return await operation.ExecuteAsync(operationContext, channelBinding).ConfigureAwait(false);
             }
         }
 
         private IDisposable BeginOperation() => EventContext.BeginOperation("mapReduce");
 
-        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ICoreSessionHandle session, ConnectionDescription connectionDescription, long? transactionNumber)
+        private WriteCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber)
         {
-            var command = CreateCommand(operationContext, session, connectionDescription, transactionNumber);
+            var command = CreateCommand(operationContext, connectionDescription, transactionNumber);
             return new WriteCommandOperation<BsonDocument>(CollectionNamespace.DatabaseNamespace, command, BsonDocumentSerializer.Instance, MessageEncoderSettings, OperationName);
         }
     }

@@ -34,7 +34,7 @@ namespace MongoDB.Driver.Encryption
             ClientEncryptionOptions clientEncryptionOptions)
             : base(cryptClient,
                   Ensure.IsNotNull(Ensure.IsNotNull(clientEncryptionOptions, nameof(clientEncryptionOptions)).KeyVaultClient, nameof(clientEncryptionOptions.KeyVaultClient)),
-                  clientEncryptionOptions.KeyVaultNamespace, clientEncryptionOptions.KmsProviders, clientEncryptionOptions.TlsOptions)
+                  clientEncryptionOptions.KeyVaultNamespace, clientEncryptionOptions.KmsProviders, clientEncryptionOptions.TlsOptions, clientEncryptionOptions.KmsConnector)
         {
         }
 
@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions.RangeOptions?.CreateDocument()),
-                    ToBsonIfNotNull(encryptOptions.TextOptions?.CreateDocument()),
+                    ToBsonIfNotNull(encryptOptions.StringOptions?.CreateDocument()),
                     isExpressionMode);
 
                 using (context)
@@ -268,7 +268,7 @@ namespace MongoDB.Driver.Encryption
                     encryptOptions.Algorithm,
                     wrappedValueBytes,
                     ToBsonIfNotNull(encryptOptions.RangeOptions?.CreateDocument()),
-                    ToBsonIfNotNull(encryptOptions.TextOptions?.CreateDocument()),
+                    ToBsonIfNotNull(encryptOptions.StringOptions?.CreateDocument()),
                     isExpressionMode);
 
                 using (context)
@@ -537,7 +537,7 @@ namespace MongoDB.Driver.Encryption
             BsonDocument keyMaterial = null;
             if (dataKeyOptions?.KeyMaterial != null)
             {
-                keyMaterial = new BsonDocument("keyMaterial",  dataKeyOptions.KeyMaterial);
+                keyMaterial = new BsonDocument("keyMaterial", dataKeyOptions.KeyMaterial);
             }
             return new KmsKeyId(
                 dataKeyOptionsBytes: ToBsonIfNotNull(dataKeyDocument),
@@ -553,6 +553,7 @@ namespace MongoDB.Driver.Encryption
             return ToBsonIfNotNull(new BsonDocument("v", value), estimatedSize);
         }
 
+        // Default domain is correct: filter is always FilterDefinition<BsonDocument> for key vault queries
         private static BsonValue RenderFilter(FilterDefinition<BsonDocument> filter)
         {
             var registry = BsonSerializer.SerializerRegistry;

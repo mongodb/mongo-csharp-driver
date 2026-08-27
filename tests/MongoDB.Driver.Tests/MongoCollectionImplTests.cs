@@ -25,9 +25,11 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -92,9 +94,6 @@ namespace MongoDB.Driver
                 Let = new BsonDocument("y", "z"),
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -140,9 +139,6 @@ namespace MongoDB.Driver
             operation.ReadConcern.Should().Be(_readConcern);
             operation.RetryRequested.Should().BeTrue();
             operation.ResultSerializer.Should().BeSameAs(renderedPipeline.OutputSerializer);
-#pragma warning disable 618
-            operation.UseCursor.Should().Be(options.UseCursor);
-#pragma warning restore 618
         }
 
         [Theory]
@@ -172,9 +168,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
 
             using var cancellationTokenSource1 = new CancellationTokenSource();
@@ -255,9 +248,6 @@ namespace MongoDB.Driver
             findOperation.Limit.Should().Be(null);
             findOperation.MaxTime.Should().Be(options.MaxTime);
             findOperation.NoCursorTimeout.Should().NotHaveValue();
-#pragma warning disable 618
-            findOperation.OplogReplay.Should().NotHaveValue();
-#pragma warning restore 618
             findOperation.Projection.Should().BeNull();
             findOperation.RetryRequested.Should().BeTrue();
             findOperation.Skip.Should().Be(null);
@@ -347,9 +337,6 @@ namespace MongoDB.Driver
                 Hint = new BsonDocument("x", 1),
                 Let = new BsonDocument("y", "z"),
                 MaxTime = TimeSpan.FromSeconds(3),
-#pragma warning disable 618
-                UseCursor = false
-#pragma warning restore 618
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -397,6 +384,52 @@ namespace MongoDB.Driver
             aggregateOperation.Pipeline.Should().Equal(expectedPipeline);
             aggregateOperation.ReadConcern.Should().Be(readConcern);
             aggregateOperation.WriteConcern.Should().BeSameAs(writeConcern);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        [Trait("Category", "Integration")]
+        public async Task AggregateToCollection_should_not_leak_session_when_cursor_is_disposed_without_iterating(
+            [Values(false, true)] bool async)
+        {
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "aggregate");
+
+            using var client = DriverTestConfiguration.CreateMongoClient(
+                (MongoClientSettings settings) =>
+                {
+                    settings.MaxConnectionPoolSize = 1;
+                    settings.ClusterConfigurator = c => c.Subscribe(eventCapturer);
+                });
+
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var collection = database.GetCollection<BsonDocument>(DriverTestConfiguration.CollectionNamespace.CollectionName);
+            var outCollectionName = DriverTestConfiguration.CollectionNamespace.CollectionName + "_out";
+            database.DropCollection(collection.CollectionNamespace.CollectionName);
+            database.DropCollection(outCollectionName);
+            collection.InsertOne(new BsonDocument("_id", 1));
+
+            try
+            {
+                PipelineDefinition<BsonDocument, BsonDocument> pipeline = new[] { new BsonDocument("$out", outCollectionName) };
+
+                const int iterations = 3;
+                for (var i = 0; i < iterations; i++)
+                {
+                    var cursor = async
+                        ? await collection.AggregateAsync(pipeline)
+                        : collection.Aggregate(pipeline);
+                    cursor.Dispose(); // disposed without iterating
+                }
+
+                var lsids = eventCapturer.Events.OfType<CommandStartedEvent>().Select(e => e.Command["lsid"]).ToList();
+                lsids.Count.Should().Be(iterations);
+                lsids.Distinct().Count().Should().Be(1); // the implicit server session is returned to the pool and reused
+            }
+            finally
+            {
+                database.DropCollection(collection.CollectionNamespace.CollectionName);
+                database.DropCollection(outCollectionName);
+            }
         }
 
         [Theory]
@@ -753,72 +786,6 @@ namespace MongoDB.Driver
 
                 exception.Should().BeOfType<NotSupportedException>();
             }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Count_should_execute_a_CountOperation(
-            [Values(false, true)] bool usingSession,
-            [Values(false, true)] bool async)
-        {
-            var subject = CreateSubject<BsonDocument>();
-            var session = CreateSession(usingSession);
-            var filter = new BsonDocument("x", 1);
-            var options = new CountOptions
-            {
-                Collation = new Collation("en_US"),
-                Hint = "funny",
-                Limit = 10,
-                MaxTime = TimeSpan.FromSeconds(20),
-                Skip = 30
-            };
-            using var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-
-            if (usingSession)
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(session, filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(session, filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-            else
-            {
-                if (async)
-                {
-#pragma warning disable 618
-                    subject.CountAsync(filter, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore
-                }
-                else
-                {
-#pragma warning disable 618
-                    subject.Count(filter, options, cancellationToken);
-#pragma warning restore
-                }
-            }
-
-            var call = _operationExecutor.GetReadCall<long>();
-            VerifySessionAndCancellationToken(call, session, cancellationToken);
-
-            var operation = call.Operation.Should().BeOfType<CountOperation>().Subject;
-            operation.Collation.Should().BeSameAs(options.Collation);
-            operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
-            operation.Filter.Should().Be(filter);
-            operation.Hint.Should().Be(options.Hint);
-            operation.Limit.Should().Be(options.Limit);
-            operation.MaxTime.Should().Be(options.MaxTime);
-            operation.ReadConcern.Should().Be(_readConcern);
-            operation.RetryRequested.Should().BeTrue();
-            operation.Skip.Should().Be(options.Skip);
         }
 
         [Theory]
@@ -1417,9 +1384,6 @@ namespace MongoDB.Driver
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 NoCursorTimeout = true,
-#pragma warning disable 618
-                OplogReplay = true,
-#pragma warning restore 618
                 Projection = projectionDefinition,
                 Skip = 40,
                 Sort = sortDefinition
@@ -1468,9 +1432,6 @@ namespace MongoDB.Driver
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-#pragma warning disable 618
-            operation.OplogReplay.Should().Be(options.OplogReplay);
-#pragma warning restore 618
             operation.Projection.Should().Be(projectionDocument);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));
@@ -1506,9 +1467,6 @@ namespace MongoDB.Driver
                 MaxAwaitTime = TimeSpan.FromSeconds(4),
                 MaxTime = TimeSpan.FromSeconds(3),
                 NoCursorTimeout = true,
-#pragma warning disable 618
-                OplogReplay = true,
-#pragma warning restore 618
                 Projection = projectionDefinition,
                 Skip = 40,
                 Sort = sortDefinition
@@ -1556,9 +1514,6 @@ namespace MongoDB.Driver
             operation.MaxAwaitTime.Should().Be(options.MaxAwaitTime);
             operation.MaxTime.Should().Be(options.MaxTime);
             operation.NoCursorTimeout.Should().Be(options.NoCursorTimeout);
-#pragma warning disable 618
-            operation.OplogReplay.Should().Be(options.OplogReplay);
-#pragma warning restore 618
             operation.Projection.Should().Be(projectionDocument);
             operation.ReadConcern.Should().Be(_readConcern);
             operation.ResultSerializer.ValueType.Should().Be(typeof(BsonDocument));
@@ -2067,9 +2022,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2133,9 +2085,6 @@ namespace MongoDB.Driver
             request.AdditionalOptions.Should().BeNull();
             request.Background.Should().Be(options.Background);
             request.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request.Collation.Should().BeSameAs(options.Collation);
             request.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2203,9 +2152,6 @@ namespace MongoDB.Driver
             {
                 Background = true,
                 Bits = 10,
-#pragma warning disable 618
-                BucketSize = 20,
-#pragma warning restore 618
                 Collation = new Collation("en_US"),
                 DefaultLanguage = "en",
                 ExpireAfter = TimeSpan.FromSeconds(20),
@@ -2270,9 +2216,6 @@ namespace MongoDB.Driver
             request1.AdditionalOptions.Should().BeNull();
             request1.Background.Should().Be(options.Background);
             request1.Bits.Should().Be(options.Bits);
-#pragma warning disable 618
-            request1.BucketSize.Should().Be(options.BucketSize);
-#pragma warning restore 618
             request1.Collation.Should().BeSameAs(options.Collation);
             request1.DefaultLanguage.Should().Be(options.DefaultLanguage);
             request1.ExpireAfter.Should().Be(options.ExpireAfter);
@@ -2310,9 +2253,6 @@ namespace MongoDB.Driver
             request2.AdditionalOptions.Should().BeNull();
             request2.Background.Should().NotHaveValue();
             request2.Bits.Should().NotHaveValue();
-#pragma warning disable 618
-            request2.BucketSize.Should().NotHaveValue();
-#pragma warning restore 618
             request2.Collation.Should().BeNull();
             request2.DefaultLanguage.Should().BeNull();
             request2.ExpireAfter.Should().NotHaveValue();
@@ -2686,6 +2626,83 @@ namespace MongoDB.Driver
 
         [Theory]
         [ParameterAttributeData]
+        public void InsertOne_should_return_the_expected_result([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var document = new BsonDocument("_id", 1).Add("a", 1);
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 1,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 1,
+                modifiedCount: 0,
+                processedRequests: new[] { new InsertRequest(document) { CorrelationId = 0 } },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertOneAsync(document).GetAwaiter().GetResult()
+                : subject.InsertOne(document);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedId.Should().Be((BsonValue)1);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InsertOne_should_return_the_generated_id_when_the_document_has_no_id([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var document = new BsonDocument("a", 1);
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 1,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 1,
+                modifiedCount: 0,
+                processedRequests: new[] { new InsertRequest(document) { CorrelationId = 0 } },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertOneAsync(document).GetAwaiter().GetResult()
+                : subject.InsertOne(document);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedId.Should().BeOfType<BsonObjectId>();
+            result.InsertedId.Should().Be(document["_id"]);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void InsertMany_should_return_the_expected_result([Values(false, true)] bool async)
+        {
+            var subject = CreateSubject<BsonDocument>();
+            var documents = new[] { new BsonDocument("_id", 1), new BsonDocument("_id", 2) };
+            var operationResult = new BulkWriteOperationResult.Acknowledged(
+                requestCount: 2,
+                matchedCount: 0,
+                deletedCount: 0,
+                insertedCount: 2,
+                modifiedCount: 0,
+                processedRequests: new[]
+                {
+                    new InsertRequest(documents[0]) { CorrelationId = 0 },
+                    new InsertRequest(documents[1]) { CorrelationId = 1 }
+                },
+                upserts: new List<BulkWriteOperationUpsert>());
+            _operationExecutor.EnqueueResult<BulkWriteOperationResult>(operationResult);
+
+            var result = async
+                ? subject.InsertManyAsync(documents).GetAwaiter().GetResult()
+                : subject.InsertMany(documents);
+
+            result.IsAcknowledged.Should().BeTrue();
+            result.InsertedIds.Should().Equal(new Dictionary<int, object> { { 0, (BsonValue)1 }, { 1, (BsonValue)2 } });
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void InsertMany_should_execute_a_BulkMixedOperation(
             [Values(false, true)] bool usingSession,
             [Values(null, false, true)] bool? bypassDocumentValidation,
@@ -3025,7 +3042,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions()
+            var replaceOptions = new ReplaceOptions<BsonDocument>()
             {
                 BypassDocumentValidation = bypassDocumentValidation,
                 Collation = collation,
@@ -3034,16 +3051,6 @@ namespace MongoDB.Driver
                 Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
-
-            var updateOptions = new UpdateOptions
-            {
-                BypassDocumentValidation = bypassDocumentValidation,
-                Hint = hint,
-                Collation = collation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
 
             void assertReplaceOne()
             {
@@ -3073,7 +3080,7 @@ namespace MongoDB.Driver
                 assertOperationResult(expectedBypassDocumentValidation: null, expectedLet: null);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 if (usingSession)
                 {
@@ -3095,42 +3102,6 @@ namespace MongoDB.Driver
                     else
                     {
                         subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-                    }
-                }
-
-                assertOperationResult(expectedBypassDocumentValidation: bypassDocumentValidation, expectedLet: letDocument);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
-            {
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult();
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken);
-#pragma warning restore 618
                     }
                 }
 
@@ -3193,7 +3164,7 @@ namespace MongoDB.Driver
 
             assertReplaceOne();
 
-            var replaceOptions = new ReplaceOptions
+            var replaceOptions = new ReplaceOptions<BsonDocument>
             {
                 Collation = collation,
                 Hint = hint,
@@ -3202,16 +3173,6 @@ namespace MongoDB.Driver
                 Let = letDocument
             };
             assertReplaceOneWithReplaceOptions(replaceOptions);
-
-            var updateOptions = new UpdateOptions
-            {
-                Collation = collation,
-                Hint = hint,
-                BypassDocumentValidation = bypassDocumentValidation,
-                IsUpsert = isUpsert,
-                Let = letDocument
-            };
-            assertReplaceOneWithUpdateOptions(updateOptions);
 
             void assertReplaceOne()
             {
@@ -3243,7 +3204,7 @@ namespace MongoDB.Driver
                 assertException(exception);
             }
 
-            void assertReplaceOneWithReplaceOptions(ReplaceOptions options)
+            void assertReplaceOneWithReplaceOptions(ReplaceOptions<BsonDocument> options)
             {
                 Exception exception;
 
@@ -3267,44 +3228,6 @@ namespace MongoDB.Driver
                     else
                     {
                         exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-                    }
-                }
-
-                assertException(exception);
-            }
-
-            void assertReplaceOneWithUpdateOptions(UpdateOptions options)
-            {
-                Exception exception;
-
-                if (usingSession)
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(session, filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(session, filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
-                    }
-                }
-                else
-                {
-                    if (async)
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOneAsync(filterDefinition, replacement, options, cancellationToken).GetAwaiter().GetResult());
-#pragma warning restore 618
-                    }
-                    else
-                    {
-#pragma warning disable 618
-                        exception = Record.Exception(() => subject.ReplaceOne(filterDefinition, replacement, options, cancellationToken));
-#pragma warning restore 618
                     }
                 }
 
@@ -3340,7 +3263,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3413,7 +3336,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var updateOptions = new UpdateOptions
+            var updateOptions = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3499,7 +3422,7 @@ namespace MongoDB.Driver
             var collation = new Collation("en_US");
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,
@@ -3573,7 +3496,7 @@ namespace MongoDB.Driver
             var hint = new BsonDocument("x", 1);
             var letDocument = let != null ? BsonDocument.Parse(let) : null;
 
-            var options = new UpdateOptions
+            var options = new UpdateOptions<BsonDocument>
             {
                 ArrayFilters = new[] { arrayFilterDefinition },
                 BypassDocumentValidation = bypassDocumentValidation,

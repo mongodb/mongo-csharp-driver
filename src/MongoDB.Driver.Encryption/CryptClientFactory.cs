@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Encryption
                 encryptedFieldsBytes = GetBytesFromMap(cryptClientSettings.EncryptedFieldsMap);
             }
 
-            var cryptOptions =  new CryptOptions(
+            var cryptOptions = new CryptOptions(
                 kmsProviders,
                 encryptedFieldsMap: encryptedFieldsBytes,
                 schema: schemaBytes,

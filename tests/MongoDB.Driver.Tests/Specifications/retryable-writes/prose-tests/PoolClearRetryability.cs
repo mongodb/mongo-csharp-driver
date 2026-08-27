@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
             {
                 ThreadingUtilities.ExecuteOnNewThreads(2, _ =>
                 {
-                        collection.InsertOne(new BsonDocument("x", 1));
+                    collection.InsertOne(new BsonDocument("x", 1));
                 });
             }
 

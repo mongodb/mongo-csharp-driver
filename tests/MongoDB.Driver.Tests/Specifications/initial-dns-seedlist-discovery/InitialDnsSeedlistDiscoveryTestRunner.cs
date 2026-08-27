@@ -14,18 +14,18 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
-using Xunit;
 using MongoDB.TestHelpers.XunitExtensions;
-using System.Collections;
-using System.Threading.Tasks;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery

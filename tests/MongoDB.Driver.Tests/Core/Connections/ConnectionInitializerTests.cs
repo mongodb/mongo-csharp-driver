@@ -22,7 +22,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.ScramSha;
-using MongoDB.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
@@ -30,7 +30,7 @@ using MongoDB.Driver.Core.Helpers;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
-using MongoDB.Driver.Core.WireProtocol.Messages;
+using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 
@@ -63,9 +63,10 @@ namespace MongoDB.Driver.Core.Connections
         {
             var connectionInitializerContext = new ConnectionInitializerContext(__emptyConnectionDescription, null);
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, null, connectionInitializerContext)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, null, connectionInitializerContext));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, null, connectionInitializerContext)) :
+                Record.Exception(() => subject.Authenticate(operationContext, null, connectionInitializerContext));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("connection");
@@ -77,9 +78,10 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.AuthenticateAsync(OperationContext.NoTimeout, Mock.Of<IConnection>(), null)) :
-                Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, Mock.Of<IConnection>(), null));
+                await Record.ExceptionAsync(() => subject.AuthenticateAsync(operationContext, Mock.Of<IConnection>(), null)) :
+                Record.Exception(() => subject.Authenticate(operationContext, Mock.Of<IConnection>(), null));
 
             exception.Should().BeOfType<ArgumentNullException>()
                 .Subject.ParamName.Should().Be("connectionInitializerContext");
@@ -143,16 +145,17 @@ namespace MongoDB.Driver.Core.Connections
             [Values(false, true)] bool async)
         {
             var subject = CreateSubject();
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             var exception = async ?
-                await Record.ExceptionAsync(() => subject.SendHelloAsync(OperationContext.NoTimeout, null)) :
-                Record.Exception(() => subject.SendHello(OperationContext.NoTimeout, null));
+                await Record.ExceptionAsync(() => subject.SendHelloAsync(operationContext, null)) :
+                Record.Exception(() => subject.SendHello(operationContext, null));
             exception.Should().BeOfType<ArgumentNullException>();
         }
 
         [Theory]
         [ParameterAttributeData]
         public async Task InitializeConnection_should_acquire_connectionId_from_hello_response(
-            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue + 1, (double)int.MaxValue * 4)] object serverConnectionId,
             [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
@@ -171,15 +174,15 @@ namespace MongoDB.Driver.Core.Connections
 
         [Theory]
         [ParameterAttributeData]
-        public async Task InitializeConnection_should_acquire_connectionId_from_legacy_hello_response(
-            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue+1, (double)int.MaxValue*4)] object serverConnectionId,
+        public async Task InitializeConnection_should_acquire_connectionId_from_hello_response_without_serverApi(
+            [Values(1, int.MaxValue, (long)int.MaxValue + 1, long.MaxValue, 1d, (double)int.MaxValue + 1, (double)int.MaxValue * 4)] object serverConnectionId,
             [Values(false, true)] bool async)
         {
             var formattedServerConnectionId = $"{serverConnectionId}" + (serverConnectionId is double ? ".0" : "");
-            var legacyHelloReply = MessageHelper.BuildReply(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
+            var helloReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : {formattedServerConnectionId} }}"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueCommandResponseMessage(helloReply);
 
             var subject = CreateSubject();
             var result = await InitializeConnection(subject, connection, async);
@@ -195,14 +198,14 @@ namespace MongoDB.Driver.Core.Connections
             [Values("default", "SCRAM-SHA-256", "SCRAM-SHA-1")] string authenticatorType,
             [Values(false, true)] bool async)
         {
-            var legacyHelloReply = MessageHelper.BuildReply(
+            var helloReply = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson("{ ok : 1, connectionId : 1 }"));
             var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
             var evidence = new PasswordEvidence("Omega-Phi-9-3");
             var authenticator = CreateAuthenticator(authenticatorType, identity, evidence);
             var connectionSettings = new ConnectionSettings(new AuthenticatorFactory(() => authenticator));
             var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
-            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueCommandResponseMessage(helloReply);
 
             var subject = CreateSubject();
             // We expect authentication to fail since we have not enqueued the expected authentication replies
@@ -210,10 +213,9 @@ namespace MongoDB.Driver.Core.Connections
             exception.Message.Should().Be("Queue empty.");
 
             var sentMessages = connection.GetSentMessages();
-            var legacyHelloQuery = (QueryMessage)sentMessages[0];
-            var legacyHelloDocument = legacyHelloQuery.Query;
-            legacyHelloDocument.Should().Contain("speculativeAuthenticate");
-            var speculativeAuthenticateDocument = legacyHelloDocument["speculativeAuthenticate"].AsBsonDocument;
+            var helloDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
+            helloDocument.Should().Contain("speculativeAuthenticate");
+            var speculativeAuthenticateDocument = helloDocument["speculativeAuthenticate"].AsBsonDocument;
             speculativeAuthenticateDocument.Should().Contain("mechanism");
             var expectedMechanism = new BsonString(
                 authenticatorType == "default" ? "SCRAM-SHA-256" : authenticatorType);
@@ -232,7 +234,7 @@ namespace MongoDB.Driver.Core.Connections
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
-            var subject = new ConnectionInitializer("test", new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi, null);
+            var subject = new ConnectionInitializer(new ClientMetadata("test", libraryInfo: null), new[] { new CompressorConfiguration(CompressorType.Zlib) }, serverApi);
 
             var result = await InitializeConnection(subject, connection, async);
 
@@ -240,11 +242,10 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloRequestDocument["hello"].AsInt32.Should().Be(1);
             helloRequestDocument["apiVersion"].AsString.Should().Be("1");
             helloRequestDocument["apiStrict"].AsBoolean.Should().Be(true);
@@ -257,7 +258,7 @@ namespace MongoDB.Driver.Core.Connections
         {
             var connection = new MockConnection(__serverId);
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}");
-            connection.EnqueueReplyMessage(MessageHelper.BuildReply(helloReply));
+            connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
             var subject = CreateSubject();
 
@@ -267,21 +268,21 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("query");
-            sentMessages[0]["query"][OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
-            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
-            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
-            sentMessages[0]["query"].AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
+            helloRequestDocument[OppressiveLanguageConstants.LegacyHelloCommandName].AsInt32.Should().Be(1);
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
+            helloRequestDocument.AsBsonDocument.TryGetElement("apiDeprecationErrors", out _).Should().BeFalse();
         }
 
         [Theory]
         [ParameterAttributeData]
         public async Task InitializeConnection_without_serverApi_but_with_loadBalancing_should_send_hello([Values(false, true)] bool async)
         {
-            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced:true), null);
+            var connection = new MockConnection(__serverId, new ConnectionSettings(loadBalanced: true), null);
             var helloReply = RawBsonDocumentHelper.FromJson($"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44}, serviceId : '{ObjectId.GenerateNewId()}' }}");
             connection.EnqueueCommandResponseMessage(MessageHelper.BuildCommandResponse(helloReply));
 
@@ -293,11 +294,10 @@ namespace MongoDB.Driver.Core.Connections
 
             SpinWait.SpinUntil(() => connection.GetSentMessages().Count >= 1, TimeSpan.FromSeconds(5)).Should().BeTrue();
 
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
+            var sentMessages = connection.GetSentMessages();
             sentMessages.Count.Should().Be(1);
 
-            sentMessages[0]["opcode"].AsString.Should().Be("opmsg");
-            var helloRequestDocument = sentMessages[0]["sections"][0]["document"];
+            var helloRequestDocument = MessageHelper.ToCommandPayload(sentMessages[0]);
             helloRequestDocument["hello"].AsInt32.Should().Be(1);
             helloRequestDocument.AsBsonDocument.TryGetElement("apiVersion", out _).Should().BeFalse();
             helloRequestDocument.AsBsonDocument.TryGetElement("apiStrict", out _).Should().BeFalse();
@@ -310,12 +310,12 @@ namespace MongoDB.Driver.Core.Connections
             [Values("noop", "zlib", "snappy", "zstd")] string compressorType,
             [Values(false, true)] bool async)
         {
-            var legacyHelloReply = MessageHelper.BuildReply<RawBsonDocument>(
+            var helloReply = MessageHelper.BuildCommandResponse(
                 RawBsonDocumentHelper.FromJson($"{{ ok : 1, compression : ['{compressorType}'], maxWireVersion : {WireVersion.Server36} }}"));
             var gleReply = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ ok: 1, connectionId: 10 }"));
 
             var connection = new MockConnection(__serverId);
-            connection.EnqueueReplyMessage(legacyHelloReply);
+            connection.EnqueueCommandResponseMessage(helloReply);
             connection.EnqueueCommandResponseMessage(gleReply);
 
             var subject = CreateSubject();
@@ -338,34 +338,6 @@ namespace MongoDB.Driver.Core.Connections
                         throw new InvalidOperationException($"Unexpected compression {compressorType}.");
                 }
             }
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public async Task InitializeConnection_should_switch_command_wire_protocol_after_handshake_if_OP_MSG_is_supported(
-            [Values(false, true)] bool async)
-        {
-            var legacyHelloReply = MessageHelper.BuildReply(
-                RawBsonDocumentHelper.FromJson(
-                    $"{{ ok : 1, connectionId : 1, maxWireVersion : {WireVersion.Server44} }}"));
-            var identity = new MongoExternalIdentity(source: "Voyager", username: "Seven of Nine");
-            var evidence = new PasswordEvidence("Omega-Phi-9-3");
-            var authenticator = CreateAuthenticator("default", identity, evidence);
-            var connectionSettings = new ConnectionSettings(new AuthenticatorFactory(() => authenticator));
-            var connection = new MockConnection(__serverId, connectionSettings, eventSubscriber: null);
-            connection.EnqueueReplyMessage(legacyHelloReply);
-
-            var subject = CreateSubject();
-            // We expect authentication to fail since we have not enqueued the expected authentication replies
-            var exception = await Record.ExceptionAsync(() => InitializeConnection(subject, connection, async));
-            exception.Message.Should().Be("Queue empty.");
-
-
-            var sentMessages = MessageHelper.TranslateMessagesToBsonDocuments(connection.GetSentMessages());
-            sentMessages.Count.Should().Be(2);
-
-            sentMessages[0]["opcode"].AsString.Should().Be("query");
-            sentMessages[1]["opcode"].AsString.Should().Be("opmsg");
         }
 
         // private methods
@@ -398,26 +370,26 @@ namespace MongoDB.Driver.Core.Connections
 
         private ConnectionInitializer CreateSubject(bool withServerApi = false) =>
             new ConnectionInitializer(
-                "test",
+                new ClientMetadata("test", libraryInfo: null),
                 new[] { new CompressorConfiguration(CompressorType.Zlib) },
-                serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null,
-                libraryInfo: null);
+                serverApi: withServerApi ? new ServerApi(ServerApiVersion.V1) : null);
 
         private async Task<ConnectionDescription> InitializeConnection(ConnectionInitializer connectionInitializer, MockConnection connection, bool async)
         {
             ConnectionInitializerContext connectionInitializerContext;
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
             if (async)
             {
-                connectionInitializerContext = await connectionInitializer.SendHelloAsync(OperationContext.NoTimeout, connection);
+                connectionInitializerContext = await connectionInitializer.SendHelloAsync(operationContext, connection);
                 connection.Description = connectionInitializerContext.Description;
-                connectionInitializerContext = await connectionInitializer.AuthenticateAsync(OperationContext.NoTimeout, connection, connectionInitializerContext);
+                connectionInitializerContext = await connectionInitializer.AuthenticateAsync(operationContext, connection, connectionInitializerContext);
                 return connectionInitializerContext.Description;
             }
             else
             {
-                connectionInitializerContext = connectionInitializer.SendHello(OperationContext.NoTimeout, connection);
+                connectionInitializerContext = connectionInitializer.SendHello(operationContext, connection);
                 connection.Description = connectionInitializerContext.Description;
-                connectionInitializerContext = connectionInitializer.Authenticate(OperationContext.NoTimeout, connection, connectionInitializerContext);
+                connectionInitializerContext = connectionInitializer.Authenticate(operationContext, connection, connectionInitializerContext);
                 return connectionInitializerContext.Description;
             }
         }
@@ -428,7 +400,10 @@ namespace MongoDB.Driver.Core.Connections
         public static BsonDocument CreateInitialHelloCommand(
             this ConnectionInitializer initializer,
             IAuthenticator authenticator,
-            bool loadBalanced) =>
-                (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), OperationContext.NoTimeout, authenticator, loadBalanced);
+            bool loadBalanced)
+        {
+            using var operationContext = new OperationContext(NoCoreSession.NewHandle());
+            return (BsonDocument)Reflector.Invoke(initializer, nameof(CreateInitialHelloCommand), operationContext, authenticator, loadBalanced);
+        }
     }
 }
