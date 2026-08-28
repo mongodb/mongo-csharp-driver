@@ -229,6 +229,7 @@ namespace MongoDB.Driver
             // exhausted the thing and don't need it anymore.
             await using (source.ConfigureAwait(false))
             {
+                // validated inside the await using so that the cursor we took ownership of is disposed even for an invalid processor
                 Ensure.IsNotNull(processor, nameof(processor));
 
                 var index = 0;
