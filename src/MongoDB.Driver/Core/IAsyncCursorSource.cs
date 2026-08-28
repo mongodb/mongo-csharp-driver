@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
 namespace MongoDB.Driver
@@ -57,6 +58,8 @@ namespace MongoDB.Driver
         /// <returns>True if the cursor contains any documents.</returns>
         public static bool Any<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
             {
                 return Queryable.Any(queryable);
@@ -77,6 +80,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is true if the cursor contains any documents.</returns>
         public static async Task<bool> AnyAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
             {
                 return await queryableForwarder.AnyAsync(cancellationToken).ConfigureAwait(false);
@@ -97,6 +102,8 @@ namespace MongoDB.Driver
         /// <returns>The first document.</returns>
         public static TDocument First<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
             {
                 return Queryable.First(queryable);
@@ -117,6 +124,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document.</returns>
         public static async Task<TDocument> FirstAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
             {
                 return await queryableForwarder.FirstAsync(cancellationToken).ConfigureAwait(false);
@@ -137,6 +146,8 @@ namespace MongoDB.Driver
         /// <returns>The first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument FirstOrDefault<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
             {
                 return Queryable.FirstOrDefault(queryable);
@@ -157,6 +168,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the first document of the cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> FirstOrDefaultAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
             {
                 return await queryableForwarder.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -178,6 +191,9 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
@@ -194,6 +210,9 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Func<TDocument, int, Task> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
@@ -215,6 +234,9 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
@@ -236,6 +258,9 @@ namespace MongoDB.Driver
         /// <returns>A Task that completes when all the documents have been processed.</returns>
         public static async Task ForEachAsync<TDocument>(this IAsyncCursorSource<TDocument> source, Action<TDocument, int> processor, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+            Ensure.IsNotNull(processor, nameof(processor));
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 await cursor.ForEachAsync(processor, cancellationToken).ConfigureAwait(false);
@@ -251,6 +276,8 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor.</returns>
         public static TDocument Single<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
             {
                 return Queryable.Single(queryable);
@@ -271,6 +298,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor.</returns>
         public static async Task<TDocument> SingleAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
             {
                 return await queryableForwarder.SingleAsync(cancellationToken).ConfigureAwait(false);
@@ -292,6 +321,8 @@ namespace MongoDB.Driver
         /// <returns>The only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static TDocument SingleOrDefault<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IQueryable<TDocument> queryable && !cancellationToken.CanBeCanceled)
             {
                 return Queryable.SingleOrDefault(queryable);
@@ -313,6 +344,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose result is the only document of a cursor, or a default value if the cursor contains no documents.</returns>
         public static async Task<TDocument> SingleOrDefaultAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             if (source is IMongoQueryableForwarder<TDocument> queryableForwarder)
             {
                 return await queryableForwarder.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -357,6 +390,8 @@ namespace MongoDB.Driver
         /// <returns>The list of documents.</returns>
         public static List<TDocument> ToList<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             using (var cursor = source.ToCursor(cancellationToken))
             {
                 return cursor.ToList(cancellationToken);
@@ -372,6 +407,8 @@ namespace MongoDB.Driver
         /// <returns>A Task whose value is the list of documents.</returns>
         public static async Task<List<TDocument>> ToListAsync<TDocument>(this IAsyncCursorSource<TDocument> source, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Ensure.IsNotNull(source, nameof(source));
+
             using (var cursor = await source.ToCursorAsync(cancellationToken).ConfigureAwait(false))
             {
                 return await cursor.ToListAsync(cancellationToken).ConfigureAwait(false);
