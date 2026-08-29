@@ -9,33 +9,18 @@ set -eo pipefail
 silkbomb="901841024863.dkr.ecr.us-east-1.amazonaws.com/release-infrastructure/silkbomb:2.0"
 docker pull "${silkbomb}"
 
-silkbomb_augment_flags=(
+# "upload" publishes sbom.json directly to Dependency-Track and Kondukto in one call, using
+# only the Silkbomb IAM role's credentials below -- unlike "augment", it needs no separately
+# fetched Kondukto token. Matches the pattern in mongo-go-driver's upload-sbom
+# (internal/cmd/upload-sbom/main.go), which was rebuilt on this same subcommand for the same
+# reason.
+silkbomb_upload_flags=(
   --repo mongodb/mongo-csharp-driver
   --branch "${branch_name}"
   --sbom-in /pwd/sbom.json
-  --sbom-out /pwd/augmented.sbom.json.new
-  --no-update-sbom-version
 )
 
 docker run --rm -v "$(pwd):/pwd" \
   --user "$(id -u):$(id -g)" \
   --env 'AWS_ACCESS_KEY_ID' --env 'AWS_SECRET_ACCESS_KEY' --env 'AWS_SESSION_TOKEN' \
-  "${silkbomb}" augment "${silkbomb_augment_flags[@]}"
-
-old_json=$(mktemp)
-new_json=$(mktemp)
-diff_txt=$(mktemp)
-trap 'rm -f "$old_json" "$new_json" "$diff_txt"' EXIT
-
-if [ -f ./augmented.sbom.json ]; then
-  jq -S 'del(.metadata.timestamp)' ./augmented.sbom.json > "$old_json"
-else
-  echo '{}' > "$old_json"
-fi
-jq -S 'del(.metadata.timestamp)' ./augmented.sbom.json.new > "$new_json"
-
-if ! diff -sty --left-column -W 200 "$old_json" "$new_json" > "$diff_txt"; then
-  declare status
-  status='{"status":"failed", "type":"test", "should_continue":true, "desc":"detected significant changes in Augmented SBOM"}'
-  curl -sS -d "${status}" -H "Content-Type: application/json" -X POST http://localhost:2285/task_status || true
-fi
+  "${silkbomb}" upload "${silkbomb_upload_flags[@]}"
