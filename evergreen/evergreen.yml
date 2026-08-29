@@ -222,72 +222,47 @@ functions:
       params:
         file: mo-expansion.yml
 
-  download-and-promote-augmented-sbom-to-s3-bucket:
+  upload-sbom:
+    - command: expansions.update
+      params:
+        updates:
+          - key: DOCKER_CONFIG
+            value: "${workdir}/.docker"
     - command: ec2.assume_role
+      display_name: Assume ECR readonly IAM role
       params:
-        role_arn: ${kondukto_role_arn}
-    - command: shell.exec
+        role_arn: arn:aws:iam::901841024863:role/ecr-role-evergreen-ro
+    - command: subprocess.exec
+      type: setup
+      display_name: Log in to ECR
       params:
-        working_dir: "mongo-csharp-driver"
+        binary: bash
         include_expansions_in_env:
-          - "AWS_ACCESS_KEY_ID"
-          - "AWS_SECRET_ACCESS_KEY"
-          - "AWS_SESSION_TOKEN"
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/fetch-kondukto-token.sh
+          - AWS_ACCESS_KEY_ID
+          - AWS_SECRET_ACCESS_KEY
+          - AWS_SESSION_TOKEN
+          - DOCKER_CONFIG
+        args:
+          - -c
+          - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 901841024863.dkr.ecr.us-east-1.amazonaws.com
     - command: ec2.assume_role
+      display_name: Assume Silkbomb IAM role
       params:
-        role_arn: ${ecr-evergreen-role}
-    - command: shell.exec
+        role_arn: arn:aws:iam::901841024863:role/silkbomb
+    - command: subprocess.exec
+      type: test
+      display_name: Upload SBOM via Silkbomb
       params:
-        working_dir: "mongo-csharp-driver"
+        binary: bash
+        working_dir: mongo-csharp-driver
         include_expansions_in_env:
-          - "AWS_ACCESS_KEY_ID"
-          - "AWS_SECRET_ACCESS_KEY"
-          - "AWS_SESSION_TOKEN"
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/download-augmented-sbom.sh
-    - command: ec2.assume_role
-      params:
-        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
-    - command: s3.put
-      params:
-        aws_key: ${AWS_ACCESS_KEY_ID}
-        aws_secret: ${AWS_SECRET_ACCESS_KEY}
-        aws_session_token: ${AWS_SESSION_TOKEN}
-        local_file: ./mongo-csharp-driver/artifacts/ssdlc/augmented-sbom.json
-        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/augmented-sbom.json
-        bucket: csharp-driver-release-assets
-        region: us-west-2
-        permissions: private
-        content_type: application/json
-        display_name: augmented-sbom.json
-
-  generate-ssdlc-report:
-    - command: shell.exec
-      params:
-        working_dir: "mongo-csharp-driver"
-        env:
-          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
-          PRODUCT_NAME: "mongo-csharp-driver"
-          task_id: ${task_id}
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/generate-ssdlc-report.sh
-    - command: s3.put
-      params:
-        aws_key: ${AWS_ACCESS_KEY_ID}
-        aws_secret: ${AWS_SECRET_ACCESS_KEY}
-        aws_session_token: ${AWS_SESSION_TOKEN}
-        local_file: ./mongo-csharp-driver/artifacts/ssdlc/ssdlc_compliance_report.md
-        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/ssdlc_compliance_report.md
-        bucket: csharp-driver-release-assets
-        region: us-west-2
-        permissions: private
-        content_type: text/markdown
-        display_name: ssdlc_compliance_report.md
+          - branch_name
+          - DOCKER_CONFIG
+          - AWS_ACCESS_KEY_ID
+          - AWS_SECRET_ACCESS_KEY
+          - AWS_SESSION_TOKEN
+        args:
+          - evergreen/upload-sbom.sh
 
   generate-release-notes:
     - command: shell.exec
@@ -1806,6 +1781,7 @@ tasks:
         - func: configure-framework
         - func: download-packages
         - func: sign-packages
+        - func: trace-artifacts
         - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
@@ -1827,15 +1803,12 @@ tasks:
         - func: build-apidocs
         - func: upload-apidocs
 
-    - name: generate-ssdlc-reports
+    - name: upload-sbom
+      tags: ["ssdlc"]
+      allowed_requesters: ["commit"]
+      exec_timeout_secs: 600
       commands:
-        - command: ec2.assume_role
-          params:
-            role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
-        - func: download-packages
-        - func: trace-artifacts
-        - func: download-and-promote-augmented-sbom-to-s3-bucket
-        - func: generate-ssdlc-report
+        - func: upload-sbom
 
     - name: generate-release-notes
       commands:
@@ -2897,18 +2870,6 @@ buildvariants:
         - name: push-packages-nuget
           variant: ".push-packages"
 
-- matrix_name: ssdlc-reports
-  matrix_spec:
-    os: "ubuntu-2004"
-  display_name: "SSDLC Reports"
-  tags: ["release-tag"]
-  tasks:
-    - name: generate-ssdlc-reports
-      git_tag_only: true
-      depends_on:
-      - name: push-packages-nuget
-        variant: ".push-packages"
-
 - matrix_name: odata-tests
   batchtime: 720 # 12 hours
   matrix_spec:
@@ -2994,3 +2955,14 @@ buildvariants:
       depends_on:
         - name: push-packages-myget
           variant: ".push-packages-myget"
+
+- name: sbom
+  display_name: "SBOM"
+  allowed_requesters: ["commit"]
+  stepback: false
+  paths:
+    - sbom.json
+  run_on:
+    - ubuntu2004-small
+  tasks:
+    - name: upload-sbom
