@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "serialNumber": "urn:uuid:a24dfa6a-26a8-44d8-94bd-a2488e01185b",
-  "version": 3,
+  "version": 5,
   "metadata": {
-    "timestamp": "2026-06-10T14:40:14Z",
+    "timestamp": "2026-08-28T22:14:58Z",
     "tools": {
       "components": [
         {
@@ -22,35 +22,34 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@0.0.0",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0",
       "name": "mongo-csharp-driver",
-      "version": "0.0.0",
-      "purl": "pkg:nuget/mongo-csharp-driver@0.0.0"
+      "version": "3.9.0-102-g1c20eef9a0",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0"
     }
   },
   "components": [
     {
       "type": "library",
-      "bom-ref": "pkg:nuget/AWSSDK.Core@3.7.100.14",
+      "bom-ref": "pkg:nuget/AWSSDK.Core@4.0.100.2",
       "name": "AWSSDK.Core",
-      "version": "3.7.100.14",
+      "version": "4.0.100.2",
       "description": "The Amazon Web Services SDK for .NET - Core Runtime",
       "scope": "required",
       "hashes": [
         {
           "alg": "SHA-512",
-          "content": "5F0EDBAB7784CD0E7231446D23EE80336BAD76EA62952FE98428A28E64B538DD801800F3AD45D429558124B15E2BA16BF054C71E09766EF8F7B06AEAC9D924EB"
+          "content": "57BB2A0512BBFA55F032CA1D0FCA2047CBDC1F005884CB0174D3F65B4FCC8147568FED0F9060BCDB0C0C47761FF07A9094C5D61FC27908654062181BE0DB450E"
         }
       ],
       "licenses": [
         {
           "license": {
-            "name": "Unknown - See URL",
-            "url": "http://aws.amazon.com/apache2.0/"
+            "id": "Apache-2.0"
           }
         }
       ],
-      "purl": "pkg:nuget/AWSSDK.Core@3.7.100.14",
+      "purl": "pkg:nuget/AWSSDK.Core@4.0.100.2",
       "externalReferences": [
         {
           "url": "https://github.com/aws/aws-sdk-net/",
@@ -60,26 +59,25 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:nuget/AWSSDK.SecurityToken@3.7.100.14",
+      "bom-ref": "pkg:nuget/AWSSDK.SecurityToken@4.0.100.2",
       "name": "AWSSDK.SecurityToken",
-      "version": "3.7.100.14",
+      "version": "4.0.100.2",
       "description": "The AWS Security Token Service (AWS STS) enables you to provide trusted users with temporary credentials that provide controlled access to your AWS resources.",
       "scope": "required",
       "hashes": [
         {
           "alg": "SHA-512",
-          "content": "B3ECA01898ED503FAA1DEE7E6F30C6A35473C07048E4F6B924486CB1EFBC5782A3DC08EEC1BCBAA0E8A3BBC22C7BD3A35711EC066B1AD6840FC88F80498DA110"
+          "content": "A129AE3C3CE1A8CDE74CEDF76DB446399F6CFF50E640E8033F8E1AAC359F2C4164152CA4986948A9067EDC7D3A14E87D487245619E58B81E9AB60FB5F14B520E"
         }
       ],
       "licenses": [
         {
           "license": {
-            "name": "Unknown - See URL",
-            "url": "http://aws.amazon.com/apache2.0/"
+            "id": "Apache-2.0"
           }
         }
       ],
-      "purl": "pkg:nuget/AWSSDK.SecurityToken@3.7.100.14",
+      "purl": "pkg:nuget/AWSSDK.SecurityToken@4.0.100.2",
       "externalReferences": [
         {
           "url": "https://github.com/aws/aws-sdk-net/",
@@ -915,6 +913,72 @@
     },
     {
       "type": "library",
+      "bom-ref": "pkg:nuget/System.Text.Encodings.Web@8.0.0",
+      "name": "System.Text.Encodings.Web",
+      "version": "8.0.0",
+      "description": "Provides types for encoding and escaping strings for use in JavaScript, HyperText Markup Language (HTML), and uniform resource locators (URL).\n\nCommonly Used Types:\nSystem.Text.Encodings.Web.HtmlEncoder\nSystem.Text.Encodings.Web.UrlEncoder\nSystem.Text.Encodings.Web.JavaScriptEncoder",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "BA0822C38C3B658ABA9495642D269E882B827E3BE4AD2DC1426D8A97D3CBC5A2277C5F80847D0CB9381078AF01523328C4992CAA058146D5D8EE6B8A08609C32"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "purl": "pkg:nuget/System.Text.Encodings.Web@8.0.0",
+      "externalReferences": [
+        {
+          "url": "https://dot.net/",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/dotnet/runtime",
+          "type": "vcs"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/System.Text.Json@8.0.6",
+      "name": "System.Text.Json",
+      "version": "8.0.6",
+      "description": "Provides high-performance and low-allocating types that serialize objects to JavaScript Object Notation (JSON) text and deserialize JSON text to objects, with UTF-8 support built-in. Also provides types to read and write JSON text encoded as UTF-8, and to create an in-memory document object model (DOM), that is read-only, for random access of the JSON elements within a structured view of the data.\n\nThe System.Text.Json library is built-in as part of the shared framework in .NET Runtime. The package can be installed when you need to use it in other target frameworks.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "B38A6696DE5DA36D12837A1FE854A34A40A85751270A66938B5A040A7FE4194845018E03F1D607DAAFAA8FF27A5BFE6D3CBC6F5DFA50ED376394F0915ABA06ED"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "copyright": "© Microsoft Corporation. All rights reserved.",
+      "purl": "pkg:nuget/System.Text.Json@8.0.6",
+      "externalReferences": [
+        {
+          "url": "https://dot.net/",
+          "type": "website"
+        },
+        {
+          "url": "https://github.com/dotnet/runtime",
+          "type": "vcs"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "bom-ref": "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
       "name": "System.Threading.Tasks.Extensions",
       "version": "4.5.4",
@@ -936,6 +1000,36 @@
       ],
       "copyright": "© Microsoft Corporation. All rights reserved.",
       "purl": "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
+      "externalReferences": [
+        {
+          "url": "https://dot.net/",
+          "type": "website"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:nuget/System.ValueTuple@4.5.0",
+      "name": "System.ValueTuple",
+      "version": "4.5.0",
+      "description": "Provides the System.ValueTuple structs, which implement the underlying types for tuples in C# and Visual Basic.\n\nCommonly Used Types:\nSystem.ValueTuple\nSystem.ValueTuple<T1>\nSystem.ValueTuple<T1, T2>\nSystem.ValueTuple<T1, T2, T3>\nSystem.ValueTuple<T1, T2, T3, T4>\nSystem.ValueTuple<T1, T2, T3, T4, T5>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6, T7>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>\n \n30ab651fcb4354552bd4891619a0bdd81e0ebdbf \nWhen using NuGet 3.x this package requires at least version 3.4.",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-512",
+          "content": "FA00EBB5045D12C51274F64411C551981BECEB1266A8606A4731063109B95EA1F15939197BF3D2BA899DB61E593DC39BFCE876908BBA34286823525093AE3D8E"
+        }
+      ],
+      "licenses": [
+        {
+          "license": {
+            "name": "Unknown - See URL",
+            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
+          }
+        }
+      ],
+      "copyright": "© Microsoft Corporation.  All rights reserved.",
+      "purl": "pkg:nuget/System.ValueTuple@4.5.0",
       "externalReferences": [
         {
           "url": "https://dot.net/",
@@ -986,12 +1080,17 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:nuget/AWSSDK.Core@3.7.100.14"
+      "ref": "pkg:nuget/AWSSDK.Core@4.0.100.2",
+      "dependsOn": [
+        "pkg:nuget/System.Buffers@4.6.1",
+        "pkg:nuget/System.Memory@4.6.3",
+        "pkg:nuget/System.Text.Json@8.0.6"
+      ]
     },
     {
-      "ref": "pkg:nuget/AWSSDK.SecurityToken@3.7.100.14",
+      "ref": "pkg:nuget/AWSSDK.SecurityToken@4.0.100.2",
       "dependsOn": [
-        "pkg:nuget/AWSSDK.Core@3.7.100.14"
+        "pkg:nuget/AWSSDK.Core@4.0.100.2"
       ]
     },
     {
@@ -1018,10 +1117,8 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@0.0.0",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0",
       "dependsOn": [
-        "pkg:nuget/System.Memory@4.5.5",
-        "pkg:nuget/System.Runtime.CompilerServices.Unsafe@5.0.0",
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
         "pkg:nuget/SharpCompress@0.48.1",
@@ -1032,8 +1129,7 @@
         "pkg:nuget/System.Net.Http@4.3.4",
         "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2",
         "pkg:nuget/System.Runtime.InteropServices.RuntimeInformation@4.3.0",
-        "pkg:nuget/ZstdSharp.Port@0.7.3",
-        "pkg:nuget/AWSSDK.SecurityToken@3.7.100.14"
+        "pkg:nuget/ZstdSharp.Port@0.7.3"
       ]
     },
     {
@@ -1144,10 +1240,33 @@
       ]
     },
     {
+      "ref": "pkg:nuget/System.Text.Encodings.Web@8.0.0",
+      "dependsOn": [
+        "pkg:nuget/System.Buffers@4.6.1",
+        "pkg:nuget/System.Memory@4.6.3",
+        "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2"
+      ]
+    },
+    {
+      "ref": "pkg:nuget/System.Text.Json@8.0.6",
+      "dependsOn": [
+        "pkg:nuget/Microsoft.Bcl.AsyncInterfaces@8.0.0",
+        "pkg:nuget/System.Buffers@4.6.1",
+        "pkg:nuget/System.Memory@4.6.3",
+        "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2",
+        "pkg:nuget/System.Text.Encodings.Web@8.0.0",
+        "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
+        "pkg:nuget/System.ValueTuple@4.5.0"
+      ]
+    },
+    {
       "ref": "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
       "dependsOn": [
         "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2"
       ]
+    },
+    {
+      "ref": "pkg:nuget/System.ValueTuple@4.5.0"
     },
     {
       "ref": "pkg:nuget/ZstdSharp.Port@0.7.3",
@@ -1157,7 +1276,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/MongoDB.Driver.Encryption@0.0.0",
+      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-102-g1c20eef9a0",
       "dependsOn": [
         "pkg:github/mongodb/libmongocrypt@1.20.0"
       ]

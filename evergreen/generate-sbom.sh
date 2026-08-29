@@ -40,9 +40,17 @@ else
   github_options=()
 fi
 
-# Packages with PrivateAssets="All" in Directory.Build.props that --exclude-dev does not
-# cover reliably. Version specifiers are not required in cyclonedx-dotnet 6.2.0+.
-EXCLUDE_FILTER="Microsoft.CodeAnalysis.FxCopAnalyzers,Microsoft.NETFramework.ReferenceAssemblies,Microsoft.SourceLink.GitHub"
+# Packages with PrivateAssets="All" in Directory.Build.props that --exclude-dev correctly
+# drops at the top level, but leaves their transitive-only children behind as unreferenced
+# orphans (see https://github.com/CycloneDX/cyclonedx-dotnet/issues/445). Applied via jq
+# below rather than --exclude-filter: cyclonedx-dotnet 6.2.0's --exclude-filter runs its
+# orphan-removal pass before project-reference packages are marked as direct references, so
+# it wipes out the entire component list regardless of the filter value (see
+# https://github.com/CycloneDX/cyclonedx-dotnet/blob/v6.2.0/CycloneDX/Runner.cs, no fix
+# released as of v6.2.0). The list below includes both the top-level PrivateAssets="All"
+# packages (in case --exclude-dev's behavior changes) and the orphaned children actually
+# observed in output today.
+EXCLUDE_FILTER="Microsoft.CodeAnalysis.FxCopAnalyzers,Microsoft.NETFramework.ReferenceAssemblies,Microsoft.NETFramework.ReferenceAssemblies.net472,Microsoft.SourceLink.GitHub,Microsoft.SourceLink.Common,Microsoft.Build.Tasks.Git"
 
 dotnet-CycloneDX "${SBOM_SLNF}" \
   --disable-package-restore \
@@ -52,10 +60,42 @@ dotnet-CycloneDX "${SBOM_SLNF}" \
   --exclude-dev \
   --set-name mongo-csharp-driver \
   --set-version "${PACKAGE_VERSION}" \
-  --exclude-filter "${EXCLUDE_FILTER}" \
   --spec-version 1.5 \
   --filename sbom.cdx.json \
   "${github_options[@]+"${github_options[@]}"}"
+
+echo -e "\n================================="
+echo "Removing excluded packages: ${EXCLUDE_FILTER}"
+echo "================================="
+
+# Drops components matching EXCLUDE_FILTER by exact name, then repeatedly drops any remaining
+# component whose only referrers were themselves excluded (a component with no referrers at
+# all, i.e. a real direct/top-level dependency, is never touched).
+tmp=$(mktemp)
+jq --arg names "$EXCLUDE_FILTER" '
+  . as $root
+  | ($names | split(",")) as $ex0
+  | (reduce $root.dependencies[] as $d ({};
+       reduce ($d.dependsOn // [])[] as $child (.; .[$child] = ((.[$child] // []) + [$d.ref]))
+     )) as $parentsOf
+  | (reduce range(0;10) as $i (
+       [$root.components[] | select(.name as $n | $ex0 | index($n)) | ."bom-ref"];
+       . as $excluded
+       | ($excluded + [
+           $root.components[]
+           | select(."bom-ref" as $r | ($excluded | index($r)) | not)
+           | select((($parentsOf[."bom-ref"] // [])|length) > 0)
+           | select(($parentsOf[."bom-ref"] // []) | all(. as $p | $excluded | index($p)))
+           | ."bom-ref"
+         ]) | unique
+     )) as $excludedRefs
+  | $root
+  | .components |= map(select((."bom-ref" as $r | $excludedRefs | index($r)) | not))
+  | .dependencies |= (
+      map(select((.ref as $r | $excludedRefs | index($r)) | not))
+      | map(if .dependsOn then .dependsOn |= map(select(. as $r | ($excludedRefs | index($r)) | not)) else . end)
+    )
+' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
 
 echo -e "\n================================="
 echo "Resolving libmongocrypt version"
