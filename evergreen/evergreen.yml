@@ -264,73 +264,6 @@ functions:
         args:
           - evergreen/upload-sbom.sh
 
-  download-and-promote-augmented-sbom-to-s3-bucket:
-    - command: ec2.assume_role
-      params:
-        role_arn: ${kondukto_role_arn}
-    - command: shell.exec
-      params:
-        working_dir: "mongo-csharp-driver"
-        include_expansions_in_env:
-          - "AWS_ACCESS_KEY_ID"
-          - "AWS_SECRET_ACCESS_KEY"
-          - "AWS_SESSION_TOKEN"
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/fetch-kondukto-token.sh
-    - command: ec2.assume_role
-      params:
-        role_arn: ${ecr-evergreen-role}
-    - command: shell.exec
-      params:
-        working_dir: "mongo-csharp-driver"
-        include_expansions_in_env:
-          - "AWS_ACCESS_KEY_ID"
-          - "AWS_SECRET_ACCESS_KEY"
-          - "AWS_SESSION_TOKEN"
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/download-augmented-sbom.sh
-    - command: ec2.assume_role
-      params:
-        role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
-    - command: s3.put
-      params:
-        aws_key: ${AWS_ACCESS_KEY_ID}
-        aws_secret: ${AWS_SECRET_ACCESS_KEY}
-        aws_session_token: ${AWS_SESSION_TOKEN}
-        local_file: ./mongo-csharp-driver/artifacts/ssdlc/augmented-sbom.json
-        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/augmented-sbom.json
-        bucket: csharp-driver-release-assets
-        region: us-west-2
-        permissions: private
-        content_type: application/json
-        display_name: augmented-sbom.json
-
-  generate-ssdlc-report:
-    - command: shell.exec
-      params:
-        working_dir: "mongo-csharp-driver"
-        env:
-          NUGET_SIGN_CERTIFICATE_FINGERPRINT: ${NUGET_SIGN_CERTIFICATE_FINGERPRINT}
-          PRODUCT_NAME: "mongo-csharp-driver"
-          task_id: ${task_id}
-        script: |
-          ${PREPARE_SHELL}
-          ./evergreen/generate-ssdlc-report.sh
-    - command: s3.put
-      params:
-        aws_key: ${AWS_ACCESS_KEY_ID}
-        aws_secret: ${AWS_SECRET_ACCESS_KEY}
-        aws_session_token: ${AWS_SESSION_TOKEN}
-        local_file: ./mongo-csharp-driver/artifacts/ssdlc/ssdlc_compliance_report.md
-        remote_file: mongo-csharp-driver/${PACKAGE_VERSION}/ssdlc_compliance_report.md
-        bucket: csharp-driver-release-assets
-        region: us-west-2
-        permissions: private
-        content_type: text/markdown
-        display_name: ssdlc_compliance_report.md
-
   generate-release-notes:
     - command: shell.exec
       params:
@@ -1848,6 +1781,7 @@ tasks:
         - func: configure-framework
         - func: download-packages
         - func: sign-packages
+        - func: trace-artifacts
         - func: push-packages
           vars:
             PACKAGES_SOURCE: "https://api.nuget.org/v3/index.json"
@@ -1875,16 +1809,6 @@ tasks:
       exec_timeout_secs: 600
       commands:
         - func: upload-sbom
-
-    - name: generate-ssdlc-reports
-      commands:
-        - command: ec2.assume_role
-          params:
-            role_arn: ${UPLOAD_SSDLC_RELEASE_ASSETS_ROLE_ARN}
-        - func: download-packages
-        - func: trace-artifacts
-        - func: download-and-promote-augmented-sbom-to-s3-bucket
-        - func: generate-ssdlc-report
 
     - name: generate-release-notes
       commands:
@@ -2945,18 +2869,6 @@ buildvariants:
       depends_on:
         - name: push-packages-nuget
           variant: ".push-packages"
-
-- matrix_name: ssdlc-reports
-  matrix_spec:
-    os: "ubuntu-2004"
-  display_name: "SSDLC Reports"
-  tags: ["release-tag"]
-  tasks:
-    - name: generate-ssdlc-reports
-      git_tag_only: true
-      depends_on:
-      - name: push-packages-nuget
-        variant: ".push-packages"
 
 - matrix_name: odata-tests
   batchtime: 720 # 12 hours
