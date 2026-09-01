@@ -97,6 +97,7 @@ namespace MongoDB.Driver.Tests
         [InlineData("ServerSelectionTimeout", true)]
         [InlineData("SocketTimeout", true)]
         [InlineData("Socks5ProxySettings", true)]
+        [InlineData("SrvAllowedHostsSuffix", true)]
         [InlineData("SrvMaxHosts", true)]
         [InlineData("SslSettings", true)]
         [InlineData("TracingOptions", true)]
@@ -205,6 +206,7 @@ namespace MongoDB.Driver.Tests
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
             var socks5ProxySettings = Socks5ProxySettings.Create("localhost", 1080, "user", "password");
+            string srvAllowedHostsSuffix = null;
             var srvMaxHosts = 0;
             var srvServiceName = "mongodb";
             var sslSettings = new SslSettings
@@ -255,6 +257,7 @@ namespace MongoDB.Driver.Tests
                     case "ServerSelectionTimeout": serverSelectionTimeout = TimeSpan.FromSeconds(98); break;
                     case "SocketTimeout": socketTimeout = TimeSpan.FromSeconds(99); break;
                     case "Socks5ProxySettings": socks5ProxySettings = Socks5ProxySettings.Create("different", 1080, "user", "password"); break;
+                    case "SrvAllowedHostsSuffix": srvAllowedHostsSuffix = ".mydomain.net"; break;
                     case "SrvMaxHosts": srvMaxHosts = 3; break;
                     case "SrvServiceName": srvServiceName = "customname"; break;
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
@@ -297,6 +300,7 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeout,
                 socketTimeout,
                 socks5ProxySettings,
+                srvAllowedHostsSuffix,
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,
@@ -343,6 +347,7 @@ namespace MongoDB.Driver.Tests
             var serverSelectionTimeout = TimeSpan.FromSeconds(6);
             var socketTimeout = TimeSpan.FromSeconds(4);
             var socks5ProxySettings = Socks5ProxySettings.Create("localhost", 1080, "user", "password");
+            var srvAllowedHostsSuffix = ".mydomain.net";
             var srvMaxHosts = 3;
             var srvServiceName = "customname";
             var sslSettings = new SslSettings
@@ -386,6 +391,7 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeout,
                 socketTimeout,
                 socks5ProxySettings,
+                srvAllowedHostsSuffix,
                 srvMaxHosts,
                 srvServiceName,
                 sslSettings,

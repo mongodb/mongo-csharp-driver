@@ -76,6 +76,7 @@ namespace MongoDB.Driver
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private Socks5ProxySettings _socks5ProxySettings;
+        private string _srvAllowedHostsSuffix;
         private int _srvMaxHosts;
         private string _srvServiceName;
         private SslSettings _sslSettings;
@@ -732,6 +733,26 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated
+        /// against. When set, it replaces the domain name that would otherwise be inferred from
+        /// the SRV hostname. Prefer the narrowest suffix that covers the deployment: the broader
+        /// it is, the more hosts a forged SRV response could direct the driver to.
+        /// </summary>
+        public string SrvAllowedHostsSuffix
+        {
+            get { return _srvAllowedHostsSuffix; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
+                {
+                    throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
+                }
+                _srvAllowedHostsSuffix = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the SSL settings.
         /// </summary>
         public SslSettings SslSettings
@@ -944,6 +965,7 @@ namespace MongoDB.Driver
             {
                 clientSettings.Socks5ProxySettings = Socks5ProxySettings.Create(url.ProxyHost, url.ProxyPort, url.ProxyUsername, url.ProxyPassword);
             }
+            clientSettings.SrvAllowedHostsSuffix = url.SrvAllowedHostsSuffix;
             clientSettings.SrvMaxHosts = url.SrvMaxHosts.GetValueOrDefault(0);
             clientSettings.SrvServiceName = url.SrvServiceName;
             clientSettings.SslSettings = null;
@@ -1008,6 +1030,7 @@ namespace MongoDB.Driver
             clone._serverSelectionTimeout = _serverSelectionTimeout;
             clone._socketTimeout = _socketTimeout;
             clone._socks5ProxySettings = _socks5ProxySettings;
+            clone._srvAllowedHostsSuffix = _srvAllowedHostsSuffix;
             clone._srvMaxHosts = _srvMaxHosts;
             clone._srvServiceName = _srvServiceName;
             clone._sslSettings = (_sslSettings == null) ? null : _sslSettings.Clone();
@@ -1083,6 +1106,7 @@ namespace MongoDB.Driver
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
+                _srvAllowedHostsSuffix == rhs._srvAllowedHostsSuffix &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs._srvServiceName &&
                 _sslSettings == rhs._sslSettings &&
@@ -1175,6 +1199,7 @@ namespace MongoDB.Driver
                 .Hash(_serverSelectionTimeout)
                 .Hash(_socketTimeout)
                 .Hash(_socks5ProxySettings)
+                .Hash(_srvAllowedHostsSuffix)
                 .Hash(_srvMaxHosts)
                 .Hash(_srvServiceName)
                 .Hash(_sslSettings)
@@ -1259,6 +1284,7 @@ namespace MongoDB.Driver
             sb.AppendFormat("serverMonitoringMode={0};", _serverMonitoringMode);
             sb.AppendFormat("ServerSelectionTimeout={0};", _serverSelectionTimeout);
             sb.AppendFormat("SocketTimeout={0};", _socketTimeout);
+            sb.AppendFormat("SrvAllowedHostsSuffix={0};", _srvAllowedHostsSuffix);
             sb.AppendFormat("SrvMaxHosts={0};", _srvMaxHosts);
             sb.AppendFormat("SrvServiceName={0};", _srvServiceName);
             if (_sslSettings != null)
@@ -1319,6 +1345,7 @@ namespace MongoDB.Driver
                 _serverSelectionTimeout,
                 _socketTimeout,
                 _socks5ProxySettings,
+                _srvAllowedHostsSuffix,
                 _srvMaxHosts,
                 _srvServiceName,
                 _sslSettings,
@@ -1372,6 +1399,11 @@ namespace MongoDB.Driver
             if (_srvServiceName != MongoInternalDefaults.MongoClientSettings.SrvServiceName && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
             {
                 throw new InvalidOperationException("Specifying srvServiceName is only allowed with the mongodb+srv scheme.");
+            }
+
+            if (_srvAllowedHostsSuffix != null && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+            {
+                throw new InvalidOperationException("Specifying srvAllowedHostsSuffix is only allowed with the mongodb+srv scheme.");
             }
 
             if (_loadBalanced)

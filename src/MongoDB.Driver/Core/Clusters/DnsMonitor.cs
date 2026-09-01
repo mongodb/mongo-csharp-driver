@@ -44,6 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly string _lookupDomainName;
         private bool _processDnsResultHasEverBeenCalled;
         private readonly string _service;
+        private readonly string _srvParentDomain;
         private DnsMonitorState _state;
         private Exception _unhandledException;
 
@@ -54,6 +55,7 @@ namespace MongoDB.Driver.Core.Clusters
             IDnsResolver dnsResolver,
             string srvServiceName,
             string lookupDomainName,
+            string srvAllowedHostsSuffix,
             IEventSubscriber eventSubscriber,
             ILogger<LogCategories.SDAM> logger,
             CancellationToken cancellationToken)
@@ -63,6 +65,9 @@ namespace MongoDB.Driver.Core.Clusters
             _lookupDomainName = EnsureLookupDomainNameIsValid(lookupDomainName);
             _cancellationToken = cancellationToken;
             _service = $"_{srvServiceName}._tcp." + _lookupDomainName;
+            _srvParentDomain = srvAllowedHostsSuffix == null
+                ? null
+                : ConnectionString.NormalizeSrvAllowedHostsSuffix(srvAllowedHostsSuffix);
             _state = DnsMonitorState.Created;
 
             _eventLogger = logger.ToEventLogger(eventSubscriber);
@@ -156,7 +161,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private bool IsValidHost(DnsEndPoint endPoint)
         {
-            return ConnectionString.HasValidParentDomain(_lookupDomainName, endPoint);
+            return ConnectionString.HasValidParentDomain(_lookupDomainName, endPoint, _srvParentDomain);
         }
 
         private void Monitor()

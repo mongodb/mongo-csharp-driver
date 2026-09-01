@@ -57,6 +57,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly Socks5ProxySettings _socks5ProxySettings;
+        private readonly string _srvAllowedHostsSuffix;
         private readonly int _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly SslSettings _sslSettings;
@@ -97,6 +98,7 @@ namespace MongoDB.Driver
             TimeSpan serverSelectionTimeout,
             TimeSpan socketTimeout,
             Socks5ProxySettings socks5ProxySettings,
+            string srvAllowedHostsSuffix,
             int srvMaxHosts,
             string srvServiceName,
             SslSettings sslSettings,
@@ -135,6 +137,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = serverSelectionTimeout;
             _socketTimeout = socketTimeout;
             _socks5ProxySettings = socks5ProxySettings;
+            _srvAllowedHostsSuffix = srvAllowedHostsSuffix;
             _srvMaxHosts = srvMaxHosts;
             _srvServiceName = srvServiceName;
             _sslSettings = sslSettings;
@@ -177,6 +180,7 @@ namespace MongoDB.Driver
         public TimeSpan ServerSelectionTimeout { get { return _serverSelectionTimeout; } }
         public TimeSpan SocketTimeout { get { return _socketTimeout; } }
         public Socks5ProxySettings Socks5ProxySettings { get { return _socks5ProxySettings; } }
+        public string SrvAllowedHostsSuffix { get { return _srvAllowedHostsSuffix; } }
         public int SrvMaxHosts { get { return _srvMaxHosts; } }
         public string SrvServiceName { get { return _srvServiceName; } }
         public SslSettings SslSettings { get { return _sslSettings; } }
@@ -234,6 +238,7 @@ namespace MongoDB.Driver
                 _serverSelectionTimeout == rhs._serverSelectionTimeout &&
                 _socketTimeout == rhs._socketTimeout &&
                 object.Equals(_socks5ProxySettings, rhs._socks5ProxySettings) &&
+                _srvAllowedHostsSuffix == rhs._srvAllowedHostsSuffix &&
                 _srvMaxHosts == rhs._srvMaxHosts &&
                 _srvServiceName == rhs.SrvServiceName &&
                 object.Equals(_sslSettings, rhs._sslSettings) &&

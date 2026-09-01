@@ -32,10 +32,10 @@ namespace MongoDB.Driver.Core.Clusters
             _loggerFactory = loggerFactory;
         }
 
-        public IDnsMonitor CreateDnsMonitor(IDnsMonitoringCluster cluster, string srvServiceName, string lookupDomainName, CancellationToken cancellationToken)
+        public IDnsMonitor CreateDnsMonitor(IDnsMonitoringCluster cluster, string srvServiceName, string lookupDomainName, string srvAllowedHostsSuffix, CancellationToken cancellationToken)
         {
             var dnsResolver = DnsClientWrapper.Instance;
-            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, _eventSubscriber, _loggerFactory?.CreateLogger<LogCategories.SDAM>(), cancellationToken);
+            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, srvAllowedHostsSuffix, _eventSubscriber, _loggerFactory?.CreateLogger<LogCategories.SDAM>(), cancellationToken);
         }
     }
 }
