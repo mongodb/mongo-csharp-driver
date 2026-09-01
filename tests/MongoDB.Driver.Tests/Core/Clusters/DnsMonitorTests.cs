@@ -75,7 +75,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, mockEventSubscriber.Object, null, cancellationToken);
+            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, mockEventSubscriber.Object, null, cancellationToken);
 
             subject.State.Should().Be(DnsMonitorState.Created);
             subject._cancellationToken().Should().Be(cancellationToken);
@@ -95,7 +95,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(null, dnsResolver, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(null, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("cluster");
@@ -109,7 +109,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, null, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, null, "mongodb", lookupDomainName, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("dnsResolver");
@@ -123,7 +123,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", null, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", null, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("lookupDomainName");
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.ParamName.Should().Be("lookupDomainName");
@@ -516,13 +516,14 @@ namespace MongoDB.Driver.Core.Clusters
             IDnsResolver dnsResolver = null,
             string srvServiceName = "mongodb",
             string lookupDomainName = null,
+            string srvAllowedHostsSuffix = null,
             IEventSubscriber eventSubscriber = null,
             CancellationToken cancellationToken = default)
         {
             cluster = cluster ?? Mock.Of<IDnsMonitoringCluster>();
             dnsResolver = dnsResolver ?? Mock.Of<IDnsResolver>();
             lookupDomainName = lookupDomainName ?? "a.b.c.com";
-            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, eventSubscriber, null, cancellationToken);
+            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, srvAllowedHostsSuffix, eventSubscriber, null, cancellationToken);
         }
     }
 

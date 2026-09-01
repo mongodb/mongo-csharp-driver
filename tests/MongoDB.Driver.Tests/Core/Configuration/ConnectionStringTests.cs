@@ -1262,6 +1262,20 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mydomain.net", ".mydomain.net")]
+        [InlineData(".mydomain.net", ".mydomain.net")]
+        [InlineData(".mydomain.net.", ".mydomain.net")]
+        [InlineData(".MyDomain.NET", ".mydomain.net")]
+        [InlineData("example.公司.cn", ".example.xn--55qx5d.cn")]
+        [InlineData("пример.рф", ".xn--e1afmkfd.xn--p1ai")]
+        public void NormalizeSrvAllowedHostsSuffix_should_return_expected_result(string suffix, string expectedResult)
+        {
+            var result = ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
         [InlineData("mongodb://localhost?proxyHost=222.222.222.12", "222.222.222.12", null, null, null)]
         [InlineData("mongodb://localhost?proxyHost=222.222.222.12&proxyPort=8080", "222.222.222.12", 8080, null, null)]
         [InlineData("mongodb://localhost?proxyHost=example.com", "example.com", null, null, null)]

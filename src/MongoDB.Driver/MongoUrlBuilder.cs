@@ -71,6 +71,7 @@ namespace MongoDB.Driver
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
         private int? _srvMaxHosts;
+        private string _srvAllowedHostsSuffix;
         private string _srvServiceName;
         private TimeSpan? _timeout;
         private bool? _tlsDisableCertificateRevocationCheck;
@@ -675,6 +676,25 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated
+        /// against. When set, it replaces the domain name that would otherwise be inferred from
+        /// the SRV hostname. Prefer the narrowest suffix that covers the deployment: the broader
+        /// it is, the more hosts a forged SRV response could direct the driver to.
+        /// </summary>
+        public string SrvAllowedHostsSuffix
+        {
+            get { return _srvAllowedHostsSuffix; }
+            set
+            {
+                if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
+                {
+                    throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
+                }
+                _srvAllowedHostsSuffix = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the per-operation timeout
         /// </summary>
         // TODO: CSOT: Make it public when CSOT will be ready for GA
@@ -1091,6 +1111,10 @@ namespace MongoDB.Driver
             {
                 query.AppendFormat("srvServiceName={0}&", _srvServiceName);
             }
+            if (_srvAllowedHostsSuffix != null)
+            {
+                query.AppendFormat("srvAllowedHostsSuffix={0}&", _srvAllowedHostsSuffix);
+            }
             if (query.Length != 0)
             {
                 query.Length = query.Length - 1; // remove trailing "&"
@@ -1152,6 +1176,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = connectionString.ServerMonitoringMode;
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _srvAllowedHostsSuffix = connectionString.SrvAllowedHostsSuffix;
             _srvMaxHosts = connectionString.SrvMaxHosts;
             _srvServiceName = connectionString.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _timeout = connectionString.Timeout;

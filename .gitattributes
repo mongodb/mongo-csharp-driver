@@ -1,3 +1,8 @@
 *.docx binary
 *.dll binary
 *.snk binary
+
+# The vendored Public Suffix List is refreshed by copying it over from the specifications
+# repository, which stores it with LF. Pinning the line endings keeps that a clean diff whatever
+# the platform, and keeps the bytes embedded in the assembly identical across build machines.
+src/MongoDB.Driver/Core/Misc/public_suffix_list.dat text eol=lf
