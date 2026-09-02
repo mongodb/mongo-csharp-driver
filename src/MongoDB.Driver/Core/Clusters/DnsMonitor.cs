@@ -133,14 +133,14 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var srvRecord in srvRecords)
             {
-                var endPoint = srvRecord.EndPoint;
-                var host = endPoint.Host;
+                // DNS names are case-insensitive, and SDAM requires host names to be normalized to lower-case
+                var host = srvRecord.EndPoint.Host.ToLowerInvariant();
                 if (host.EndsWith(".", StringComparison.Ordinal))
                 {
                     host = host.Substring(0, host.Length - 1);
-                    endPoint = new DnsEndPoint(host, endPoint.Port);
                 }
 
+                var endPoint = new DnsEndPoint(host, srvRecord.EndPoint.Port);
                 if (IsValidHost(endPoint))
                 {
                     validEndPoints.Add(endPoint);

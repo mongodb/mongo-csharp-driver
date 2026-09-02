@@ -314,6 +314,23 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
+        [InlineData("x.B.CoM", "x.b.com")]     // parent-domain labels
+        [InlineData("X1.b.com", "x1.b.com")]   // leftmost label only
+        [InlineData("X1.b.com.", "x1.b.com")]  // trailing dot, as the resolver returns it
+        public void GetValidEndPoints_should_normalize_host_to_lower_case(string srvHost, string expectedHost)
+        {
+            var subject = CreateSubject(lookupDomainName: "a.b.com");
+            var srvRecords = new List<SrvRecord>
+            {
+                new SrvRecord(new DnsEndPoint(srvHost, 27017), TimeSpan.FromHours(24))
+            };
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Single().Host.Should().Be(expectedHost);
+        }
+
+        [Theory]
         [InlineData("a.b.com", "x.b.com", true)]
         [InlineData("a.b.com", "x.com", false)]
         [InlineData("a.b.com", "x.c.com", false)]
