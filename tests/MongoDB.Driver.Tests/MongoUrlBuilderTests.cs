@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Tests
     public class MongoUrlBuilderTests
     {
         private MongoServerAddress _localhost = new MongoServerAddress("localhost");
-        private const string __baseUrl = "mongodb://appuser:s3cret@db.internal/?tls=true";
-        private const string __baseSrvUrl = "mongodb+srv://appuser:s3cret@db.internal/";
+        private const string BaseUrl = "mongodb://appuser:s3cret@db.internal/?tls=true";
+        private const string BaseSrvUrl = "mongodb+srv://appuser:s3cret@db.internal/";
 
         [Fact]
         public void MaxPoolSize_zero_should_be_handled_correctly()
@@ -1405,7 +1405,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_database_name()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { DatabaseName = "tenant7?tls=false&proxyHost=evil.example.com" };
+            var subject = new MongoUrlBuilder(BaseUrl) { DatabaseName = "tenant7?tls=false&proxyHost=evil.example.com" };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/tenant7%3Ftls%3Dfalse%26proxyHost%3Devil.example.com?tls=true");
 
@@ -1415,7 +1415,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_application_name()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { ApplicationName = "My App & Co" };
+            var subject = new MongoUrlBuilder(BaseUrl) { ApplicationName = "My App & Co" };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?appname=My%20App%20%26%20Co&tls=true");
 
@@ -1425,7 +1425,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_authentication_mechanism()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { AuthenticationMechanism = "PLAIN&tls=false" };
+            var subject = new MongoUrlBuilder(BaseUrl) { AuthenticationMechanism = "PLAIN&tls=false" };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authMechanism=PLAIN%26tls%3Dfalse&tls=true");
 
@@ -1435,7 +1435,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_authentication_source()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { AuthenticationSource = "admin?tls=false" };
+            var subject = new MongoUrlBuilder(BaseUrl) { AuthenticationSource = "admin?tls=false" };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authSource=admin%3Ftls%3Dfalse&tls=true");
 
@@ -1445,7 +1445,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_replica_set_name()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { ReplicaSetName = "rs0&tls=false" };
+            var subject = new MongoUrlBuilder(BaseUrl) { ReplicaSetName = "rs0&tls=false" };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?tls=true&replicaSet=rs0%26tls%3Dfalse");
 
@@ -1455,7 +1455,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_w_mode()
         {
-            var subject = new MongoUrlBuilder(__baseUrl) { W = new WriteConcern.WMode("my tag&tls=false") };
+            var subject = new MongoUrlBuilder(BaseUrl) { W = new WriteConcern.WMode("my tag&tls=false") };
 
             var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?tls=true&w=my%20tag%26tls%3Dfalse");
 
@@ -1465,7 +1465,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_proxy_credentials()
         {
-            var subject = new MongoUrlBuilder(__baseUrl)
+            var subject = new MongoUrlBuilder(BaseUrl)
             {
                 ProxyHost = "proxy.example.com",
                 ProxyUsername = "user@corp",
@@ -1484,7 +1484,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_srv_service_name()
         {
-            var subject = new MongoUrlBuilder(__baseSrvUrl) { SrvServiceName = "mongodb?tls=false" };
+            var subject = new MongoUrlBuilder(BaseSrvUrl) { SrvServiceName = "mongodb?tls=false" };
 
             var result = RoundTrip(subject, "mongodb+srv://appuser:s3cret@db.internal/?srvServiceName=mongodb%3Ftls%3Dfalse");
 
@@ -1494,7 +1494,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_authentication_mechanism_properties()
         {
-            var subject = new MongoUrlBuilder(__baseUrl)
+            var subject = new MongoUrlBuilder(BaseUrl)
             {
                 AuthenticationMechanism = "MONGODB-AWS",
                 AuthenticationMechanismProperties = new Dictionary<string, string> { { "AWS_SESSION_TOKEN", "abc+def/ghi==" } }
@@ -1509,7 +1509,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_percent_encode_read_preference_tags()
         {
-            var subject = new MongoUrlBuilder(__baseUrl)
+            var subject = new MongoUrlBuilder(BaseUrl)
             {
                 ReadPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag("dc", "ny&tls=false")])])
             };
@@ -1524,7 +1524,7 @@ namespace MongoDB.Driver.Tests
         {
             var compressor = new CompressorConfiguration(CompressorType.Zlib);
             compressor.Properties["Level"] = "5&tls=false";
-            var subject = new MongoUrlBuilder(__baseUrl) { Compressors = [compressor] };
+            var subject = new MongoUrlBuilder(BaseUrl) { Compressors = [compressor] };
 
             var url = subject.ToString();
 
@@ -1534,7 +1534,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void ToString_should_not_throw_when_an_authentication_mechanism_property_value_is_null()
         {
-            var subject = new MongoUrlBuilder(__baseUrl)
+            var subject = new MongoUrlBuilder(BaseUrl)
             {
                 AuthenticationMechanismProperties = new Dictionary<string, string> { { "PROPERTY_NAME", null } }
             };

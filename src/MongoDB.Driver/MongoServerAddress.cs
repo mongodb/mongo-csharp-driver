@@ -26,9 +26,9 @@ namespace MongoDB.Driver
     public class MongoServerAddress : IEquatable<MongoServerAddress>
     {
         // private static fields
-        private const string __hostPattern = @"(\[[^]]+\]|[^:\[\],/?@#]+)";
-        private static readonly Regex __hostRegex = new Regex($"^{__hostPattern}$", RegexOptions.Compiled);
-        private static readonly Regex __serverAddressRegex = new Regex($@"^(?<host>{__hostPattern})(:(?<port>\d+))?$", RegexOptions.Compiled);
+        private const string HostPattern = @"(\[[^]]+\]|[^:\[\],/?@#]+)";
+        private static readonly Regex __hostRegex = new Regex($"^{HostPattern}$", RegexOptions.Compiled);
+        private static readonly Regex __serverAddressRegex = new Regex($@"^(?<host>{HostPattern})(:(?<port>\d+))?$", RegexOptions.Compiled);
 
         // private fields
         private string _host;
