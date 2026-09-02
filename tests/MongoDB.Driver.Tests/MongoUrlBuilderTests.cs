@@ -30,6 +30,8 @@ namespace MongoDB.Driver.Tests
     public class MongoUrlBuilderTests
     {
         private MongoServerAddress _localhost = new MongoServerAddress("localhost");
+        private const string BaseUrl = "mongodb://appuser:s3cret@db.internal/?tls=true";
+        private const string BaseSrvUrl = "mongodb+srv://appuser:s3cret@db.internal/";
 
         [Fact]
         public void MaxPoolSize_zero_should_be_handled_correctly()
@@ -1400,7 +1402,165 @@ namespace MongoDB.Driver.Tests
             result.Should().Be(expectedResult);
         }
 
+        [Fact]
+        public void ToString_should_percent_encode_database_name()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { DatabaseName = "tenant7?tls=false&proxyHost=evil.example.com" };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/tenant7%3Ftls%3Dfalse%26proxyHost%3Devil.example.com?tls=true");
+
+            result.DatabaseName.Should().Be("tenant7?tls=false&proxyHost=evil.example.com");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_application_name()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { ApplicationName = "My App & Co" };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?appname=My%20App%20%26%20Co&tls=true");
+
+            result.ApplicationName.Should().Be("My App & Co");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_authentication_mechanism()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { AuthenticationMechanism = "PLAIN&tls=false" };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authMechanism=PLAIN%26tls%3Dfalse&tls=true");
+
+            result.AuthenticationMechanism.Should().Be("PLAIN&tls=false");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_authentication_source()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { AuthenticationSource = "admin?tls=false" };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authSource=admin%3Ftls%3Dfalse&tls=true");
+
+            result.AuthenticationSource.Should().Be("admin?tls=false");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_replica_set_name()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { ReplicaSetName = "rs0&tls=false" };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?tls=true&replicaSet=rs0%26tls%3Dfalse");
+
+            result.ReplicaSetName.Should().Be("rs0&tls=false");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_w_mode()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl) { W = new WriteConcern.WMode("my tag&tls=false") };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?tls=true&w=my%20tag%26tls%3Dfalse");
+
+            result.W.Should().Be(new WriteConcern.WMode("my tag&tls=false"));
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_proxy_credentials()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl)
+            {
+                ProxyHost = "proxy.example.com",
+                ProxyUsername = "user@corp",
+                ProxyPassword = "p@ss:w&rd"
+            };
+
+            var url = subject.ToString();
+
+            url.Should().Be("mongodb://appuser:s3cret@db.internal/?tls=true&proxyHost=proxy.example.com&proxyUsername=user%40corp&proxyPassword=p%40ss%3Aw%26rd");
+            var result = new MongoUrlBuilder(url);
+            result.UseTls.Should().BeTrue();
+            result.ProxyUsername.Should().Be("user@corp");
+            result.ProxyPassword.Should().Be("p@ss:w&rd");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_srv_service_name()
+        {
+            var subject = new MongoUrlBuilder(BaseSrvUrl) { SrvServiceName = "mongodb?tls=false" };
+
+            var result = RoundTrip(subject, "mongodb+srv://appuser:s3cret@db.internal/?srvServiceName=mongodb%3Ftls%3Dfalse");
+
+            result.SrvServiceName.Should().Be("mongodb?tls=false");
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_authentication_mechanism_properties()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl)
+            {
+                AuthenticationMechanism = "MONGODB-AWS",
+                AuthenticationMechanismProperties = new Dictionary<string, string> { { "AWS_SESSION_TOKEN", "abc+def/ghi==" } }
+            };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:abc%2Bdef%2Fghi%3D%3D&tls=true");
+
+            result.AuthenticationMechanismProperties.Should().Equal(
+                new Dictionary<string, string> { { "AWS_SESSION_TOKEN", "abc+def/ghi==" } });
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_read_preference_tags()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl)
+            {
+                ReadPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag("dc", "ny&tls=false")])])
+            };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?tls=true&readPreference=secondary&readPreferenceTags=dc:ny%26tls%3Dfalse");
+
+            result.ReadPreference.TagSets.Should().Equal(new TagSet([new Tag("dc", "ny&tls=false")]));
+        }
+
+        [Fact]
+        public void ToString_should_percent_encode_zlib_compression_level()
+        {
+            var compressor = new CompressorConfiguration(CompressorType.Zlib);
+            compressor.Properties["Level"] = "5&tls=false";
+            var subject = new MongoUrlBuilder(BaseUrl) { Compressors = [compressor] };
+
+            var url = subject.ToString();
+
+            url.Should().Be("mongodb://appuser:s3cret@db.internal/?tls=true&compressors=zlib&zlibCompressionLevel=5%26tls%3Dfalse");
+        }
+
+        [Fact]
+        public void ToString_should_not_throw_when_an_authentication_mechanism_property_value_is_null()
+        {
+            var subject = new MongoUrlBuilder(BaseUrl)
+            {
+                AuthenticationMechanismProperties = new Dictionary<string, string> { { "PROPERTY_NAME", null } }
+            };
+
+            var result = RoundTrip(subject, "mongodb://appuser:s3cret@db.internal/?authMechanismProperties=PROPERTY_NAME:&tls=true");
+
+            result.AuthenticationMechanismProperties.Should().Equal(
+                new Dictionary<string, string> { { "PROPERTY_NAME", "" } });
+        }
+
         // private methods
+        private static MongoUrlBuilder RoundTrip(MongoUrlBuilder subject, string expectedUrl)
+        {
+            var url = subject.ToString();
+            url.Should().Be(expectedUrl);
+
+            var result = new MongoUrlBuilder(url);
+            result.Username.Should().Be("appuser");
+            result.Password.Should().Be("s3cret");
+            result.Server.Host.Should().Be("db.internal");
+            result.UseTls.Should().BeTrue();
+            result.ProxyHost.Should().BeNull();
+            result.ProxyPort.Should().NotHaveValue();
+            return result;
+        }
+
         private IEnumerable<MongoUrlBuilder> EnumerateBuiltAndParsedBuilders(
             MongoUrlBuilder built,
             string connectionString)
