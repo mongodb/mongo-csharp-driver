@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -102,7 +103,9 @@ namespace MongoDB.Driver.Core.Configuration
         private ServerMonitoringMode? _serverMonitoringMode;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
+        private string _srvAllowedHostsSuffix;
         private int? _srvMaxHosts;
+        private string _srvParentDomain;
         private string _srvServiceName;
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         private TimeSpan? _timeout;
@@ -485,6 +488,13 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against,
+        /// as it was specified in the connection string. When set, it replaces the domain name
+        /// that would otherwise be inferred from the SRV hostname.
+        /// </summary>
+        public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
         /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
@@ -917,6 +927,16 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("Specifying srvServiceName is only allowed with the mongodb+srv scheme.");
             }
 
+            if (_srvAllowedHostsSuffix != null)
+            {
+                if (!_isInternalRepresentation && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+                {
+                    throw new MongoConfigurationException("Specifying srvAllowedHostsSuffix is only allowed with the mongodb+srv scheme.");
+                }
+
+                _srvParentDomain = NormalizeSrvAllowedHostsSuffix(_srvAllowedHostsSuffix);
+            }
+
             if (_loadBalanced)
             {
                 if (_hosts.Count > 1)
@@ -1186,6 +1206,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sockettimeoutms":
                     _socketTimeout = ParseTimeSpan(name, value);
                     break;
+                case "srvallowedhostssuffix":
+                    _srvAllowedHostsSuffix = value;
+                    break;
                 case "srvmaxhosts":
                     var srvMaxHostsValue = ParseInt32(name, value);
                     if (srvMaxHostsValue < 0)
@@ -1260,6 +1283,56 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private static methods
+
+        internal static string NormalizeSrvAllowedHostsSuffix(string value)
+        {
+            if (!TryNormalizeSrvAllowedHostsSuffix(value, out var suffix, out var errorMessage))
+            {
+                throw new MongoConfigurationException(errorMessage);
+            }
+
+            return suffix;
+        }
+
+        // The steps and their order are mandated by the specification.
+        internal static bool TryNormalizeSrvAllowedHostsSuffix(string value, out string normalizedSuffix, out string errorMessage)
+        {
+            normalizedSuffix = null;
+            errorMessage = null;
+
+            // IdnMapping rejects an empty label, so the dots have to come off before the Punycode
+            // step rather than after it
+            var suffix = value.Trim('.');
+            if (suffix.Length == 0)
+            {
+                errorMessage = "srvAllowedHostsSuffix must name at least one domain label.";
+                return false;
+            }
+
+            try
+            {
+                suffix = new IdnMapping().GetAscii(suffix);
+            }
+            catch (ArgumentException exception)
+            {
+                errorMessage = $"srvAllowedHostsSuffix \"{value}\" is not a valid domain name: {exception.Message}";
+                return false;
+            }
+
+            suffix = suffix.ToLowerInvariant();
+
+            if (PublicSuffixList.IsPublicSuffix(suffix))
+            {
+                errorMessage =
+                    $"srvAllowedHostsSuffix \"{value}\" is a public suffix, which would allow any host registered under it. " +
+                    "Specify a suffix that names the deployment's own domain.";
+                return false;
+            }
+
+            normalizedSuffix = "." + suffix;
+            return true;
+        }
+
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
             foreach (var property in value.Split(','))
@@ -1481,16 +1554,26 @@ namespace MongoDB.Driver.Core.Configuration
                 var dnsEndPoint = (DnsEndPoint)endPoint;
 
                 var host = ((DnsEndPoint)endPoint).Host;
-                if (!HasValidParentDomain(original, dnsEndPoint))
+                if (!HasValidParentDomain(original, dnsEndPoint, _srvParentDomain))
                 {
-                    throw new MongoConfigurationException($"Hosts in the SRV record must have the same parent domain as the seed host.");
+                    throw new MongoConfigurationException(_srvParentDomain == null
+                        ? "Hosts in the SRV record must have the same parent domain as the seed host."
+                        : $"Hosts in the SRV record must end with the configured srvAllowedHostsSuffix \"{_srvParentDomain}\".");
                 }
             }
         }
 
-        internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint)
+        internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint, string srvParentDomain)
         {
             var host = resolvedEndPoint.Host;
+
+            // a configured suffix states the parent domain outright, so it replaces both the
+            // domain inferred from the seed host and the extra domain level that a seed with
+            // fewer than three parts would otherwise require
+            if (srvParentDomain != null)
+            {
+                return host.EndsWith(srvParentDomain, StringComparison.Ordinal);
+            }
 
             var hostDotCount = host.Count(c => c == '.');
             var originalDotCount = original.Count(c => c == '.');

@@ -188,7 +188,7 @@ namespace MongoDB.Driver.Core.Clusters
                     // _server will be created after srv resolving
                     var dnsEndPoint = (DnsEndPoint)endPoint;
                     var lookupDomainName = dnsEndPoint.Host;
-                    var monitor = _dnsMonitorFactory.CreateDnsMonitor(this, _settings.SrvServiceName, lookupDomainName, _dnsMonitorCancellationTokenSource.Token);
+                    var monitor = _dnsMonitorFactory.CreateDnsMonitor(this, _settings.SrvServiceName, lookupDomainName, _settings.SrvAllowedHostsSuffix, _dnsMonitorCancellationTokenSource.Token);
                     _dnsMonitorThread = monitor.Start();
                 }
 

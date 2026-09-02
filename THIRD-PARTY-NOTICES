@@ -86,3 +86,16 @@ https://github.com/mongodb/mongo-csharp-driver.
      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
      See the License for the specific language governing permissions and      
      limitations under the License.
+
+3. src/MongoDB.Driver/Core/Misc/public_suffix_list.dat
+
+   The Public Suffix List, maintained by the Mozilla Foundation and available at
+   https://publicsuffix.org/. It is embedded in the MongoDB.Driver assembly. The
+   rules are reproduced verbatim and in their original order; only the surrounding
+   comment and blank lines have been removed. The file is redistributed under its
+   own license and is not relicensed by MongoDB; the rest of the MongoDB .NET
+   Driver remains under the Apache License, Version 2.0.
+
+     This Source Code Form is subject to the terms of the Mozilla Public
+     License, v. 2.0. If a copy of the MPL was not distributed with this
+     file, You can obtain one at https://mozilla.org/MPL/2.0/.

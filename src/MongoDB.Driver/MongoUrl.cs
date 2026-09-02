@@ -76,6 +76,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
         private readonly int? _srvMaxHosts;
+        private readonly string _srvAllowedHostsSuffix;
         private readonly string _srvServiceName;
         private readonly TimeSpan? _timeout;
         private readonly bool _tlsDisableCertificateRevocationCheck;
@@ -141,6 +142,7 @@ namespace MongoDB.Driver
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
             _srvMaxHosts = builder.SrvMaxHosts;
+            _srvAllowedHostsSuffix = builder.SrvAllowedHostsSuffix;
             _srvServiceName = builder.SrvServiceName;
             _timeout = builder.Timeout;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
@@ -491,6 +493,13 @@ namespace MongoDB.Driver
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against.
+        /// When set, it replaces the domain name that would otherwise be inferred from the SRV
+        /// hostname. Prefer the narrowest suffix that covers the deployment.
+        /// </summary>
+        public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
         /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
