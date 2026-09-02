@@ -16,6 +16,7 @@
 using System;
 using System.Text.RegularExpressions;
 using MongoDB.Bson.IO;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver
 {
@@ -24,6 +25,11 @@ namespace MongoDB.Driver
     /// </summary>
     public class MongoServerAddress : IEquatable<MongoServerAddress>
     {
+        // private static fields
+        private const string __hostPattern = @"(\[[^]]+\]|[^:\[\],/?@#]+)";
+        private static readonly Regex __hostRegex = new Regex($"^{__hostPattern}$", RegexOptions.Compiled);
+        private static readonly Regex __serverAddressRegex = new Regex($@"^(?<host>{__hostPattern})(:(?<port>\d+))?$", RegexOptions.Compiled);
+
         // private fields
         private string _host;
         private int _port;
@@ -35,7 +41,7 @@ namespace MongoDB.Driver
         /// <param name="host">The server's host name.</param>
         public MongoServerAddress(string host)
         {
-            _host = host;
+            _host = EnsureHostIsValid(host);
             _port = 27017;
         }
 
@@ -46,7 +52,7 @@ namespace MongoDB.Driver
         /// <param name="port">The server's port number.</param>
         public MongoServerAddress(string host, int port)
         {
-            _host = host;
+            _host = EnsureHostIsValid(host);
             _port = port;
         }
 
@@ -81,7 +87,7 @@ namespace MongoDB.Driver
             // don't throw ArgumentNullException if value is null
             if (value != null)
             {
-                Match match = Regex.Match(value, @"^(?<host>(\[[^]]+\]|[^:\[\]]+))(:(?<port>\d+))?$");
+                Match match = __serverAddressRegex.Match(value);
                 if (match.Success)
                 {
                     string host = match.Groups["host"].Value;
@@ -94,6 +100,18 @@ namespace MongoDB.Driver
 
             address = null;
             return false;
+        }
+
+        // private static methods
+        private static string EnsureHostIsValid(string host)
+        {
+            Ensure.IsNotNull(host, nameof(host));
+            if (!__hostRegex.IsMatch(host))
+            {
+                throw new ArgumentException($"'{host}' is not a valid host.", nameof(host));
+            }
+
+            return host;
         }
 
         // public properties
