@@ -232,7 +232,7 @@ namespace MongoDB.Driver.Core.Servers
         /// Gets the most recent heartbeat exception.
         /// </summary>
         /// <value>
-        /// The the most recent heartbeat exception (null if the most recent heartbeat succeeded).
+        /// The most recent heartbeat exception (null if the most recent heartbeat succeeded).
         /// </value>
         public Exception HeartbeatException
         {
