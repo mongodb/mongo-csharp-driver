@@ -116,7 +116,7 @@ For each YAML file, for each element in ``tests``:
   - Drop the database ``database2_name``
   - Create the database ``database_name`` and the collection ``database_name.collection_name``
   - Create the database ``database2_name`` and the collection ``database2_name.collection2_name``
-  - If the the ``failPoint`` field is present, configure the fail point on the primary server. See
+  - If the ``failPoint`` field is present, configure the fail point on the primary server. See
     `Server Fail Point <../../transactions/tests#server-fail-point>`_ in the
     Transactions spec test documentation for more information.
 

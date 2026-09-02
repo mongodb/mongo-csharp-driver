@@ -107,7 +107,7 @@ For each test file:
     corresponding data into the collection under test using
     ``globalMongoClient``.
 
-  - If the the ``failPoint`` field is present, use ``globalMongoClient`` to
+  - If the ``failPoint`` field is present, use ``globalMongoClient`` to
     configure the fail point on the primary server. See
     `Server Fail Point <../../transactions/tests#server-fail-point>`_ in the
     Transactions spec test documentation for more information.
