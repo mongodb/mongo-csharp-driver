@@ -33,17 +33,17 @@ namespace MongoDB.Bson.Serialization.Serializers
     /// </summary>
     public static class NullableSerializer
     {
-        private readonly static IBsonSerializer __nullableBooleanInstance = new NullableSerializer<bool>(BooleanSerializer.Instance);
-        private readonly static IBsonSerializer __nullableDecimalInstance = new NullableSerializer<decimal>(DecimalSerializer.Instance);
-        private readonly static IBsonSerializer __nullableDecimal128Instance = new NullableSerializer<Decimal128>(Decimal128Serializer.Instance);
-        private readonly static IBsonSerializer __nullableDoubleInstance = new NullableSerializer<double>(DoubleSerializer.Instance);
-        private readonly static IBsonSerializer __nullableInt32Instance = new NullableSerializer<int>(Int32Serializer.Instance);
-        private readonly static IBsonSerializer __nullableInt64Instance = new NullableSerializer<long>(Int64Serializer.Instance);
-        private readonly static IBsonSerializer __nullableLocalDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.LocalInstance);
-        private readonly static IBsonSerializer __nullableObjectIdInstance = new NullableSerializer<ObjectId>(ObjectIdSerializer.Instance);
-        private readonly static IBsonSerializer __nullableSingleInstance = new NullableSerializer<float>(SingleSerializer.Instance);
-        private readonly static IBsonSerializer __nullableStandardGuidInstance = new NullableSerializer<Guid>(GuidSerializer.StandardInstance);
-        private readonly static IBsonSerializer __nullableUtcDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.UtcInstance);
+        private static readonly IBsonSerializer __nullableBooleanInstance = new NullableSerializer<bool>(BooleanSerializer.Instance);
+        private static readonly IBsonSerializer __nullableDecimalInstance = new NullableSerializer<decimal>(DecimalSerializer.Instance);
+        private static readonly IBsonSerializer __nullableDecimal128Instance = new NullableSerializer<Decimal128>(Decimal128Serializer.Instance);
+        private static readonly IBsonSerializer __nullableDoubleInstance = new NullableSerializer<double>(DoubleSerializer.Instance);
+        private static readonly IBsonSerializer __nullableInt32Instance = new NullableSerializer<int>(Int32Serializer.Instance);
+        private static readonly IBsonSerializer __nullableInt64Instance = new NullableSerializer<long>(Int64Serializer.Instance);
+        private static readonly IBsonSerializer __nullableLocalDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.LocalInstance);
+        private static readonly IBsonSerializer __nullableObjectIdInstance = new NullableSerializer<ObjectId>(ObjectIdSerializer.Instance);
+        private static readonly IBsonSerializer __nullableSingleInstance = new NullableSerializer<float>(SingleSerializer.Instance);
+        private static readonly IBsonSerializer __nullableStandardGuidInstance = new NullableSerializer<Guid>(GuidSerializer.StandardInstance);
+        private static readonly IBsonSerializer __nullableUtcDateTimeInstance = new NullableSerializer<DateTime>(DateTimeSerializer.UtcInstance);
 
         /// <summary>
         /// Gets a serializer for nullable bools.

@@ -22,7 +22,7 @@ namespace MongoDB.Driver
 {
     internal static class AsyncCursorHelper
     {
-        public async static Task<bool> AnyAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        public static async Task<bool> AnyAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
@@ -39,7 +39,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async static Task<T> FirstAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        public static async Task<T> FirstAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
@@ -56,7 +56,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async static Task<T> FirstOrDefaultAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        public static async Task<T> FirstOrDefaultAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
@@ -73,7 +73,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async static Task<T> SingleAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        public static async Task<T> SingleAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
@@ -90,7 +90,7 @@ namespace MongoDB.Driver
             }
         }
 
-        public async static Task<T> SingleOrDefaultAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
+        public static async Task<T> SingleOrDefaultAsync<T>(Task<IAsyncCursor<T>> cursorTask, CancellationToken cancellationToken)
         {
             using (var cursor = await cursorTask.ConfigureAwait(false))
             {
