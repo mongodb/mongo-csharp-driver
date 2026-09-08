@@ -848,44 +848,44 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         [Fact]
         public void TestWhereSTrimContainsXyz()
         {
-            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().Contains("xyz"), 1, "{ \"s\" : /^(?:\\s*(?!\\s)|(?=\\s*$)).*xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimContainsXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s).*xyz.*(?<!\\s)\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().Contains("xyz"), 4, "{ \"s\" : { \"$not\" : /^(?:\\s*(?!\\s)|(?=\\s*$)).*xyz.*(?<!\\s)\\s*$/s } }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().EndsWith("xyz"), 1, "{ \"s\" : /^(?:\\s*(?!\\s)|(?=\\s*$)).*xyz(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimEndsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s).*xyz(?<!\\s)\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().EndsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^(?:\\s*(?!\\s)|(?=\\s*$)).*xyz(?<!\\s)\\s*$/s } }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyz()
         {
-            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s }");
+            Assert<C>(c => c.S.Trim().StartsWith("xyz"), 1, "{ \"s\" : /^(?:\\s*(?!\\s)|(?=\\s*$))xyz.*(?<!\\s)\\s*$/s }");
         }
 
         [Fact]
         public void TestWhereSTrimStartsWithXyzNot()
         {
-            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^\\s*(?!\\s)xyz.*(?<!\\s)\\s*$/s } }");
+            Assert<C>(c => !c.S.Trim().StartsWith("xyz"), 4, "{ \"s\" : { \"$not\" : /^(?:\\s*(?!\\s)|(?=\\s*$))xyz.*(?<!\\s)\\s*$/s } }");
         }
 
 #if NET472
         [Fact]
         public void TestWhereSTrimStartTrimEndToLowerContainsXyz()
         {
-            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*(?=[^\\ \\.\\-\\t]).*xyz.*(?<!\\s)\\s*$/is }");
+            Assert<C>(c => c.S.TrimStart(' ', '.', '-', '\t').TrimEnd().ToLower().Contains("xyz"), 1, "{ \"s\" : /^[\\ \\.\\-\\t]*(?![\\ \\.\\-\\t]).*xyz.*(?<!\\s)\\s*$/is }");
         }
 #endif
 
