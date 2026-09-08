@@ -220,6 +220,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     case '.': escaped.Append("\\."); break; // dot doesn't really need to be escaped (in a character class) but LINQ2 escaped it
                     case '-': escaped.Append("\\-"); break;
                     case '^': escaped.Append("\\^"); break;
+                    case '\\': escaped.Append("\\\\"); break;
+                    case ']': escaped.Append("\\]"); break;
+                    case '[': escaped.Append("\\["); break;
                     case '\t': escaped.Append("\\t"); break;
                     default: escaped.Append(c); break;
                 }
@@ -594,7 +597,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 }
                 if (anyOf.Length == 1)
                 {
-                    pattern += escapedSet; // verify presence of [escapedSet] at comparand (no brackets needed for single character)
+                    // no brackets needed for a single character, but it has to be escaped for use outside a
+                    // character class instead (which also keeps a literal prefix available to the server for
+                    // the index prefix optimization when this ends up at the beginning of the pattern)
+                    pattern += Regex.Escape(anyOf[0].ToString()); // verify presence of the character at comparand
                 }
                 else
                 {
@@ -711,16 +717,19 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             var trimChars = GetEscapedTrimChars(trimExpression);
 
+            // the lookarounds below must be negative so that they also succeed at the start/end of the input
+            // where there is no character to test; a positive form such as (?=[^abc]) fails there, which would
+            // make any value consisting entirely of trim chars unmatchable.
             if (trimChars == null)
             {
-                modifiers.LeadingPattern = modifiers.LeadingPattern + @"\s*(?!\s)";
+                modifiers.LeadingPattern = modifiers.LeadingPattern + @"(?:\s*(?!\s)|(?=\s*$))";
                 modifiers.TrailingPattern = @"(?<!\s)\s*" + modifiers.TrailingPattern;
             }
             else
             {
-                var set = Regex.Escape(trimChars);
-                modifiers.LeadingPattern = modifiers.LeadingPattern + @"[" + set + "]*(^[" + set + "])";
-                modifiers.TrailingPattern = @"(?<[^" + set + "])[" + set + "]*" + modifiers.TrailingPattern;
+                // note: trimChars is already escaped by GetEscapedTrimChars, do not escape it again
+                modifiers.LeadingPattern = modifiers.LeadingPattern + @"(?:[" + trimChars + "]*(?![" + trimChars + "])|(?=[" + trimChars + "]*$))";
+                modifiers.TrailingPattern = @"(?<![" + trimChars + "])[" + trimChars + "]*" + modifiers.TrailingPattern;
             }
 
             return modifiers;
@@ -736,7 +745,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
             else
             {
-                modifiers.TrailingPattern = @"(?<=[^" + trimChars + "])[" + trimChars + "]*" + modifiers.TrailingPattern;
+                modifiers.TrailingPattern = @"(?<![" + trimChars + "])[" + trimChars + "]*" + modifiers.TrailingPattern;
             }
 
             return modifiers;
@@ -752,7 +761,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             }
             else
             {
-                modifiers.LeadingPattern = modifiers.LeadingPattern + @"[" + trimChars + "]*(?=[^" + trimChars + "])";
+                modifiers.LeadingPattern = modifiers.LeadingPattern + @"[" + trimChars + "]*(?![" + trimChars + "])";
             }
 
             return modifiers;
