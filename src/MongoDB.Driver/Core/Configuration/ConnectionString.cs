@@ -1355,6 +1355,37 @@ namespace MongoDB.Driver.Core.Configuration
             return true;
         }
 
+        // The specification requires a hostname returned by an SRV lookup, and the domain it is
+        // validated against, to carry the same normalization, so that neither trailing dots, case,
+        // nor Unicode/Punycode encoding can affect the comparison. The steps and their order are
+        // mandated by the specification. A hostname with no A-label form is one the driver can
+        // neither validate nor connect to, so it is reported as invalid rather than compared as-is.
+        internal static bool TryNormalizeHostName(string host, out string normalizedHost)
+        {
+            normalizedHost = null;
+
+            if (host.EndsWith(".", StringComparison.Ordinal))
+            {
+                host = host.Substring(0, host.Length - 1);
+            }
+
+            if (host.Length == 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                normalizedHost = new IdnMapping().GetAscii(host).ToLowerInvariant();
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
             foreach (var property in value.Split(','))
@@ -1523,11 +1554,11 @@ namespace MongoDB.Driver.Core.Configuration
             foreach (var srvRecord in srvRecords)
             {
                 var h = srvRecord.EndPoint.Host;
-                if (h.EndsWith(".", StringComparison.Ordinal))
+                if (!TryNormalizeHostName(h, out var normalizedHost))
                 {
-                    h = h.Substring(0, h.Length - 1);
+                    throw new MongoConfigurationException($"Unable to parse {h} as a hostname.");
                 }
-                hosts.Add(h + ":" + srvRecord.EndPoint.Port);
+                hosts.Add(normalizedHost + ":" + srvRecord.EndPoint.Port);
             }
 
             if (_srvMaxHosts > 0)
@@ -1565,6 +1596,15 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException($"No hosts were found in the SRV record for {original}.");
             }
 
+            // the domain that resolved hosts are validated against carries the same normalization
+            // the hosts themselves do. A configured suffix was normalized when it was parsed, so
+            // only the domain inferred from the seed host is normalized here.
+            var lookupDomainName = original;
+            if (_srvParentDomain == null && !TryNormalizeHostName(original, out lookupDomainName))
+            {
+                throw new MongoConfigurationException($"Unable to parse {original} as a hostname.");
+            }
+
             // for each resolved host, make sure that it ends with domain of the parent.
             foreach (var resolvedHost in resolved)
             {
@@ -1576,7 +1616,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var dnsEndPoint = (DnsEndPoint)endPoint;
 
                 var host = ((DnsEndPoint)endPoint).Host;
-                if (!HasValidParentDomain(original, dnsEndPoint, _srvParentDomain))
+                if (!HasValidParentDomain(lookupDomainName, dnsEndPoint, _srvParentDomain))
                 {
                     throw new MongoConfigurationException(_srvParentDomain == null
                         ? "Hosts in the SRV record must have the same parent domain as the seed host."

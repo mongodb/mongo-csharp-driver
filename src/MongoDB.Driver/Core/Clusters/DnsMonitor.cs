@@ -53,7 +53,16 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
-            _lookupDomainName = Ensure.IsNotNullOrEmpty(lookupDomainName, nameof(lookupDomainName));
+            Ensure.IsNotNullOrEmpty(lookupDomainName, nameof(lookupDomainName));
+
+            // the domain that resolved hosts are validated against carries the same normalization
+            // the hosts themselves do. The query name is built from the normalized form as well,
+            // since DNS is case insensitive and expects A-labels on the wire.
+            if (!ConnectionString.TryNormalizeHostName(lookupDomainName, out _lookupDomainName))
+            {
+                throw new MongoConfigurationException($"Unable to parse {lookupDomainName} as a hostname.");
+            }
+
             _cancellationToken = cancellationToken;
             _service = $"_{srvServiceName}._tcp." + _lookupDomainName;
             _srvParentDomain = srvAllowedHostsSuffix == null
@@ -129,14 +138,15 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var srvRecord in srvRecords)
             {
+                var endPoint = srvRecord.EndPoint;
                 // DNS names are case-insensitive, and SDAM requires host names to be normalized to lower-case
-                var host = srvRecord.EndPoint.Host.ToLowerInvariant();
-                if (host.EndsWith(".", StringComparison.Ordinal))
+                if (!ConnectionString.TryNormalizeHostName(endPoint.Host, out var host))
                 {
-                    host = host.Substring(0, host.Length - 1);
+                    _eventLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", endPoint.Host));
+                    continue;
                 }
 
-                var endPoint = new DnsEndPoint(host, srvRecord.EndPoint.Port);
+                endPoint = new DnsEndPoint(host, endPoint.Port);
                 if (IsValidHost(endPoint))
                 {
                     validEndPoints.Add(endPoint);

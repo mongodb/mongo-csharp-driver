@@ -266,6 +266,57 @@ namespace MongoDB.Driver.Core.Clusters
         }
 
         [Theory]
+        [InlineData("x.b.com", "x.b.com")]
+        [InlineData("X.B.COM", "x.b.com")]
+        [InlineData("x.b.com.", "x.b.com")]
+        [InlineData("X.B.COM.", "x.b.com")]
+        public void GetValidEndPoints_should_normalize_returned_hosts(string srvEndPoint, string expectedHost)
+        {
+            var subject = CreateSubject(lookupDomainName: "a.b.com");
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Select(x => x.Host).Should().Equal(expectedHost);
+        }
+
+        [Theory]
+        [InlineData(".b.com", "X.B.COM", "x.b.com")]
+        [InlineData(".B.COM", "x.b.com", "x.b.com")]
+        [InlineData("bücher.com", "X.BÜCHER.COM", "x.xn--bcher-kva.com")]
+        public void GetValidEndPoints_should_normalize_before_matching_srvAllowedHostsSuffix(
+            string srvAllowedHostsSuffix,
+            string srvEndPoint,
+            string expectedHost)
+        {
+            var subject = CreateSubject(lookupDomainName: "a.b.com", srvAllowedHostsSuffix: srvAllowedHostsSuffix);
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Select(x => x.Host).Should().Equal(expectedHost);
+        }
+
+        [Theory]
+        [InlineData("x..b.com")]
+        [InlineData("xn--host.b.com")]
+        public void GetValidEndPoints_should_skip_and_log_a_host_that_cannot_be_normalized(string srvEndPoint)
+        {
+            var actualEvents = new List<SdamInformationEvent>();
+            var sdamInformationEventHandler = (Action<SdamInformationEvent>)(raisedEvent => actualEvents.Add(raisedEvent));
+            var mockEventSubscriber = new Mock<IEventSubscriber>();
+            mockEventSubscriber
+                .Setup(m => m.TryGetEventHandler<SdamInformationEvent>(out sdamInformationEventHandler));
+            var subject = CreateSubject(lookupDomainName: "a.b.com", eventSubscriber: mockEventSubscriber.Object);
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Should().BeEmpty();
+            actualEvents.Should().ContainSingle().Which.Message.Should().Contain(srvEndPoint);
+        }
+
+        [Theory]
         [InlineData(new string[0], new string[0])]
         [InlineData(new[] { "x.b.com:27017" }, new string[0])]
         [InlineData(new[] { "x.b.com:27017", "y.b.com:27017" }, new string[0])]
