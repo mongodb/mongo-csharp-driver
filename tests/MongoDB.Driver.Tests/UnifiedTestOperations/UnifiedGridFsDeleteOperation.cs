@@ -23,12 +23,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedGridFsDeleteOperation : IUnifiedEntityTestOperation
     {
-        private readonly IGridFSBucket _bucket;
-        private readonly ObjectId _id;
+        private readonly GridFSBucket _bucket;
+        private readonly BsonValue _id;
 
         public UnifiedGridFsDeleteOperation(
-            IGridFSBucket bucket,
-            ObjectId id)
+            GridFSBucket bucket,
+            BsonValue id)
         {
             _bucket = bucket;
             _id = id;
@@ -76,21 +76,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var bucket = _entityMap.Buckets[targetBucketId];
 
-            ObjectId? id = null;
+            BsonValue id = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
                     case "id":
-                        id = argument.Value.AsObjectId;
+                        id = argument.Value;
                         break;
                     default:
                         throw new FormatException($"Invalid GridFsDeleteOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedGridFsDeleteOperation(bucket, id.Value);
+            return new UnifiedGridFsDeleteOperation(
+                bucket,
+                id ?? throw new FormatException("GridFsDeleteOperation argument 'id' is required."));
         }
     }
 }

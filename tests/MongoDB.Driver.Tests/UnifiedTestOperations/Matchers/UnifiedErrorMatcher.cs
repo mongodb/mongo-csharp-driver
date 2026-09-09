@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.GridFS;
 using MongoDB.TestHelpers.XunitExtensions;
 
 namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
@@ -182,6 +183,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     InvalidOperationException or
                     MongoClientException or
                     BsonException or
+                    GridFSException or
                     MongoConnectionException or
                     NotSupportedException or
                     TimeoutException;
