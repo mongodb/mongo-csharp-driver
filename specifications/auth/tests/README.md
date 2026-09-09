@@ -21,7 +21,7 @@ have the following keys:
 - `description`: A string describing the test.
 - `uri`: A string containing the URI to be parsed.
 - `valid:` A boolean indicating if the URI should be considered valid.
-- `credential`: If null, the credential must not be considered configured for the the purpose of deciding if the driver
+- `credential`: If null, the credential must not be considered configured for the purpose of deciding if the driver
   should authenticate to the topology. If non-null, it is an object containing one or more of the following properties
   of a credential:
   - `username`: A string containing the username. For auth mechanisms that do not utilize a password, this may be the

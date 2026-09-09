@@ -104,7 +104,7 @@ namespace MongoDB.Driver
         IFindFluent<TDocument, TProjection> Limit(int? limit);
 
         /// <summary>
-        /// Projects the the result.
+        /// Projects the result.
         /// </summary>
         /// <typeparam name="TNewProjection">The type of the projection.</typeparam>
         /// <param name="projection">The projection.</param>
@@ -112,14 +112,14 @@ namespace MongoDB.Driver
         IFindFluent<TDocument, TNewProjection> Project<TNewProjection>(ProjectionDefinition<TDocument, TNewProjection> projection);
 
         /// <summary>
-        /// Skips the the specified number of documents.
+        /// Skips the specified number of documents.
         /// </summary>
         /// <param name="skip">The skip.</param>
         /// <returns>The fluent find interface.</returns>
         IFindFluent<TDocument, TProjection> Skip(int? skip);
 
         /// <summary>
-        /// Sorts the the documents.
+        /// Sorts the documents.
         /// </summary>
         /// <param name="sort">The sort.</param>
         /// <returns>The fluent find interface.</returns>
