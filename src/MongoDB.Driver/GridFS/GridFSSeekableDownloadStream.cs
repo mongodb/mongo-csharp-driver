@@ -163,13 +163,7 @@ namespace MongoDB.Driver.GridFS
         {
             var chunksCollectionNamespace = Bucket.GetChunksCollectionNamespace();
             var messageEncoderSettings = Bucket.GetMessageEncoderSettings();
-#pragma warning disable 618
-            var filter = new BsonDocument
-            {
-                { "files_id", _idAsBsonValue },
-                { "n", n }
-            };
-#pragma warning restore
+            var filter = GridFSIdFilter.Create("files_id", _idAsBsonValue).Add("n", n);
 
             return new FindOperation<BsonDocument>(
                 chunksCollectionNamespace,

@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         private readonly LoggingSettings _loggingSettings;
         private readonly BsonDocument _lastKnownClusterTime;
 
-        private readonly Dictionary<string, IGridFSBucket> _buckets = new();
+        private readonly Dictionary<string, GridFSBucket> _buckets = new();
         private readonly Dictionary<string, IEnumerator<ChangeStreamDocument<BsonDocument>>> _changeStreams = new();
         private readonly Dictionary<string, IMongoClient> _clients = new();
         private readonly Dictionary<string, ClientEncryption> _clientEncryptions = new();
@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         // public properties
         public bool Async => _async;
 
-        public Dictionary<string, IGridFSBucket> Buckets
+        public Dictionary<string, GridFSBucket> Buckets
         {
             get
             {
@@ -455,7 +455,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             }
         }
 
-        private IGridFSBucket CreateBucket(BsonDocument entity, Dictionary<string, IMongoDatabase> databases)
+        private GridFSBucket CreateBucket(BsonDocument entity, Dictionary<string, IMongoDatabase> databases)
         {
             IMongoDatabase database = null;
 

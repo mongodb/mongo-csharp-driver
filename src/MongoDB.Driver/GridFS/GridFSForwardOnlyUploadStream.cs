@@ -292,13 +292,13 @@ namespace MongoDB.Driver.GridFS
         private BulkMixedWriteOperation CreateAbortOperation()
         {
             var chunksCollectionNamespace = _bucket.GetChunksCollectionNamespace();
-            var filter = new BsonDocument("files_id", _idAsBsonValue);
+            var filter = GridFSIdFilter.Create("files_id", _idAsBsonValue);
             var deleteRequest = new DeleteRequest(filter) { Limit = 0 };
             var requests = new WriteRequest[] { deleteRequest };
             var messageEncoderSettings = _bucket.GetMessageEncoderSettings();
             return new BulkMixedWriteOperation(chunksCollectionNamespace, requests, messageEncoderSettings)
             {
-                WriteConcern = _bucket.Options.WriteConcern,
+                WriteConcern = _bucket.Options.WriteConcern ?? _bucket.Database.Settings.WriteConcern,
                 RetryRequested = _bucket.Database.Client.Settings.RetryWrites
             };
         }

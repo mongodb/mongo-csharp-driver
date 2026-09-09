@@ -624,7 +624,7 @@ namespace MongoDB.Driver.GridFS
 
         private BulkMixedWriteOperation CreateDeleteChunksOperation(TFileId id)
         {
-            var filter = new BsonDocument("files_id", _idSerializationInfo.SerializeValue(id));
+            var filter = GridFSIdFilter.Create("files_id", _idSerializationInfo.SerializeValue(id));
             return new BulkMixedWriteOperation(
                 this.GetChunksCollectionNamespace(),
                 new[] { new DeleteRequest(filter) { Limit = 0 } },
@@ -667,7 +667,7 @@ namespace MongoDB.Driver.GridFS
 
         private BulkMixedWriteOperation CreateDeleteFileOperation(TFileId id)
         {
-            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
+            var filter = GridFSIdFilter.Create("_id", _idSerializationInfo.SerializeValue(id));
             return new BulkMixedWriteOperation(
                 this.GetFilesCollectionNamespace(),
                 new[] { new DeleteRequest(filter) },
@@ -751,7 +751,7 @@ namespace MongoDB.Driver.GridFS
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
             var messageEncoderSettings = this.GetMessageEncoderSettings();
-            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
+            var filter = GridFSIdFilter.Create("_id", _idSerializationInfo.SerializeValue(id));
 
             return new FindOperation<GridFSFileInfo<TFileId>>(
                 filesCollectionNamespace,
@@ -798,7 +798,7 @@ namespace MongoDB.Driver.GridFS
         private BulkMixedWriteOperation CreateRenameOperation(TFileId id, string newFilename)
         {
             var filesCollectionNamespace = this.GetFilesCollectionNamespace();
-            var filter = new BsonDocument("_id", _idSerializationInfo.SerializeValue(id));
+            var filter = GridFSIdFilter.Create("_id", _idSerializationInfo.SerializeValue(id));
             var update = new BsonDocument("$set", new BsonDocument("filename", newFilename));
             var requests = new[] { new UpdateRequest(UpdateType.Update, filter, update) };
             var messageEncoderSettings = this.GetMessageEncoderSettings();
