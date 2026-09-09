@@ -1268,11 +1268,26 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData(".MyDomain.NET", ".mydomain.net")]
         [InlineData("example.公司.cn", ".example.xn--55qx5d.cn")]
         [InlineData("пример.рф", ".xn--e1afmkfd.xn--p1ai")]
+        [InlineData("internal", ".internal")]
+        [InlineData("local", ".local")]
+        [InlineData(".CORP.", ".corp")]
         public void NormalizeSrvAllowedHostsSuffix_should_return_expected_result(string suffix, string expectedResult)
         {
             var result = ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix);
 
             result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("com")]
+        [InlineData("mydomain")]
+        [InlineData("internals")]
+        public void NormalizeSrvAllowedHostsSuffix_should_throw_when_suffix_is_a_single_label_that_is_not_a_valid_name(string suffix)
+        {
+            var exception = Record.Exception(() => ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("must name at least two domain labels");
         }
 
         [Theory]

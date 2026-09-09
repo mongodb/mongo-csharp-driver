@@ -28,15 +28,6 @@ namespace MongoDB.Driver.Core.Clusters
 {
     internal class DnsMonitor : IDnsMonitor
     {
-        #region static
-        private static string EnsureLookupDomainNameIsValid(string lookupDomainName)
-        {
-            Ensure.IsNotNull(lookupDomainName, nameof(lookupDomainName));
-            Ensure.That(lookupDomainName.Count(c => c == '.') >= 2, "LookupDomainName must have at least three components.", nameof(lookupDomainName));
-            return lookupDomainName;
-        }
-        #endregion
-
         // private fields
         private readonly CancellationToken _cancellationToken;
         private readonly IDnsMonitoringCluster _cluster;
@@ -62,7 +53,7 @@ namespace MongoDB.Driver.Core.Clusters
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
-            _lookupDomainName = EnsureLookupDomainNameIsValid(lookupDomainName);
+            _lookupDomainName = Ensure.IsNotNullOrEmpty(lookupDomainName, nameof(lookupDomainName));
             _cancellationToken = cancellationToken;
             _service = $"_{srvServiceName}._tcp." + _lookupDomainName;
             _srvParentDomain = srvAllowedHostsSuffix == null

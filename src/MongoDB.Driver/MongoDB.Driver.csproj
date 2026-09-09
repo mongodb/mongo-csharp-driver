@@ -29,17 +29,6 @@
     <ProjectReference Include="..\MongoDB.Bson\MongoDB.Bson.csproj" />
   </ItemGroup>
 
-  <!-- The Public Suffix List, vendored from the drivers specifications repository at
-       source/public-suffix-list/public_suffix_list.dat and read by PublicSuffixList.cs.
-       It is embedded rather than shipped alongside the assembly because NuGet content files do
-       not reach transitive consumers and are not bundled by single-file publish. The file is
-       generated upstream and must not be edited by hand; refresh it from the specifications
-       repository. LogicalName is set explicitly so renaming the folder cannot silently change
-       the resource name the loader asks for. -->
-  <ItemGroup>
-    <EmbeddedResource Include="Core\Misc\public_suffix_list.dat" LogicalName="MongoDB.Driver.Core.Misc.public_suffix_list.dat" />
-  </ItemGroup>
-
   <PropertyGroup>
     <NoWarn>NU5100</NoWarn>
   </PropertyGroup>

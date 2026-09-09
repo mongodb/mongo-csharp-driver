@@ -1113,7 +1113,7 @@ namespace MongoDB.Driver
             }
             if (_srvAllowedHostsSuffix != null)
             {
-                query.AppendFormat("srvAllowedHostsSuffix={0}&", _srvAllowedHostsSuffix);
+                query.AppendFormat("srvAllowedHostsSuffix={0}&", Uri.EscapeDataString(_srvAllowedHostsSuffix));
             }
             if (query.Length != 0)
             {

@@ -30,37 +30,6 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public class DnsMonitorTests
     {
-        [Theory]
-        [InlineData("a.b.com")]
-        [InlineData("a.b.c.com")]
-        public void EnsureLookupDomainNameIsValid_should_return_expected_result(string lookupDomainName)
-        {
-            var result = DnsMonitorReflector.EnsureLookupDomainNameIsValid(lookupDomainName);
-
-            result.Should().Be(lookupDomainName);
-        }
-
-        [Fact]
-        public void EnsureLookupDomainNameIsValid_should_throw_when_lookupDomainName_is_null()
-        {
-            var exception = Record.Exception(() => DnsMonitorReflector.EnsureLookupDomainNameIsValid(null));
-
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("lookupDomainName");
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("com")]
-        [InlineData("a.com")]
-        public void EnsureLookupDomainNameIsValid_should_throw_when_lookupDomainName_is_invalid(string lookupDomainName)
-        {
-            var exception = Record.Exception(() => DnsMonitorReflector.EnsureLookupDomainNameIsValid(lookupDomainName));
-
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("lookupDomainName");
-        }
-
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -129,21 +98,34 @@ namespace MongoDB.Driver.Core.Clusters
             e.ParamName.Should().Be("lookupDomainName");
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData("com")]
-        [InlineData("a.com")]
-        public void constructor_should_throw_when_lookupDomainName_is_invalid(string lookupDomainName)
+        [Fact]
+        public void constructor_should_throw_when_lookupDomainName_is_empty()
         {
             var cluster = Mock.Of<IDnsMonitoringCluster>();
             var dnsResolver = Mock.Of<IDnsResolver>();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", "", null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.ParamName.Should().Be("lookupDomainName");
+        }
+
+        [Theory]
+        [InlineData("localhost", "_mongodb._tcp.localhost")]
+        [InlineData("mongo.local", "_mongodb._tcp.mongo.local")]
+        public void constructor_should_accept_a_lookupDomainName_with_fewer_than_three_components(string lookupDomainName, string expectedService)
+        {
+            var cluster = Mock.Of<IDnsMonitoringCluster>();
+            var dnsResolver = Mock.Of<IDnsResolver>();
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken);
+
+            subject._lookupDomainName().Should().Be(lookupDomainName);
+            subject._service().Should().Be(expectedService);
         }
 
         [Fact]
@@ -529,8 +511,6 @@ namespace MongoDB.Driver.Core.Clusters
 
     internal static class DnsMonitorReflector
     {
-        public static string EnsureLookupDomainNameIsValid(string lookupDomainName) => (string)Reflector.InvokeStatic(typeof(DnsMonitor), nameof(EnsureLookupDomainNameIsValid), lookupDomainName);
-
         public static CancellationToken _cancellationToken(this DnsMonitor obj) => (CancellationToken)Reflector.GetFieldValue(obj, nameof(_cancellationToken));
         public static IDnsMonitoringCluster _cluster(this DnsMonitor obj) => (IDnsMonitoringCluster)Reflector.GetFieldValue(obj, nameof(_cluster));
         public static IDnsResolver _dnsResolver(this DnsMonitor obj) => (IDnsResolver)Reflector.GetFieldValue(obj, nameof(_dnsResolver));

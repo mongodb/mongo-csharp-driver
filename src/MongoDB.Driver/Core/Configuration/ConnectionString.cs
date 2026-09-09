@@ -53,6 +53,22 @@ namespace MongoDB.Driver.Core.Configuration
         private const int DefaultMongoDBPort = 27017;
         private const int DefaultSrvPort = 53;
 
+        // private static fields
+        // the single labels that srvAllowedHostsSuffix may name, per the specification. They name
+        // private or special-use namespaces rather than a public registry, so allowing every host
+        // under one of them does not allow every host under a public suffix.
+        private static readonly string[] __validSingleLabelSrvAllowedHostsSuffixes = new[]
+        {
+            // RFC 6761 special-use names
+            "test", "localhost", "invalid", "example",
+            // RFC 6762 multicast DNS
+            "local",
+            // reserved by ICANN for private use
+            "internal",
+            // not reserved by ICANN, but commonly used privately
+            "corp", "home", "mail"
+        };
+
         // private fields
         private readonly string _originalConnectionString;
         private readonly NameValueCollection _allOptions;
@@ -1321,11 +1337,12 @@ namespace MongoDB.Driver.Core.Configuration
 
             suffix = suffix.ToLowerInvariant();
 
-            if (PublicSuffixList.IsPublicSuffix(suffix))
+            if (suffix.IndexOf('.') < 0 && Array.IndexOf(__validSingleLabelSrvAllowedHostsSuffixes, suffix) < 0)
             {
                 errorMessage =
-                    $"srvAllowedHostsSuffix \"{value}\" is a public suffix, which would allow any host registered under it. " +
-                    "Specify a suffix that names the deployment's own domain.";
+                    $"srvAllowedHostsSuffix \"{value}\" must name at least two domain labels, or one of the single " +
+                    $"labels {string.Join(", ", __validSingleLabelSrvAllowedHostsSuffixes)}. Any other single label " +
+                    "would allow any host registered under it. Specify a suffix that names the deployment's own domain.";
                 return false;
             }
 
