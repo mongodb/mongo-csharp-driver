@@ -68,7 +68,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
-        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname.</param>
+        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname. WARNING: Modifying the default SRV domain name validation can create vulnerabilities.</param>
         public ClusterSettings(
             Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool> directConnection = default,
@@ -211,7 +211,12 @@ namespace MongoDB.Driver.Core.Configuration
         /// <summary>
         /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against.
         /// When set, it replaces the domain name that would otherwise be inferred from the SRV
-        /// hostname. Prefer the narrowest suffix that covers the deployment.
+        /// hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
         /// </summary>
         public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
@@ -269,7 +274,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
-        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname.</param>
+        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname. WARNING: Modifying the default SRV domain name validation can create vulnerabilities.</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
             Optional<CryptClientSettings> cryptClientSettings = default,

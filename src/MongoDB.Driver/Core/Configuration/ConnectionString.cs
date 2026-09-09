@@ -509,6 +509,11 @@ namespace MongoDB.Driver.Core.Configuration
         /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against,
         /// as it was specified in the connection string. When set, it replaces the domain name
         /// that would otherwise be inferred from the SRV hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
         /// </summary>
         public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
