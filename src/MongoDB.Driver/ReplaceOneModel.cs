@@ -42,6 +42,7 @@ namespace MongoDB.Driver
         public ReplaceOneModel(FilterDefinition<TDocument> filter, TDocument replacement)
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
+            ReplacementValidator.EnsureIsValidReplacement(replacement, nameof(replacement));
             _replacement = replacement;
         }
 
