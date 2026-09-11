@@ -856,7 +856,7 @@ namespace MongoDB.Driver
             else if (_password != null)
             {
                 // this would be weird and we really shouldn't be here...
-                url.AppendFormat(":{0}@", _password);
+                url.AppendFormat(":{0}@", Uri.EscapeDataString(_password));
             }
             if (_servers != null)
             {
@@ -878,27 +878,27 @@ namespace MongoDB.Driver
             if (_databaseName != null)
             {
                 url.Append("/");
-                url.Append(_databaseName);
+                url.Append(Uri.EscapeDataString(_databaseName));
             }
             var query = new StringBuilder();
             if (_authenticationMechanism != null)
             {
-                query.AppendFormat("authMechanism={0}&", _authenticationMechanism);
+                query.AppendFormat("authMechanism={0}&", Uri.EscapeDataString(_authenticationMechanism));
             }
             if (_authenticationMechanismProperties.Any())
             {
                 query.AppendFormat(
                     "authMechanismProperties={0}&",
                     string.Join(",", _authenticationMechanismProperties
-                        .Select(x => string.Format("{0}:{1}", x.Key, x.Value)).ToArray()));
+                        .Select(x => string.Format("{0}:{1}", Uri.EscapeDataString(x.Key), Uri.EscapeDataString(x.Value ?? ""))).ToArray()));
             }
             if (_authenticationSource != null)
             {
-                query.AppendFormat("authSource={0}&", _authenticationSource);
+                query.AppendFormat("authSource={0}&", Uri.EscapeDataString(_authenticationSource));
             }
             if (_applicationName != null)
             {
-                query.AppendFormat("appname={0}&", _applicationName);
+                query.AppendFormat("appname={0}&", Uri.EscapeDataString(_applicationName));
             }
             if (_ipv6)
             {
@@ -946,7 +946,7 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_replicaSetName))
             {
-                query.AppendFormat("replicaSet={0}&", _replicaSetName);
+                query.AppendFormat("replicaSet={0}&", Uri.EscapeDataString(_replicaSetName));
             }
             if (_readConcernLevel != null)
             {
@@ -959,7 +959,7 @@ namespace MongoDB.Driver
                 {
                     foreach (var tagSet in _readPreference.TagSets)
                     {
-                        query.AppendFormat("readPreferenceTags={0}&", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
+                        query.AppendFormat("readPreferenceTags={0}&", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", Uri.EscapeDataString(t.Name), Uri.EscapeDataString(t.Value))).ToArray()));
                     }
                 }
                 if (_readPreference.MaxStaleness.HasValue)
@@ -977,7 +977,7 @@ namespace MongoDB.Driver
             }
             if (_w != null)
             {
-                query.AppendFormat("w={0}&", _w);
+                query.AppendFormat("w={0}&", Uri.EscapeDataString(_w.ToString()));
             }
             if (_wTimeout != null)
             {
@@ -1069,7 +1069,7 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_proxyHost))
             {
-                query.AppendFormat("proxyHost={0}&", _proxyHost);
+                query.AppendFormat("proxyHost={0}&", Uri.EscapeDataString(_proxyHost));
             }
             if (_proxyPort.HasValue)
             {
@@ -1077,11 +1077,11 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_proxyUsername))
             {
-                query.AppendFormat("proxyUsername={0}&", _proxyUsername);
+                query.AppendFormat("proxyUsername={0}&", Uri.EscapeDataString(_proxyUsername));
             }
             if (!string.IsNullOrEmpty(_proxyPassword))
             {
-                query.AppendFormat("proxyPassword={0}&", _proxyPassword);
+                query.AppendFormat("proxyPassword={0}&", Uri.EscapeDataString(_proxyPassword));
             }
             if (_srvMaxHosts.HasValue)
             {
@@ -1089,7 +1089,7 @@ namespace MongoDB.Driver
             }
             if (_srvServiceName != MongoInternalDefaults.MongoClientSettings.SrvServiceName)
             {
-                query.AppendFormat("srvServiceName={0}&", _srvServiceName);
+                query.AppendFormat("srvServiceName={0}&", Uri.EscapeDataString(_srvServiceName));
             }
             if (query.Length != 0)
             {
@@ -1212,7 +1212,7 @@ namespace MongoDB.Driver
                     {
                         if (compressorConfiguration.Properties.TryGetValue("Level", out var zlibCompressionLevel))
                         {
-                            builder.AppendFormat("zlibCompressionLevel={0}&", zlibCompressionLevel);
+                            builder.AppendFormat("zlibCompressionLevel={0}&", Uri.EscapeDataString(zlibCompressionLevel?.ToString() ?? ""));
                         }
                     }
                     break;
