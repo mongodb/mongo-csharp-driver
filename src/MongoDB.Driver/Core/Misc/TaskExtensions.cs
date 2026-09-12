@@ -66,8 +66,18 @@ namespace MongoDB.Driver.Core.Misc
             {
                 if (!task.IsCompleted)
                 {
-                    var timeoutTask = Task.Delay(timeout, cancellationToken);
-                    await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                    using (var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    {
+                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
+                        try
+                        {
+                            await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            timeoutCancellationTokenSource.Cancel();
+                        }
+                    }
                 }
 
                 if (task.IsCompleted)
@@ -94,8 +104,18 @@ namespace MongoDB.Driver.Core.Misc
             {
                 if (!task.IsCompleted)
                 {
-                    var timeoutTask = Task.Delay(timeout, cancellationToken);
-                    await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                    using (var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    {
+                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
+                        try
+                        {
+                            await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            timeoutCancellationTokenSource.Cancel();
+                        }
+                    }
                 }
 
                 if (task.IsCompleted)
