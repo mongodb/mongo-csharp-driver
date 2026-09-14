@@ -115,7 +115,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonInt64.</param>
         /// <returns>A BsonInt64 or null.</returns>
-        public new static BsonInt64 Create(object value)
+        public static new BsonInt64 Create(object value)
         {
             if (value == null)
             {

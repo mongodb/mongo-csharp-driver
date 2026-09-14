@@ -271,7 +271,7 @@ namespace MongoDB.Bson.Tests.Serialization
             materialized.ItemsInt.ToArray().ShouldAllBeEquivalentTo(multiHolder.ItemsInt.ToArray());
         }
 
-        public readonly static IEnumerable<object[]> TestData =
+        public static readonly IEnumerable<object[]> TestData =
         [
             [ GetArray(i => (bool)( i % 2 == 0)) ],
             [ GetArray(i => (sbyte)i) ],
