@@ -1262,6 +1262,63 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("mydomain.net", ".mydomain.net")]
+        [InlineData(".mydomain.net", ".mydomain.net")]
+        [InlineData(".mydomain.net.", ".mydomain.net")]
+        [InlineData(".MyDomain.NET", ".mydomain.net")]
+        [InlineData("example.公司.cn", ".example.xn--55qx5d.cn")]
+        [InlineData("пример.рф", ".xn--e1afmkfd.xn--p1ai")]
+        [InlineData("internal", ".internal")]
+        [InlineData("local", ".local")]
+        [InlineData(".CORP.", ".corp")]
+        public void NormalizeSrvAllowedHostsSuffix_should_return_expected_result(string suffix, string expectedResult)
+        {
+            var result = ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("com")]
+        [InlineData("mydomain")]
+        [InlineData("internals")]
+        public void NormalizeSrvAllowedHostsSuffix_should_throw_when_suffix_is_a_single_label_that_is_not_a_valid_name(string suffix)
+        {
+            var exception = Record.Exception(() => ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("must name at least two domain labels");
+        }
+
+        [Theory]
+        [InlineData("host.mydomain.net", "host.mydomain.net")]
+        [InlineData("host.mydomain.net.", "host.mydomain.net")]
+        [InlineData("HOST.MyDomain.NET", "host.mydomain.net")]
+        [InlineData("HOST.MyDomain.NET.", "host.mydomain.net")]
+        [InlineData("host.example.公司.cn", "host.example.xn--55qx5d.cn")]
+        [InlineData("localhost", "localhost")]
+        public void TryNormalizeHostName_should_return_expected_result(string host, string expectedResult)
+        {
+            var result = ConnectionString.TryNormalizeHostName(host, out var normalizedHost);
+
+            result.Should().BeTrue();
+            normalizedHost.Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(".")]
+        [InlineData("host..mydomain.net")]
+        [InlineData("xn--host.mydomain.net")]
+        public void TryNormalizeHostName_should_return_false_when_host_has_no_A_label_form(string host)
+        {
+            var result = ConnectionString.TryNormalizeHostName(host, out var normalizedHost);
+
+            result.Should().BeFalse();
+            normalizedHost.Should().BeNull();
+        }
+
+        [Theory]
         [InlineData("mongodb://localhost?proxyHost=222.222.222.12", "222.222.222.12", null, null, null)]
         [InlineData("mongodb://localhost?proxyHost=222.222.222.12&proxyPort=8080", "222.222.222.12", 8080, null, null)]
         [InlineData("mongodb://localhost?proxyHost=example.com", "example.com", null, null, null)]
