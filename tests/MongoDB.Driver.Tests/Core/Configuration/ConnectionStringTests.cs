@@ -1268,6 +1268,7 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData(".MyDomain.NET", ".mydomain.net")]
         [InlineData("example.公司.cn", ".example.xn--55qx5d.cn")]
         [InlineData("пример.рф", ".xn--e1afmkfd.xn--p1ai")]
+        [InlineData("xn--bcher-kva.com", ".xn--bcher-kva.com")]
         [InlineData("internal", ".internal")]
         [InlineData("local", ".local")]
         [InlineData(".CORP.", ".corp")]
@@ -1291,11 +1292,25 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
+        [InlineData("xn--host.mydomain.net")]
+        [InlineData("XN--HOST.mydomain.net")]
+        public void NormalizeSrvAllowedHostsSuffix_should_throw_when_suffix_has_no_A_label_form(string suffix)
+        {
+            var exception = Record.Exception(() => ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix));
+
+            exception.Should().BeOfType<MongoConfigurationException>();
+            exception.Message.Should().Contain("is not a valid domain name");
+        }
+
+        [Theory]
         [InlineData("host.mydomain.net", "host.mydomain.net")]
         [InlineData("host.mydomain.net.", "host.mydomain.net")]
         [InlineData("HOST.MyDomain.NET", "host.mydomain.net")]
         [InlineData("HOST.MyDomain.NET.", "host.mydomain.net")]
         [InlineData("host.example.公司.cn", "host.example.xn--55qx5d.cn")]
+        [InlineData("host.xn--55qx5d.cn", "host.xn--55qx5d.cn")]
+        [InlineData("xn--bcher-kva.com", "xn--bcher-kva.com")]
+        [InlineData("XN--BCHER-KVA.com", "xn--bcher-kva.com")]
         [InlineData("localhost", "localhost")]
         public void TryNormalizeHostName_should_return_expected_result(string host, string expectedResult)
         {
@@ -1310,6 +1325,7 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData(".")]
         [InlineData("host..mydomain.net")]
         [InlineData("xn--host.mydomain.net")]
+        [InlineData("XN--HOST.mydomain.net")]
         public void TryNormalizeHostName_should_return_false_when_host_has_no_A_label_form(string host)
         {
             var result = ConnectionString.TryNormalizeHostName(host, out var normalizedHost);

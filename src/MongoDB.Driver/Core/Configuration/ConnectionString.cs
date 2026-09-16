@@ -1330,17 +1330,12 @@ namespace MongoDB.Driver.Core.Configuration
                 return false;
             }
 
-            try
+            suffix = TryGetAsciiForm(suffix, out var errorDetail);
+            if (suffix == null)
             {
-                suffix = new IdnMapping().GetAscii(suffix);
-            }
-            catch (ArgumentException exception)
-            {
-                errorMessage = $"srvAllowedHostsSuffix \"{value}\" is not a valid domain name: {exception.Message}";
+                errorMessage = $"srvAllowedHostsSuffix \"{value}\" is not a valid domain name: {errorDetail}";
                 return false;
             }
-
-            suffix = suffix.ToLowerInvariant();
 
             if (suffix.IndexOf('.') < 0 && Array.IndexOf(__validSingleLabelSrvAllowedHostsSuffixes, suffix) < 0)
             {
@@ -1376,16 +1371,49 @@ namespace MongoDB.Driver.Core.Configuration
                 return false;
             }
 
+            normalizedHost = TryGetAsciiForm(host, out _);
+            return normalizedHost != null;
+        }
+
+        // Returns the lowercased A-label form of value, or null when value has none. errorDetail
+        // carries the framework's explanation, which names the offending character or length.
+        private static string TryGetAsciiForm(string value, out string errorDetail)
+        {
+            errorDetail = null;
+
+            string ascii;
             try
             {
-                normalizedHost = new IdnMapping().GetAscii(host).ToLowerInvariant();
+                ascii = new IdnMapping().GetAscii(value).ToLowerInvariant();
             }
-            catch (ArgumentException)
+            catch (ArgumentException exception)
             {
-                return false;
+                errorDetail = exception.Message;
+                return null;
             }
 
-            return true;
+            // .NET Core rejects a label that starts with "xn--" and does not decode as Punycode,
+            // but .NET Framework returns all-ASCII input unchanged without decoding it. Decoding
+            // the A-labels here keeps the validation identical on every target framework.
+            foreach (var label in ascii.Split('.'))
+            {
+                if (label.StartsWith("xn--", StringComparison.Ordinal))
+                {
+                    try
+                    {
+                        new IdnMapping().GetUnicode(label);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // GetUnicode was passed a single label, so its own message would describe
+                        // that label in isolation and name a parameter the caller never supplied
+                        errorDetail = $"\"{label}\" is not valid Punycode.";
+                        return null;
+                    }
+                }
+            }
+
+            return ascii;
         }
 
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
