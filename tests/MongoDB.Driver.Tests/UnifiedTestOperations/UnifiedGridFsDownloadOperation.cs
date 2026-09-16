@@ -23,12 +23,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedGridFsDownloadOperation : IUnifiedEntityTestOperation
     {
-        private readonly IGridFSBucket _bucket;
-        private readonly ObjectId _id;
+        private readonly GridFSBucket _bucket;
+        private readonly BsonValue _id;
 
         public UnifiedGridFsDownloadOperation(
-            IGridFSBucket bucket,
-            ObjectId id)
+            GridFSBucket bucket,
+            BsonValue id)
         {
             _bucket = bucket;
             _id = id;
@@ -76,21 +76,23 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
         {
             var bucket = _entityMap.Buckets[targetBucketId];
 
-            ObjectId? id = null;
+            BsonValue id = null;
 
             foreach (var argument in arguments)
             {
                 switch (argument.Name)
                 {
                     case "id":
-                        id = argument.Value.AsObjectId;
+                        id = argument.Value;
                         break;
                     default:
                         throw new FormatException($"Invalid GridFsDownloadOperation argument name: '{argument.Name}'.");
                 }
             }
 
-            return new UnifiedGridFsDownloadOperation(bucket, id.Value);
+            return new UnifiedGridFsDownloadOperation(
+                bucket,
+                id ?? throw new FormatException("GridFsDownloadOperation argument 'id' is required."));
         }
     }
 }

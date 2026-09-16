@@ -10,6 +10,7 @@ namespace MongoDB.Driver.Tests.GridFS
             client.SetupGet(c => c.Settings).Returns(new MongoClientSettings());
             var database = new Mock<IMongoDatabase> { DefaultValue = DefaultValue.Mock };
             database.SetupGet(d => d.Client).Returns(client.Object);
+            database.SetupGet(d => d.DatabaseNamespace).Returns(new DatabaseNamespace("database"));
 
             return database.Object;
         }
