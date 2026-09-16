@@ -224,6 +224,14 @@ tests:
         auth: ~
         options: ~
     -
+        description: "srvAllowedHostsSuffix with non-SRV URI"
+        uri: "mongodb://localhost:27017/?srvAllowedHostsSuffix=.mongodb.net"
+        valid: false
+        warning: ~
+        hosts: ~
+        auth: ~
+        options: ~
+    -
         description: "Username with password containing an unescaped percent sign"
         uri: "mongodb://alice%foo:bar@127.0.0.1"
         valid: false
