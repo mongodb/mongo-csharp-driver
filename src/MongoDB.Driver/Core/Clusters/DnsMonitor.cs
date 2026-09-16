@@ -142,7 +142,7 @@ namespace MongoDB.Driver.Core.Clusters
                 // DNS names are case-insensitive, and SDAM requires host names to be normalized to lower-case
                 if (!ConnectionString.TryNormalizeHostName(endPoint.Host, out var host))
                 {
-                    _eventLogger.LogAndPublish(new SdamInformationEvent("Invalid host returned by DNS SRV lookup: {0}.", endPoint.Host));
+                    _eventLogger.LogAndPublish(new SdamInformationEvent("Unable to parse host returned by DNS SRV lookup: {0}.", endPoint.Host));
                     continue;
                 }
 

@@ -703,6 +703,30 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated
+        /// against. When set, it replaces the domain name that would otherwise be inferred from
+        /// the SRV hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
+        /// </summary>
+        public string SrvAllowedHostsSuffix
+        {
+            get { return _srvAllowedHostsSuffix; }
+            set
+            {
+                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
+                if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
+                {
+                    throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
+                }
+                _srvAllowedHostsSuffix = value;
+            }
+        }
+
+        /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
         /// during initial discovery, as well as the number of additional hosts
         /// that may be added during SRV polling.
@@ -729,30 +753,6 @@ namespace MongoDB.Driver
             {
                 if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
                 _srvServiceName = Ensure.IsNotNullOrEmpty(value, nameof(SrvServiceName));
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated
-        /// against. When set, it replaces the domain name that would otherwise be inferred from
-        /// the SRV hostname.
-        /// <para>
-        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
-        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
-        /// hosts a forged SRV response could direct the driver to.
-        /// </para>
-        /// </summary>
-        public string SrvAllowedHostsSuffix
-        {
-            get { return _srvAllowedHostsSuffix; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
-                {
-                    throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
-                }
-                _srvAllowedHostsSuffix = value;
             }
         }
 

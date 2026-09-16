@@ -1326,7 +1326,7 @@ namespace MongoDB.Driver.Core.Configuration
             var suffix = value.Trim('.');
             if (suffix.Length == 0)
             {
-                errorMessage = "srvAllowedHostsSuffix must name at least one domain label.";
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
                 return false;
             }
 
@@ -1344,16 +1344,18 @@ namespace MongoDB.Driver.Core.Configuration
 
             if (suffix.IndexOf('.') < 0 && Array.IndexOf(__validSingleLabelSrvAllowedHostsSuffixes, suffix) < 0)
             {
-                errorMessage =
-                    $"srvAllowedHostsSuffix \"{value}\" must name at least two domain labels, or one of the single " +
-                    $"labels {string.Join(", ", __validSingleLabelSrvAllowedHostsSuffixes)}. Any other single label " +
-                    "would allow any host registered under it. Specify a suffix that names the deployment's own domain.";
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
                 return false;
             }
 
             normalizedSuffix = "." + suffix;
             return true;
         }
+
+        private static string FormatSrvAllowedHostsSuffixLabelsMessage(string value) =>
+            $"srvAllowedHostsSuffix \"{value}\" must name at least two domain labels, or one of these single " +
+            $"labels: {string.Join(", ", __validSingleLabelSrvAllowedHostsSuffixes)}. Any other single label " +
+            "would allow any host registered under it. Specify a suffix that names the deployment's own domain.";
 
         // The specification requires a hostname returned by an SRV lookup, and the domain it is
         // validated against, to carry the same normalization, so that neither trailing dots, case,
@@ -1615,12 +1617,11 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 var dnsEndPoint = (DnsEndPoint)endPoint;
 
-                var host = ((DnsEndPoint)endPoint).Host;
                 if (!HasValidParentDomain(lookupDomainName, dnsEndPoint, _srvParentDomain))
                 {
                     throw new MongoConfigurationException(_srvParentDomain == null
                         ? "Hosts in the SRV record must have the same parent domain as the seed host."
-                        : $"Hosts in the SRV record must end with the configured srvAllowedHostsSuffix \"{_srvParentDomain}\".");
+                        : $"Hosts in the SRV record must end with the srvAllowedHostsSuffix \"{_srvParentDomain}\".");
                 }
             }
         }

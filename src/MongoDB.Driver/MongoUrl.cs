@@ -75,8 +75,8 @@ namespace MongoDB.Driver
         private readonly ServerMonitoringMode? _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
-        private readonly int? _srvMaxHosts;
         private readonly string _srvAllowedHostsSuffix;
+        private readonly int? _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly TimeSpan? _timeout;
         private readonly bool _tlsDisableCertificateRevocationCheck;
@@ -141,8 +141,8 @@ namespace MongoDB.Driver
             _serverMonitoringMode = builder.ServerMonitoringMode;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
-            _srvMaxHosts = builder.SrvMaxHosts;
             _srvAllowedHostsSuffix = builder.SrvAllowedHostsSuffix;
+            _srvMaxHosts = builder.SrvMaxHosts;
             _srvServiceName = builder.SrvServiceName;
             _timeout = builder.Timeout;
             _tlsDisableCertificateRevocationCheck = builder.TlsDisableCertificateRevocationCheck;
