@@ -66,7 +66,9 @@ namespace MongoDB.Driver.Core.Misc
             {
                 if (!task.IsCompleted)
                 {
-                    using (var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    using (var timeoutCancellationTokenSource = cancellationToken.CanBeCanceled ?
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) :
+                        new CancellationTokenSource())
                     {
                         var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
                         try
@@ -104,7 +106,9 @@ namespace MongoDB.Driver.Core.Misc
             {
                 if (!task.IsCompleted)
                 {
-                    using (var timeoutCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                    using (var timeoutCancellationTokenSource = cancellationToken.CanBeCanceled ?
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) :
+                        new CancellationTokenSource())
                     {
                         var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
                         try
