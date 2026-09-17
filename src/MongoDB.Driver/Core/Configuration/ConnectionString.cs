@@ -1407,10 +1407,11 @@ namespace MongoDB.Driver.Core.Configuration
                 return null;
             }
 
-#if NETFRAMEWORK
-            // .NET Core rejects a label that starts with "xn--" and does not decode as Punycode,
-            // but .NET Framework returns all-ASCII input unchanged without decoding it. Decoding
-            // the A-labels here keeps the validation identical on every target framework.
+#if NETFRAMEWORK || NETSTANDARD2_1
+            // ICU rejects a label that starts with "xn--" and does not decode as Punycode, but the
+            // NLS backend used by .NET Framework and by .NET Core 3.1 on Windows returns all-ASCII
+            // input unchanged without decoding it. Decoding the A-labels here keeps the validation
+            // identical on every target framework.
             foreach (var label in ascii.Split('.'))
             {
                 if (label.StartsWith("xn--", StringComparison.Ordinal))
