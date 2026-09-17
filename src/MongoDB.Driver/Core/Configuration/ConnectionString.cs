@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -51,6 +52,22 @@ namespace MongoDB.Driver.Core.Configuration
         // constants
         private const int DefaultMongoDBPort = 27017;
         private const int DefaultSrvPort = 53;
+
+        // private static fields
+        // the single labels that srvAllowedHostsSuffix may name, per the specification. They name
+        // private or special-use namespaces rather than a public registry, so allowing every host
+        // under one of them does not allow every host under a public suffix.
+        private static readonly string[] __validSingleLabelSrvAllowedHostsSuffixes = new[]
+        {
+            // RFC 6761 special-use names
+            "test", "localhost", "invalid", "example",
+            // RFC 6762 multicast DNS
+            "local",
+            // reserved by ICANN for private use
+            "internal",
+            // not reserved by ICANN, but commonly used privately
+            "corp", "home", "mail"
+        };
 
         // private fields
         private readonly string _originalConnectionString;
@@ -102,7 +119,9 @@ namespace MongoDB.Driver.Core.Configuration
         private ServerMonitoringMode? _serverMonitoringMode;
         private TimeSpan? _serverSelectionTimeout;
         private TimeSpan? _socketTimeout;
+        private string _srvAllowedHostsSuffix;
         private int? _srvMaxHosts;
+        private string _srvParentDomain;
         private string _srvServiceName;
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         private TimeSpan? _timeout;
@@ -485,6 +504,18 @@ namespace MongoDB.Driver.Core.Configuration
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against,
+        /// as it was specified in the connection string. When set, it replaces the domain name
+        /// that would otherwise be inferred from the SRV hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
+        /// </summary>
+        public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
         /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
@@ -917,6 +948,16 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException("Specifying srvServiceName is only allowed with the mongodb+srv scheme.");
             }
 
+            if (_srvAllowedHostsSuffix != null)
+            {
+                if (!_isInternalRepresentation && _scheme != ConnectionStringScheme.MongoDBPlusSrv)
+                {
+                    throw new MongoConfigurationException("Specifying srvAllowedHostsSuffix is only allowed with the mongodb+srv scheme.");
+                }
+
+                _srvParentDomain = NormalizeSrvAllowedHostsSuffix(_srvAllowedHostsSuffix);
+            }
+
             if (_loadBalanced)
             {
                 if (_hosts.Count > 1)
@@ -1186,6 +1227,9 @@ namespace MongoDB.Driver.Core.Configuration
                 case "sockettimeoutms":
                     _socketTimeout = ParseTimeSpan(name, value);
                     break;
+                case "srvallowedhostssuffix":
+                    _srvAllowedHostsSuffix = value;
+                    break;
                 case "srvmaxhosts":
                     var srvMaxHostsValue = ParseInt32(name, value);
                     if (srvMaxHostsValue < 0)
@@ -1260,6 +1304,120 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         // private static methods
+
+        internal static string NormalizeSrvAllowedHostsSuffix(string value)
+        {
+            if (!TryNormalizeSrvAllowedHostsSuffix(value, out var suffix, out var errorMessage))
+            {
+                throw new MongoConfigurationException(errorMessage);
+            }
+
+            return suffix;
+        }
+
+        // The steps and their order are mandated by the specification.
+        internal static bool TryNormalizeSrvAllowedHostsSuffix(string value, out string normalizedSuffix, out string errorMessage)
+        {
+            normalizedSuffix = null;
+            errorMessage = null;
+
+            // IdnMapping rejects an empty label, so the dots have to come off before the Punycode
+            // step rather than after it
+            var suffix = value.Trim('.');
+            if (suffix.Length == 0)
+            {
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
+                return false;
+            }
+
+            suffix = TryGetAsciiForm(suffix, out var errorDetail);
+            if (suffix == null)
+            {
+                errorMessage = $"srvAllowedHostsSuffix \"{value}\" is not a valid domain name: {errorDetail}";
+                return false;
+            }
+
+            if (suffix.IndexOf('.') < 0 && Array.IndexOf(__validSingleLabelSrvAllowedHostsSuffixes, suffix) < 0)
+            {
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
+                return false;
+            }
+
+            normalizedSuffix = "." + suffix;
+            return true;
+        }
+
+        private static string FormatSrvAllowedHostsSuffixLabelsMessage(string value) =>
+            $"srvAllowedHostsSuffix \"{value}\" must name at least two domain labels, or one of these single " +
+            $"labels: {string.Join(", ", __validSingleLabelSrvAllowedHostsSuffixes)}. Any other single label " +
+            "would allow any host registered under it. Specify a suffix that names the deployment's own domain.";
+
+        // The specification requires a hostname returned by an SRV lookup, and the domain it is
+        // validated against, to carry the same normalization, so that neither trailing dots, case,
+        // nor Unicode/Punycode encoding can affect the comparison. The steps and their order are
+        // mandated by the specification. A hostname with no A-label form is one the driver can
+        // neither validate nor connect to, so it is reported as invalid rather than compared as-is.
+        internal static bool TryNormalizeHostName(string host, out string normalizedHost)
+        {
+            normalizedHost = null;
+
+            if (host.EndsWith(".", StringComparison.Ordinal))
+            {
+                host = host.Substring(0, host.Length - 1);
+            }
+
+            if (host.Length == 0)
+            {
+                return false;
+            }
+
+            normalizedHost = TryGetAsciiForm(host, out _);
+            return normalizedHost != null;
+        }
+
+        // Returns the lowercased A-label form of value, or null when value has none. errorDetail
+        // carries the framework's explanation, which names the offending character or length.
+        private static string TryGetAsciiForm(string value, out string errorDetail)
+        {
+            errorDetail = null;
+
+            string ascii;
+            try
+            {
+                ascii = new IdnMapping().GetAscii(value).ToLowerInvariant();
+            }
+            catch (ArgumentException exception)
+            {
+                errorDetail = exception.Message;
+                return null;
+            }
+
+#if NETFRAMEWORK
+            // .NET Core rejects a label that starts with "xn--" and does not decode as Punycode,
+            // but .NET Framework returns all-ASCII input unchanged without decoding it. Decoding
+            // the A-labels here keeps the validation identical on every target framework.
+            foreach (var label in ascii.Split('.'))
+            {
+                if (label.StartsWith("xn--", StringComparison.Ordinal))
+                {
+                    try
+                    {
+                        new IdnMapping().GetUnicode(label);
+                    }
+                    catch (ArgumentException)
+                    {
+                        // GetUnicode was passed a single label, so its own message would describe
+                        // that label in isolation and name a parameter the caller never supplied
+                        errorDetail = $"\"{label}\" is not valid Punycode.";
+                        return null;
+                    }
+                }
+            }
+#endif
+
+            return ascii;
+        }
+
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
             foreach (var property in value.Split(','))
@@ -1428,11 +1586,11 @@ namespace MongoDB.Driver.Core.Configuration
             foreach (var srvRecord in srvRecords)
             {
                 var h = srvRecord.EndPoint.Host;
-                if (h.EndsWith(".", StringComparison.Ordinal))
+                if (!TryNormalizeHostName(h, out var normalizedHost))
                 {
-                    h = h.Substring(0, h.Length - 1);
+                    throw new MongoConfigurationException($"Unable to parse {h} as a hostname.");
                 }
-                hosts.Add(h + ":" + srvRecord.EndPoint.Port);
+                hosts.Add(normalizedHost + ":" + srvRecord.EndPoint.Port);
             }
 
             if (_srvMaxHosts > 0)
@@ -1470,6 +1628,15 @@ namespace MongoDB.Driver.Core.Configuration
                 throw new MongoConfigurationException($"No hosts were found in the SRV record for {original}.");
             }
 
+            // the domain that resolved hosts are validated against carries the same normalization
+            // the hosts themselves do. A configured suffix was normalized when it was parsed, so
+            // only the domain inferred from the seed host is normalized here.
+            var lookupDomainName = original;
+            if (_srvParentDomain == null && !TryNormalizeHostName(original, out lookupDomainName))
+            {
+                throw new MongoConfigurationException($"Unable to parse {original} as a hostname.");
+            }
+
             // for each resolved host, make sure that it ends with domain of the parent.
             foreach (var resolvedHost in resolved)
             {
@@ -1480,17 +1647,26 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 var dnsEndPoint = (DnsEndPoint)endPoint;
 
-                var host = ((DnsEndPoint)endPoint).Host;
-                if (!HasValidParentDomain(original, dnsEndPoint))
+                if (!HasValidParentDomain(lookupDomainName, dnsEndPoint, _srvParentDomain))
                 {
-                    throw new MongoConfigurationException($"Hosts in the SRV record must have the same parent domain as the seed host.");
+                    throw new MongoConfigurationException(_srvParentDomain == null
+                        ? "Hosts in the SRV record must have the same parent domain as the seed host."
+                        : $"Hosts in the SRV record must end with the srvAllowedHostsSuffix \"{_srvParentDomain}\".");
                 }
             }
         }
 
-        internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint)
+        internal static bool HasValidParentDomain(string original, DnsEndPoint resolvedEndPoint, string srvParentDomain)
         {
             var host = resolvedEndPoint.Host;
+
+            // a configured suffix states the parent domain outright, so it replaces both the
+            // domain inferred from the seed host and the extra domain level that a seed with
+            // fewer than three parts would otherwise require
+            if (srvParentDomain != null)
+            {
+                return host.EndsWith(srvParentDomain, StringComparison.Ordinal);
+            }
 
             var hostDotCount = host.Count(c => c == '.');
             var originalDotCount = original.Count(c => c == '.');

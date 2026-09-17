@@ -79,6 +79,34 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
                 Which.Message.Should().Be("Hosts in the SRV record must have the same parent domain as the seed host.");
         }
 
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#10-accept-a-mixed-case-returned-address-with-srvallowedhostssuffix
+        [Fact]
+        public void Accept_mixed_case_return_address_with_srvAllowedHostsSuffix()
+        {
+            var uri = "mongodb+srv://blogs.mongodb.com/?srvAllowedHostsSuffix=.mongodb.com";
+            var connectionString = new ConnectionString(uri, true, new MockDnsResolver("CLUSTER.MONGODB.COM."));
+
+            var resolved = connectionString.Resolve();
+
+            resolved.Hosts.Should().ContainSingle()
+                .Which.Should().BeOfType<DnsEndPoint>()
+                .Subject.Host.Should().Be("cluster.mongodb.com");
+        }
+
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#12-accept-a-reserved-single-label-as-srvallowedhostssuffix
+        [Fact]
+        public void Accept_reserved_single_label_srvAllowedHostsSuffix()
+        {
+            var uri = "mongodb+srv://cluster.localhost/?srvAllowedHostsSuffix=localhost";
+            var connectionString = new ConnectionString(uri, true, new MockDnsResolver("db.cluster.localhost"));
+
+            var resolved = connectionString.Resolve();
+
+            resolved.Hosts.Should().ContainSingle()
+                .Which.Should().BeOfType<DnsEndPoint>()
+                .Subject.Host.Should().Be("db.cluster.localhost");
+        }
+
         private class MockDnsResolver(string dnsEndPointString) : IDnsResolver
         {
             public List<SrvRecord> ResolveSrvRecords(string service, CancellationToken cancellation)
@@ -87,8 +115,9 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
                     { new SrvRecord(new DnsEndPoint(dnsEndPointString, 2090), TimeSpan.MaxValue) };
             }
 
+            // a deployment with no TXT records, which the tests that resolve successfully reach
             public List<TxtRecord> ResolveTxtRecords(string domainName, CancellationToken cancellation)
-                => throw new NotImplementedException();
+                => new List<TxtRecord>();
 
             public Task<List<SrvRecord>> ResolveSrvRecordsAsync(string service, CancellationToken cancellation)
                 => throw new NotImplementedException();
