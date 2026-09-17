@@ -39,7 +39,7 @@ csharp_indent_switch_labels = true
 csharp_indent_labels = one_less_than_current
 
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:warning
 
 # always declare accessibility explicitly
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:warning
@@ -75,6 +75,14 @@ dotnet_naming_symbols.static_fields.applicable_accessibilities = private, intern
 dotnet_naming_style.static_prefix_style.required_prefix = __
 dotnet_naming_style.static_prefix_style.capitalization = camel_case 
 
+# interfaces should be prefixed with I
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.severity = suggestion
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.symbols  = interface_types
+dotnet_naming_rule.interfaces_should_be_prefixed_with_i.style    = i_prefix_style
+dotnet_naming_symbols.interface_types.applicable_kinds = interface
+dotnet_naming_style.i_prefix_style.required_prefix = I
+dotnet_naming_style.i_prefix_style.capitalization = pascal_case
+
 # internal and private fields should be _camelCase
 dotnet_naming_rule.camel_case_for_private_internal_fields.severity = suggestion
 dotnet_naming_rule.camel_case_for_private_internal_fields.symbols  = private_internal_fields
@@ -88,11 +96,11 @@ dotnet_naming_style.camel_case_underscore_style.capitalization = camel_case
 # usings outside the namespace; System first, then the rest alphabetically
 csharp_using_directive_placement = outside_namespace:warning
 dotnet_sort_system_directives_first = true
-csharp_prefer_braces = true:refactoring
+csharp_prefer_braces = when_multiline:warning
 csharp_preserve_single_line_blocks = true:none
 csharp_preserve_single_line_statements = false:none
 csharp_prefer_static_local_function = true:suggestion
-csharp_prefer_simple_using_statement = false:none
+csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_prefer_switch_expression = true:suggestion
 
 # Code quality
@@ -133,9 +141,9 @@ csharp_style_throw_expression = true:suggestion
 csharp_style_conditional_delegate_call = true:suggestion
 
 # Other features
-csharp_style_prefer_index_operator = false:none
-csharp_style_prefer_range_operator = false:none
-csharp_style_pattern_local_over_anonymous_function = false:none
+csharp_style_prefer_index_operator = true:none
+csharp_style_prefer_range_operator = true:none
+csharp_style_pattern_local_over_anonymous_function = true:none
 
 # Space preferences
 csharp_space_after_cast = false

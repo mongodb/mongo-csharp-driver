@@ -94,7 +94,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonSymbol.</param>
         /// <returns>A BsonSymbol or null.</returns>
-        public new static BsonSymbol Create(object value)
+        public static new BsonSymbol Create(object value)
         {
             if (value == null)
             {

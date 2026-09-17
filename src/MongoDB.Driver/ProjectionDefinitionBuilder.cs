@@ -979,7 +979,9 @@ namespace MongoDB.Driver
                         current.AddRange(combinedProjection._projections);
                     }
                     else
+                    {
                         current.Add(projection);
+                    }
                     return current;
                 })
                 .ToList();

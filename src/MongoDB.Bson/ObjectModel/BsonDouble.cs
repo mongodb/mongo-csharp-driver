@@ -115,7 +115,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonDouble.</param>
         /// <returns>A BsonDouble.</returns>
-        public new static BsonDouble Create(object value)
+        public static new BsonDouble Create(object value)
         {
             if (value == null)
             {

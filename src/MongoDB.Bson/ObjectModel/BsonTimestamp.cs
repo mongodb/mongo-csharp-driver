@@ -110,7 +110,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">An object to be mapped to a BsonTimestamp.</param>
         /// <returns>A BsonTimestamp or null.</returns>
-        public new static BsonTimestamp Create(object value)
+        public static new BsonTimestamp Create(object value)
         {
             if (value == null)
             {

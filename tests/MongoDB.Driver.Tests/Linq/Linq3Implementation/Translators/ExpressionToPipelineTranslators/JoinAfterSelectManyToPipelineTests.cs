@@ -25,12 +25,12 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     // Regression test for CSHARP-4054.
     public class JoinAfterSelectManyToPipelineTests : Linq3IntegrationTest
     {
-        private readonly static Movie __movie21 = new Movie { Id = 21 };
-        private readonly static Movie __movie31 = new Movie { Id = 31 };
-        private readonly static Movie __movie32 = new Movie { Id = 32 };
-        private readonly static Person __person1 = new Person { Id = 1, MovieIds = new int[] { } };
-        private readonly static Person __person2 = new Person { Id = 2, MovieIds = new int[] { 21 } };
-        private readonly static Person __person3 = new Person { Id = 3, MovieIds = new int[] { 31, 32 } };
+        private static readonly Movie __movie21 = new Movie { Id = 21 };
+        private static readonly Movie __movie31 = new Movie { Id = 31 };
+        private static readonly Movie __movie32 = new Movie { Id = 32 };
+        private static readonly Person __person1 = new Person { Id = 1, MovieIds = new int[] { } };
+        private static readonly Person __person2 = new Person { Id = 2, MovieIds = new int[] { 21 } };
+        private static readonly Person __person3 = new Person { Id = 3, MovieIds = new int[] { 31, 32 } };
 
         [Fact]
         public void Join_should_work()
