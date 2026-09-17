@@ -27,8 +27,8 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
-using MongoDB.Driver.Encryption;
 using MongoDB.Driver.Core.Servers;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver;
 
