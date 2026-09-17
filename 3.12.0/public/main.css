@@ -1,0 +1,63 @@
+﻿:root {
+    --bs-font-sans-serif: 'Euclid Circular A','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --bs-font-monospace: "Source Code Pro", Menlo, monospace;
+}
+
+h1, h2, h3 {
+    font-family: 'MongoDB Value Serif','Times New Roman',serif;
+    color: rgb(0, 104, 74);
+    font-weight: bold;
+}
+
+dt {
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: Euclid Circular A;
+    src: url(https://static.mongodb.com/com/fonts/EuclidCircularA-Regular-WebXL.woff2) format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Euclid Circular A;
+    src: url(https://static.mongodb.com/com/fonts/EuclidCircularA-Medium-WebXL.woff2) format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: MongoDB Value Serif;
+    src: url(https://static.mongodb.com/com/fonts/MongoDBValueSerif-Regular.woff2) format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: MongoDB Value Serif;
+    src: url(https://static.mongodb.com/com/fonts/MongoDBValueSerif-Medium.woff2) format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: MongoDB Value Serif;
+    src: url(https://static.mongodb.com/com/fonts/MongoDBValueSerif-Bold.woff2) format('woff2');
+    font-weight: bold;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Source Code Pro;
+    src: url(https://static.mongodb.com/com/fonts/SourceCodePro-Regular.ttf) format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: Source Code Pro;
+    src: url(https://static.mongodb.com/com/fonts/SourceCodePro-Medium.ttf) format('truetype');
+    font-weight: 500;
+    font-display: swap;
+}
