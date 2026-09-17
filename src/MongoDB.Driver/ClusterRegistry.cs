@@ -98,8 +98,8 @@ namespace MongoDB.Driver
                 maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
-                scheme: clusterKey.Scheme,
-                srvAllowedHostsSuffix: clusterKey.SrvAllowedHostsSuffix);
+                scheme: clusterKey.Scheme)
+                .WithSrvAllowedHostsSuffix(clusterKey.SrvAllowedHostsSuffix);
         }
 
         private ConnectionPoolSettings ConfigureConnectionPool(ConnectionPoolSettings settings, ClusterKey clusterKey)

@@ -68,7 +68,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
-        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname. WARNING: Modifying the default SRV domain name validation can create vulnerabilities.</param>
         public ClusterSettings(
             Optional<CryptClientSettings> cryptClientSettings = default,
             Optional<bool> directConnection = default,
@@ -83,8 +82,42 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
             Optional<int> srvMaxHosts = default,
-            Optional<string> srvServiceName = default(Optional<string>),
-            Optional<string> srvAllowedHostsSuffix = default(Optional<string>))
+            Optional<string> srvServiceName = default(Optional<string>))
+            : this(
+                cryptClientSettings,
+                directConnection,
+                endPoints,
+                loadBalanced,
+                localThreshold,
+                maxServerSelectionWaitQueueSize,
+                replicaSetName,
+                serverApi,
+                serverSelectionTimeout,
+                preServerSelector,
+                postServerSelector,
+                scheme,
+                srvMaxHosts,
+                srvServiceName,
+                srvAllowedHostsSuffix: default)
+        {
+        }
+
+        internal ClusterSettings(
+            Optional<CryptClientSettings> cryptClientSettings,
+            Optional<bool> directConnection,
+            Optional<IEnumerable<EndPoint>> endPoints,
+            Optional<bool> loadBalanced,
+            Optional<TimeSpan> localThreshold,
+            Optional<int> maxServerSelectionWaitQueueSize,
+            Optional<string> replicaSetName,
+            Optional<ServerApi> serverApi,
+            Optional<TimeSpan> serverSelectionTimeout,
+            Optional<IServerSelector> preServerSelector,
+            Optional<IServerSelector> postServerSelector,
+            Optional<ConnectionStringScheme> scheme,
+            Optional<int> srvMaxHosts,
+            Optional<string> srvServiceName,
+            Optional<string> srvAllowedHostsSuffix)
         {
             _cryptClientSettings = cryptClientSettings.WithDefault(null);
             _directConnection = directConnection.WithDefault(false);
@@ -274,7 +307,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="scheme">The connection string scheme.</param>
         /// <param name="srvMaxHosts">Limits the number of SRV records used to populate the seedlist during initial discovery, as well as the number of additional hosts that may be added during SRV polling.</param>
         /// <param name="srvServiceName"> The SRV service name which modifies the srv URI to look like: <code>_{srvServiceName}._tcp.{hostname}.{domainname}</code> Defaults to "mongodb".</param>
-        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname. WARNING: Modifying the default SRV domain name validation can create vulnerabilities.</param>
         /// <returns>A new ClusterSettings instance.</returns>
         public ClusterSettings With(
             Optional<CryptClientSettings> cryptClientSettings = default,
@@ -290,8 +322,7 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IServerSelector> postServerSelector = default(Optional<IServerSelector>),
             Optional<ConnectionStringScheme> scheme = default(Optional<ConnectionStringScheme>),
             Optional<int> srvMaxHosts = default,
-            Optional<string> srvServiceName = default(Optional<string>),
-            Optional<string> srvAllowedHostsSuffix = default(Optional<string>))
+            Optional<string> srvServiceName = default(Optional<string>))
         {
             return new ClusterSettings(
                 cryptClientSettings: cryptClientSettings.WithDefault(_cryptClientSettings),
@@ -308,7 +339,32 @@ namespace MongoDB.Driver.Core.Configuration
                 scheme: scheme.WithDefault(_scheme),
                 srvMaxHosts: srvMaxHosts.WithDefault(_srvMaxHosts),
                 srvServiceName: srvServiceName.WithDefault(_srvServiceName),
-                srvAllowedHostsSuffix: srvAllowedHostsSuffix.WithDefault(_srvAllowedHostsSuffix));
+                srvAllowedHostsSuffix: _srvAllowedHostsSuffix);
+        }
+
+        /// <summary>
+        /// Returns a new ClusterSettings instance with the SRV allowed hosts suffix changed.
+        /// </summary>
+        /// <param name="srvAllowedHostsSuffix">The hostname suffix that hosts returned by an SRV lookup are validated against, replacing the domain name that would otherwise be inferred from the SRV hostname. WARNING: Modifying the default SRV domain name validation can create vulnerabilities.</param>
+        /// <returns>A new ClusterSettings instance.</returns>
+        public ClusterSettings WithSrvAllowedHostsSuffix(string srvAllowedHostsSuffix)
+        {
+            return new ClusterSettings(
+                cryptClientSettings: _cryptClientSettings,
+                directConnection: _directConnection,
+                endPoints: Optional.Enumerable(_endPoints),
+                loadBalanced: Optional.Create(_loadBalanced),
+                localThreshold: _localThreshold,
+                maxServerSelectionWaitQueueSize: _maxServerSelectionWaitQueueSize,
+                replicaSetName: _replicaSetName,
+                serverApi: _serverApi,
+                serverSelectionTimeout: _serverSelectionTimeout,
+                preServerSelector: Optional.Create(_preServerSelector),
+                postServerSelector: Optional.Create(_postServerSelector),
+                scheme: _scheme,
+                srvMaxHosts: _srvMaxHosts,
+                srvServiceName: _srvServiceName,
+                srvAllowedHostsSuffix: srvAllowedHostsSuffix);
         }
 
         // internal methods

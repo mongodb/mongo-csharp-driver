@@ -43,6 +43,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
             subject.ServerApi.Should().BeNull();
             subject.ServerSelectionTimeout.Should().Be(TimeSpan.FromSeconds(30));
+            subject.SrvAllowedHostsSuffix.Should().BeNull();
             subject.SrvMaxHosts.Should().Be(0);
             subject.SrvServiceName.Should().Be("mongodb");
         }
@@ -490,6 +491,28 @@ namespace MongoDB.Driver.Core.Configuration
             var result = subject.With(srvServiceName: srvServiceName);
 
             result.SrvServiceName.Should().Be(srvServiceName);
+        }
+
+        [Fact]
+        public void WithSrvAllowedHostsSuffix_should_return_expected_result()
+        {
+            var srvAllowedHostsSuffix = ".mydomain.net";
+            var subject = new ClusterSettings();
+
+            var result = subject.WithSrvAllowedHostsSuffix(srvAllowedHostsSuffix);
+
+            result.SrvAllowedHostsSuffix.Should().Be(srvAllowedHostsSuffix);
+        }
+
+        [Fact]
+        public void With_should_preserve_srvAllowedHostsSuffix()
+        {
+            var srvAllowedHostsSuffix = ".mydomain.net";
+            var subject = new ClusterSettings().WithSrvAllowedHostsSuffix(srvAllowedHostsSuffix);
+
+            var result = subject.With(srvServiceName: "customname");
+
+            result.SrvAllowedHostsSuffix.Should().Be(srvAllowedHostsSuffix);
         }
 
         [Fact]
