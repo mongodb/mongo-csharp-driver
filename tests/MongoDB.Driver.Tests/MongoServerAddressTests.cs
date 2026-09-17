@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using MongoDB.Driver;
 using Xunit;
 
@@ -21,6 +22,18 @@ namespace MongoDB.Driver.Tests
 {
     public class MongoServerAddressTests
     {
+        public static IEnumerable<object[]> InvalidHosts =>
+            [
+                ["host,evil.example.com"],
+                ["host/database"],
+                ["host?tls=false"],
+                ["user@host"],
+                ["host#fragment"],
+                ["host:extra"],
+                ["a[]b"],
+                [""]
+            ];
+
         [Theory]
         [InlineData("host")]
         [InlineData("192.168.0.1")]
@@ -44,6 +57,50 @@ namespace MongoDB.Driver.Tests
             var address = new MongoServerAddress(host, port);
             Assert.Equal(host, address.Host);
             Assert.Equal(port, address.Port);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidHosts))]
+        public void TestConstructor_with_host_should_throw_when_host_is_invalid(string host)
+        {
+            var exception = Record.Exception(() => new MongoServerAddress(host));
+
+            Assert.IsType<ArgumentException>(exception);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidHosts))]
+        public void TestConstructor_with_host_and_port_should_throw_when_host_is_invalid(string host)
+        {
+            var exception = Record.Exception(() => new MongoServerAddress(host, 27017));
+
+            Assert.IsType<ArgumentException>(exception);
+        }
+
+        [Theory]
+        [MemberData(nameof(InvalidHosts))]
+        public void TestTryParse_should_return_false_when_host_is_invalid(string value)
+        {
+            var result = MongoServerAddress.TryParse(value, out var address);
+
+            Assert.False(result);
+            Assert.Null(address);
+        }
+
+        [Fact]
+        public void TestConstructor_with_host_should_throw_when_host_is_null()
+        {
+            var exception = Record.Exception(() => new MongoServerAddress(null));
+
+            Assert.IsType<ArgumentNullException>(exception);
+        }
+
+        [Fact]
+        public void TestConstructor_with_host_and_port_should_throw_when_host_is_null()
+        {
+            var exception = Record.Exception(() => new MongoServerAddress(null, 27017));
+
+            Assert.IsType<ArgumentNullException>(exception);
         }
 
         [Fact]
@@ -93,13 +150,12 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [InlineData(null)]
-        [InlineData("")]
         [InlineData("abc:def")]
         [InlineData("abc:123:456")]
         [InlineData("[]")]
         [InlineData("a[]")]
         [InlineData("[]b")]
-        [InlineData("a[]b")]
+        [MemberData(nameof(InvalidHosts))]
         public void TestParse_InvalidValue(string value)
         {
             var expection = Record.Exception(() => MongoServerAddress.Parse(value));
