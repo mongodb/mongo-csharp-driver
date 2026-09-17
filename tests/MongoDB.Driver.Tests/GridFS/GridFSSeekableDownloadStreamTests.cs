@@ -21,6 +21,7 @@ using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Bindings;
+using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.Driver.GridFS;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -258,6 +259,16 @@ namespace MongoDB.Driver.Tests.GridFS
             action.ShouldThrow<IOException>();
         }
 
+        [Fact]
+        public void CreateGetChunkOperation_should_use_eq_for_files_id()
+        {
+            var subject = CreateSubject();
+
+            var filter = subject.CreateGetChunkOperation(2).Filter;
+
+            filter.Should().Be("{ files_id : { $eq : ObjectId('0102030405060708090a0b0c') }, n : NumberLong(2) }");
+        }
+
         // private methods
         private IGridFSBucket CreateBucket(int chunkSize)
         {
@@ -296,6 +307,12 @@ namespace MongoDB.Driver.Tests.GridFS
 
     internal static class GridFSSeekableDownloadStreamExtensions
     {
+        public static FindOperation<BsonDocument> CreateGetChunkOperation<ObjectId>(this GridFSSeekableDownloadStream<ObjectId> stream, long n)
+        {
+            var methodInfo = typeof(GridFSSeekableDownloadStream<ObjectId>).GetMethod("CreateGetChunkOperation", BindingFlags.NonPublic | BindingFlags.Instance);
+            return (FindOperation<BsonDocument>)methodInfo.Invoke(stream, new object[] { n });
+        }
+
         public static byte[] _chunk<ObjectId>(this GridFSSeekableDownloadStream<ObjectId> stream)
         {
             var fieldInfo = typeof(GridFSSeekableDownloadStream<ObjectId>).GetField("_chunk", BindingFlags.NonPublic | BindingFlags.Instance);
