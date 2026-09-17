@@ -142,6 +142,7 @@ namespace MongoDB.Driver.Tests
                 serverSelectionTimeout: TimeSpan.FromSeconds(11),
                 socketTimeout: TimeSpan.FromSeconds(12),
                 socks5ProxySettings: null,
+                srvAllowedHostsSuffix: ".mydomain.net",
                 srvMaxHosts: 0,
                 srvServiceName: "mongodb",
                 sslSettings: sslSettings,
@@ -170,6 +171,7 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);
                 cluster.Settings.ServerApi.Should().Be(clusterKey.ServerApi);
                 cluster.Settings.ServerSelectionTimeout.Should().Be(clusterKey.ServerSelectionTimeout);
+                cluster.Settings.SrvAllowedHostsSuffix.Should().Be(clusterKey.SrvAllowedHostsSuffix);
 
                 cluster.Description.Servers.Select(s => s.EndPoint).Should().BeEquivalentTo(expectedEndPoints);
 

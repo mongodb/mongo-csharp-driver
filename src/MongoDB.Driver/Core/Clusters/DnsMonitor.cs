@@ -28,15 +28,6 @@ namespace MongoDB.Driver.Core.Clusters
 {
     internal class DnsMonitor : IDnsMonitor
     {
-        #region static
-        private static string EnsureLookupDomainNameIsValid(string lookupDomainName)
-        {
-            Ensure.IsNotNull(lookupDomainName, nameof(lookupDomainName));
-            Ensure.That(lookupDomainName.Count(c => c == '.') >= 2, "LookupDomainName must have at least three components.", nameof(lookupDomainName));
-            return lookupDomainName;
-        }
-        #endregion
-
         // private fields
         private readonly CancellationToken _cancellationToken;
         private readonly IDnsMonitoringCluster _cluster;
@@ -44,6 +35,7 @@ namespace MongoDB.Driver.Core.Clusters
         private readonly string _lookupDomainName;
         private bool _processDnsResultHasEverBeenCalled;
         private readonly string _service;
+        private readonly string _srvParentDomain;
         private DnsMonitorState _state;
         private Exception _unhandledException;
 
@@ -54,15 +46,28 @@ namespace MongoDB.Driver.Core.Clusters
             IDnsResolver dnsResolver,
             string srvServiceName,
             string lookupDomainName,
+            string srvAllowedHostsSuffix,
             IEventSubscriber eventSubscriber,
             ILogger<LogCategories.SDAM> logger,
             CancellationToken cancellationToken)
         {
             _cluster = Ensure.IsNotNull(cluster, nameof(cluster));
             _dnsResolver = Ensure.IsNotNull(dnsResolver, nameof(dnsResolver));
-            _lookupDomainName = EnsureLookupDomainNameIsValid(lookupDomainName);
+            Ensure.IsNotNullOrEmpty(lookupDomainName, nameof(lookupDomainName));
+
+            // the domain that resolved hosts are validated against carries the same normalization
+            // the hosts themselves do. The query name is built from the normalized form as well,
+            // since DNS is case insensitive and expects A-labels on the wire.
+            if (!ConnectionString.TryNormalizeHostName(lookupDomainName, out _lookupDomainName))
+            {
+                throw new MongoConfigurationException($"Unable to parse {lookupDomainName} as a hostname.");
+            }
+
             _cancellationToken = cancellationToken;
             _service = $"_{srvServiceName}._tcp." + _lookupDomainName;
+            _srvParentDomain = srvAllowedHostsSuffix == null
+                ? null
+                : ConnectionString.NormalizeSrvAllowedHostsSuffix(srvAllowedHostsSuffix);
             _state = DnsMonitorState.Created;
 
             _eventLogger = logger.ToEventLogger(eventSubscriber);
@@ -133,14 +138,15 @@ namespace MongoDB.Driver.Core.Clusters
 
             foreach (var srvRecord in srvRecords)
             {
+                var endPoint = srvRecord.EndPoint;
                 // DNS names are case-insensitive, and SDAM requires host names to be normalized to lower-case
-                var host = srvRecord.EndPoint.Host.ToLowerInvariant();
-                if (host.EndsWith(".", StringComparison.Ordinal))
+                if (!ConnectionString.TryNormalizeHostName(endPoint.Host, out var host))
                 {
-                    host = host.Substring(0, host.Length - 1);
+                    _eventLogger.LogAndPublish(new SdamInformationEvent("Unable to parse host returned by DNS SRV lookup: {0}.", endPoint.Host));
+                    continue;
                 }
 
-                var endPoint = new DnsEndPoint(host, srvRecord.EndPoint.Port);
+                endPoint = new DnsEndPoint(host, endPoint.Port);
                 if (IsValidHost(endPoint))
                 {
                     validEndPoints.Add(endPoint);
@@ -156,7 +162,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         private bool IsValidHost(DnsEndPoint endPoint)
         {
-            return ConnectionString.HasValidParentDomain(_lookupDomainName, endPoint);
+            return ConnectionString.HasValidParentDomain(_lookupDomainName, endPoint, _srvParentDomain);
         }
 
         private void Monitor()

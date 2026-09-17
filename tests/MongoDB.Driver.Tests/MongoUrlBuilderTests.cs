@@ -1227,6 +1227,57 @@ namespace MongoDB.Driver.Tests
             });
         }
 
+        [Fact]
+        public void TestSrvAllowedHostsSuffix()
+        {
+            var srvAllowedHostsSuffix = ".mydomain.net";
+            var canonicalConnectionString = $"mongodb+srv://localhost/?srvAllowedHostsSuffix={srvAllowedHostsSuffix}";
+
+            var built = new MongoUrlBuilder { UseTls = true, Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+
+            built.SrvAllowedHostsSuffix = srvAllowedHostsSuffix;
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
+            {
+                Assert.Equal(srvAllowedHostsSuffix, builder.SrvAllowedHostsSuffix);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Fact]
+        public void TestSrvAllowedHostsSuffix_WithInternationalizedDomain()
+        {
+            var srvAllowedHostsSuffix = ".münchen.example.com";
+            var canonicalConnectionString = "mongodb+srv://localhost/?srvAllowedHostsSuffix=.m%C3%BCnchen.example.com";
+
+            var built = new MongoUrlBuilder { UseTls = true, Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+
+            built.SrvAllowedHostsSuffix = srvAllowedHostsSuffix;
+            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
+            {
+                Assert.Equal(srvAllowedHostsSuffix, builder.SrvAllowedHostsSuffix);
+                Assert.Equal(canonicalConnectionString, builder.ToString());
+            }
+        }
+
+        [Fact]
+        public void TestSrvAllowedHostsSuffix_WithSingleLabel()
+        {
+            var built = new MongoUrlBuilder { Scheme = ConnectionStringScheme.MongoDBPlusSrv };
+
+            var exception = Assert.Throws<ArgumentException>(() => built.SrvAllowedHostsSuffix = ".com");
+
+            exception.ParamName.Should().Be("SrvAllowedHostsSuffix");
+        }
+
+        [Fact]
+        public void TestSrvAllowedHostsSuffix_WithNonSRVScheme()
+        {
+            Assert.Throws<MongoConfigurationException>(() =>
+            {
+                _ = new MongoUrlBuilder("mongodb://localhost/?srvAllowedHostsSuffix=.mydomain.net");
+            });
+        }
+
         [Theory]
         [InlineData(null, "mongodb://localhost", new[] { "" })]
         [InlineData(false, "mongodb://localhost/?tls={0}", new[] { "false", "False" })]

@@ -75,6 +75,7 @@ namespace MongoDB.Driver
         private readonly ServerMonitoringMode? _serverMonitoringMode;
         private readonly TimeSpan _serverSelectionTimeout;
         private readonly TimeSpan _socketTimeout;
+        private readonly string _srvAllowedHostsSuffix;
         private readonly int? _srvMaxHosts;
         private readonly string _srvServiceName;
         private readonly TimeSpan? _timeout;
@@ -140,6 +141,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = builder.ServerMonitoringMode;
             _serverSelectionTimeout = builder.ServerSelectionTimeout;
             _socketTimeout = builder.SocketTimeout;
+            _srvAllowedHostsSuffix = builder.SrvAllowedHostsSuffix;
             _srvMaxHosts = builder.SrvMaxHosts;
             _srvServiceName = builder.SrvServiceName;
             _timeout = builder.Timeout;
@@ -491,6 +493,18 @@ namespace MongoDB.Driver
         {
             get { return _socketTimeout; }
         }
+
+        /// <summary>
+        /// Gets the hostname suffix that hosts returned by an SRV lookup are validated against.
+        /// When set, it replaces the domain name that would otherwise be inferred from the SRV
+        /// hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
+        /// </summary>
+        public string SrvAllowedHostsSuffix => _srvAllowedHostsSuffix;
 
         /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
