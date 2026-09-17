@@ -89,6 +89,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return snippetReference;
         }
 
+        protected override Expression VisitMemberInit(MemberInitExpression node)
+        {
+            // don't let Visit replace the NewExpression with a snippet reference, which would
+            // break VisitAndConvert<NewExpression> in the base visitor; visit only the arguments
+            var newExpression = node.NewExpression;
+            var arguments = Visit(newExpression.Arguments);
+            if (arguments != newExpression.Arguments)
+            {
+                newExpression = newExpression.Update(arguments);
+            }
+
+            var bindings = Visit(node.Bindings, VisitMemberBinding);
+            return node.Update(newExpression, bindings);
+        }
+
+        protected override Expression VisitListInit(ListInitExpression node)
+        {
+            // same rationale as VisitMemberInit
+            var newExpression = node.NewExpression;
+            var arguments = Visit(newExpression.Arguments);
+            if (arguments != newExpression.Arguments)
+            {
+                newExpression = newExpression.Update(arguments);
+            }
+
+            var initializers = Visit(node.Initializers, VisitElementInit);
+            return node.Update(newExpression, initializers);
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             // don't split OrderBy/ThenBy across the client/server boundary
