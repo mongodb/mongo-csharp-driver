@@ -67,18 +67,11 @@ namespace MongoDB.Driver.Core.Misc
                 if (!task.IsCompleted)
                 {
                     using (var timeoutCancellationTokenSource = cancellationToken.CanBeCanceled ?
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) :
-                        new CancellationTokenSource())
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) : null)
                     {
-                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
-                        try
-                        {
-                            await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            timeoutCancellationTokenSource.Cancel();
-                        }
+                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource?.Token ?? cancellationToken);
+                        await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                        timeoutCancellationTokenSource?.Cancel();
                     }
                 }
 
@@ -107,18 +100,11 @@ namespace MongoDB.Driver.Core.Misc
                 if (!task.IsCompleted)
                 {
                     using (var timeoutCancellationTokenSource = cancellationToken.CanBeCanceled ?
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) :
-                        new CancellationTokenSource())
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationToken) : null)
                     {
-                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource.Token);
-                        try
-                        {
-                            await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            timeoutCancellationTokenSource.Cancel();
-                        }
+                        var timeoutTask = Task.Delay(timeout, timeoutCancellationTokenSource?.Token ?? cancellationToken);
+                        await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+                        timeoutCancellationTokenSource?.Cancel();
                     }
                 }
 
