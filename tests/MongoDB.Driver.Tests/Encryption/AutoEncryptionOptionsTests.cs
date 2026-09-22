@@ -354,7 +354,34 @@ namespace MongoDB.Driver.Tests.Encryption
                 encryptedFieldsMap: encryptedFieldsMap);
 
             var result = subject.ToString();
-            result.Should().Be("{ BypassAutoEncryption : True, BypassQueryAnalysis : False, KmsProviders : { \"provider1\" : { \"string\" : \"test\" }, \"provider2\" : { \"binary\" : { \"_t\" : \"System.Byte[]\", \"_v\" : { \"$binary\" : { \"base64\" : \"ABEiM0RVZneImaq7zN3u/w==\", \"subType\" : \"00\" } } } } }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : { \"$binary\" : { \"base64\" : \"ABEiM0RVZneImaq7zN3u/w==\", \"subType\" : \"04\" } } } }, TlsOptions : [{ \"local\" : \"<hidden>\" }], EncryptedFieldsMap : { \"db.test\" : { \"dummy\" : \"doc\" } } }");
+            result.Should().Be("{ BypassAutoEncryption : True, BypassQueryAnalysis : False, KmsProviders : { \"provider1\" : \"<hidden>\", \"provider2\" : \"<hidden>\" }, KeyVaultNamespace : \"db.coll\", ExtraOptions : { \"mongocryptdURI\" : \"testURI\" }, SchemaMap : { \"coll1\" : { \"string\" : \"test\" }, \"coll2\" : { \"binary\" : { \"$binary\" : { \"base64\" : \"ABEiM0RVZneImaq7zN3u/w==\", \"subType\" : \"04\" } } } }, TlsOptions : [{ \"local\" : \"<hidden>\" }], EncryptedFieldsMap : { \"db.test\" : { \"dummy\" : \"doc\" } } }");
+        }
+
+        [Fact]
+        public void ToString_should_not_expose_kms_provider_credentials()
+        {
+            var kmsProviders = new Dictionary<string, IReadOnlyDictionary<string, object>>
+            {
+                { "local", new Dictionary<string, object> { { "key", new byte[96] } } },
+                { "aws", new Dictionary<string, object> { { "accessKeyId", "id" }, { "secretAccessKey", "secret" } } },
+                { "aws:named", new Dictionary<string, object> { { "accessKeyId", "id" }, { "secretAccessKey", "secret" } } }
+            };
+
+            var subject = new AutoEncryptionOptions(__keyVaultNamespace, kmsProviders);
+
+            var result = subject.ToString();
+
+            result.Should().Be("{ BypassAutoEncryption : False, KmsProviders : { \"local\" : \"<hidden>\", \"aws\" : \"<hidden>\", \"aws:named\" : \"<hidden>\" }, KeyVaultNamespace : \"db.coll\", TlsOptions : [] }");
+        }
+
+        [Fact]
+        public void ToString_should_return_expected_result_when_kmsProviders_is_empty()
+        {
+            var subject = new AutoEncryptionOptions(__keyVaultNamespace, new Dictionary<string, IReadOnlyDictionary<string, object>>());
+
+            var result = subject.ToString();
+
+            result.Should().Be("{ BypassAutoEncryption : False, KmsProviders : { }, KeyVaultNamespace : \"db.coll\", TlsOptions : [] }");
         }
 
         // private methods

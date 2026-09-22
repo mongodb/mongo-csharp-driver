@@ -70,6 +70,7 @@ namespace MongoDB.Driver
         private ServerMonitoringMode? _serverMonitoringMode;
         private TimeSpan _serverSelectionTimeout;
         private TimeSpan _socketTimeout;
+        private string _srvAllowedHostsSuffix;
         private int? _srvMaxHosts;
         private string _srvServiceName;
         private TimeSpan? _timeout;
@@ -126,6 +127,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = null;
             _serverSelectionTimeout = MongoDefaults.ServerSelectionTimeout;
             _socketTimeout = MongoDefaults.SocketTimeout;
+            _srvAllowedHostsSuffix = null;
             _srvMaxHosts = null;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _timeout = null;
@@ -644,6 +646,29 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
+        /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated
+        /// against. When set, it replaces the domain name that would otherwise be inferred from
+        /// the SRV hostname.
+        /// <para>
+        /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+        /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+        /// hosts a forged SRV response could direct the driver to.
+        /// </para>
+        /// </summary>
+        public string SrvAllowedHostsSuffix
+        {
+            get { return _srvAllowedHostsSuffix; }
+            set
+            {
+                if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
+                {
+                    throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
+                }
+                _srvAllowedHostsSuffix = value;
+            }
+        }
+
+        /// <summary>
         /// Limits the number of SRV records used to populate the seedlist
         /// during initial discovery, as well as the number of additional hosts
         /// that may be added during SRV polling.
@@ -856,7 +881,7 @@ namespace MongoDB.Driver
             else if (_password != null)
             {
                 // this would be weird and we really shouldn't be here...
-                url.AppendFormat(":{0}@", _password);
+                url.AppendFormat(":{0}@", Uri.EscapeDataString(_password));
             }
             if (_servers != null)
             {
@@ -878,27 +903,27 @@ namespace MongoDB.Driver
             if (_databaseName != null)
             {
                 url.Append("/");
-                url.Append(_databaseName);
+                url.Append(Uri.EscapeDataString(_databaseName));
             }
             var query = new StringBuilder();
             if (_authenticationMechanism != null)
             {
-                query.AppendFormat("authMechanism={0}&", _authenticationMechanism);
+                query.AppendFormat("authMechanism={0}&", Uri.EscapeDataString(_authenticationMechanism));
             }
             if (_authenticationMechanismProperties.Any())
             {
                 query.AppendFormat(
                     "authMechanismProperties={0}&",
                     string.Join(",", _authenticationMechanismProperties
-                        .Select(x => string.Format("{0}:{1}", x.Key, x.Value)).ToArray()));
+                        .Select(x => string.Format("{0}:{1}", Uri.EscapeDataString(x.Key), Uri.EscapeDataString(x.Value ?? ""))).ToArray()));
             }
             if (_authenticationSource != null)
             {
-                query.AppendFormat("authSource={0}&", _authenticationSource);
+                query.AppendFormat("authSource={0}&", Uri.EscapeDataString(_authenticationSource));
             }
             if (_applicationName != null)
             {
-                query.AppendFormat("appname={0}&", _applicationName);
+                query.AppendFormat("appname={0}&", Uri.EscapeDataString(_applicationName));
             }
             if (_ipv6)
             {
@@ -946,7 +971,7 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_replicaSetName))
             {
-                query.AppendFormat("replicaSet={0}&", _replicaSetName);
+                query.AppendFormat("replicaSet={0}&", Uri.EscapeDataString(_replicaSetName));
             }
             if (_readConcernLevel != null)
             {
@@ -959,7 +984,7 @@ namespace MongoDB.Driver
                 {
                     foreach (var tagSet in _readPreference.TagSets)
                     {
-                        query.AppendFormat("readPreferenceTags={0}&", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", t.Name, t.Value)).ToArray()));
+                        query.AppendFormat("readPreferenceTags={0}&", string.Join(",", tagSet.Tags.Select(t => string.Format("{0}:{1}", Uri.EscapeDataString(t.Name), Uri.EscapeDataString(t.Value))).ToArray()));
                     }
                 }
                 if (_readPreference.MaxStaleness.HasValue)
@@ -977,7 +1002,7 @@ namespace MongoDB.Driver
             }
             if (_w != null)
             {
-                query.AppendFormat("w={0}&", _w);
+                query.AppendFormat("w={0}&", Uri.EscapeDataString(_w.ToString()));
             }
             if (_wTimeout != null)
             {
@@ -1069,7 +1094,7 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_proxyHost))
             {
-                query.AppendFormat("proxyHost={0}&", _proxyHost);
+                query.AppendFormat("proxyHost={0}&", Uri.EscapeDataString(_proxyHost));
             }
             if (_proxyPort.HasValue)
             {
@@ -1077,11 +1102,11 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_proxyUsername))
             {
-                query.AppendFormat("proxyUsername={0}&", _proxyUsername);
+                query.AppendFormat("proxyUsername={0}&", Uri.EscapeDataString(_proxyUsername));
             }
             if (!string.IsNullOrEmpty(_proxyPassword))
             {
-                query.AppendFormat("proxyPassword={0}&", _proxyPassword);
+                query.AppendFormat("proxyPassword={0}&", Uri.EscapeDataString(_proxyPassword));
             }
             if (_srvMaxHosts.HasValue)
             {
@@ -1089,7 +1114,11 @@ namespace MongoDB.Driver
             }
             if (_srvServiceName != MongoInternalDefaults.MongoClientSettings.SrvServiceName)
             {
-                query.AppendFormat("srvServiceName={0}&", _srvServiceName);
+                query.AppendFormat("srvServiceName={0}&", Uri.EscapeDataString(_srvServiceName));
+            }
+            if (_srvAllowedHostsSuffix != null)
+            {
+                query.AppendFormat("srvAllowedHostsSuffix={0}&", Uri.EscapeDataString(_srvAllowedHostsSuffix));
             }
             if (query.Length != 0)
             {
@@ -1152,6 +1181,7 @@ namespace MongoDB.Driver
             _serverMonitoringMode = connectionString.ServerMonitoringMode;
             _serverSelectionTimeout = connectionString.ServerSelectionTimeout.GetValueOrDefault(MongoDefaults.ServerSelectionTimeout);
             _socketTimeout = connectionString.SocketTimeout.GetValueOrDefault(MongoDefaults.SocketTimeout);
+            _srvAllowedHostsSuffix = connectionString.SrvAllowedHostsSuffix;
             _srvMaxHosts = connectionString.SrvMaxHosts;
             _srvServiceName = connectionString.SrvServiceName ?? MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _timeout = connectionString.Timeout;
@@ -1212,7 +1242,7 @@ namespace MongoDB.Driver
                     {
                         if (compressorConfiguration.Properties.TryGetValue("Level", out var zlibCompressionLevel))
                         {
-                            builder.AppendFormat("zlibCompressionLevel={0}&", zlibCompressionLevel);
+                            builder.AppendFormat("zlibCompressionLevel={0}&", Uri.EscapeDataString(zlibCompressionLevel?.ToString() ?? ""));
                         }
                     }
                     break;

@@ -30,37 +30,6 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public class DnsMonitorTests
     {
-        [Theory]
-        [InlineData("a.b.com")]
-        [InlineData("a.b.c.com")]
-        public void EnsureLookupDomainNameIsValid_should_return_expected_result(string lookupDomainName)
-        {
-            var result = DnsMonitorReflector.EnsureLookupDomainNameIsValid(lookupDomainName);
-
-            result.Should().Be(lookupDomainName);
-        }
-
-        [Fact]
-        public void EnsureLookupDomainNameIsValid_should_throw_when_lookupDomainName_is_null()
-        {
-            var exception = Record.Exception(() => DnsMonitorReflector.EnsureLookupDomainNameIsValid(null));
-
-            var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
-            e.ParamName.Should().Be("lookupDomainName");
-        }
-
-        [Theory]
-        [InlineData("")]
-        [InlineData("com")]
-        [InlineData("a.com")]
-        public void EnsureLookupDomainNameIsValid_should_throw_when_lookupDomainName_is_invalid(string lookupDomainName)
-        {
-            var exception = Record.Exception(() => DnsMonitorReflector.EnsureLookupDomainNameIsValid(lookupDomainName));
-
-            var e = exception.Should().BeOfType<ArgumentException>().Subject;
-            e.ParamName.Should().Be("lookupDomainName");
-        }
-
         [Fact]
         public void constructor_should_initialize_instance()
         {
@@ -75,7 +44,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, mockEventSubscriber.Object, null, cancellationToken);
+            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, mockEventSubscriber.Object, null, cancellationToken);
 
             subject.State.Should().Be(DnsMonitorState.Created);
             subject._cancellationToken().Should().Be(cancellationToken);
@@ -95,7 +64,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(null, dnsResolver, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(null, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("cluster");
@@ -109,7 +78,7 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, null, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, null, "mongodb", lookupDomainName, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("dnsResolver");
@@ -123,27 +92,40 @@ namespace MongoDB.Driver.Core.Clusters
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", null, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", null, null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentNullException>().Subject;
             e.ParamName.Should().Be("lookupDomainName");
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData("com")]
-        [InlineData("a.com")]
-        public void constructor_should_throw_when_lookupDomainName_is_invalid(string lookupDomainName)
+        [Fact]
+        public void constructor_should_throw_when_lookupDomainName_is_empty()
         {
             var cluster = Mock.Of<IDnsMonitoringCluster>();
             var dnsResolver = Mock.Of<IDnsResolver>();
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
 
-            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, cancellationToken));
+            var exception = Record.Exception(() => new DnsMonitor(cluster, dnsResolver, "mongodb", "", null, null, null, cancellationToken));
 
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.ParamName.Should().Be("lookupDomainName");
+        }
+
+        [Theory]
+        [InlineData("localhost", "_mongodb._tcp.localhost")]
+        [InlineData("mongo.local", "_mongodb._tcp.mongo.local")]
+        public void constructor_should_accept_a_lookupDomainName_with_fewer_than_three_components(string lookupDomainName, string expectedService)
+        {
+            var cluster = Mock.Of<IDnsMonitoringCluster>();
+            var dnsResolver = Mock.Of<IDnsResolver>();
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+
+            var subject = new DnsMonitor(cluster, dnsResolver, "mongodb", lookupDomainName, null, null, null, cancellationToken);
+
+            subject._lookupDomainName().Should().Be(lookupDomainName);
+            subject._service().Should().Be(expectedService);
         }
 
         [Fact]
@@ -281,6 +263,57 @@ namespace MongoDB.Driver.Core.Clusters
 
             var expectedResult = validEndPoints.Select(x => (DnsEndPoint)EndPointHelper.Parse(x)).ToList();
             result.Should().Equal(expectedResult);
+        }
+
+        [Theory]
+        [InlineData("x.b.com", "x.b.com")]
+        [InlineData("X.B.COM", "x.b.com")]
+        [InlineData("x.b.com.", "x.b.com")]
+        [InlineData("X.B.COM.", "x.b.com")]
+        public void GetValidEndPoints_should_normalize_returned_hosts(string srvEndPoint, string expectedHost)
+        {
+            var subject = CreateSubject(lookupDomainName: "a.b.com");
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Select(x => x.Host).Should().Equal(expectedHost);
+        }
+
+        [Theory]
+        [InlineData(".b.com", "X.B.COM", "x.b.com")]
+        [InlineData(".B.COM", "x.b.com", "x.b.com")]
+        [InlineData("bücher.com", "X.BÜCHER.COM", "x.xn--bcher-kva.com")]
+        public void GetValidEndPoints_should_normalize_before_matching_srvAllowedHostsSuffix(
+            string srvAllowedHostsSuffix,
+            string srvEndPoint,
+            string expectedHost)
+        {
+            var subject = CreateSubject(lookupDomainName: "a.b.com", srvAllowedHostsSuffix: srvAllowedHostsSuffix);
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Select(x => x.Host).Should().Equal(expectedHost);
+        }
+
+        [Theory]
+        [InlineData("x..b.com")]
+        [InlineData("xn--host.b.com")]
+        public void GetValidEndPoints_should_skip_and_log_a_host_that_cannot_be_normalized(string srvEndPoint)
+        {
+            var actualEvents = new List<SdamInformationEvent>();
+            var sdamInformationEventHandler = (Action<SdamInformationEvent>)(raisedEvent => actualEvents.Add(raisedEvent));
+            var mockEventSubscriber = new Mock<IEventSubscriber>();
+            mockEventSubscriber
+                .Setup(m => m.TryGetEventHandler<SdamInformationEvent>(out sdamInformationEventHandler));
+            var subject = CreateSubject(lookupDomainName: "a.b.com", eventSubscriber: mockEventSubscriber.Object);
+            var srvRecords = CreateSrvRecords(new[] { srvEndPoint });
+
+            var result = subject.GetValidEndPoints(srvRecords);
+
+            result.Should().BeEmpty();
+            actualEvents.Should().ContainSingle().Which.Message.Should().Contain(srvEndPoint);
         }
 
         [Theory]
@@ -499,20 +532,19 @@ namespace MongoDB.Driver.Core.Clusters
             IDnsResolver dnsResolver = null,
             string srvServiceName = "mongodb",
             string lookupDomainName = null,
+            string srvAllowedHostsSuffix = null,
             IEventSubscriber eventSubscriber = null,
             CancellationToken cancellationToken = default)
         {
             cluster = cluster ?? Mock.Of<IDnsMonitoringCluster>();
             dnsResolver = dnsResolver ?? Mock.Of<IDnsResolver>();
             lookupDomainName = lookupDomainName ?? "a.b.c.com";
-            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, eventSubscriber, null, cancellationToken);
+            return new DnsMonitor(cluster, dnsResolver, srvServiceName, lookupDomainName, srvAllowedHostsSuffix, eventSubscriber, null, cancellationToken);
         }
     }
 
     internal static class DnsMonitorReflector
     {
-        public static string EnsureLookupDomainNameIsValid(string lookupDomainName) => (string)Reflector.InvokeStatic(typeof(DnsMonitor), nameof(EnsureLookupDomainNameIsValid), lookupDomainName);
-
         public static CancellationToken _cancellationToken(this DnsMonitor obj) => (CancellationToken)Reflector.GetFieldValue(obj, nameof(_cancellationToken));
         public static IDnsMonitoringCluster _cluster(this DnsMonitor obj) => (IDnsMonitoringCluster)Reflector.GetFieldValue(obj, nameof(_cluster));
         public static IDnsResolver _dnsResolver(this DnsMonitor obj) => (IDnsResolver)Reflector.GetFieldValue(obj, nameof(_dnsResolver));

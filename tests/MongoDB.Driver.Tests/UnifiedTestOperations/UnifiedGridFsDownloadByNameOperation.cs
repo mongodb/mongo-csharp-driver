@@ -23,12 +23,12 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedGridFsDownloadByNameOperation : IUnifiedEntityTestOperation
     {
-        private readonly IGridFSBucket _bucket;
+        private readonly GridFSBucket _bucket;
         private readonly string _fileName;
         private readonly GridFSDownloadByNameOptions _options;
 
         public UnifiedGridFsDownloadByNameOperation(
-            IGridFSBucket bucket,
+            GridFSBucket bucket,
             string fileName,
             GridFSDownloadByNameOptions options)
         {

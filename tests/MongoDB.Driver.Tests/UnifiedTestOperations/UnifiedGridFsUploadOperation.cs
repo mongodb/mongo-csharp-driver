@@ -24,13 +24,13 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 {
     public class UnifiedGridFsUploadOperation : IUnifiedEntityTestOperation
     {
-        private readonly IGridFSBucket _bucket;
+        private readonly GridFSBucket _bucket;
         private readonly string _filename;
         private readonly GridFSUploadOptions _options;
         private readonly byte[] _source;
 
         public UnifiedGridFsUploadOperation(
-            IGridFSBucket bucket,
+            GridFSBucket bucket,
             string filename,
             byte[] source,
             GridFSUploadOptions options)
