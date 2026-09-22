@@ -180,6 +180,37 @@ namespace MongoDB.Driver.Core.Connections
             keepAlive.Should().NotBe(0); // .NET returns 1 but Mono returns 8
         }
 
+        [Fact]
+        public void ConfigureConnectedSocket_should_set_the_buffer_sizes_when_specified()
+        {
+            var settings = new TcpStreamSettings(receiveBufferSize: 131072, sendBufferSize: 262144);
+            var subject = new TcpStreamFactory(settings);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            subject.ConfigureConnectedSocket(socket);
+
+            socket.ReceiveBufferSize.Should().Be(131072);
+            socket.SendBufferSize.Should().Be(262144);
+        }
+
+        [Fact]
+        public void ConfigureConnectedSocket_should_leave_the_operating_system_default_when_OperatingSystemDefaultBufferSize_is_specified()
+        {
+            using var referenceSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var osDefaultReceiveBufferSize = referenceSocket.ReceiveBufferSize;
+            var osDefaultSendBufferSize = referenceSocket.SendBufferSize;
+            var settings = new TcpStreamSettings(
+                receiveBufferSize: TcpStreamSettings.OperatingSystemDefaultBufferSize,
+                sendBufferSize: TcpStreamSettings.OperatingSystemDefaultBufferSize);
+            var subject = new TcpStreamFactory(settings);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            subject.ConfigureConnectedSocket(socket);
+
+            socket.ReceiveBufferSize.Should().Be(osDefaultReceiveBufferSize);
+            socket.SendBufferSize.Should().Be(osDefaultSendBufferSize);
+        }
+
         // nested types
         private class TestSocket : Socket
         {
@@ -200,6 +231,11 @@ namespace MongoDB.Driver.Core.Connections
     internal static class TcpStreamFactoryReflector
     {
         internal static TcpStreamSettings _settings(this TcpStreamFactory obj) => (TcpStreamSettings)Reflector.GetFieldValue(obj, nameof(_settings));
+
+        internal static void ConfigureConnectedSocket(this TcpStreamFactory obj, Socket socket)
+        {
+            Reflector.Invoke(obj, nameof(ConfigureConnectedSocket), socket);
+        }
 
         internal static void Connect(this TcpStreamFactory obj, Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {

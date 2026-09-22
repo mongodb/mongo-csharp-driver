@@ -25,6 +25,15 @@ namespace MongoDB.Driver.Core.Configuration
     /// </summary>
     public class TcpStreamSettings
     {
+        // constants
+        /// <summary>
+        /// Specifies that the socket's send or receive buffer size should not be set explicitly,
+        /// leaving the operating system's default in effect (including its receive-window
+        /// autotuning, where supported). Pass this value for <c>receiveBufferSize</c> or
+        /// <c>sendBufferSize</c>.
+        /// </summary>
+        public const int OperatingSystemDefaultBufferSize = -1;
+
         // fields
         private readonly AddressFamily _addressFamily;
         private readonly TimeSpan _connectTimeout;
@@ -41,8 +50,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="addressFamily">The address family.</param>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readTimeout">The read timeout.</param>
-        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
-        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer, or <see cref="OperatingSystemDefaultBufferSize"/>.</param>
+        /// <param name="sendBufferSize">Size of the send buffer, or <see cref="OperatingSystemDefaultBufferSize"/>.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
         /// <param name="writeTimeout">The write timeout.</param>
         public TcpStreamSettings(
@@ -57,11 +66,14 @@ namespace MongoDB.Driver.Core.Configuration
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
             _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
             _readTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(readTimeout.WithDefault(null), "readTimeout");
-            _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
-            _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
+            _receiveBufferSize = EnsureValidBufferSize(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
+            _sendBufferSize = EnsureValidBufferSize(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
             _socketConfigurator = socketConfigurator.WithDefault(null);
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
+
+        private static int EnsureValidBufferSize(int value, string paramName) =>
+            value == OperatingSystemDefaultBufferSize ? value : Ensure.IsGreaterThanZero(value, paramName);
 
         internal TcpStreamSettings(TcpStreamSettings other)
         {
@@ -112,7 +124,9 @@ namespace MongoDB.Driver.Core.Configuration
         /// Gets the size of the receive buffer.
         /// </summary>
         /// <value>
-        /// The size of the receive buffer.
+        /// The size of the receive buffer, or <see cref="OperatingSystemDefaultBufferSize"/> if
+        /// the operating system's default (including receive-window autotuning, where supported)
+        /// is left in effect.
         /// </value>
         public int ReceiveBufferSize
         {
@@ -123,7 +137,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// Gets the size of the send buffer.
         /// </summary>
         /// <value>
-        /// The size of the send buffer.
+        /// The size of the send buffer, or <see cref="OperatingSystemDefaultBufferSize"/> if the
+        /// operating system's default is left in effect.
         /// </value>
         public int SendBufferSize
         {
@@ -159,8 +174,8 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="addressFamily">The address family.</param>
         /// <param name="connectTimeout">The connect timeout.</param>
         /// <param name="readTimeout">The read timeout.</param>
-        /// <param name="receiveBufferSize">Size of the receive buffer.</param>
-        /// <param name="sendBufferSize">Size of the send buffer.</param>
+        /// <param name="receiveBufferSize">Size of the receive buffer, or <see cref="OperatingSystemDefaultBufferSize"/>.</param>
+        /// <param name="sendBufferSize">Size of the send buffer, or <see cref="OperatingSystemDefaultBufferSize"/>.</param>
         /// <param name="socketConfigurator">The socket configurator.</param>
         /// <param name="writeTimeout">The write timeout.</param>
         /// <returns>A new TcpStreamSettings instance.</returns>

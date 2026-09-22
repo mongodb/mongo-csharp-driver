@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Configuration
         [Theory]
         [ParameterAttributeData]
         public void constructor_should_throw_when_receiveBufferSize_is_negative_or_zero(
-            [Values(-1, 0)]
+            [Values(-2, 0)]
             int receiveBufferSize)
         {
             Action action = () => new TcpStreamSettings(receiveBufferSize: receiveBufferSize);
@@ -94,12 +94,28 @@ namespace MongoDB.Driver.Core.Configuration
         [Theory]
         [ParameterAttributeData]
         public void constructor_should_throw_when_sendBufferSize_is_negative_or_zero(
-            [Values(-1, 0)]
+            [Values(-2, 0)]
             int sendBufferSize)
         {
             Action action = () => new TcpStreamSettings(sendBufferSize: sendBufferSize);
 
             action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("sendBufferSize");
+        }
+
+        [Fact]
+        public void constructor_should_not_throw_when_receiveBufferSize_is_OperatingSystemDefaultBufferSize()
+        {
+            var subject = new TcpStreamSettings(receiveBufferSize: TcpStreamSettings.OperatingSystemDefaultBufferSize);
+
+            subject.ReceiveBufferSize.Should().Be(TcpStreamSettings.OperatingSystemDefaultBufferSize);
+        }
+
+        [Fact]
+        public void constructor_should_not_throw_when_sendBufferSize_is_OperatingSystemDefaultBufferSize()
+        {
+            var subject = new TcpStreamSettings(sendBufferSize: TcpStreamSettings.OperatingSystemDefaultBufferSize);
+
+            subject.SendBufferSize.Should().Be(TcpStreamSettings.OperatingSystemDefaultBufferSize);
         }
 
         [Fact]
