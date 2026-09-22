@@ -136,8 +136,8 @@ echo "Updating sbom.json with version tracking"
 echo "================================="
 
 CURRENT_VERSION=$(jq -r '.version // 0' sbom.json 2>/dev/null || echo 0)
-NEW_CONTENT=$(jq -S 'del(.version, .metadata.timestamp)' sbom.cdx.json)
-OLD_CONTENT=$(jq -S 'del(.version, .metadata.timestamp)' sbom.json 2>/dev/null || echo '{}')
+NEW_CONTENT=$(jq -S 'del(.version, .serialNumber, .metadata.timestamp)' sbom.cdx.json)
+OLD_CONTENT=$(jq -S 'del(.version, .serialNumber, .metadata.timestamp)' sbom.json 2>/dev/null || echo '{}')
 
 if [ "$NEW_CONTENT" = "$OLD_CONTENT" ]; then
   NEW_VERSION=$CURRENT_VERSION

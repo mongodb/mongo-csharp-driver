@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
   "serialNumber": "urn:uuid:a24dfa6a-26a8-44d8-94bd-a2488e01185b",
-  "version": 5,
+  "version": 6,
   "metadata": {
-    "timestamp": "2026-08-28T22:14:58Z",
+    "timestamp": "2026-09-22T15:59:36Z",
     "tools": {
       "components": [
         {
@@ -22,10 +22,10 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-105-g97e68b669f",
       "name": "mongo-csharp-driver",
-      "version": "3.9.0-102-g1c20eef9a0",
-      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0"
+      "version": "3.9.0-105-g97e68b669f",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-105-g97e68b669f"
     }
   },
   "components": [
@@ -1117,7 +1117,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-102-g1c20eef9a0",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-105-g97e68b669f",
       "dependsOn": [
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
@@ -1276,7 +1276,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-102-g1c20eef9a0",
+      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-105-g97e68b669f",
       "dependsOn": [
         "pkg:github/mongodb/libmongocrypt@1.20.0"
       ]
