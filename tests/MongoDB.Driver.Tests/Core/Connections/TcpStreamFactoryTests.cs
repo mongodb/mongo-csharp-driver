@@ -183,14 +183,19 @@ namespace MongoDB.Driver.Core.Connections
         [Fact]
         public void ConfigureConnectedSocket_should_set_the_buffer_sizes_when_specified()
         {
+            // the OS may not report back the exact value that was set (e.g. Linux doubles it), so compare
+            // against a reference socket that had the same value assigned directly instead of a literal
+            using var referenceSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            referenceSocket.ReceiveBufferSize = 131072;
+            referenceSocket.SendBufferSize = 262144;
             var settings = new TcpStreamSettings(receiveBufferSize: 131072, sendBufferSize: 262144);
             var subject = new TcpStreamFactory(settings);
             using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             subject.ConfigureConnectedSocket(socket);
 
-            socket.ReceiveBufferSize.Should().Be(131072);
-            socket.SendBufferSize.Should().Be(262144);
+            socket.ReceiveBufferSize.Should().Be(referenceSocket.ReceiveBufferSize);
+            socket.SendBufferSize.Should().Be(referenceSocket.SendBufferSize);
         }
 
         [Fact]
