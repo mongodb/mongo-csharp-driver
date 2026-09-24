@@ -47,8 +47,8 @@ public sealed class MongoClientBuilder
     // MongoClient disposability work. It is internal on MongoClientSettings, so it is not part of the public
     // surface this builder has to replace and does not block shipping.
 
+    private readonly AuthenticationBuilder _authenticationBuilder = new();
     private readonly ConnectionPoolBuilder _connectionPoolBuilder = new();
-    private MongoCredential _credential;
     private readonly AutoEncryptionBuilder _autoEncryptionBuilder = new();
     private readonly ClientMetadataBuilder _clientMetadataBuilder = new();
     private readonly ConnectivityBuilder _connectivityBuilder = new();
@@ -85,17 +85,42 @@ public sealed class MongoClientBuilder
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
     // TODO: should have SerializationBuilder parameter
     // TODO: WriteEncoding and ReadEncoding: should we either dropped them or moved under the serialization builder
-    public MongoClientBuilder ConfigureSerialization()
+    public MongoClientBuilder Serialization()
     {
+        return this;
+    }
+
+    /// <summary>
+    /// Configures authentication: the credential the client uses to authenticate with the server.
+    /// </summary>
+    /// <returns>The <see cref="AuthenticationBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public AuthenticationBuilder Authentication()
+        => _authenticationBuilder;
+
+    /// <summary>
+    /// Configures authentication: the credential the client uses to authenticate with the server.
+    /// </summary>
+    /// <param name="configure">A delegate that configures authentication.</param>
+    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
+    public MongoClientBuilder Authentication(Action<AuthenticationBuilder> configure)
+    {
+        configure?.Invoke(_authenticationBuilder);
         return this;
     }
 
     /// <summary>
     /// Configures the connection pool.
     /// </summary>
+    /// <returns>The <see cref="ConnectionPoolBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ConnectionPoolBuilder ConnectionPool()
+        => _connectionPoolBuilder;
+
+    /// <summary>
+    /// Configures the connection pool.
+    /// </summary>
     /// <param name="configure">A delegate that configures the connection pool.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureConnectionPool(Action<ConnectionPoolBuilder> configure)
+    public MongoClientBuilder ConnectionPool(Action<ConnectionPoolBuilder> configure)
     {
         configure?.Invoke(_connectionPoolBuilder);
         return this;
@@ -104,9 +129,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures connectivity: the endpoints the client connects to and the topology it expects.
     /// </summary>
+    /// <returns>The <see cref="ConnectivityBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ConnectivityBuilder Connectivity()
+        => _connectivityBuilder;
+
+    /// <summary>
+    /// Configures connectivity: the endpoints the client connects to and the topology it expects.
+    /// </summary>
     /// <param name="configure">A delegate that configures connectivity.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureConnectivity(Action<ConnectivityBuilder> configure)
+    public MongoClientBuilder Connectivity(Action<ConnectivityBuilder> configure)
     {
         configure?.Invoke(_connectivityBuilder);
         return this;
@@ -115,9 +147,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures automatic client-side field level encryption.
     /// </summary>
+    /// <returns>The <see cref="AutoEncryptionBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public AutoEncryptionBuilder AutoEncryption()
+        => _autoEncryptionBuilder;
+
+    /// <summary>
+    /// Configures automatic client-side field level encryption.
+    /// </summary>
     /// <param name="configure">A delegate that configures automatic encryption.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureAutoEncryption(Action<AutoEncryptionBuilder> configure)
+    public MongoClientBuilder AutoEncryption(Action<AutoEncryptionBuilder> configure)
     {
         configure?.Invoke(_autoEncryptionBuilder);
         return this;
@@ -127,9 +166,17 @@ public sealed class MongoClientBuilder
     /// Configures the client metadata: the application name and library information the client reports
     /// about itself to the server during the handshake.
     /// </summary>
+    /// <returns>The <see cref="ClientMetadataBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ClientMetadataBuilder ClientMetadata()
+        => _clientMetadataBuilder;
+
+    /// <summary>
+    /// Configures the client metadata: the application name and library information the client reports
+    /// about itself to the server during the handshake.
+    /// </summary>
     /// <param name="configure">A delegate that configures the client metadata.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureClientMetadata(Action<ClientMetadataBuilder> configure)
+    public MongoClientBuilder ClientMetadata(Action<ClientMetadataBuilder> configure)
     {
         configure?.Invoke(_clientMetadataBuilder);
         return this;
@@ -138,9 +185,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures diagnostics: what the client logs and traces.
     /// </summary>
+    /// <returns>The <see cref="DiagnosticsBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public DiagnosticsBuilder Diagnostics()
+        => _diagnosticsBuilder;
+
+    /// <summary>
+    /// Configures diagnostics: what the client logs and traces.
+    /// </summary>
     /// <param name="configure">A delegate that configures diagnostics.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureDiagnostics(Action<DiagnosticsBuilder> configure)
+    public MongoClientBuilder Diagnostics(Action<DiagnosticsBuilder> configure)
     {
         configure?.Invoke(_diagnosticsBuilder);
         return this;
@@ -149,9 +203,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures server monitoring: how the client discovers and tracks the state of each server.
     /// </summary>
+    /// <returns>The <see cref="ServerMonitoringBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ServerMonitoringBuilder ServerMonitoring()
+        => _serverMonitoringBuilder;
+
+    /// <summary>
+    /// Configures server monitoring: how the client discovers and tracks the state of each server.
+    /// </summary>
     /// <param name="configure">A delegate that configures server monitoring.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureServerMonitoring(Action<ServerMonitoringBuilder> configure)
+    public MongoClientBuilder ServerMonitoring(Action<ServerMonitoringBuilder> configure)
     {
         configure?.Invoke(_serverMonitoringBuilder);
         return this;
@@ -160,9 +221,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures server selection: which server in the topology each operation is routed to.
     /// </summary>
+    /// <returns>The <see cref="ServerSelectionBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ServerSelectionBuilder ServerSelection()
+        => _serverSelectionBuilder;
+
+    /// <summary>
+    /// Configures server selection: which server in the topology each operation is routed to.
+    /// </summary>
     /// <param name="configure">A delegate that configures server selection.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureServerSelection(Action<ServerSelectionBuilder> configure)
+    public MongoClientBuilder ServerSelection(Action<ServerSelectionBuilder> configure)
     {
         configure?.Invoke(_serverSelectionBuilder);
         return this;
@@ -171,9 +239,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures the network: the socket level settings and wire compression used to reach the servers.
     /// </summary>
+    /// <returns>The <see cref="NetworkBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public NetworkBuilder Network()
+        => _networkBuilder;
+
+    /// <summary>
+    /// Configures the network: the socket level settings and wire compression used to reach the servers.
+    /// </summary>
     /// <param name="configure">A delegate that configures the network.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureNetwork(Action<NetworkBuilder> configure)
+    public MongoClientBuilder Network(Action<NetworkBuilder> configure)
     {
         configure?.Invoke(_networkBuilder);
         return this;
@@ -183,9 +258,17 @@ public sealed class MongoClientBuilder
     /// Configures operation execution: the concerns, retry behavior and API version applied to operations
     /// that do not specify their own.
     /// </summary>
+    /// <returns>The <see cref="OperationExecutionBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public OperationExecutionBuilder OperationExecution()
+        => _operationExecutionBuilder;
+
+    /// <summary>
+    /// Configures operation execution: the concerns, retry behavior and API version applied to operations
+    /// that do not specify their own.
+    /// </summary>
     /// <param name="configure">A delegate that configures operation execution.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureOperationExecution(Action<OperationExecutionBuilder> configure)
+    public MongoClientBuilder OperationExecution(Action<OperationExecutionBuilder> configure)
     {
         configure?.Invoke(_operationExecutionBuilder);
         return this;
@@ -194,9 +277,16 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures TLS: whether connections are encrypted and how server and client certificates are handled.
     /// </summary>
+    /// <returns>The <see cref="TlsBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public TlsBuilder Tls()
+        => _tlsBuilder;
+
+    /// <summary>
+    /// Configures TLS: whether connections are encrypted and how server and client certificates are handled.
+    /// </summary>
     /// <param name="configure">A delegate that configures TLS.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureTls(Action<TlsBuilder> configure)
+    public MongoClientBuilder Tls(Action<TlsBuilder> configure)
     {
         configure?.Invoke(_tlsBuilder);
         return this;
@@ -205,22 +295,18 @@ public sealed class MongoClientBuilder
     /// <summary>
     /// Configures translation of .NET expression trees into MongoDB expressions.
     /// </summary>
-    /// <param name="configure">A delegate that configures translation.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder ConfigureTranslation(Action<TranslationBuilder> configure)
-    {
-        configure?.Invoke(_translationBuilder);
-        return this;
-    }
+    /// <returns>The <see cref="TranslationBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public TranslationBuilder Translation()
+        => _translationBuilder;
 
     /// <summary>
-    /// Sets the credential used to authenticate with the server.
+    /// Configures translation of .NET expression trees into MongoDB expressions.
     /// </summary>
-    /// <param name="credential">The credential, or <c>null</c> to connect without authenticating.</param>
+    /// <param name="configure">A delegate that configures translation.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder UseCredentials(MongoCredential credential)
+    public MongoClientBuilder Translation(Action<TranslationBuilder> configure)
     {
-        _credential = credential;
+        configure?.Invoke(_translationBuilder);
         return this;
     }
 
@@ -236,6 +322,35 @@ public sealed class MongoClientBuilder
     {
         // TODO: implement constructing of the MongoClient
         return null;
+    }
+}
+
+/// <summary>
+/// Configures how a <see cref="MongoClient"/> authenticates with the server.
+/// </summary>
+/// <remarks>
+/// Most applications set the credential through one of the mechanism specific extension methods in
+/// <see cref="AuthenticationBuilderExtensions"/> rather than by assigning <see cref="Credential"/> directly.
+/// </remarks>
+public sealed class AuthenticationBuilder
+{
+    private MongoCredential _credential;
+
+    internal AuthenticationBuilder()
+    {
+        // defaults are read here so that this builder agrees with MongoClientSettings,
+        // which snapshots the same values in its constructor
+        _credential = null;
+    }
+
+    /// <summary>
+    /// Gets or sets the credential used to authenticate with the server. The default value is
+    /// <c>null</c>, which connects without authenticating.
+    /// </summary>
+    public MongoCredential Credential
+    {
+        get => _credential;
+        set => _credential = value;
     }
 }
 
