@@ -82,20 +82,6 @@ namespace MongoDB.Driver.Tests
                 .Build();
         }
 
-        // MONGODB-X509: the username is taken from the client certificate, so only the certificate
-        // has to be configured.
-        public IMongoClient X509Authentication()
-        {
-            return new MongoClientBuilder()
-                .Tls(tls =>
-                {
-                    tls.UseTls = true;
-                    tls.ClientCertificates = new[] { new System.Security.Cryptography.X509Certificates.X509Certificate2("client.pfx") };
-                })
-                .Authentication(auth => auth.UseMongoX509Credential())
-                .Build();
-        }
-
         // The same configuration written against the inner builders directly, instead of through the
         // Action<T> overloads. Useful when the configuration is assembled in pieces rather than in one
         // fluent chain.
