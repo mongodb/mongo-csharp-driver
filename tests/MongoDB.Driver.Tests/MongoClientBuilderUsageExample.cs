@@ -25,8 +25,8 @@ using MongoDB.Driver.Core.Events;
 
 namespace MongoDB.Driver.Tests
 {
-    // TODO: remove this example before merging the PR. This is demo code only: it exists so that we can
-    // discuss the use-cases and how the new builder surface reads at the call site.
+    // TODO: remove this example before merging the PR!!!
+    // This is demo code only: it exists so that we can discuss the use-cases and how the new builder surface.
     //
     // NOTE: the methods below are deliberately not [Fact]s. MongoClientBuilder.Build() and
     // FromConnectionString() are not implemented yet, so these examples are compile-time only.
