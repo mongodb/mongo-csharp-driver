@@ -20,9 +20,9 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver;
 
 /// <summary>
-/// Extension methods for <see cref="MongoClientBuilder"/>.
+/// Extension methods for <see cref="AuthenticationBuilder"/>.
 /// </summary>
-public static class MongoClientBuilderExtensions
+public static class AuthenticationBuilderExtensions
 {
     // NOTE: do not merge these overloads into one method with optional parameters. Optional parameter
     // defaults are compiled into the caller's assembly, so adding a parameter later would break already
@@ -35,21 +35,22 @@ public static class MongoClientBuilderExtensions
     /// <param name="databaseName">Name of the database the user is defined in.</param>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseCredential(
-        this MongoClientBuilder builder,
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseCredential(
+        this AuthenticationBuilder builder,
         string databaseName,
         string username,
         string password)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: null,
             source: null,
             databaseName,
             username,
-            new PasswordEvidence(password)));
+            new PasswordEvidence(password));
+        return builder;
     }
 
     /// <summary>
@@ -57,18 +58,19 @@ public static class MongoClientBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="username">The username.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
     /// <remarks>This overload is used primarily on linux.</remarks>
-    public static MongoClientBuilder UseGssapiCredential(this MongoClientBuilder builder, string username)
+    public static AuthenticationBuilder UseGssapiCredential(this AuthenticationBuilder builder, string username)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: "GSSAPI",
             source: "$external",
             databaseName: null,
             username,
-            new ExternalEvidence()));
+            new ExternalEvidence());
+        return builder;
     }
 
     /// <summary>
@@ -77,17 +79,18 @@ public static class MongoClientBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseGssapiCredential(this MongoClientBuilder builder, string username, string password)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseGssapiCredential(this AuthenticationBuilder builder, string username, string password)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: "GSSAPI",
             source: "$external",
             databaseName: null,
             username,
-            new PasswordEvidence(password)));
+            new PasswordEvidence(password));
+        return builder;
     }
 
     /// <summary>
@@ -96,17 +99,18 @@ public static class MongoClientBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseGssapiCredential(this MongoClientBuilder builder, string username, SecureString password)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseGssapiCredential(this AuthenticationBuilder builder, string username, SecureString password)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: "GSSAPI",
             source: "$external",
             databaseName: null,
             username,
-            new PasswordEvidence(password)));
+            new PasswordEvidence(password));
+        return builder;
     }
 
     /// <summary>
@@ -114,8 +118,8 @@ public static class MongoClientBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="callback">The OIDC callback.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseOidcCredential(this MongoClientBuilder builder, IOidcCallback callback)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, IOidcCallback callback)
         => builder.UseOidcCredential(callback, principalName: null);
 
     /// <summary>
@@ -124,13 +128,14 @@ public static class MongoClientBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="callback">The OIDC callback.</param>
     /// <param name="principalName">The principal name.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseOidcCredential(this MongoClientBuilder builder, IOidcCallback callback, string principalName)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, IOidcCallback callback, string principalName)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.CreateRawOidcCredential(principalName)
-            .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback));
+        builder.Credential = MongoCredential.CreateRawOidcCredential(principalName)
+            .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback);
+        return builder;
     }
 
     /// <summary>
@@ -138,8 +143,8 @@ public static class MongoClientBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="environment">The built-in environment.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseOidcCredential(this MongoClientBuilder builder, string environment)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, string environment)
         => builder.UseOidcCredential(environment, username: null);
 
     /// <summary>
@@ -148,21 +153,22 @@ public static class MongoClientBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <param name="environment">The built-in environment.</param>
     /// <param name="username">The username.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseOidcCredential(this MongoClientBuilder builder, string environment, string username)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, string environment, string username)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.CreateRawOidcCredential(username)
-            .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment));
+        builder.Credential = MongoCredential.CreateRawOidcCredential(username)
+            .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment);
+        return builder;
     }
 
     /// <summary>
     /// Authenticates with MONGODB-X509, using the username contained in the client certificate.
     /// </summary>
     /// <param name="builder">The builder.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseMongoX509Credential(this MongoClientBuilder builder)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseMongoX509Credential(this AuthenticationBuilder builder)
         => builder.UseMongoX509Credential(username: null);
 
     /// <summary>
@@ -170,17 +176,18 @@ public static class MongoClientBuilderExtensions
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="username">The username, or <c>null</c> to use the one contained in the client certificate.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UseMongoX509Credential(this MongoClientBuilder builder, string username)
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UseMongoX509Credential(this AuthenticationBuilder builder, string username)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: "MONGODB-X509",
             source: "$external",
             databaseName: null,
             username,
-            new ExternalEvidence()));
+            new ExternalEvidence());
+        return builder;
     }
 
     /// <summary>
@@ -190,20 +197,21 @@ public static class MongoClientBuilderExtensions
     /// <param name="databaseName">Name of the database the user is defined in.</param>
     /// <param name="username">The username.</param>
     /// <param name="password">The password.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public static MongoClientBuilder UsePlainCredential(
-        this MongoClientBuilder builder,
+    /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
+    public static AuthenticationBuilder UsePlainCredential(
+        this AuthenticationBuilder builder,
         string databaseName,
         string username,
         string password)
     {
         Ensure.IsNotNull(builder, nameof(builder));
 
-        return builder.UseCredentials(MongoCredential.FromComponents(
+        builder.Credential = MongoCredential.FromComponents(
             mechanism: "PLAIN",
             source: null,
             databaseName,
             username,
-            new PasswordEvidence(password)));
+            new PasswordEvidence(password));
+        return builder;
     }
 }
