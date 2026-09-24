@@ -131,7 +131,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A default credential.</returns>
-        [Obsolete("Use MongoClientBuilder.UseCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseCredential instead.")]
         public static MongoCredential CreateCredential(string databaseName, string username, string password)
         {
             return FromComponents(
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A default credential.</returns>
-        [Obsolete("Use MongoClientBuilder.UseCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseCredential instead.")]
         public static MongoCredential CreateCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents(
@@ -168,7 +168,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <returns>A credential for GSSAPI.</returns>
         /// <remarks>This overload is used primarily on linux.</remarks>
-        [Obsolete("Use MongoClientBuilder.UseGssapiCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseGssapiCredential instead.")]
         public static MongoCredential CreateGssapiCredential(string username)
         {
             return FromComponents(
@@ -185,7 +185,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for GSSAPI.</returns>
-        [Obsolete("Use MongoClientBuilder.UseGssapiCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseGssapiCredential instead.")]
         public static MongoCredential CreateGssapiCredential(string username, string password)
         {
             return FromComponents(
@@ -202,7 +202,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for GSSAPI.</returns>
-        [Obsolete("Use MongoClientBuilder.UseGssapiCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseGssapiCredential instead.")]
         public static MongoCredential CreateGssapiCredential(string username, SecureString password)
         {
             return FromComponents(
@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <param name="callback">The OIDC callback.</param>
         /// <param name="principalName">The principal name.</param>
         /// <returns>The OIDC credential.</returns>
-        [Obsolete("Use MongoClientBuilder.UseOidcCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcCredential instead.")]
         public static MongoCredential CreateOidcCredential(IOidcCallback callback, string principalName = null)
             => CreateRawOidcCredential(principalName)
                 .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback);
@@ -230,7 +230,7 @@ namespace MongoDB.Driver
         /// <param name="environment">The built in environemnt.</param>
         /// <param name="userName">User name.</param>
         /// <returns>The OIDC credential.</returns>
-        [Obsolete("Use MongoClientBuilder.UseOidcCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcCredential instead.")]
         public static MongoCredential CreateOidcCredential(string environment, string userName = null)
             => CreateRawOidcCredential(userName)
                 .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment);
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A credential for MONGODB-X509.</returns>
-        [Obsolete("Use MongoClientBuilder.UseMongoX509Credential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseMongoX509Credential instead.")]
         public static MongoCredential CreateMongoX509Credential(string username = null)
         {
             return FromComponents(
@@ -258,7 +258,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for PLAIN.</returns>
-        [Obsolete("Use MongoClientBuilder.UsePlainCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UsePlainCredential instead.")]
         public static MongoCredential CreatePlainCredential(string databaseName, string username, string password)
         {
             return FromComponents(
@@ -276,7 +276,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A credential for PLAIN.</returns>
-        [Obsolete("Use MongoClientBuilder.UsePlainCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UsePlainCredential instead.")]
         public static MongoCredential CreatePlainCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents(
