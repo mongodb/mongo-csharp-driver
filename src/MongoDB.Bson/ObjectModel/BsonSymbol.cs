@@ -17,7 +17,6 @@ using System;
 
 namespace MongoDB.Bson
 {
-    // TODO: [Serializable] // must have custom deserialization to do SymbolTable lookup
     /// <summary>
     /// Represents a BSON symbol value.
     /// </summary>
@@ -27,7 +26,6 @@ namespace MongoDB.Bson
         private readonly string _name;
 
         // constructors
-        // internal because only BsonSymbolTable should call this constructor
         internal BsonSymbol(string name)
         {
             if (name == null)
@@ -62,7 +60,7 @@ namespace MongoDB.Bson
         /// <returns>A BsonSymbol.</returns>
         public static implicit operator BsonSymbol(string name)
         {
-            return BsonSymbolTable.Lookup(name);
+            return new BsonSymbol(name);
         }
 
         /// <summary>
@@ -105,9 +103,6 @@ namespace MongoDB.Bson
         }
 
         // public methods
-        // note: a BsonSymbol is guaranteed to be unique because it must be looked up in BsonSymbolTable
-        // therefore the implementations of Equals and GetHashCode are considerably more efficient
-
         /// <summary>
         /// Compares this BsonSymbol to another BsonSymbol.
         /// </summary>
@@ -148,7 +143,7 @@ namespace MongoDB.Bson
         public bool Equals(BsonSymbol rhs)
         {
             if (object.ReferenceEquals(rhs, null) || GetType() != rhs.GetType()) { return false; }
-            return object.ReferenceEquals(this, rhs); // symbols are guaranteed to be unique
+            return _name == rhs._name;
         }
 
         /// <summary>

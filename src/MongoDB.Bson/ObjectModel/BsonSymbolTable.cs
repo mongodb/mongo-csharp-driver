@@ -14,22 +14,18 @@
 */
 
 using System;
-using System.Collections.Generic;
 
 namespace MongoDB.Bson
 {
     /// <summary>
-    /// Represents the symbol table of BsonSymbols.
+    /// Represents a factory for BsonSymbols.
     /// </summary>
+    [Obsolete("BsonSymbolTable no longer interns symbols. Use (BsonSymbol)name or BsonSymbol.Create(value) instead.")]
     public static class BsonSymbolTable
     {
-        // private static fields
-        private static object __staticLock = new object();
-        private static Dictionary<string, BsonSymbol> __symbolTable = new Dictionary<string, BsonSymbol>();
-
         // public static methods
         /// <summary>
-        /// Looks up a symbol (and creates a new one if necessary).
+        /// Creates a new symbol with the specified name.
         /// </summary>
         /// <param name="name">The name of the symbol.</param>
         /// <returns>The symbol.</returns>
@@ -39,16 +35,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException("name");
             }
-            lock (__staticLock)
-            {
-                BsonSymbol symbol;
-                if (!__symbolTable.TryGetValue(name, out symbol))
-                {
-                    symbol = new BsonSymbol(name);
-                    __symbolTable[name] = symbol;
-                }
-                return symbol;
-            }
+            return new BsonSymbol(name);
         }
     }
 }

@@ -2275,7 +2275,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.Same(obj.V, rehydrated.V);
+            Assert.Equal(obj.V, rehydrated.V);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
@@ -2289,7 +2289,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
             var bson = obj.ToBson();
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
-            Assert.Same(obj.V, rehydrated.V);
+            Assert.Equal(obj.V, rehydrated.V);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
