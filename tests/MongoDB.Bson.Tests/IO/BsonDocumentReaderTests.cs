@@ -198,7 +198,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var document = new BsonDocument
             {
-                { "symbol", BsonSymbolTable.Lookup("name") }
+                { "symbol", new BsonSymbol("name") }
             };
             using (var bsonReader = new BsonDocumentReader(document))
             {
