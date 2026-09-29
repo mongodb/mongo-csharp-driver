@@ -60,7 +60,7 @@ dotnet-CycloneDX "${SBOM_SLNF}" \
   --exclude-dev \
   --set-name mongo-csharp-driver \
   --set-version "${PACKAGE_VERSION}" \
-  --spec-version 1.5 \
+  --spec-version 1.6 \
   --filename sbom.cdx.json \
   "${github_options[@]+"${github_options[@]}"}"
 

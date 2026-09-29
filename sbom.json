@@ -1,14 +1,19 @@
 {
   "bomFormat": "CycloneDX",
-  "specVersion": "1.5",
+  "specVersion": "1.6",
   "serialNumber": "urn:uuid:a24dfa6a-26a8-44d8-94bd-a2488e01185b",
-  "version": 7,
+  "version": 8,
   "metadata": {
-    "timestamp": "2026-09-22T16:03:22Z",
+    "timestamp": "2026-09-29T17:25:51Z",
     "tools": {
       "components": [
         {
           "type": "application",
+          "authors": [
+            {
+              "name": "CycloneDX"
+            }
+          ],
           "name": "CycloneDX module for .NET",
           "version": "6.2.0.0",
           "externalReferences": [
@@ -22,16 +27,21 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-119-gfe42be4003",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-122-g6873dbc3bc",
       "name": "mongo-csharp-driver",
-      "version": "3.9.0-119-gfe42be4003",
-      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-119-gfe42be4003"
+      "version": "3.9.0-122-g6873dbc3bc",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-122-g6873dbc3bc"
     }
   },
   "components": [
     {
       "type": "library",
       "bom-ref": "pkg:nuget/AWSSDK.Core@4.0.100.2",
+      "authors": [
+        {
+          "name": "Amazon Web Services"
+        }
+      ],
       "name": "AWSSDK.Core",
       "version": "4.0.100.2",
       "description": "The Amazon Web Services SDK for .NET - Core Runtime",
@@ -60,6 +70,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/AWSSDK.SecurityToken@4.0.100.2",
+      "authors": [
+        {
+          "name": "Amazon Web Services"
+        }
+      ],
       "name": "AWSSDK.SecurityToken",
       "version": "4.0.100.2",
       "description": "The AWS Security Token Service (AWS STS) enables you to provide trusted users with temporary credentials that provide controlled access to your AWS resources.",
@@ -88,6 +103,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/DnsClient@1.6.1",
+      "authors": [
+        {
+          "name": "MichaCo"
+        }
+      ],
       "name": "DnsClient",
       "version": "1.6.1",
       "description": "DnsClient.NET is a simple yet very powerful and high performance open source library for the .NET Framework to do DNS lookups",
@@ -121,6 +141,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/Microsoft.Bcl.AsyncInterfaces@8.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "Microsoft.Bcl.AsyncInterfaces",
       "version": "8.0.0",
       "description": "Provides the IAsyncEnumerable<T> and IAsyncDisposable interfaces and helper types for .NET Standard 2.0. This package is not required starting with .NET Standard 2.1 and .NET Core 3.0.\n\nCommonly Used Types:\nSystem.IAsyncDisposable\nSystem.Collections.Generic.IAsyncEnumerable\nSystem.Collections.Generic.IAsyncEnumerator",
@@ -154,6 +179,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "Microsoft.Extensions.Logging.Abstractions",
       "version": "2.0.0",
       "description": "Logging abstractions for Microsoft.Extensions.Logging.\nCommonly used types:\nMicrosoft.Extensions.Logging.ILogger\nMicrosoft.Extensions.Logging.ILoggerFactory\nMicrosoft.Extensions.Logging.ILogger<TCategoryName>\nMicrosoft.Extensions.Logging.LogLevel\nMicrosoft.Extensions.Logging.Logger<T>\nMicrosoft.Extensions.Logging.LoggerMessage\nMicrosoft.Extensions.Logging.Abstractions.NullLogger",
@@ -188,6 +218,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/Microsoft.Win32.Registry@5.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "Microsoft.Win32.Registry",
       "version": "5.0.0",
       "description": "Provides support for accessing and modifying the Windows Registry.\n\nCommonly Used Types:\nMicrosoft.Win32.RegistryKey\nMicrosoft.Win32.Registry\nMicrosoft.Win32.RegistryValueKind\nMicrosoft.Win32.RegistryHive\nMicrosoft.Win32.RegistryView\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -221,6 +256,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/SharpCompress@0.48.1",
+      "authors": [
+        {
+          "name": "Adam Hathcock"
+        }
+      ],
       "name": "SharpCompress",
       "version": "0.48.1",
       "description": "SharpCompress is a compression library for NET 4.8/NET Standard 2.0/NET Standard 2.1/NET 5.0/NET 6.0/NET 7.0/NET 8.0/NET 9.0/NET 10.0 that can unrar, decompress 7zip, decompress xz, zip/unzip, tar/untar lzip/unlzip, bzip2/unbzip2 and gzip/ungzip with forward-only reading and file random access APIs. Write support for zip/tar/bzip2/gzip/7zip is implemented.",
@@ -254,6 +294,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/Snappier@1.3.1",
+      "authors": [
+        {
+          "name": "btburnett3"
+        }
+      ],
       "name": "Snappier",
       "version": "1.3.1",
       "description": "A near-C++ performance implementation of the Snappy compression algorithm for .NET. Snappier is ported to C# directly\n      from the official C++ implementation, with the addition of support for the framed stream format.\n\n      By avoiding P/Invoke, Snappier is fully cross-platform and works on both Linux and Windows and against any CPU supported\n      by .NET. However, Snappier performs best in .NET 6 and later on little-endian x86/64 processors with the\n      help of System.Runtime.Instrinsics.",
@@ -287,6 +332,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Buffers@4.5.1",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Buffers",
       "version": "4.5.1",
       "description": "Provides resource pooling of any type for performance-critical applications that allocate and deallocate objects frequently.\n\nCommonly Used Types:\nSystem.Buffers.ArrayPool<T>\n \n7601f4f6225089ffb291dc7d58293c7bbf5c5d4f \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -317,6 +367,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Buffers@4.6.1",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Buffers",
       "version": "4.6.1",
       "description": "System.Buffers",
@@ -350,6 +405,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Diagnostics.DiagnosticSource@6.0.1",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Diagnostics.DiagnosticSource",
       "version": "6.0.1",
       "description": "Provides Classes that allow you to decouple code logging rich (unserializable) diagnostics/telemetry (e.g. framework) from code that consumes it (e.g. tools)\n\nCommonly Used Types:\nSystem.Diagnostics.DiagnosticListener\nSystem.Diagnostics.DiagnosticSource",
@@ -383,6 +443,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.IO@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.IO",
       "version": "4.3.0",
       "description": "Provides base input and output (I/O) types, including System.IO.Stream, System.IO.StreamReader and System.IO.StreamWriter, that allow reading and writing to data streams\n\nCommonly Used Types:\nSystem.IO.Stream\nSystem.IO.EndOfStreamException\nSystem.IO.MemoryStream\nSystem.IO.StreamReader\nSystem.IO.StreamWriter\nSystem.IO.StringWriter\nSystem.IO.TextWriter\nSystem.IO.TextReader\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -413,6 +478,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Memory@4.5.5",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Memory",
       "version": "4.5.5",
       "description": "Provides types for efficient representation and pooling of managed, stack, and native memory segments and sequences of such segments, along with primitives to parse and format UTF-8 encoded text stored in those memory segments.\n\nCommonly Used Types:\nSystem.Span\nSystem.ReadOnlySpan\nSystem.Memory\nSystem.ReadOnlyMemory\nSystem.Buffers.MemoryPool\nSystem.Buffers.ReadOnlySequence\nSystem.Buffers.Text.Utf8Parser\nSystem.Buffers.Text.Utf8Formatter\n \n32b491939fbd125f304031c35038b1e14b4e3958 \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -443,6 +513,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Memory@4.6.3",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Memory",
       "version": "4.6.3",
       "description": "System.Memory",
@@ -476,6 +551,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Net.Http@4.3.4",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Net.Http",
       "version": "4.3.4",
       "description": "Provides a programming interface for modern HTTP applications, including HTTP client components that allow applications to consume web services over HTTP and HTTP components that can be used by both clients and servers for parsing HTTP headers.\n\nCommonly Used Types:\nSystem.Net.Http.HttpResponseMessage\nSystem.Net.Http.DelegatingHandler\nSystem.Net.Http.HttpRequestException\nSystem.Net.Http.HttpClient\nSystem.Net.Http.MultipartContent\nSystem.Net.Http.Headers.HttpContentHeaders\nSystem.Net.Http.HttpClientHandler\nSystem.Net.Http.StreamContent\nSystem.Net.Http.FormUrlEncodedContent\nSystem.Net.Http.HttpMessageHandler\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -506,6 +586,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Numerics.Vectors@4.5.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Numerics.Vectors",
       "version": "4.5.0",
       "description": "Provides hardware-accelerated numeric types, suitable for high-performance processing and graphics applications.\n\nCommonly Used Types:\nSystem.Numerics.Matrix3x2\nSystem.Numerics.Matrix4x4\nSystem.Numerics.Plane\nSystem.Numerics.Quaternion\nSystem.Numerics.Vector2\nSystem.Numerics.Vector3\nSystem.Numerics.Vector4\nSystem.Numerics.Vector\nSystem.Numerics.Vector<T>\n \n30ab651fcb4354552bd4891619a0bdd81e0ebdbf",
@@ -536,6 +621,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Numerics.Vectors@4.6.1",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Numerics.Vectors",
       "version": "4.6.1",
       "description": "System.Numerics.Vectors",
@@ -569,6 +659,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Runtime@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Runtime",
       "version": "4.3.0",
       "description": "Provides the fundamental primitives, classes and base classes that define commonly-used value and reference data types, events and event handlers, interfaces, attributes, and exceptions. This packages represents the core package, and provides the minimal set of types required to build a managed application.\n\nCommonly Used Types:\nSystem.Object\nSystem.Exception\nSystem.Int16\nSystem.Int32\nSystem.Int64\nSystem.Enum\nSystem.String\nSystem.Char\nSystem.Boolean\nSystem.SByte\nSystem.Byte\nSystem.DateTime\nSystem.DateTimeOffset\nSystem.Single\nSystem.Double\nSystem.UInt16\nSystem.UInt32\nSystem.UInt64\nSystem.IDisposable\nSystem.Uri\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -599,6 +694,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Runtime.CompilerServices.Unsafe@5.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Runtime.CompilerServices.Unsafe",
       "version": "5.0.0",
       "description": "Provides the System.Runtime.CompilerServices.Unsafe class, which provides generic, low-level functionality for manipulating pointers.\n\nCommonly Used Types:\nSystem.Runtime.CompilerServices.Unsafe\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -632,6 +732,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Runtime.CompilerServices.Unsafe",
       "version": "6.1.2",
       "description": "Provides the System.Runtime.CompilerServices.Unsafe class, which provides generic, low-level functionality for manipulating pointers.",
@@ -665,6 +770,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Runtime.InteropServices.RuntimeInformation@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Runtime.InteropServices.RuntimeInformation",
       "version": "4.3.0",
       "description": "Provides APIs to query about runtime and OS information.\n\nCommonly Used Types:\nSystem.Runtime.InteropServices.RuntimeInformation\nSystem.Runtime.InteropServices.OSPlatform\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -695,6 +805,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.AccessControl@5.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.AccessControl",
       "version": "5.0.0",
       "description": "Provides base classes that enable managing access and audit control lists on securable objects.\n\nCommonly Used Types:\nSystem.Security.AccessControl.AccessRule\nSystem.Security.AccessControl.AuditRule\nSystem.Security.AccessControl.ObjectAccessRule\nSystem.Security.AccessControl.ObjectAuditRule\nSystem.Security.AccessControl.ObjectSecurity\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -728,6 +843,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.Cryptography.Algorithms@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.Cryptography.Algorithms",
       "version": "4.3.0",
       "description": "Provides base types for cryptographic algorithms, including hashing, encryption, and signing operations.\n\nCommonly Used Types:\nSystem.Security.Cryptography.Aes\nSystem.Security.Cryptography.RSA\nSystem.Security.Cryptography.RSAParameters\nSystem.Security.Cryptography.HMACSHA1\nSystem.Security.Cryptography.SHA256\nSystem.Security.Cryptography.SHA1\nSystem.Security.Cryptography.SHA512\nSystem.Security.Cryptography.SHA384\nSystem.Security.Cryptography.HMACSHA256\nSystem.Security.Cryptography.MD5\nSystem.Security.Cryptography.HMACSHA384\nSystem.Security.Cryptography.HMACSHA512\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -758,6 +878,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.Cryptography.Encoding@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.Cryptography.Encoding",
       "version": "4.3.0",
       "description": "Provides types for representing Abstract Syntax Notation One (ASN.1)-encoded data.\n\nCommonly Used Types:\nSystem.Security.Cryptography.AsnEncodedData\nSystem.Security.Cryptography.Oid\nSystem.Security.Cryptography.OidCollection\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -788,6 +913,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.Cryptography.Primitives@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.Cryptography.Primitives",
       "version": "4.3.0",
       "description": "Provides common types for the cryptographic libraries.\n\nCommonly Used Types:\nSystem.Security.Cryptography.ICryptoTransform\nSystem.Security.Cryptography.AsymmetricAlgorithm\nSystem.Security.Cryptography.SymmetricAlgorithm\nSystem.Security.Cryptography.HashAlgorithm\nSystem.Security.Cryptography.KeyedHashAlgorithm\nSystem.Security.Cryptography.HMAC\nSystem.Security.Cryptography.KeySizes\nSystem.Security.Cryptography.CryptographicException\nSystem.Security.Cryptography.CipherMode\nSystem.Security.Cryptography.PaddingMode\nSystem.Security.Cryptography.CryptoStream\nSystem.Security.Cryptography.CryptoStreamMode\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -818,6 +948,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.Cryptography.X509Certificates@4.3.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.Cryptography.X509Certificates",
       "version": "4.3.0",
       "description": "Provides types for reading, exporting and verifying Authenticode X.509 v3 certificates. These certificates are signed with a private key that uniquely and positively identifies the holder of the certificate.\n\nCommonly Used Types:\nSystem.Security.Cryptography.X509Certificates.X509Certificate2\nSystem.Security.Cryptography.X509Certificates.X509Certificate\nSystem.Security.Cryptography.X509Certificates.X509ContentType\nSystem.Security.Cryptography.X509Certificates.StoreLocation\nSystem.Security.Cryptography.X509Certificates.StoreName\nSystem.Security.Cryptography.X509Certificates.X509FindType\nSystem.Security.Cryptography.X509Certificates.X509ChainStatus\nSystem.Security.Cryptography.X509Certificates.X509Certificate2Collection\nSystem.Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension\nSystem.Security.Cryptography.X509Certificates.X509Chain\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -848,6 +983,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Security.Principal.Windows@5.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Security.Principal.Windows",
       "version": "5.0.0",
       "description": "Provides classes for retrieving the current Windows user and for interacting with Windows users and groups.\n\nCommonly Used Types:\nSystem.Security.Principal.WindowsIdentity\nSystem.Security.Principal.SecurityIdentifier\nSystem.Security.Principal.NTAccount\nSystem.Security.Principal.WindowsPrincipal\nSystem.Security.Principal.IdentityReference\nSystem.Security.Principal.IdentityNotMappedException\nSystem.Security.Principal.WindowsBuiltInRole\nSystem.Security.Principal.WellKnownSidType\n \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -881,6 +1021,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Text.Encoding.CodePages@8.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Text.Encoding.CodePages",
       "version": "8.0.0",
       "description": "Provides support for code-page based encodings, including Windows-1252, Shift-JIS, and GB2312.\n\nCommonly Used Types:\nSystem.Text.CodePagesEncodingProvider",
@@ -914,6 +1059,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Text.Encodings.Web@8.0.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Text.Encodings.Web",
       "version": "8.0.0",
       "description": "Provides types for encoding and escaping strings for use in JavaScript, HyperText Markup Language (HTML), and uniform resource locators (URL).\n\nCommonly Used Types:\nSystem.Text.Encodings.Web.HtmlEncoder\nSystem.Text.Encodings.Web.UrlEncoder\nSystem.Text.Encodings.Web.JavaScriptEncoder",
@@ -947,6 +1097,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Text.Json@8.0.6",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Text.Json",
       "version": "8.0.6",
       "description": "Provides high-performance and low-allocating types that serialize objects to JavaScript Object Notation (JSON) text and deserialize JSON text to objects, with UTF-8 support built-in. Also provides types to read and write JSON text encoded as UTF-8, and to create an in-memory document object model (DOM), that is read-only, for random access of the JSON elements within a structured view of the data.\n\nThe System.Text.Json library is built-in as part of the shared framework in .NET Runtime. The package can be installed when you need to use it in other target frameworks.",
@@ -980,6 +1135,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.Threading.Tasks.Extensions",
       "version": "4.5.4",
       "description": "Provides additional types that simplify the work of writing concurrent and asynchronous code.\n\nCommonly Used Types:\nSystem.Threading.Tasks.ValueTask<TResult>\n \n7601f4f6225089ffb291dc7d58293c7bbf5c5d4f",
@@ -1010,6 +1170,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/System.ValueTuple@4.5.0",
+      "authors": [
+        {
+          "name": "Microsoft"
+        }
+      ],
       "name": "System.ValueTuple",
       "version": "4.5.0",
       "description": "Provides the System.ValueTuple structs, which implement the underlying types for tuples in C# and Visual Basic.\n\nCommonly Used Types:\nSystem.ValueTuple\nSystem.ValueTuple<T1>\nSystem.ValueTuple<T1, T2>\nSystem.ValueTuple<T1, T2, T3>\nSystem.ValueTuple<T1, T2, T3, T4>\nSystem.ValueTuple<T1, T2, T3, T4, T5>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6, T7>\nSystem.ValueTuple<T1, T2, T3, T4, T5, T6, T7, TRest>\n \n30ab651fcb4354552bd4891619a0bdd81e0ebdbf \nWhen using NuGet 3.x this package requires at least version 3.4.",
@@ -1040,6 +1205,11 @@
     {
       "type": "library",
       "bom-ref": "pkg:nuget/ZstdSharp.Port@0.7.3",
+      "authors": [
+        {
+          "name": "Oleg Stepanischev"
+        }
+      ],
       "name": "ZstdSharp.Port",
       "version": "0.7.3",
       "description": "Port of zstd compression library to c#",
@@ -1117,7 +1287,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-119-gfe42be4003",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-122-g6873dbc3bc",
       "dependsOn": [
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
@@ -1276,7 +1446,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-119-gfe42be4003",
+      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-122-g6873dbc3bc",
       "dependsOn": [
         "pkg:github/mongodb/libmongocrypt@1.20.4"
       ]
