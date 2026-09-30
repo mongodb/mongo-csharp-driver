@@ -95,7 +95,8 @@ jq --arg names "$EXCLUDE_FILTER" '
       map(select((.ref as $r | $excludedRefs | index($r)) | not))
       | map(if .dependsOn then .dependsOn |= map(select(. as $r | ($excludedRefs | index($r)) | not)) else . end)
     )
-' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
+' sbom.cdx.json > "$tmp"
+mv "$tmp" sbom.cdx.json
 
 echo -e "\n================================="
 echo "Resolving libmongocrypt version"
@@ -129,7 +130,8 @@ jq \
     "version": $ver,
     "purl": $purl
   }]
-  | .dependencies |= map(if .ref == $root then .dependsOn += [$purl] else . end)' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
+  | .dependencies |= map(if .ref == $root then .dependsOn += [$purl] else . end)' sbom.cdx.json > "$tmp"
+mv "$tmp" sbom.cdx.json
 
 echo -e "\n================================="
 echo "Updating sbom.json with version tracking"
