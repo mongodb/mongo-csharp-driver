@@ -112,24 +112,24 @@ fi
 echo "libmongocrypt version: ${LIBMONGOCRYPT_VERSION}"
 
 LIBMONGOCRYPT_PURL="pkg:github/mongodb/libmongocrypt@${LIBMONGOCRYPT_VERSION}"
-ENCRYPTION_PURL="pkg:nuget/MongoDB.Driver.Encryption@${PACKAGE_VERSION}"
 
+# The four driver packages are in-solution projects, so they are not components in the SBOM and
+# every dependency hangs off the root component. libmongocrypt is attached to the root the same
+# way, since a dependency entry whose ref is not a known component makes the SBOM invalid.
 tmp=$(mktemp)
 jq \
   --arg purl  "$LIBMONGOCRYPT_PURL" \
   --arg ver   "$LIBMONGOCRYPT_VERSION" \
-  --arg encpurl "$ENCRYPTION_PURL" \
-  '.components += [{
+  '.metadata.component."bom-ref" as $root
+  | if any(.dependencies[]; .ref == $root) then . else error("no dependencies entry for root component \($root)") end
+  | .components += [{
     "type": "library",
     "bom-ref": $purl,
     "name": "libmongocrypt",
     "version": $ver,
     "purl": $purl
-  }] |
-  .dependencies += [{
-    "ref": $encpurl,
-    "dependsOn": [$purl]
-  }]' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
+  }]
+  | .dependencies |= map(if .ref == $root then .dependsOn += [$purl] else . end)' sbom.cdx.json > "$tmp" && mv "$tmp" sbom.cdx.json
 
 echo -e "\n================================="
 echo "Updating sbom.json with version tracking"

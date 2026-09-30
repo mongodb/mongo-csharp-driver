@@ -231,7 +231,7 @@ functions:
     - command: ec2.assume_role
       display_name: Assume ECR readonly IAM role
       params:
-        role_arn: arn:aws:iam::901841024863:role/ecr-role-evergreen-ro
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: subprocess.exec
       type: setup
       display_name: Log in to ECR
@@ -248,7 +248,7 @@ functions:
     - command: ec2.assume_role
       display_name: Assume Silkbomb IAM role
       params:
-        role_arn: arn:aws:iam::901841024863:role/silkbomb
+        role_arn: ${silkbomb_role_arn}
     - command: subprocess.exec
       type: test
       display_name: Upload SBOM via Silkbomb

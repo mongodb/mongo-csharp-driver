@@ -2,7 +2,7 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
   "serialNumber": "urn:uuid:a24dfa6a-26a8-44d8-94bd-a2488e01185b",
-  "version": 8,
+  "version": 9,
   "metadata": {
     "timestamp": "2026-09-29T17:25:51Z",
     "tools": {
@@ -1299,7 +1299,8 @@
         "pkg:nuget/System.Net.Http@4.3.4",
         "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2",
         "pkg:nuget/System.Runtime.InteropServices.RuntimeInformation@4.3.0",
-        "pkg:nuget/ZstdSharp.Port@0.7.3"
+        "pkg:nuget/ZstdSharp.Port@0.7.3",
+        "pkg:github/mongodb/libmongocrypt@1.20.4"
       ]
     },
     {
@@ -1443,12 +1444,6 @@
       "dependsOn": [
         "pkg:nuget/Microsoft.Bcl.AsyncInterfaces@8.0.0",
         "pkg:nuget/System.Memory@4.6.3"
-      ]
-    },
-    {
-      "ref": "pkg:nuget/MongoDB.Driver.Encryption@3.9.0-122-g6873dbc3bc",
-      "dependsOn": [
-        "pkg:github/mongodb/libmongocrypt@1.20.4"
       ]
     }
   ]
