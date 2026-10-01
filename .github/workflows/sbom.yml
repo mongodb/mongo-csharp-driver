@@ -62,7 +62,7 @@ jobs:
           commit-message: "chore: Update SBOM after dependency changes"
           delete-branch: true
           labels: sbom
-          title: "CSHARP-5626: Update SBOM [${{ github.ref_name }}]"
+          title: "Update SBOM [${{ github.ref_name }}]"
           body: |
             ## Automated SBOM Update
 
