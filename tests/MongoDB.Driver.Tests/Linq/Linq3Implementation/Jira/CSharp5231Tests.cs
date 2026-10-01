@@ -17,7 +17,6 @@ using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
 {
@@ -49,6 +48,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         }
 
         [Fact]
+        public void Concat_with_second_queryable_without_stages_should_work()
+        {
+            var collection1 = Fixture.Collection1;
+            var collection3 = Fixture.Collection3;
+
+            var queryable = collection1.AsQueryable()
+                .Concat(collection3.AsQueryable());
+
+            var stages = Translate(collection1, queryable);
+            AssertStages(
+                stages,
+                "{ $unionWith : 'collection3' }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).Should().Equal(1, 2, 3, 1, 4);
+        }
+
+        [Fact]
         public void Union_should_work()
         {
             var collection1 = Fixture.Collection1;
@@ -70,6 +87,26 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
             results.OrderBy(x => x).Should().Equal(1, 2, 3, 4);
         }
 
+        [Fact]
+        public void Union_with_second_queryable_without_stages_should_work()
+        {
+            var collection1 = Fixture.Collection1;
+            var collection3 = Fixture.Collection3;
+
+            var queryable = collection1.AsQueryable()
+                .Union(collection3.AsQueryable());
+
+            var stages = Translate(collection1, queryable);
+            AssertStages(
+                stages,
+                "{ $unionWith : 'collection3' }",
+                "{ $group : { _id : '$$ROOT' } }",
+                "{ $replaceRoot : { newRoot : '$_id' } }");
+
+            var results = queryable.ToList();
+            results.Select(x => x.Id).OrderBy(x => x).Should().Equal(1, 2, 3, 4);
+        }
+
         public class C
         {
             public int Id { get; set; }
@@ -86,6 +123,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
         {
             public IMongoCollection<C> Collection1 { get; private set; }
             public IMongoCollection<D> Collection2 { get; private set; }
+            public IMongoCollection<C> Collection3 { get; private set; }
 
             protected override void InitializeFixture()
             {
@@ -100,6 +138,11 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Jira
                     new D { Id = 1, X = 2 },
                     new D { Id = 2, X = 3 },
                     new D { Id = 3, X = 4 }]);
+
+                Collection3 = CreateCollection<C>("collection3");
+                Collection3.InsertMany([
+                    new C { Id = 1, X = 1 },
+                    new C { Id = 4, X = 4 }]);
             }
         }
     }
