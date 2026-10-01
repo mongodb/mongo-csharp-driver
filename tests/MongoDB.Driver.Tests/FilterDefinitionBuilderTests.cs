@@ -64,6 +64,10 @@ namespace MongoDB.Driver.Tests
         [InlineData("{ a : 1, b : 2, c : 3 }", "{ a : 1 }", "{ $and: [{ b : 2 }, { c : 3 }] }")]
         [InlineData("{ a : { $gt : 1, $lt : 10 } }", "{ a : { $gt : 1 } }", "{ a : { $lt : 10 } }")]
         [InlineData("{ $and : [{ a : { $lt : 1 } }, { a : { $lt : 2 } }] }", "{ a : { $lt : 1 } }", "{ a : { $lt : 2 } }")]
+        [InlineData("{ $and : [{ a : { b : 1 } }, { a : { $size : 1 } }] }", "{ a : { b : 1 } }", "{ a : { $size : 1 } }")]
+        [InlineData("{ $and : [{ a : { $size : 1 } }, { a : { b : 1 } }] }", "{ a : { $size : 1 } }", "{ a : { b : 1 } }")]
+        [InlineData("{ $and : [{ a : { b : 1 } }, { a : { c : 2 } }] }", "{ a : { b : 1 } }", "{ a : { c : 2 } }")]
+        [InlineData("{ $and : [{ a : { } }, { a : { $size : 1 } }] }", "{ a : { } }", "{ a : { $size : 1 } }")]
         [InlineData("{ $and : [{ a : 1 }, { a : 2 }] }", "{ a : 1 }", "{ a : 2 }")]
         [InlineData("{ $and : [{ a : 1 }, { a : 2 }, { c : 3 }] }", "{ a : 1 }", "{ a : 2 }", "{ c : 3 }")]
         [InlineData("{ $and : [{ c : 3 }, { a : 1 }, { a : 2 }] }", "{ c : 3 }", "{ a : 1 }", "{ a : 2 }")]
@@ -108,6 +112,16 @@ namespace MongoDB.Driver.Tests
             var filter = subject.And(args);
 
             Assert(filter, expected);
+        }
+
+        [Fact]
+        public void And_with_AnyEq_of_a_document_and_Size_on_the_same_field()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            var filter = subject.AnyEq("items", new BsonDocument("value", "Hello")) & subject.Size("items", 1);
+
+            Assert(filter, "{ $and : [{ items : { value : 'Hello' } }, { items : { $size : 1 } }] }");
         }
 
         [Fact]
