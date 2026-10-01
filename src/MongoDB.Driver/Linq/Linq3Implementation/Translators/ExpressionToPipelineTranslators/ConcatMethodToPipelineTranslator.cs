@@ -59,7 +59,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToPipeli
                     }
 
                     pipeline = pipeline.AddStage(
-                        AstStage.UnionWith(secondCollectionName, secondPipeline.Ast),
+                        AstStage.UnionWith(secondCollectionName, secondPipeline?.Ast),
                         pipeline.OutputSerializer);
 
                     return pipeline;
