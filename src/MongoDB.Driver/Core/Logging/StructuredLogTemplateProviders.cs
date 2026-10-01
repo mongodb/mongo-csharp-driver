@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Logging
         public const string TopologyId_Message = $"{{{TopologyId}}} {{{Message}}}";
         public const string TopologyId_Message_SharedLibraryVersion = $"{{{TopologyId}}} {{{Message}}} {{{SharedLibraryVersion}}}";
 
-        private readonly static LogTemplateProvider[] __eventTemplateProviders;
+        private static readonly LogTemplateProvider[] __eventTemplateProviders;
 
         static StructuredLogTemplateProviders()
         {

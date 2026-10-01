@@ -301,7 +301,7 @@ namespace MongoDB.Bson
         /// </summary>
         /// <param name="value">The object to be mapped to a BsonDocument.</param>
         /// <returns>A BsonDocument.</returns>
-        public new static BsonDocument Create(object value)
+        public static new BsonDocument Create(object value)
         {
             if (value == null)
             {
