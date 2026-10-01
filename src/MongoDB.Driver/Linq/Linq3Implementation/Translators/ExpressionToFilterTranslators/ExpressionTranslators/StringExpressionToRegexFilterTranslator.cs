@@ -564,6 +564,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     var anyOfExpression = arguments[0];
                     anyOf = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
+                    if (anyOf == null)
+                    {
+                        throw new ExpressionNotSupportedException(anyOfExpression);
+                    }
+                    if (anyOf.Length == 0)
+                    {
+                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.MatchesNothing() : AstFilter.MatchesEverything(); // IndexOfAny returns -1 when anyOf is empty
+                    }
                 }
                 else if (method.IsOneOf(StringMethod.IndexOfWithCharOverloads))
                 {
