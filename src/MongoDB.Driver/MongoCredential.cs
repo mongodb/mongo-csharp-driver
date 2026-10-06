@@ -131,7 +131,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A default credential.</returns>
-        [Obsolete("Use MongoClientBuilder.Authentication().UseCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseUsernamePassword instead.")]
         public static MongoCredential CreateCredential(string databaseName, string username, string password)
         {
             return FromComponents(
@@ -151,7 +151,7 @@ namespace MongoDB.Driver
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
         /// <returns>A default credential.</returns>
-        [Obsolete("Use MongoClientBuilder.Authentication().UseCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseUsernamePassword instead.")]
         public static MongoCredential CreateCredential(string databaseName, string username, SecureString password)
         {
             return FromComponents(
@@ -240,7 +240,7 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A credential for MONGODB-X509.</returns>
-        [Obsolete("Use MongoClientBuilder.Authentication().UseMongoX509Credential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseX509Credential instead.")]
         public static MongoCredential CreateMongoX509Credential(string username = null)
         {
             return FromComponents(

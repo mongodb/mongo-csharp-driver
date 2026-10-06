@@ -95,7 +95,7 @@ namespace MongoDB.Driver
             if (settings.AutoEncryptionOptions != null)
             {
                 _libMongoCryptController =
-                    MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
+                    MongoClientBuilder.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(this, settings.AutoEncryptionOptions);
 
                 _settings.LoggingSettings?.CreateLogger<LogCategories.Client>()?.LogTrace(
                     StructuredLogTemplateProviders.TopologyId_Message_SharedLibraryVersion,
