@@ -14,7 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -22,6 +21,7 @@ using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Encryption;
 
 namespace MongoDB.Driver.Tests
 {
@@ -49,8 +49,8 @@ namespace MongoDB.Driver.Tests
                 .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
                 .ConnectionPool(pool =>
                 {
-                    pool.MinConnectionPoolSize = 10;
-                    pool.MaxConnectionPoolSize = 200;
+                    pool.MinSize = 10;
+                    pool.MaxSize = 200;
                 })
                 .Build();
         }
@@ -61,7 +61,7 @@ namespace MongoDB.Driver.Tests
         {
             return new MongoClientBuilder()
                 .Connectivity(connectivity => connectivity.Servers = new[] { new MongoServerAddress("localhost", 27017) })
-                .Authentication(auth => auth.UseCredential("admin", "user", "pencil"))
+                .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Build();
         }
 
@@ -89,29 +89,27 @@ namespace MongoDB.Driver.Tests
         {
             var builder = new MongoClientBuilder();
 
-            builder.Authentication().UseCredential("admin", "user", "pencil");
+            builder.Authentication().UseUsernamePassword("user", "pencil");
             builder.Connectivity().ReplicaSetName = "rs0";
-            builder.ServerSelection().ReadPreference = ReadPreference.SecondaryPreferred;
+            builder.Operations().ReadPreference = ReadPreference.SecondaryPreferred;
 
             return builder.Build();
         }
 
-        // Tuning how operations are executed: default concerns, retries and the declared API version.
-        public IMongoClient OperationExecutionDefaults()
+        // Tuning how operations are executed: server selection, default read preference, concerns, retries
+        // and the declared API version.
+        public IMongoClient OperationsDefaults()
         {
             return new MongoClientBuilder()
-                .OperationExecution(execution =>
+                .Operations(operations =>
                 {
-                    execution.ReadConcern = ReadConcern.Majority;
-                    execution.WriteConcern = WriteConcern.WMajority;
-                    execution.RetryReads = true;
-                    execution.RetryWrites = true;
-                    execution.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);
-                })
-                .ServerSelection(selection =>
-                {
-                    selection.ReadPreference = ReadPreference.Nearest;
-                    selection.ServerSelectionTimeout = TimeSpan.FromSeconds(10);
+                    operations.ServerSelectionTimeout = TimeSpan.FromSeconds(10);
+                    operations.ReadPreference = ReadPreference.Nearest;
+                    operations.ReadConcern = ReadConcern.Majority;
+                    operations.WriteConcern = WriteConcern.WMajority;
+                    operations.RetryReads = true;
+                    operations.RetryWrites = true;
+                    operations.ServerApi = new ServerApi(ServerApiVersion.V1, strict: true);
                 })
                 .Build();
         }
@@ -136,7 +134,7 @@ namespace MongoDB.Driver.Tests
             return new MongoClientBuilder()
                 .Diagnostics(diagnostics =>
                 {
-                    diagnostics.LoggingSettings = new LoggingSettings(loggerFactory);
+                    diagnostics.Logging = new LoggingSettings(loggerFactory);
                     diagnostics.Subscribe<CommandStartedEvent>(e => Console.WriteLine($"{e.CommandName} started"));
                     diagnostics.Subscribe<CommandFailedEvent>(e => Console.WriteLine($"{e.CommandName} failed: {e.Failure.Message}"));
                 })
@@ -150,12 +148,29 @@ namespace MongoDB.Driver.Tests
                 .AutoEncryption(encryption =>
                 {
                     encryption.KeyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-                    encryption.RegisterKmsProvider(
-                        "local",
-                        new Dictionary<string, object> { { "key", localMasterKey } });
+                    encryption.RegisterLocalKmsProvider(localMasterKey);
                     encryption.RegisterSchema(
                         CollectionNamespace.FromFullName("medical.patients"),
                         BsonDocument.Parse("{ bsonType : 'object', properties : { ssn : { encrypt : { bsonType : 'string', algorithm : 'AEAD_AES_256_CBC_HMAC_SHA_512-Random' } } } }"));
+                })
+                .Build();
+        }
+
+        // Automatic encryption with cloud KMS providers: AWS with credentials obtained on demand from the
+        // environment, plus a named Azure provider configured through its options object.
+        public IMongoClient AutoEncryptionWithCloudKms(string tenantId, string clientId, string clientSecret)
+        {
+            return new MongoClientBuilder()
+                .AutoEncryption(encryption =>
+                {
+                    encryption.KeyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
+                    encryption.RegisterAwsKmsProvider();
+                    encryption.RegisterAzureKmsProvider("eu", new AzureKmsProviderOptions
+                    {
+                        TenantId = tenantId,
+                        ClientId = clientId,
+                        ClientSecret = clientSecret
+                    });
                 })
                 .Build();
         }
@@ -174,11 +189,11 @@ namespace MongoDB.Driver.Tests
                     };
                     connectivity.ReplicaSetName = "rs0";
                 })
-                .Authentication(auth => auth.UseCredential("admin", "user", "pencil"))
-                .Tls(tls => tls.UseTls = true)
-                .ConnectionPool(pool => pool.MaxConnectionPoolSize = 200)
+                .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
+                .Tls(tls => tls.Enabled = true)
+                .ConnectionPool(pool => pool.MaxSize = 200)
                 .ServerMonitoring(monitoring => monitoring.HeartbeatInterval = TimeSpan.FromSeconds(5))
-                .OperationExecution(execution => execution.WriteConcern = WriteConcern.WMajority)
+                .Operations(operations => operations.WriteConcern = WriteConcern.WMajority)
                 .Translation(translation => translation.EnableClientSideProjections = true)
                 .Build();
         }
