@@ -1112,9 +1112,6 @@ namespace MongoDB.Driver
                 Collation = options.Collation,
                 Filter = options.Filter?.Render(renderArgs),
                 FinalizeFunction = options.Finalize,
-#pragma warning disable 618
-                JavaScriptMode = options.JavaScriptMode,
-#pragma warning restore 618
                 Limit = options.Limit,
                 MaxTime = options.MaxTime,
                 ReadConcern = _settings.ReadConcern,
@@ -1151,21 +1148,12 @@ namespace MongoDB.Driver
                 EnableOverloadRetargeting = _database.Client.Settings.EnableOverloadRetargeting,
                 Filter = options.Filter?.Render(renderArgs),
                 FinalizeFunction = options.Finalize,
-#pragma warning disable 618
-                JavaScriptMode = options.JavaScriptMode,
-#pragma warning restore 618
                 Limit = options.Limit,
                 MaxAdaptiveRetries = _database.Client.Settings.MaxAdaptiveRetries,
                 MaxTime = options.MaxTime,
-#pragma warning disable 618
-                NonAtomicOutput = collectionOutputOptions.NonAtomic,
-#pragma warning restore 618
                 OutputMode = collectionOutputOptions.OutputMode,
                 RetryRequested = _database.Client.Settings.RetryWrites,
                 Scope = options.Scope,
-#pragma warning disable 618
-                ShardedOutput = collectionOutputOptions.Sharded,
-#pragma warning restore 618
                 Sort = options.Sort?.Render(renderArgs),
                 Verbose = options.Verbose,
                 WriteConcern = _settings.WriteConcern

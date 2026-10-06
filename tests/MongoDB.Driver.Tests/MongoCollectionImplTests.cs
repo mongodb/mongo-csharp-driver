@@ -2834,9 +2834,6 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Filter = filterDefinition,
                 Finalize = new BsonJavaScript("finalizer"),
-#pragma warning disable 618
-                JavaScriptMode = true,
-#pragma warning restore 618
                 Limit = 10,
                 MaxTime = TimeSpan.FromMinutes(2),
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -2890,9 +2887,6 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Filter.Should().Be(filterDocument);
             operation.FinalizeFunction.Should().Be(options.Finalize);
-#pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
-#pragma warning restore 618
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(map);
             operation.MaxTime.Should().Be(options.MaxTime);
@@ -2927,13 +2921,10 @@ namespace MongoDB.Driver
                 Collation = new Collation("en_US"),
                 Filter = filterDefinition,
                 Finalize = new BsonJavaScript("finalizer"),
-#pragma warning disable 618
-                JavaScriptMode = true,
-#pragma warning restore 618
                 Limit = 10,
                 MaxTime = TimeSpan.FromMinutes(2),
 #pragma warning disable 618
-                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB", true),
+                OutputOptions = MapReduceOutputOptions.Replace("awesome", "otherDB"),
 #pragma warning restore 618
                 Scope = new BsonDocument("test", 3),
                 Sort = sortDefinition,
@@ -2984,24 +2975,15 @@ namespace MongoDB.Driver
             operation.CollectionNamespace.Should().Be(subject.CollectionNamespace);
             operation.Filter.Should().Be(filterDocument);
             operation.FinalizeFunction.Should().Be(options.Finalize);
-#pragma warning disable 618
-            operation.JavaScriptMode.Should().Be(options.JavaScriptMode);
-#pragma warning restore 618
             operation.Limit.Should().Be(options.Limit);
             operation.MapFunction.Should().Be(map);
             operation.MaxTime.Should().Be(options.MaxTime);
-#pragma warning disable 618
-            operation.NonAtomicOutput.Should().NotHaveValue();
-#pragma warning restore 618
             operation.OutputCollectionNamespace.Should().Be(CollectionNamespace.FromFullName("otherDB.awesome"));
 #pragma warning disable CS0618 // Type or member is obsolete
             operation.OutputMode.Should().Be(Core.Operations.MapReduceOutputMode.Replace);
 #pragma warning restore CS0618 // Type or member is obsolete
             operation.ReduceFunction.Should().Be(reduce);
             operation.Scope.Should().Be(options.Scope);
-#pragma warning disable 618
-            operation.ShardedOutput.Should().Be(true);
-#pragma warning restore 618
             operation.Sort.Should().Be(sortDocument);
             operation.Verbose.Should().Be(options.Verbose);
             operation.WriteConcern.Should().BeSameAs(writeConcern);

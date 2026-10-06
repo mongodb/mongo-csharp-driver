@@ -60,9 +60,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-#pragma warning disable 618
-            subject.JavaScriptMode.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
@@ -247,32 +244,6 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 1, value : -3 }"),
                 BsonDocument.Parse("{ _id : 2, value : -4 }"));
         }
-
-        // TODO: figure out why test fails when JavaScriptMode = true (server bug?)
-
-        //[Theory]
-        //[ParameterAttributeData]
-        //public void Execute_should_return_expected_results_when_JavaScriptMode_is_set(
-        //    [Values(null, false, true)]
-        //    bool? javaScriptMode,
-        //    [Values(false, true)]
-        //    bool async)
-        //{
-        //    RequireServer.Check();
-        //    EnsureTestData();
-        //    var subject = new MapReduceOperation<BsonDocument>(_collectionNamespace, _mapFunction, _reduceFunction, _resultSerializer, _messageEncoderSettings)
-        //    {
-        //        JavaScriptMode = javaScriptMode
-        //    };
-
-        //    var cursor = ExecuteOperation(subject, async);
-        //    var results = ReadCursorToEnd(cursor, async);
-
-        //    // the results are the same either way, but at least we're smoke testing JavaScriptMode
-        //    results.Should().Equal(
-        //        BsonDocument.Parse("{ _id : 1, value : 3 }"),
-        //        BsonDocument.Parse("{ _id : 2, value : 4 }"));
-        //}
 
         [Theory]
         [ParameterAttributeData]

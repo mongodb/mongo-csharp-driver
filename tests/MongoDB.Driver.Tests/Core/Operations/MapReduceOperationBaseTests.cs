@@ -71,9 +71,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-#pragma warning disable 618
-            subject.JavaScriptMode.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.Scope.Should().BeNull();
@@ -217,35 +214,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "reduce", _reduceFunction },
                 { "out", new BsonDocument("fake", 1) },
                 { "finalize", finalizeFunction, finalizeFunction != null }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateCommand_should_return_the_expected_result_when_JavaScriptMode_is_provided(
-            [Values(null, false, true)]
-            bool? javaScriptMode)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-            {
-#pragma warning disable 618
-                JavaScriptMode = javaScriptMode
-#pragma warning restore 618
-            };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            using var session = OperationTestHelper.CreateSession();
-            using var operationContext = new OperationContext(session);
-
-            var result = subject.CreateCommand(operationContext, connectionDescription);
-
-            var expectedResult = new BsonDocument
-            {
-                { "mapReduce", _collectionNamespace.CollectionName },
-                { "map", _mapFunction },
-                { "reduce", _reduceFunction },
-                { "out", new BsonDocument("fake", 1) },
-                { "jsMode", () => javaScriptMode.Value, javaScriptMode.HasValue }
             };
             result.Should().Be(expectedResult);
         }
@@ -436,22 +404,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.FinalizeFunction;
 
             result.Should().BeSameAs(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void JavaScriptMode_should_get_and_set_value(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.JavaScriptMode = value;
-            var result = subject.JavaScriptMode;
-#pragma warning restore 618
-
-            result.Should().Be(value);
         }
 
         [Theory]

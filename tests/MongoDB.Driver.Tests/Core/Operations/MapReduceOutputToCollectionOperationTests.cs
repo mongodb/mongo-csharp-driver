@@ -58,13 +58,9 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-#pragma warning disable 618
-            subject.JavaScriptMode.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
 #pragma warning disable 618
-            subject.NonAtomicOutput.Should().NotHaveValue();
             subject.OutputMode.Should().Be(MapReduceOutputMode.Replace);
 #pragma warning restore 618
             subject.Scope.Should().BeNull();
@@ -118,24 +114,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void NonAtomicOutput_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-#pragma warning restore CS0618 // Type or member is obsolete
-
-#pragma warning disable 618
-            subject.NonAtomicOutput = value;
-            var result = subject.NonAtomicOutput;
-#pragma warning restore 618
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void OutputCollectionNamespace_get_and_set_should_work(
             [Values("a", "b")]
             string collectionName)
@@ -163,22 +141,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.OutputMode = value;
             var result = subject.OutputMode;
 #pragma warning restore CS0618 // Type or member is obsolete
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void ShardedOutput_get_and_set_should_work(
-            [Values(null, false, true)]
-            bool? value)
-        {
-#pragma warning disable 618
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-
-            subject.ShardedOutput = value;
-            var result = subject.ShardedOutput;
-#pragma warning restore 618
 
             result.Should().Be(value);
         }
@@ -274,58 +236,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "replace", _outputCollectionNamespace.CollectionName },
                 { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName }
             };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateOutputOptions_should_return_expected_result_when_ShardedOutput_is_set(
-            [Values(null, false, true)]
-            bool? shardedOutput)
-        {
-#pragma warning disable CS0618 // Type or member is obsolete
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-#pragma warning restore CS0618 // Type or member is obsolete
-            {
-#pragma warning disable 618
-                ShardedOutput = shardedOutput
-#pragma warning restore 618
-            };
-            var subjectReflector = new Reflector(subject);
-
-            var result = subjectReflector.CreateOutputOptions();
-
-            var expectedResult = new BsonDocument
-            {
-                { "replace", _outputCollectionNamespace.CollectionName },
-                { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName },
-                { "sharded", () => shardedOutput.Value, shardedOutput.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void CreateOutputOptions_should_return_expected_result_when_NonAtomicOutput_is_provided(
-            [Values(null, false, true)]
-            bool? nonAtomicOutput)
-        {
-#pragma warning disable 618
-            var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-            {
-                NonAtomicOutput = nonAtomicOutput
-#pragma warning restore 618
-            };
-            var subjectReflector = new Reflector(subject);
-            var expectedResult = new BsonDocument
-            {
-                { "replace", _outputCollectionNamespace.CollectionName },
-                { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName },
-                { "nonAtomic", () => nonAtomicOutput.Value, nonAtomicOutput.HasValue }
-            };
-
-            var result = subjectReflector.CreateOutputOptions();
-
             result.Should().Be(expectedResult);
         }
 
@@ -440,31 +350,6 @@ namespace MongoDB.Driver.Core.Operations
                 BsonDocument.Parse("{ _id : 1, value : -3 }"),
                 BsonDocument.Parse("{ _id : 2, value : -4 }"));
         }
-
-        // TODO: figure out why test fails when JavaScriptMode = true (server bug?)
-
-        //[Theory]
-        //[ParameterAttributeData]
-        //public void Execute_should_return_expected_results_when_JavaScriptMode_is_set(
-        //    [Values(null, false, true)]
-        //    bool? javaScriptMode,
-        //    [Values(false, true)]
-        //    bool async)
-        //{
-        //    RequireServer.Check().ClusterTypes(ClusterType.Standalone, ClusterType.ReplicaSet);
-        //    EnsureTestData();
-        //    var subject = new MapReduceOutputToCollectionOperation(_collectionNamespace, _outputCollectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-        //    {
-        //        JavaScriptMode = javaScriptMode
-        //    };
-
-        //    ExecuteOperation(subject, async);
-
-        //    // the results are the same either way, but at least we're smoke testing JavaScriptMode
-        //    ReadAllFromCollection(_outputCollectionNamespace).Should().Equal(
-        //        BsonDocument.Parse("{ _id : 1, value : 3 }"),
-        //        BsonDocument.Parse("{ _id : 2, value : 4 }"));
-        //}
 
         [Theory]
         [ParameterAttributeData]

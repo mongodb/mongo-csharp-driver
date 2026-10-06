@@ -33,7 +33,6 @@ namespace MongoDB.Driver
         private Collation _collation;
         private FilterDefinition<TDocument> _filter;
         private BsonJavaScript _finalize;
-        private bool? _javaScriptMode;
         private long? _limit;
         private TimeSpan? _maxTime;
         private MapReduceOutputOptions _outputOptions;
@@ -78,16 +77,6 @@ namespace MongoDB.Driver
         {
             get { return _finalize; }
             set { _finalize = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the java script mode.
-        /// </summary>
-        [Obsolete("JavaScriptMode is ignored by server versions 4.4.0 and newer.")]
-        public bool? JavaScriptMode
-        {
-            get { return _javaScriptMode; }
-            set { _javaScriptMode = value; }
         }
 
         /// <summary>
@@ -188,23 +177,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="databaseName">The name of the database.</param>
-        /// <param name="sharded">Whether the output collection should be sharded.</param>
-        /// <param name="nonAtomic">Whether the server should not lock the database for the duration of the merge.</param>
         /// <returns>A merge map-reduce output options.</returns>
-        [Obsolete("Use an overload of Merge that does not have sharded and nonAtomic parameters instead.")]
-        public static MapReduceOutputOptions Merge(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
-        {
-            Ensure.IsNotNull(collectionName, nameof(collectionName));
-            return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Merge, databaseName, sharded, nonAtomic);
-        }
-
-        /// <summary>
-        /// A merge map-reduce output options.
-        /// </summary>
-        /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <returns>A merge map-reduce output options.</returns>
-        public static MapReduceOutputOptions Merge(string collectionName, string databaseName)
+        public static MapReduceOutputOptions Merge(string collectionName, string databaseName = null)
         {
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Merge, databaseName);
@@ -215,23 +189,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="databaseName">The name of the database.</param>
-        /// <param name="sharded">Whether the output collection should be sharded.</param>
-        /// <param name="nonAtomic">Whether the server should not lock the database for the duration of the reduce.</param>
         /// <returns>A reduce map-reduce output options.</returns>
-        [Obsolete("Use an overload of Reduce that does not have sharded and nonAtomic parameters instead.")]
-        public static MapReduceOutputOptions Reduce(string collectionName, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
-        {
-            Ensure.IsNotNull(collectionName, nameof(collectionName));
-            return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Reduce, databaseName, sharded, nonAtomic);
-        }
-
-        /// <summary>
-        /// A reduce map-reduce output options.
-        /// </summary>
-        /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="databaseName">The name of the database.</param>
-        /// <returns>A reduce map-reduce output options.</returns>
-        public static MapReduceOutputOptions Reduce(string collectionName, string databaseName)
+        public static MapReduceOutputOptions Reduce(string collectionName, string databaseName = null)
         {
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Reduce, databaseName);
@@ -242,22 +201,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <param name="databaseName">Name of the database.</param>
-        /// <param name="sharded">Whether the output collection should be sharded.</param>
         /// <returns>A replace map-reduce output options.</returns>
-        [Obsolete("Use an overload of Replace that does not have a sharded parameter instead.")]
-        public static MapReduceOutputOptions Replace(string collectionName, string databaseName = null, bool? sharded = null)
-        {
-            Ensure.IsNotNull(collectionName, nameof(collectionName));
-            return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Replace, databaseName, sharded, null);
-        }
-
-        /// <summary>
-        /// A replace map-reduce output options.
-        /// </summary>
-        /// <param name="collectionName">The name of the collection.</param>
-        /// <param name="databaseName">Name of the database.</param>
-        /// <returns>A replace map-reduce output options.</returns>
-        public static MapReduceOutputOptions Replace(string collectionName, string databaseName)
+        public static MapReduceOutputOptions Replace(string collectionName, string databaseName = null)
         {
             Ensure.IsNotNull(collectionName, nameof(collectionName));
             return new CollectionOutput(collectionName, Core.Operations.MapReduceOutputMode.Replace, databaseName);
@@ -273,17 +218,13 @@ namespace MongoDB.Driver
         {
             private readonly string _collectionName;
             private readonly string _databaseName;
-            private readonly bool? _nonAtomic;
             private readonly Core.Operations.MapReduceOutputMode _outputMode;
-            private readonly bool? _sharded;
 
-            internal CollectionOutput(string collectionName, Core.Operations.MapReduceOutputMode outputMode, string databaseName = null, bool? sharded = null, bool? nonAtomic = null)
+            internal CollectionOutput(string collectionName, Core.Operations.MapReduceOutputMode outputMode, string databaseName = null)
             {
                 _collectionName = collectionName;
                 _outputMode = outputMode;
                 _databaseName = databaseName;
-                _sharded = sharded;
-                _nonAtomic = nonAtomic;
             }
 
             public string CollectionName
@@ -296,21 +237,9 @@ namespace MongoDB.Driver
                 get { return _databaseName; }
             }
 
-            [Obsolete("NonAtomic is rejected by server versions 4.4.0 and newer.")]
-            public bool? NonAtomic
-            {
-                get { return _nonAtomic; }
-            }
-
             public Core.Operations.MapReduceOutputMode OutputMode
             {
                 get { return _outputMode; }
-            }
-
-            [Obsolete("Sharded is rejected by server versions 4.4.0 and newer.")]
-            public bool? Sharded
-            {
-                get { return _sharded; }
             }
         }
     }
