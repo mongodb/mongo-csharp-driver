@@ -63,7 +63,6 @@ namespace MongoDB.Driver
         private readonly SslSettings _sslSettings;
         private readonly TracingOptions _tracingOptions;
         private readonly bool _useTls;
-        private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
 
         // constructors
@@ -104,7 +103,6 @@ namespace MongoDB.Driver
             SslSettings sslSettings,
             TracingOptions tracingOptions,
             bool useTls,
-            int waitQueueSize,
             TimeSpan waitQueueTimeout)
         {
             _allowInsecureTls = allowInsecureTls;
@@ -143,7 +141,6 @@ namespace MongoDB.Driver
             _sslSettings = sslSettings;
             _tracingOptions = tracingOptions;
             _useTls = useTls;
-            _waitQueueSize = waitQueueSize;
             _waitQueueTimeout = waitQueueTimeout;
 
             _hashCode = CalculateHashCode();
@@ -186,7 +183,6 @@ namespace MongoDB.Driver
         public SslSettings SslSettings { get { return _sslSettings; } }
         public TracingOptions TracingOptions { get { return _tracingOptions; } }
         public bool UseTls => _useTls;
-        public int WaitQueueSize { get { return _waitQueueSize; } }
         public TimeSpan WaitQueueTimeout { get { return _waitQueueTimeout; } }
 
         // methods
@@ -244,7 +240,6 @@ namespace MongoDB.Driver
                 object.Equals(_sslSettings, rhs._sslSettings) &&
                 _tracingOptions == rhs._tracingOptions &&
                 _useTls == rhs._useTls &&
-                _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout;
         }
 

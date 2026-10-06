@@ -38,7 +38,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(new[] { new DnsEndPoint("localhost", 27017) }, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(TimeSpan.FromMilliseconds(15));
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(500);
             subject.ReplicaSetName.Should().Be(null);
             subject.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
             subject.ServerApi.Should().BeNull();
@@ -73,14 +72,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
-        public void constructor_should_throw_when_maxServerSelectionWaitQueueSize_is_negative()
-        {
-            Action action = () => new ClusterSettings(maxServerSelectionWaitQueueSize: -1);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("maxServerSelectionWaitQueueSize");
-        }
-
-        [Fact]
         public void constructor_with_directConnection_should_initialize_instance()
         {
             const bool directConnection = true;
@@ -92,7 +83,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -110,14 +100,13 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(endPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
         }
 
         [Fact]
-        public void constructor_with_locadBalanced_should_initialize_instance()
+        public void constructor_with_loadBalanced_should_initialize_instance()
         {
             var loadBalanced = true;
             var subject = new ClusterSettings(loadBalanced: loadBalanced);
@@ -127,7 +116,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().Be(loadBalanced);
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -142,7 +130,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(Timeout.InfiniteTimeSpan);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -159,25 +146,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(localThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
-            subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
-            subject.Scheme.Should().Be(__defaults.Scheme);
-            subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
-        }
-
-        [Fact]
-        public void constructor_with_maxServerSelectionWaitQueueSize_should_initialize_instance()
-        {
-            var maxServerSelectionWaitQueueSize = 123;
-
-            var subject = new ClusterSettings(maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize);
-
-            subject.CryptClientSettings.Should().Be(__defaults.CryptClientSettings);
-            subject.DirectConnection.Should().Be(false);
-            subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
-            subject.LoadBalanced.Should().BeFalse();
-            subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(maxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -195,7 +163,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(replicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -213,7 +180,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(scheme);
             subject.ServerSelectionTimeout.Should().Be(__defaults.ServerSelectionTimeout);
@@ -231,7 +197,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerApi.Should().Be(serverApi);
@@ -250,7 +215,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.EndPoints.Should().EqualUsing(__defaults.EndPoints, EndPointHelper.EndPointEqualityComparer);
             subject.LoadBalanced.Should().BeFalse();
             subject.LocalThreshold.Should().Be(__defaults.LocalThreshold);
-            subject.MaxServerSelectionWaitQueueSize.Should().Be(__defaults.MaxServerSelectionWaitQueueSize);
             subject.ReplicaSetName.Should().Be(__defaults.ReplicaSetName);
             subject.Scheme.Should().Be(__defaults.Scheme);
             subject.ServerSelectionTimeout.Should().Be(serverSelectionTimeout);
@@ -303,7 +267,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -323,7 +286,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(newEndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -343,7 +305,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().Be(newLoadBalanced);
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -363,27 +324,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(newLocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
-            result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
-            result.Scheme.Should().Be(subject.Scheme);
-            result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
-        }
-
-        [Fact]
-        public void With_maxServerSelectionWaitQueueSize_should_return_expected_result()
-        {
-            var oldMaxServerSelectionWaitQueueSize = 1;
-            var newMaxServerSelectionWaitQueueSize = 2;
-            var subject = new ClusterSettings(maxServerSelectionWaitQueueSize: oldMaxServerSelectionWaitQueueSize);
-
-            var result = subject.With(maxServerSelectionWaitQueueSize: newMaxServerSelectionWaitQueueSize);
-
-            result.CryptClientSettings.Should().Be(subject.CryptClientSettings);
-            result.DirectConnection.Should().Be(subject.DirectConnection);
-            result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
-            result.LoadBalanced.Should().BeFalse();
-            result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(newMaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -403,7 +343,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(newReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -423,7 +362,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(newScheme);
             result.ServerSelectionTimeout.Should().Be(subject.ServerSelectionTimeout);
@@ -443,7 +381,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerApi.Should().Be(newServerApi);
@@ -464,7 +401,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.EndPoints.Should().EqualUsing(subject.EndPoints, EndPointHelper.EndPointEqualityComparer);
             result.LoadBalanced.Should().BeFalse();
             result.LocalThreshold.Should().Be(subject.LocalThreshold);
-            result.MaxServerSelectionWaitQueueSize.Should().Be(subject.MaxServerSelectionWaitQueueSize);
             result.ReplicaSetName.Should().Be(subject.ReplicaSetName);
             result.Scheme.Should().Be(subject.Scheme);
             result.ServerSelectionTimeout.Should().Be(newServerSelectionTimeout);

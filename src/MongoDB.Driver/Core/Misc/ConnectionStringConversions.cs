@@ -13,39 +13,10 @@
 * limitations under the License.
 */
 
-using System;
-
 namespace MongoDB.Driver.Core.Misc
 {
     internal static class ConnectionStringConversions
     {
-        /// <summary>
-        /// Compute the wait queue size.
-        /// </summary>
-        /// <param name="effectiveMaxConnections">The max number of connections.</param>
-        /// <param name="multiplier">The multiplier.</param>
-        /// <returns>The computed wait queue size.</returns>
-        [Obsolete("This method will be removed in a later release.")]
-        public static int GetComputedWaitQueueSize(int effectiveMaxConnections, double multiplier)
-        {
-            if (effectiveMaxConnections == int.MaxValue)
-            {
-                return int.MaxValue;
-            }
-            else
-            {
-                var computedWaitQueueSize = effectiveMaxConnections * multiplier;
-                if (computedWaitQueueSize > int.MaxValue)
-                {
-                    return int.MaxValue;
-                }
-                else
-                {
-                    return (int)computedWaitQueueSize;
-                }
-            }
-        }
-
         /// <summary>
         /// Gets the effective max connections.
         /// </summary>

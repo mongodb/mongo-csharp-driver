@@ -84,7 +84,6 @@ namespace MongoDB.Driver
         private TracingOptions _tracingOptions;
         private ExpressionTranslationOptions _translationOptions;
         private bool _useTls;
-        private int _waitQueueSize;
         private TimeSpan _waitQueueTimeout;
         private WriteConcern _writeConcern;
         private UTF8Encoding _writeEncoding;
@@ -140,9 +139,6 @@ namespace MongoDB.Driver
             _timeout = System.Threading.Timeout.InfiniteTimeSpan;
             _translationOptions = null;
             _useTls = false;
-#pragma warning disable 618
-            _waitQueueSize = MongoDefaults.ComputedWaitQueueSize;
-#pragma warning restore 618
             _waitQueueTimeout = MongoDefaults.WaitQueueTimeout;
             _writeConcern = WriteConcern.Acknowledged;
             _writeEncoding = null;
@@ -811,20 +807,6 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Gets or sets the wait queue size.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int WaitQueueSize
-        {
-            get { return _waitQueueSize; }
-            set
-            {
-                if (_isFrozen) { throw new InvalidOperationException("MongoClientSettings is frozen."); }
-                _waitQueueSize = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the wait queue timeout.
         /// </summary>
         public TimeSpan WaitQueueTimeout
@@ -979,9 +961,6 @@ namespace MongoDB.Driver
             }
             clientSettings.Timeout = url.Timeout;
             clientSettings.UseTls = url.UseTls;
-#pragma warning disable 618
-            clientSettings.WaitQueueSize = url.ComputedWaitQueueSize;
-#pragma warning restore 618
             clientSettings.WaitQueueTimeout = url.WaitQueueTimeout;
             clientSettings.WriteConcern = url.GetWriteConcern(true); // WriteConcern is enabled by default for MongoClient
             clientSettings.WriteEncoding = null; // WriteEncoding must be provided in code
@@ -1041,7 +1020,6 @@ namespace MongoDB.Driver
             clone._timeout = _timeout;
             clone._translationOptions = _translationOptions;
             clone._useTls = _useTls;
-            clone._waitQueueSize = _waitQueueSize;
             clone._waitQueueTimeout = _waitQueueTimeout;
             clone._writeConcern = _writeConcern;
             clone._writeEncoding = _writeEncoding;
@@ -1117,7 +1095,6 @@ namespace MongoDB.Driver
                 _timeout == rhs._timeout &&
                 object.Equals(_translationOptions, rhs._translationOptions) &&
                 _useTls == rhs._useTls &&
-                _waitQueueSize == rhs._waitQueueSize &&
                 _waitQueueTimeout == rhs._waitQueueTimeout &&
                 object.Equals(_writeConcern, rhs._writeConcern) &&
                 object.Equals(_writeEncoding, rhs._writeEncoding);
@@ -1210,7 +1187,6 @@ namespace MongoDB.Driver
                 .Hash(_timeout)
                 .Hash(_translationOptions)
                 .Hash(_useTls)
-                .Hash(_waitQueueSize)
                 .Hash(_waitQueueTimeout)
                 .Hash(_writeConcern)
                 .Hash(_writeEncoding)
@@ -1305,8 +1281,7 @@ namespace MongoDB.Driver
             {
                 sb.AppendFormat("TranslationOptions={0};", _translationOptions);
             }
-            sb.AppendFormat("WaitQueueSize={0};", _waitQueueSize);
-            sb.AppendFormat("WaitQueueTimeout={0}", _waitQueueTimeout);
+            sb.AppendFormat("WaitQueueTimeout={0};", _waitQueueTimeout);
             sb.AppendFormat("WriteConcern={0};", _writeConcern);
             if (_writeEncoding != null)
             {
@@ -1355,7 +1330,6 @@ namespace MongoDB.Driver
                 _sslSettings,
                 _tracingOptions,
                 _useTls,
-                _waitQueueSize,
                 _waitQueueTimeout);
         }
 

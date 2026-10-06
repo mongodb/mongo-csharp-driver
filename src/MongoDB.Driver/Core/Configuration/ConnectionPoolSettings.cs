@@ -27,7 +27,6 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly TimeSpan _maintenanceInterval;
         private readonly int _maxConnections;
         private readonly int _minConnections;
-        private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
         private readonly int _maxConnecting;
         private readonly bool _isPausable;
@@ -39,20 +38,17 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="maintenanceInterval">The maintenance interval.</param>
         /// <param name="maxConnections">The maximum number of connections.</param>
         /// <param name="minConnections">The minimum number of connections.</param>
-        /// <param name="waitQueueSize">Size of the wait queue.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
         /// <param name="maxConnecting">The maximum concurrently connecting connections.</param>
         public ConnectionPoolSettings(
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
             Optional<int> minConnections = default(Optional<int>),
-            Optional<int> waitQueueSize = default(Optional<int>),
             Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>),
             Optional<int> maxConnecting = default(Optional<int>))
             : this(maintenanceInterval: maintenanceInterval,
                   maxConnections: maxConnections,
                   minConnections: minConnections,
-                  waitQueueSize: waitQueueSize,
                   waitQueueTimeout: waitQueueTimeout,
                   maxConnecting: maxConnecting,
                   isPausable: true)
@@ -63,7 +59,6 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
             Optional<int> minConnections = default(Optional<int>),
-            Optional<int> waitQueueSize = default(Optional<int>),
             Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>),
             Optional<bool> isPausable = default(Optional<bool>),
             Optional<int> maxConnecting = default(Optional<int>))
@@ -72,9 +67,6 @@ namespace MongoDB.Driver.Core.Configuration
             _maxConnections = Ensure.IsGreaterThanZero(maxConnections.WithDefault(100), nameof(maxConnections));
             _maxConnecting = Ensure.IsGreaterThanZero(maxConnecting.WithDefault(MongoInternalDefaults.ConnectionPool.MaxConnecting), nameof(maxConnecting));
             _minConnections = Ensure.IsGreaterThanOrEqualToZero(minConnections.WithDefault(0), nameof(minConnections));
-#pragma warning disable CS0618 // Type or member is obsolete
-            _waitQueueSize = Ensure.IsGreaterThanOrEqualToZero(waitQueueSize.WithDefault(ConnectionStringConversions.GetComputedWaitQueueSize(_maxConnections, 5)), nameof(waitQueueSize));
-#pragma warning restore CS0618 // Type or member is obsolete
             _waitQueueTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(waitQueueTimeout.WithDefault(TimeSpan.FromMinutes(2)), nameof(waitQueueTimeout));
 
             _isPausable = isPausable.WithDefault(true);
@@ -127,18 +119,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
-        /// Gets the size of the wait queue.
-        /// </summary>
-        /// <value>
-        /// The size of the wait queue.
-        /// </value>
-        [Obsolete("This property will be removed in a later release.")]
-        public int WaitQueueSize
-        {
-            get { return _waitQueueSize; }
-        }
-
-        /// <summary>
         /// Gets the wait queue timeout.
         /// </summary>
         /// <value>
@@ -163,14 +143,12 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="maxConnecting">The maximum concurrently connecting connections.</param>
         /// <param name="maxConnections">The maximum connections.</param>
         /// <param name="minConnections">The minimum connections.</param>
-        /// <param name="waitQueueSize">Size of the wait queue.</param>
         /// <param name="waitQueueTimeout">The wait queue timeout.</param>
         /// <returns>A new ConnectionPoolSettings instance.</returns>
         public ConnectionPoolSettings With(
             Optional<TimeSpan> maintenanceInterval = default(Optional<TimeSpan>),
             Optional<int> maxConnections = default(Optional<int>),
             Optional<int> minConnections = default(Optional<int>),
-            Optional<int> waitQueueSize = default(Optional<int>),
             Optional<TimeSpan> waitQueueTimeout = default(Optional<TimeSpan>),
             Optional<int> maxConnecting = default(Optional<int>))
         {
@@ -178,7 +156,6 @@ namespace MongoDB.Driver.Core.Configuration
                 maintenanceInterval: maintenanceInterval.WithDefault(_maintenanceInterval),
                 maxConnections: maxConnections.WithDefault(_maxConnections),
                 minConnections: minConnections.WithDefault(_minConnections),
-                waitQueueSize: waitQueueSize.WithDefault(_waitQueueSize),
                 waitQueueTimeout: waitQueueTimeout.WithDefault(_waitQueueTimeout),
                 maxConnecting: maxConnecting.WithDefault(_maxConnecting));
         }
@@ -188,7 +165,6 @@ namespace MongoDB.Driver.Core.Configuration
                 maintenanceInterval: _maintenanceInterval,
                 maxConnections: _maxConnections,
                 minConnections: _minConnections,
-                waitQueueSize: _waitQueueSize,
                 waitQueueTimeout: _waitQueueTimeout,
                 isPausable: isPausable.WithDefault(_isPausable),
                 maxConnecting: _maxConnecting);

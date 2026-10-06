@@ -47,8 +47,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _settings = new ConnectionPoolSettings(
                 maintenanceInterval: Timeout.InfiniteTimeSpan,
                 maxConnections: 4,
-                minConnections: 2,
-                waitQueueSize: 1);
+                minConnections: 2);
         }
 
         [Fact]

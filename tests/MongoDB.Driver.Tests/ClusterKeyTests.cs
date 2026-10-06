@@ -102,7 +102,6 @@ namespace MongoDB.Driver.Tests
         [InlineData("SslSettings", true)]
         [InlineData("TracingOptions", true)]
         [InlineData("UseTls", true)]
-        [InlineData("WaitQueueSize", true)]
         [InlineData("WaitQueueTimeout", true)]
         public void Equals_should_return_false_if_any_field_is_not_equal(string notEqualFieldName, bool expectEqualHashCode)
         {
@@ -216,7 +215,6 @@ namespace MongoDB.Driver.Tests
             };
             var tracingOptions = new TracingOptions();
             var useTls = false;
-            var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
             if (notEqualFieldName != null)
@@ -263,7 +261,6 @@ namespace MongoDB.Driver.Tests
                     case "SslSettings": sslSettings.CheckCertificateRevocation = !sslSettings.CheckCertificateRevocation; break;
                     case "TracingOptions": tracingOptions = new TracingOptions { Disabled = true }; break;
                     case "UseTls": useTls = !useTls; break;
-                    case "WaitQueueSize": waitQueueSize = 99; break;
                     case "WaitQueueTimeout": waitQueueTimeout = TimeSpan.FromSeconds(99); break;
                     default: throw new ArgumentException($"Invalid field name: \"{notEqualFieldName}\".", nameof(notEqualFieldName));
                 }
@@ -306,7 +303,6 @@ namespace MongoDB.Driver.Tests
                 sslSettings,
                 tracingOptions,
                 useTls,
-                waitQueueSize,
                 waitQueueTimeout);
         }
 
@@ -357,7 +353,6 @@ namespace MongoDB.Driver.Tests
             };
             var tracingOptions = new TracingOptions();
             var useTls = false;
-            var waitQueueSize = 20;
             var waitQueueTimeout = TimeSpan.FromSeconds(5);
 
             return new ClusterKey(
@@ -397,7 +392,6 @@ namespace MongoDB.Driver.Tests
                 sslSettings,
                 tracingOptions,
                 useTls,
-                waitQueueSize,
                 waitQueueTimeout);
         }
 

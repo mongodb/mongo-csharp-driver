@@ -131,7 +131,7 @@ namespace MongoDB.Driver.Tests
                 "connect=direct;connectTimeout=123;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;localThreshold=128;loadBalanced=false;" +
                 "maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=127;minPoolSize=126;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;socketTimeout=129;" +
-                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;ssl=true;sslVerifyCertificate=false;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other;tlsInsecure=true";
             var builder = new MongoUrlBuilder(connectionString);
             var url = builder.ToMongoUrl();
@@ -341,9 +341,6 @@ namespace MongoDB.Driver.Tests
             Assert.Null(settings.SslSettings);
             Assert.Equal(false, settings.UseTls);
             Assert.Equal(false, settings.AllowInsecureTls);
-#pragma warning disable 618
-            Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
-#pragma warning restore 618
             Assert.Equal(MongoDefaults.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(WriteConcern.Acknowledged, settings.WriteConcern);
         }
@@ -531,12 +528,6 @@ namespace MongoDB.Driver.Tests
             Assert.False(clone.Equals(settings));
 
             clone = settings.Clone();
-#pragma warning disable 618
-            clone.WaitQueueSize = settings.WaitQueueSize + 1;
-#pragma warning restore 618
-            Assert.False(clone.Equals(settings));
-
-            clone = settings.Clone();
             clone.WaitQueueTimeout = new TimeSpan(1, 2, 3);
             Assert.False(clone.Equals(settings));
 
@@ -658,7 +649,7 @@ namespace MongoDB.Driver.Tests
                 "compressors=zlib,snappy;zlibCompressionLevel=9;connectTimeout=123;directConnection=true;enableOverloadRetargeting=true;ipv6=true;heartbeatInterval=1m;heartbeatTimeout=2m;loadBalanced=false;localThreshold=128;" +
                 "maxAdaptiveRetries=3;maxConnecting=3;maxIdleTime=124;maxLifeTime=125;maxPoolSize=127;minPoolSize=126;readConcernLevel=majority;" +
                 "readPreference=secondary;readPreferenceTags=a:1,b:2;readPreferenceTags=c:3,d:4;retryReads=false;retryWrites=true;socketTimeout=129;" +
-                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitqueuesize=130;waitQueueTimeout=131;" +
+                "serverMonitoringMode=Stream;serverSelectionTimeout=20s;tls=true;sslVerifyCertificate=false;waitQueueTimeout=131;" +
                 "w=1;fsync=true;journal=true;w=2;wtimeout=131;gssapiServiceName=other" +
                 "&proxyHost=host.com&proxyPort=2020&proxyUsername=user&proxyPassword=passw";
             var builder = new MongoUrlBuilder(connectionString);
@@ -706,10 +697,6 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(url.ProxyPassword, ((Socks5AuthenticationSettings.UsernamePasswordAuthenticationSettings)settings.Socks5ProxySettings.Authentication).Password);
             Assert.Equal(url.TlsDisableCertificateRevocationCheck, !settings.SslSettings.CheckCertificateRevocation);
             Assert.Equal(url.UseTls, settings.UseTls);
-
-#pragma warning disable 618
-            Assert.Equal(url.ComputedWaitQueueSize, settings.WaitQueueSize);
-#pragma warning restore 618
             Assert.Equal(url.WaitQueueTimeout, settings.WaitQueueTimeout);
             Assert.Equal(url.GetWriteConcern(true), settings.WriteConcern);
         }
@@ -1330,23 +1317,6 @@ namespace MongoDB.Driver.Tests
         }
 
         [Fact]
-        public void TestWaitQueueSize()
-        {
-#pragma warning disable 618
-            var settings = new MongoClientSettings();
-            Assert.Equal(MongoDefaults.ComputedWaitQueueSize, settings.WaitQueueSize);
-
-            var waitQueueSize = 123;
-            settings.WaitQueueSize = waitQueueSize;
-            Assert.Equal(waitQueueSize, settings.WaitQueueSize);
-
-            settings.Freeze();
-            Assert.Equal(waitQueueSize, settings.WaitQueueSize);
-            Assert.Throws<InvalidOperationException>(() => { settings.WaitQueueSize = waitQueueSize; });
-#pragma warning restore 618
-        }
-
-        [Fact]
         public void TestWaitQueueTimeout()
         {
             var settings = new MongoClientSettings();
@@ -1418,9 +1388,6 @@ namespace MongoDB.Driver.Tests
                 Socks5ProxySettings = Socks5ProxySettings.Create("host", 2020, null, null),
                 SslSettings = sslSettings,
                 UseTls = true,
-#pragma warning disable 618
-                WaitQueueSize = 20,
-#pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(5)
             };
 
@@ -1455,9 +1422,6 @@ namespace MongoDB.Driver.Tests
             result.Socks5ProxySettings.Should().Be(subject.Socks5ProxySettings);
             result.SslSettings.Should().Be(subject.SslSettings);
             result.UseTls.Should().Be(subject.UseTls);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 

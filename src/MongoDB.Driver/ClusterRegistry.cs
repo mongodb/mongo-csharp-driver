@@ -95,7 +95,6 @@ namespace MongoDB.Driver
                 loadBalanced: clusterKey.LoadBalanced,
                 localThreshold: clusterKey.LocalThreshold,
                 replicaSetName: clusterKey.ReplicaSetName,
-                maxServerSelectionWaitQueueSize: clusterKey.WaitQueueSize,
                 serverApi: clusterKey.ServerApi,
                 serverSelectionTimeout: clusterKey.ServerSelectionTimeout,
                 scheme: clusterKey.Scheme,
@@ -109,7 +108,6 @@ namespace MongoDB.Driver
                 maxConnecting: clusterKey.MaxConnecting,
                 maxConnections: clusterKey.MaxConnectionPoolSize,
                 minConnections: clusterKey.MinConnectionPoolSize,
-                waitQueueSize: clusterKey.WaitQueueSize,
                 waitQueueTimeout: clusterKey.WaitQueueTimeout);
         }
 

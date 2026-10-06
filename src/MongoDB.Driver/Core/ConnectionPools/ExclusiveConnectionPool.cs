@@ -39,7 +39,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
         private readonly ServiceStates _serviceStates;
         private readonly ConnectionPoolSettings _settings;
         private readonly PoolState _poolState;
-        private int _waitQueueFreeSlots;
         private readonly SemaphoreSlimSignalable _maxConnectionsQueue;
         private readonly SemaphoreSlimSignalable _maxConnectingQueue;
         private readonly IConnectionExceptionHandler _connectionExceptionHandler;
@@ -72,9 +71,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             _maxConnectionsQueue = new SemaphoreSlimSignalable(settings.MaxConnections);
 
             _serviceStates = new ServiceStates();
-#pragma warning disable 618
-            _waitQueueFreeSlots = settings.WaitQueueSize;
-#pragma warning restore 618
         }
 
         // properties

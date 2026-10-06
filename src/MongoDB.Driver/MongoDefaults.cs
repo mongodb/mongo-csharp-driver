@@ -15,7 +15,6 @@
 
 using System;
 using System.Text;
-using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -43,8 +42,6 @@ namespace MongoDB.Driver
         private static TimeSpan __socketTimeout = TimeSpan.Zero; // use operating system default (presumably infinite)
         private static int __tcpReceiveBufferSize = 64 * 1024; // 64KiB (note: larger than 2MiB fails on Mac using Mono)
         private static int __tcpSendBufferSize = 64 * 1024; // 64KiB (TODO: what is the optimum value for the buffers?)
-        private static double __waitQueueMultiple = 5.0; // default wait queue multiple is 5.0
-        private static int __waitQueueSize = 0; // use multiple by default
         private static TimeSpan __waitQueueTimeout = TimeSpan.FromMinutes(2); // default wait queue timeout is 2 minutes
         private static UTF8Encoding __writeEncoding = Utf8Encodings.Strict;
         private static int __maxDocumentSize = 4 * 1024 * 1024; // 4 MiB. Original MongoDB max document size
@@ -66,25 +63,6 @@ namespace MongoDB.Driver
         {
             get { return __authenticationMechanism; }
             set { __authenticationMechanism = value; }
-        }
-
-        /// <summary>
-        /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public static int ComputedWaitQueueSize
-        {
-            get
-            {
-                if (__waitQueueMultiple == 0.0)
-                {
-                    return __waitQueueSize;
-                }
-                else
-                {
-                    return ConnectionStringConversions.GetComputedWaitQueueSize(__maxConnectionPoolSize, __waitQueueMultiple);
-                }
-            }
         }
 
         /// <summary>
@@ -227,34 +205,6 @@ namespace MongoDB.Driver
         {
             get { return __tcpSendBufferSize; }
             set { __tcpSendBufferSize = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize, see also WaitQueueSize).
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public static double WaitQueueMultiple
-        {
-            get { return __waitQueueMultiple; }
-            set
-            {
-                __waitQueueMultiple = value;
-                __waitQueueSize = 0;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the wait queue size (see also WaitQueueMultiple).
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public static int WaitQueueSize
-        {
-            get { return __waitQueueSize; }
-            set
-            {
-                __waitQueueMultiple = 0.0;
-                __waitQueueSize = value;
-            }
         }
 
         /// <summary>

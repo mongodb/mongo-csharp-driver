@@ -105,9 +105,6 @@ namespace MongoDB.Driver.Tests
                 Username = "username",
                 UseTls = true,
                 W = 2,
-#pragma warning disable 618
-                WaitQueueSize = 123,
-#pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
                 WTimeout = TimeSpan.FromSeconds(9)
             };
@@ -147,7 +144,6 @@ namespace MongoDB.Driver.Tests
 #if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=13s",
 #endif
-                "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
                 "retryWrites=true"
@@ -162,9 +158,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("GSSAPI", builder.AuthenticationMechanism);
                 Assert.Equal(authMechanismProperties, builder.AuthenticationMechanismProperties);
                 Assert.Equal("db", builder.AuthenticationSource);
-#pragma warning disable 618
-                Assert.Equal(123, builder.ComputedWaitQueueSize);
-#pragma warning restore 618
                 Assert.Contains(
                     builder.Compressors,
                     x => x.Type == CompressorType.Zlib && x.Properties.ContainsKey("Level") && (int)x.Properties["Level"] == 4);
@@ -200,10 +193,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("username", builder.Username);
                 Assert.Equal(true, builder.UseTls);
                 Assert.Equal(2, ((WriteConcern.WCount)builder.W).Value);
-#pragma warning disable 618
-                Assert.Equal(0.0, builder.WaitQueueMultiple);
-                Assert.Equal(123, builder.WaitQueueSize);
-#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
                 Assert.Equal(connectionString, builder.ToString());
@@ -281,41 +270,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(authSource, builder.AuthenticationSource);
                 Assert.Equal(connectionString, builder.ToString());
             }
-        }
-
-        [Fact]
-        public void TestComputedWaitQueueSize_UsingMultiple()
-        {
-#pragma warning disable 618
-            var built = new MongoUrlBuilder { Server = _localhost, MaxConnectionPoolSize = 123, WaitQueueMultiple = 2.0 };
-            var connectionString = "mongodb://localhost/?maxPoolSize=123&waitQueueMultiple=2";
-
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
-            {
-                Assert.Equal(123, builder.MaxConnectionPoolSize);
-                Assert.Equal(2.0, builder.WaitQueueMultiple);
-                Assert.Equal(0, builder.WaitQueueSize);
-                Assert.Equal(246, builder.ComputedWaitQueueSize);
-                Assert.Equal(connectionString, builder.ToString());
-            }
-#pragma warning restore 618
-        }
-
-        [Fact]
-        public void TestComputedWaitQueueSize_UsingSize()
-        {
-#pragma warning disable 618
-            var built = new MongoUrlBuilder { Server = _localhost, WaitQueueSize = 123 };
-            var connectionString = "mongodb://localhost/?waitQueueSize=123";
-
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
-            {
-                Assert.Equal(0.0, builder.WaitQueueMultiple);
-                Assert.Equal(123, builder.WaitQueueSize);
-                Assert.Equal(123, builder.ComputedWaitQueueSize);
-                Assert.Equal(connectionString, builder.ToString());
-            }
-#pragma warning restore 618
         }
 
         [Theory]
@@ -424,9 +378,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(0, builder.AuthenticationMechanismProperties.Count());
                 Assert.Equal(null, builder.AuthenticationSource);
                 Assert.Equal(new CompressorConfiguration[0], builder.Compressors);
-#pragma warning disable CS0618 // Type or member is obsolete
-                Assert.Equal(MongoDefaults.ComputedWaitQueueSize, builder.ComputedWaitQueueSize);
-#pragma warning restore CS0618 // Type or member is obsolete
                 Assert.Equal(MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
                 Assert.Equal(null, builder.DatabaseName);
                 Assert.Equal(false, builder.DirectConnection);
@@ -454,10 +405,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.Username);
                 Assert.Equal(false, builder.UseTls);
                 Assert.Equal(null, builder.W);
-#pragma warning disable 618
-                Assert.Equal(MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
-                Assert.Equal(MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
-#pragma warning restore 618
                 Assert.Equal(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
                 Assert.Equal(null, builder.WTimeout);
                 Assert.Equal(connectionString, builder.ToString());
@@ -1312,64 +1259,6 @@ namespace MongoDB.Driver.Tests
             builder.W = 1; // magic one
             builder.W = 2; // regular w value
             builder.W = "mode"; // a mode name
-        }
-
-        [Theory]
-        [InlineData(null, "mongodb://localhost")]
-        [InlineData(2.0, "mongodb://localhost/?waitQueueMultiple=2")]
-        public void TestWaitQueueMultiple(double? multiple, string connectionString)
-        {
-#pragma warning disable 618
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (multiple != null) { built.WaitQueueMultiple = multiple.Value; }
-
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
-            {
-                Assert.Equal(multiple ?? MongoDefaults.WaitQueueMultiple, builder.WaitQueueMultiple);
-                Assert.Equal((multiple == null) ? MongoDefaults.WaitQueueSize : 0, builder.WaitQueueSize);
-                Assert.Equal(connectionString, builder.ToString());
-            }
-#pragma warning restore 618
-        }
-
-        [Fact]
-        public void TestWaitQueueMultiple_Range()
-        {
-#pragma warning disable 618
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WaitQueueMultiple = -1.0; });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WaitQueueMultiple = 0.0; });
-            builder.WaitQueueMultiple = 1.0;
-#pragma warning restore 618
-        }
-
-        [Theory]
-        [InlineData(null, "mongodb://localhost")]
-        [InlineData(123, "mongodb://localhost/?waitQueueSize=123")]
-        public void TestWaitQueueSize(int? size, string connectionString)
-        {
-#pragma warning disable 618
-            var built = new MongoUrlBuilder { Server = _localhost };
-            if (size != null) { built.WaitQueueSize = size.Value; }
-
-            foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
-            {
-                Assert.Equal((size == null) ? MongoDefaults.WaitQueueMultiple : 0.0, builder.WaitQueueMultiple);
-                Assert.Equal(size ?? MongoDefaults.WaitQueueSize, builder.WaitQueueSize);
-                Assert.Equal(connectionString, builder.ToString());
-            }
-#pragma warning restore 618
-        }
-
-        [Fact]
-        public void TestWaitQueueSize_Range()
-        {
-#pragma warning disable 618
-            var builder = new MongoUrlBuilder { Server = _localhost };
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WaitQueueSize = -1; });
-            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.WaitQueueSize = 0; });
-            builder.WaitQueueSize = 1;
-#pragma warning restore 618
         }
 
         [Theory]

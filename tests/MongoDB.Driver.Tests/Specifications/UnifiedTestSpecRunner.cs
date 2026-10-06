@@ -111,7 +111,13 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [UnifiedTestsTheory("connection_monitoring_and_pooling.tests.logging")]
-        public void ConnectionMonitoringAndPooling(JsonDrivenTestCase testCase) => Run(testCase, IsCmapLogValid);
+        public void ConnectionMonitoringAndPooling(JsonDrivenTestCase testCase)
+        {
+            SkipNotSupportedTestCases(testCase, "waitQueueSize");
+            SkipNotSupportedTestCases(testCase, "waitQueueMultiple");
+
+            Run(testCase, IsCmapLogValid);
+        }
 
         [UnifiedTestsTheory("collection_management.tests")]
         public void CollectionManagement(JsonDrivenTestCase testCase) => Run(testCase);
@@ -372,9 +378,6 @@ namespace MongoDB.Driver.Tests.Specifications
         /// </summary>
         private static readonly HashSet<string> __ignoredTests = new(
         [
-            // CMAP
-            "waitQueueMultiple should be included in connection pool created message when specified",
-
             // commandLogging
             // .NET driver has a fallback logic to get a server connectionId based on an additional getLastError call which is not expected by the spec.
             "command log messages do not include server connection id",

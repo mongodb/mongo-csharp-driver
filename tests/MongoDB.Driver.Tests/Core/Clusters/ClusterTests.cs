@@ -572,7 +572,6 @@ namespace MongoDB.Driver.Core.Clusters
     {
         public static InterlockedInt32 _state(this Cluster cluster) => (InterlockedInt32)Reflector.GetFieldValue(cluster, nameof(_state));
 
-        public static TimeSpan _minHeartbeatInterval(this Cluster cluster) => (TimeSpan)Reflector.GetFieldValue(cluster, nameof(_minHeartbeatInterval));
-        public static void _minHeartbeatInterval(this Cluster cluster, TimeSpan timeSpan) => Reflector.SetFieldValue(cluster, nameof(_minHeartbeatInterval), timeSpan);
+        public static void _rapidHeartbeatInterval(this Cluster cluster, TimeSpan timeSpan) => Reflector.SetFieldValue(cluster, nameof(_rapidHeartbeatInterval), timeSpan);
     }
 }

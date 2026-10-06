@@ -201,9 +201,6 @@ namespace MongoDB.Driver.Tests
                 Username = "username",
                 UseTls = true,
                 W = 2,
-#pragma warning disable 618
-                WaitQueueSize = 123,
-#pragma warning restore 618
                 WaitQueueTimeout = TimeSpan.FromSeconds(8),
                 WTimeout = TimeSpan.FromSeconds(9)
             };
@@ -242,7 +239,6 @@ namespace MongoDB.Driver.Tests
 #if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=13s",
 #endif
-                "waitQueueSize=123",
                 "waitQueueTimeout=8s",
                 "retryReads=false",
                 "retryWrites=true"
@@ -258,9 +254,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(authMechanismProperties, url.AuthenticationMechanismProperties);
                 Assert.Equal("db", url.AuthenticationSource);
                 Assert.Contains(url.Compressors, x => x.Type == CompressorType.Zlib);
-#pragma warning disable 618
-                Assert.Equal(123, url.ComputedWaitQueueSize);
-#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(1), url.ConnectTimeout);
                 Assert.Equal("database", url.DatabaseName);
                 Assert.Equal(true, url.FSync);
@@ -294,10 +287,6 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal("username", url.Username);
                 Assert.Equal(true, url.UseTls);
                 Assert.Equal(2, ((WriteConcern.WCount)url.W).Value);
-#pragma warning disable 618
-                Assert.Equal(0.0, url.WaitQueueMultiple);
-                Assert.Equal(123, url.WaitQueueSize);
-#pragma warning restore 618
                 Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
 
