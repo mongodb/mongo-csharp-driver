@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly Timer _rapidHeartbeatTimer;
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
-            private int _serverSelectionQueueSize;
+            private int _serverSelectionWaitingThreadsCount;
 
             public ServerSelectionWaitQueue(Cluster cluster)
             {
@@ -471,7 +471,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (++_serverSelectionQueueSize == 1)
+                    if (++_serverSelectionWaitingThreadsCount == 1)
                     {
                         _rapidHeartbeatTimer.Change(TimeSpan.Zero, _cluster._rapidHeartbeatInterval);
                     }
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (--_serverSelectionQueueSize == 0)
+                    if (--_serverSelectionWaitingThreadsCount == 0)
                     {
                         try
                         {
