@@ -32,7 +32,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly CollectionNamespace _collectionNamespace;
         private BsonDocument _filter;
         private BsonJavaScript _finalizeFunction;
-        private bool? _javaScriptMode;
         private long? _limit;
         private readonly BsonJavaScript _mapFunction;
         private TimeSpan? _maxTime;
@@ -40,7 +39,6 @@ namespace MongoDB.Driver.Core.Operations
         private readonly BsonJavaScript _reduceFunction;
         private BsonDocument _scope;
         private BsonDocument _sort;
-        private bool? _verbose;
 
         // constructors
         /// <summary>
@@ -104,23 +102,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _finalizeFunction; }
             set { _finalizeFunction = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether objects emitted by the map function remain as JavaScript objects.
-        /// </summary>
-        /// <value>
-        /// <remarks>
-        /// Setting this value to true can result in faster execution, but requires more memory on the server, and if
-        /// there are too many emitted objects the map-reduce operation may fail.
-        /// </remarks>
-        ///   <c>true</c> if objects emitted by the map function remain as JavaScript objects; otherwise, <c>false</c>.
-        /// </value>
-        [Obsolete("JavaScriptMode is ignored by server versions 4.4.0 and newer.")]
-        public bool? JavaScriptMode
-        {
-            get { return _javaScriptMode; }
-            set { _javaScriptMode = value; }
         }
 
         /// <summary>
@@ -207,18 +188,6 @@ namespace MongoDB.Driver.Core.Operations
             set { _sort = value; }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether to include extra information, such as timing, in the result.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if extra information, such as timing, should be included in the result; otherwise, <c>false</c>.
-        /// </value>
-        public bool? Verbose
-        {
-            get { return _verbose; }
-            set { _verbose = value; }
-        }
-
         // methods
         protected internal virtual BsonDocument CreateCommand(OperationContext operationContext, ConnectionDescription connectionDescription, long? transactionNumber = null)
         {
@@ -233,8 +202,6 @@ namespace MongoDB.Driver.Core.Operations
                 { "limit", () => _limit.Value, _limit.HasValue },
                 { "finalize", _finalizeFunction, _finalizeFunction != null },
                 { "scope", _scope, _scope != null },
-                { "jsMode", () => _javaScriptMode.Value, _javaScriptMode.HasValue },
-                { "verbose", () => _verbose.Value, _verbose.HasValue },
                 { "maxTimeMS", () => MaxTimeHelper.ToMaxTimeMS(_maxTime.Value), _maxTime.HasValue && !operationContext.IsRootContextTimeoutConfigured() },
                 { "collation", () => _collation.ToBsonDocument(), _collation != null }
             };

@@ -36,10 +36,8 @@ namespace MongoDB.Driver.Core.Operations
         private bool _enableOverloadRetargeting;
         private int _maxAdaptiveRetries;
         private bool _retryRequested;
-        private bool? _nonAtomicOutput;
         private readonly CollectionNamespace _outputCollectionNamespace;
         private MapReduceOutputMode _outputMode;
-        private bool? _shardedOutput;
         private WriteConcern _writeConcern;
 
         // constructors
@@ -116,19 +114,6 @@ namespace MongoDB.Driver.Core.Operations
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the server should not lock the database for merge and reduce output modes.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the server should not lock the database for merge and reduce output modes; otherwise, <c>false</c>.
-        /// </value>
-        [Obsolete("NonAtomicOutput is rejected by server versions 4.4.0 and newer.")]
-        public bool? NonAtomicOutput
-        {
-            get { return _nonAtomicOutput; }
-            set { _nonAtomicOutput = value; }
-        }
-
-        /// <summary>
         /// Gets the name of the operation.
         /// </summary>
         public string OperationName => "mapReduce";
@@ -154,19 +139,6 @@ namespace MongoDB.Driver.Core.Operations
         {
             get { return _outputMode; }
             set { _outputMode = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the output collection should be sharded.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the output collection should be sharded; otherwise, <c>false</c>.
-        /// </value>
-        [Obsolete("ShardedOutput is rejected by server versions 4.4.0 and newer.")]
-        public bool? ShardedOutput
-        {
-            get { return _shardedOutput; }
-            set { _shardedOutput = value; }
         }
 
         /// <summary>
@@ -206,9 +178,7 @@ namespace MongoDB.Driver.Core.Operations
             return new BsonDocument
             {
                 { action, _outputCollectionNamespace.CollectionName },
-                { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName },
-                { "sharded", () => _shardedOutput.Value, _shardedOutput.HasValue },
-                { "nonAtomic", () => _nonAtomicOutput.Value, _nonAtomicOutput.HasValue }
+                { "db", _outputCollectionNamespace.DatabaseNamespace.DatabaseName }
             };
         }
 
@@ -251,7 +221,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public BsonDocument ExecuteAttempt(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 
@@ -265,7 +234,6 @@ namespace MongoDB.Driver.Core.Operations
         /// <inheritdoc/>
         public async Task<BsonDocument> ExecuteAttemptAsync(OperationContext operationContext, RetryableWriteContext context, int attempt, long? transactionNumber)
         {
-            var binding = context.Binding;
             var channelSource = context.ChannelSource;
             var channel = context.Channel;
 

@@ -71,14 +71,10 @@ namespace MongoDB.Driver.Core.Operations
             subject.Collation.Should().BeNull();
             subject.Filter.Should().BeNull();
             subject.FinalizeFunction.Should().BeNull();
-#pragma warning disable 618
-            subject.JavaScriptMode.Should().NotHaveValue();
-#pragma warning restore 618
             subject.Limit.Should().NotHaveValue();
             subject.MaxTime.Should().NotHaveValue();
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
-            subject.Verbose.Should().NotHaveValue();
         }
 
         [Fact]
@@ -223,35 +219,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCommand_should_return_the_expected_result_when_JavaScriptMode_is_provided(
-            [Values(null, false, true)]
-            bool? javaScriptMode)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-            {
-#pragma warning disable 618
-                JavaScriptMode = javaScriptMode
-#pragma warning restore 618
-            };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            using var session = OperationTestHelper.CreateSession();
-            using var operationContext = new OperationContext(session);
-
-            var result = subject.CreateCommand(operationContext, connectionDescription);
-
-            var expectedResult = new BsonDocument
-            {
-                { "mapReduce", _collectionNamespace.CollectionName },
-                { "map", _mapFunction },
-                { "reduce", _reduceFunction },
-                { "out", new BsonDocument("fake", 1) },
-                { "jsMode", () => javaScriptMode.Value, javaScriptMode.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void CreateCommand_should_return_the_expected_result_when_Limit_is_provided(
             [Values(null, 1L, 2L)]
             long? limit)
@@ -383,33 +350,6 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public void CreateCommand_should_return_the_expected_result_when_Verbose_is_provided(
-            [Values(null, false, true)]
-            bool? verbose)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings)
-            {
-                Verbose = verbose
-            };
-            var connectionDescription = OperationTestHelper.CreateConnectionDescription();
-            using var session = OperationTestHelper.CreateSession();
-            using var operationContext = new OperationContext(session);
-
-            var result = subject.CreateCommand(operationContext, connectionDescription);
-
-            var expectedResult = new BsonDocument
-            {
-                { "mapReduce", _collectionNamespace.CollectionName },
-                { "map", _mapFunction },
-                { "reduce", _reduceFunction },
-                { "out", new BsonDocument("fake", 1) },
-                { "verbose", () => verbose.Value, verbose.HasValue }
-            };
-            result.Should().Be(expectedResult);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
         public void Filter_should_get_and_set_value(
             [Values(null, "{ x : 1 }", "{ x : 2 }")]
             string valueString)
@@ -436,22 +376,6 @@ namespace MongoDB.Driver.Core.Operations
             var result = subject.FinalizeFunction;
 
             result.Should().BeSameAs(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void JavaScriptMode_should_get_and_set_value(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-
-#pragma warning disable 618
-            subject.JavaScriptMode = value;
-            var result = subject.JavaScriptMode;
-#pragma warning restore 618
-
-            result.Should().Be(value);
         }
 
         [Theory]
@@ -556,20 +480,6 @@ namespace MongoDB.Driver.Core.Operations
 
             subject.Sort = value;
             var result = subject.Sort;
-
-            result.Should().Be(value);
-        }
-
-        [Theory]
-        [ParameterAttributeData]
-        public void Verbose_should_get_and_set_value(
-            [Values(null, false, true)]
-            bool? value)
-        {
-            var subject = new FakeMapReduceOperation(_collectionNamespace, _mapFunction, _reduceFunction, _messageEncoderSettings);
-
-            subject.Verbose = value;
-            var result = subject.Verbose;
 
             result.Should().Be(value);
         }
