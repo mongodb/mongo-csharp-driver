@@ -2841,7 +2841,6 @@ namespace MongoDB.Driver
 #pragma warning restore CS0618 // Type or member is obsolete
                 Scope = new BsonDocument("test", 3),
                 Sort = sortDefinition,
-                Verbose = true
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -2895,7 +2894,6 @@ namespace MongoDB.Driver
             operation.ResultSerializer.Should().Be(BsonDocumentSerializer.Instance);
             operation.Scope.Should().Be(options.Scope);
             operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
         }
 
         [Theory]
@@ -2928,7 +2926,6 @@ namespace MongoDB.Driver
 #pragma warning restore 618
                 Scope = new BsonDocument("test", 3),
                 Sort = sortDefinition,
-                Verbose = true
             };
             using var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
@@ -2985,7 +2982,6 @@ namespace MongoDB.Driver
             operation.ReduceFunction.Should().Be(reduce);
             operation.Scope.Should().Be(options.Scope);
             operation.Sort.Should().Be(sortDocument);
-            operation.Verbose.Should().Be(options.Verbose);
             operation.WriteConcern.Should().BeSameAs(writeConcern);
         }
 

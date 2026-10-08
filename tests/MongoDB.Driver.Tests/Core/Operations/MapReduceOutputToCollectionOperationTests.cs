@@ -65,7 +65,6 @@ namespace MongoDB.Driver.Core.Operations
 #pragma warning restore 618
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
-            subject.Verbose.Should().NotHaveValue();
         }
 
         [Fact]

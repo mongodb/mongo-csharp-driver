@@ -166,8 +166,7 @@ namespace MongoDB.Driver.Core.TestHelpers.JsonDrivenTests
                                 actualValue["replace"] == expectedValue.AsString)
                             {
                                 // allow short form for "out" to be equivalent to the long form
-                                // Assumes that the driver is correctly generating the following
-                                // fields: db, sharded, nonAtomic
+                                // Assumes that the driver is correctly generating the db field
                                 return;
                             }
                         }

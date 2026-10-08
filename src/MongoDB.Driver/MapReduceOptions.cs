@@ -40,7 +40,6 @@ namespace MongoDB.Driver
         private BsonDocument _scope;
         private SortDefinition<TDocument> _sort;
         private TimeSpan? _timeout;
-        private bool? _verbose;
 
         // properties
         /// <summary>
@@ -141,15 +140,6 @@ namespace MongoDB.Driver
         {
             get => _timeout;
             set => _timeout = Ensure.IsNullOrValidTimeout(value, nameof(Timeout));
-        }
-
-        /// <summary>
-        /// Gets or sets whether to include timing information.
-        /// </summary>
-        public bool? Verbose
-        {
-            get { return _verbose; }
-            set { _verbose = value; }
         }
     }
 

@@ -1117,7 +1117,6 @@ namespace MongoDB.Driver
                 ReadConcern = _settings.ReadConcern,
                 Scope = options.Scope,
                 Sort = options.Sort?.Render(renderArgs),
-                Verbose = options.Verbose
             };
         }
 
@@ -1155,7 +1154,6 @@ namespace MongoDB.Driver
                 RetryRequested = _database.Client.Settings.RetryWrites,
                 Scope = options.Scope,
                 Sort = options.Sort?.Render(renderArgs),
-                Verbose = options.Verbose,
                 WriteConcern = _settings.WriteConcern
             };
         }

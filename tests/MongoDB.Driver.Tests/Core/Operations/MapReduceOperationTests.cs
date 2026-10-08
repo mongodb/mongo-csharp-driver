@@ -65,7 +65,6 @@ namespace MongoDB.Driver.Core.Operations
             subject.ReadConcern.Should().BeSameAs(ReadConcern.Default);
             subject.Scope.Should().BeNull();
             subject.Sort.Should().BeNull();
-            subject.Verbose.Should().NotHaveValue();
         }
 
         [Fact]
