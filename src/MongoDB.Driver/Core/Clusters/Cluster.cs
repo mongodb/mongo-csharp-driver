@@ -41,7 +41,7 @@ namespace MongoDB.Driver.Core.Clusters
 
         #endregion
 
-        private TimeSpan _rapidHeartbeatInterval = TimeSpan.FromMilliseconds(500);
+        private readonly TimeSpan _rapidHeartbeatInterval = ServerMonitor.MinHeartbeatInterval;
         private readonly ClientMetadata _clientMetadata;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
@@ -453,7 +453,7 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly Timer _rapidHeartbeatTimer;
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
-            private int _serverSelectionWaitingThreadsCount;
+            private int _waitingCount;
 
             public ServerSelectionWaitQueue(Cluster cluster)
             {
@@ -471,7 +471,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (++_serverSelectionWaitingThreadsCount == 1)
+                    if (++_waitingCount == 1)
                     {
                         _rapidHeartbeatTimer.Change(TimeSpan.Zero, _cluster._rapidHeartbeatInterval);
                     }
@@ -491,7 +491,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (--_serverSelectionWaitingThreadsCount == 0)
+                    if (--_waitingCount == 0)
                     {
                         try
                         {
