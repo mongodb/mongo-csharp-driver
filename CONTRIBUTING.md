@@ -107,12 +107,6 @@ Scoping the check to a single project is quicker than running it over the whole 
 dotnet format src/MongoDB.Bson/MongoDB.Bson.csproj --verify-no-changes
 ```
 
-C# and shell files use LF line endings on every platform, enforced by `.gitattributes`. If your clone predates that and the check reports `ENDOFLINE` on Windows, re-checkout the files once, with a clean working tree:
-
-```zsh
-git rm -r --cached -q . && git reset --hard
-```
-
 ## Submit a PR
 
 Push your branch to your fork once all tests pass. [Squash multiple commits into one](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together) and rebase on the latest upstream first (use the "Sync fork" button on your fork's page).
