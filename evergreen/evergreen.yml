@@ -1301,9 +1301,8 @@ tasks:
             ORCHESTRATION_FILE: "auth-aws.json"
             TOPOLOGY: "server"
         - func: add-aws-auth-variables-to-file
+        # FRAMEWORK comes from the build variant's framework axis
         - func: configure-framework
-          vars:
-            FRAMEWORK: net6.0
         # This step also creates test related users, so don't avoid this step in order to run other tests
         - func: run-aws-auth-test-with-regular-aws-credentials
         - func: run-aws-auth-test-with-assume-role-credentials
@@ -1964,7 +1963,16 @@ axes:
         display_name: "Ubuntu 22.04"
         variables:
           OS: "ubuntu-2204"
+          # drivers-evergreen-tools runs the ECS test only on Ubuntu 20.04 and 24.04
+          skip_ECS_auth_test: true
         run_on: ubuntu2204-small
+      - id: "ubuntu-2404"
+        display_name: "Ubuntu 24.04"
+        variables:
+          OS: "ubuntu-2404"
+          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
+          skip_EC2_auth_test: true
+        run_on: ubuntu2404-small
       - id: "macos-14"
         display_name: "macOS 14.00"
         variables:
@@ -2021,6 +2029,22 @@ axes:
         display_name: NoSSL
         variables:
            SSL: "nossl"
+
+  - id: framework
+    display_name: Framework
+    values:
+      - id: "net472"
+        display_name: "net472"
+        variables:
+           FRAMEWORK: "net472"
+      - id: "net60"
+        display_name: "net6.0"
+        variables:
+           FRAMEWORK: "net6.0"
+      - id: "net100"
+        display_name: "net10.0"
+        variables:
+           FRAMEWORK: "net10.0"
 
   - id: compressor
     display_name: Compressor
@@ -2573,23 +2597,26 @@ buildvariants:
   tasks:
     - name: ".ocsp"
 
-- matrix_name: aws-auth-tests-windows
-  matrix_spec: { version: ["4.4", "5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "windows-64" }
-  display_name: "MONGODB-AWS Auth test ${version} ${os}"
+# MONGODB-AWS auth: every credential scenario runs against latest, 4.4 is checked as the minimum supported server,
+# and each AWS SDK build the driver loads (net472, netcoreapp3.1 via net6.0, net8.0 via net10.0) is exercised.
+- matrix_name: aws-auth-tests-windows-minimum-server
+  matrix_spec: { version: "4.4", topology: "standalone", os: "windows-64", framework: "net472" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   run_on:
     - windows-2022-latest-small
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: aws-auth-tests-linux
-  matrix_spec: { version: ["6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "ubuntu-2004" }
-  display_name: "MONGODB-AWS Auth test ${version} ${os}"
+- matrix_name: aws-auth-tests-ubuntu-2204
+  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2204", framework: "net100" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: aws-auth-tests-macos
-  matrix_spec: { version: ["6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: "standalone", os: "macos-14" }
-  display_name: "MONGODB-AWS Auth test ${version} ${os}"
+# run-mongodb-aws-ecs-test.sh pins net6.0 inside the ECS container, so this cell's framework must match it
+- matrix_name: aws-auth-tests-ubuntu-2404
+  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2404", framework: "net60" }
+  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   tasks:
     - name: aws-auth-tests
 
