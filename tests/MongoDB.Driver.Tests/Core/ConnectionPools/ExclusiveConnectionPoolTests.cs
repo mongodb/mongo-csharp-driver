@@ -1469,11 +1469,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         public static void _generation(this ExclusiveConnectionPool obj, int generation) => Reflector.SetFieldValue(obj, nameof(_generation), generation);
 
-        public static int _waitQueueFreeSlots(this ExclusiveConnectionPool obj)
-        {
-            return (int)Reflector.GetFieldValue(obj, nameof(_waitQueueFreeSlots));
-        }
-
         public static CheckOutReasonCounter _checkOutReasonCounter(this ExclusiveConnectionPool obj) => (CheckOutReasonCounter)Reflector.GetFieldValue(obj, nameof(_checkOutReasonCounter));
 
         public static MaintenanceHelper _maintenanceHelper(this ExclusiveConnectionPool obj)

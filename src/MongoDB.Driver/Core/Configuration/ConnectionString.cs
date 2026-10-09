@@ -1422,18 +1422,6 @@ namespace MongoDB.Driver.Core.Configuration
             }
         }
 
-        internal static double ParseDouble(string name, string value)
-        {
-            try
-            {
-                return JsonConvert.ToDouble(value);
-            }
-            catch (Exception ex)
-            {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid double value of {1}.", name, value), ex);
-            }
-        }
-
         private static TEnum ParseEnum<TEnum>(string name, string value)
             where TEnum : struct
         {

@@ -1,4 +1,4 @@
-/* Copyright 2020-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -25,16 +25,6 @@ namespace MongoDB.Driver.Core.Misc
         public static int GetEffectiveMaxConnections(int maxConnections)
         {
             return maxConnections == 0 ? int.MaxValue : maxConnections;
-        }
-
-        /// <summary>
-        /// Gets the effective max connections.
-        /// </summary>
-        /// <param name="maxConnections">The max connections (0 means no max).</param>
-        /// <returns>The effective max connections (or null if maxConnections is null).</returns>
-        public static int? GetEffectiveMaxConnections(int? maxConnections)
-        {
-            return maxConnections.HasValue ? GetEffectiveMaxConnections(maxConnections.Value) : (int?)null;
         }
     }
 }
