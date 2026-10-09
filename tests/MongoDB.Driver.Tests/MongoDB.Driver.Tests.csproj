@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\BuildProps\Tests.Build.props" />
 
   <PropertyGroup>
@@ -20,7 +20,8 @@
       xUnit1026; <!--Theory methods should use all of their parameters (https://xunit.github.io/xunit.analyzers/rules/xUnit1026.html)-->
       xUnit2003; <!--Do not use equality check to test for null value (https://xunit.github.io/xunit.analyzers/rules/xUnit2003.html-->
       xUnit2004; <!--Do not use equality check to test for boolean conditions (https://xunit.github.io/xunit.analyzers/rules/xUnit2004.html)-->
-      xUnit2013 <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
+      xUnit2013; <!--Do not use equality check to check for collection size. (https://xunit.github.io/xunit.analyzers/rules/xUnit2013.html)-->
+      CS0618 <!-- TODO: Temporarily here, just to reduce noise around half-done API, remove it before completion of MongoClientBuilder work -->
     </NoWarn>
   </PropertyGroup>
 
