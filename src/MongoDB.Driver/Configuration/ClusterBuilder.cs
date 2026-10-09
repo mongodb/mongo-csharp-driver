@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -22,9 +23,9 @@ namespace MongoDB.Driver.Configuration;
 /// <summary>
 /// Configures the endpoints a <see cref="MongoClient"/> connects to and the topology it expects.
 /// </summary>
-public sealed class ConnectivityBuilder
+public sealed class ClusterBuilder
 {
-    internal ConnectivityBuilder()
+    internal ClusterBuilder()
     {
         Scheme = ConnectionStringScheme.MongoDB;
         Servers = new[] { new MongoServerAddress("localhost") };
@@ -61,6 +62,30 @@ public sealed class ConnectivityBuilder
     {
         get;
         set => field = new List<MongoServerAddress>(Ensure.IsNotNull(value, nameof(Servers))).AsReadOnly();
+    }
+
+    /// <summary>
+    /// Gets or sets the hostname suffix that hosts returned by an SRV lookup are validated against, replacing
+    /// the domain name that would otherwise be inferred from the SRV hostname. Only valid with
+    /// <see cref="ConnectionStringScheme.MongoDBPlusSrv"/>. The default value is <c>null</c>.
+    /// <para>
+    /// WARNING: Modifying the default SRV domain name validation can create vulnerabilities.
+    /// Prefer the narrowest suffix that covers the deployment: the broader it is, the more
+    /// hosts a forged SRV response could direct the driver to.
+    /// </para>
+    /// </summary>
+    public string SrvAllowedHostsSuffix
+    {
+        get;
+        set
+        {
+            if (value != null && !ConnectionString.TryNormalizeSrvAllowedHostsSuffix(value, out _, out var errorMessage))
+            {
+                throw new ArgumentException(errorMessage, nameof(SrvAllowedHostsSuffix));
+            }
+
+            field = value;
+        }
     }
 
     /// <summary>

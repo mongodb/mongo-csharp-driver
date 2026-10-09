@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -31,6 +32,8 @@ public sealed class NetworkBuilder
     {
         Compressors = new CompressorConfiguration[0];
         ConnectTimeout = MongoDefaults.ConnectTimeout;
+        ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
+        SendBufferSize = MongoDefaults.TcpSendBufferSize;
         SocketTimeout = MongoDefaults.SocketTimeout;
     }
 
@@ -62,6 +65,37 @@ public sealed class NetworkBuilder
     /// which tries IPv4 addresses first.
     /// </summary>
     public bool IPv6 { get; set; }
+
+    /// <summary>
+    /// Gets or sets the size, in bytes, of each socket's receive buffer. Must be greater than zero.
+    /// Defaults to <see cref="MongoDefaults.TcpReceiveBufferSize"/> (64 KiB).
+    /// </summary>
+    public int? ReceiveBufferSize
+    {
+        get;
+        set => field = Ensure.IsNullOrGreaterThanZero(value, nameof(ReceiveBufferSize));
+    }
+
+    /// <summary>
+    /// Gets or sets the size, in bytes, of each socket's send buffer. Must be greater than zero.
+    /// Defaults to <see cref="MongoDefaults.TcpSendBufferSize"/> (64 KiB).
+    /// </summary>
+    public int? SendBufferSize
+    {
+        get;
+        set => field = Ensure.IsNullOrGreaterThanZero(value, nameof(SendBufferSize));
+    }
+
+    /// <summary>
+    /// Gets or sets a delegate that is called with every socket once it is connected, after the driver has
+    /// applied its own socket settings, so that it can set additional socket options (for example keep-alive
+    /// or linger). The default value is <c>null</c>.
+    /// </summary>
+    /// <remarks>
+    /// The delegate is called for every connection the client opens, including the ones used to monitor
+    /// servers, possibly from several threads at once, so it must be thread-safe.
+    /// </remarks>
+    public Action<Socket> SocketConfigurator { get; set; }
 
     /// <summary>
     /// Gets or sets the socket read and write timeout. Must be infinite, or greater than or equal to zero.
