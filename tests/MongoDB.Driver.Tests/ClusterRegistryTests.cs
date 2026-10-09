@@ -147,7 +147,6 @@ namespace MongoDB.Driver.Tests
                 srvServiceName: "mongodb",
                 sslSettings: sslSettings,
                 useTls: true,
-                waitQueueSize: 13,
                 waitQueueTimeout: TimeSpan.FromSeconds(14));
 
             var subject = new ClusterRegistry();
@@ -165,7 +164,6 @@ namespace MongoDB.Driver.Tests
                 cluster.Settings.DirectConnection.Should().Be(clusterKey.DirectConnection);
                 cluster.Settings.EndPoints.Should().Equal(expectedEndPoints);
                 cluster.Settings.LoadBalanced.Should().Be(clusterKey.LoadBalanced);
-                cluster.Settings.MaxServerSelectionWaitQueueSize.Should().Be(clusterKey.WaitQueueSize);
                 cluster.Settings.ReplicaSetName.Should().Be(clusterKey.ReplicaSetName);
                 cluster.Settings.CryptClientSettings.SchemaMap.Should().BeEquivalentTo(dummyMap);
                 cluster.Settings.Scheme.Should().Be(clusterKey.Scheme);

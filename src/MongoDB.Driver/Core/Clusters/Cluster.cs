@@ -36,14 +36,12 @@ namespace MongoDB.Driver.Core.Clusters
     {
         #region static
 
-        private static readonly TimeSpan __minHeartbeatIntervalDefault = TimeSpan.FromMilliseconds(500);
-
         public static SemanticVersion MinSupportedServerVersion { get; } = WireVersion.ToServerVersion(WireVersion.SupportedWireVersionRange.Min);
         public static Range<int> SupportedWireVersionRange { get; } = WireVersion.SupportedWireVersionRange;
 
         #endregion
 
-        private readonly TimeSpan _minHeartbeatInterval = __minHeartbeatIntervalDefault;
+        private readonly TimeSpan _rapidHeartbeatInterval = ServerMonitor.MinHeartbeatInterval;
         private readonly ClientMetadata _clientMetadata;
         private readonly IClusterClock _clusterClock = new ClusterClock();
         private readonly ClusterId _clusterId;
@@ -455,7 +453,7 @@ namespace MongoDB.Driver.Core.Clusters
             private readonly Timer _rapidHeartbeatTimer;
             private readonly InterlockedInt32 _rapidHeartbeatTimerCallbackState;
 
-            private int _serverSelectionWaitQueueSize;
+            private int _waitingCount;
 
             public ServerSelectionWaitQueue(Cluster cluster)
             {
@@ -473,14 +471,9 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (_serverSelectionWaitQueueSize >= _cluster._settings.MaxServerSelectionWaitQueueSize)
+                    if (++_waitingCount == 1)
                     {
-                        throw MongoWaitQueueFullException.ForServerSelection();
-                    }
-
-                    if (++_serverSelectionWaitQueueSize == 1)
-                    {
-                        _rapidHeartbeatTimer.Change(TimeSpan.Zero, _cluster._minHeartbeatInterval);
+                        _rapidHeartbeatTimer.Change(TimeSpan.Zero, _cluster._rapidHeartbeatInterval);
                     }
 
                     _cluster._serverSelectionEventLogger.LogAndPublish(new ClusterEnteredSelectionQueueEvent(
@@ -498,7 +491,7 @@ namespace MongoDB.Driver.Core.Clusters
             {
                 lock (_serverSelectionWaitQueueLock)
                 {
-                    if (--_serverSelectionWaitQueueSize == 0)
+                    if (--_waitingCount == 0)
                     {
                         try
                         {

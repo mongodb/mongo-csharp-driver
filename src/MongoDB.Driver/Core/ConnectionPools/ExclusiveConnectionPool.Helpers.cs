@@ -186,7 +186,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             // private fields
             private readonly ExclusiveConnectionPool _pool;
 
-            private bool _enteredWaitQueue;
             private SemaphoreSlimSignalable.SemaphoreWaitResult _poolQueueWaitResult;
 
             // constructors
@@ -265,11 +264,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
             public void Dispose()
             {
-                if (_enteredWaitQueue)
-                {
-                    Interlocked.Increment(ref _pool._waitQueueFreeSlots);
-                }
-
                 if (_poolQueueWaitResult == SemaphoreSlimSignalable.SemaphoreWaitResult.Entered)
                 {
                     try
@@ -284,24 +278,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
             }
 
             // private methods
-            private void AcquireWaitQueueSlot()
-            {
-                // enter the wait-queue, deprecated feature
-                int freeSlots;
-                do
-                {
-                    freeSlots = _pool._waitQueueFreeSlots;
-
-                    if (freeSlots == 0)
-                    {
-                        throw MongoWaitQueueFullException.ForConnectionPool(_pool._endPoint);
-                    }
-                }
-                while (Interlocked.CompareExchange(ref _pool._waitQueueFreeSlots, freeSlots - 1, freeSlots) != freeSlots);
-
-                _enteredWaitQueue = true;
-            }
-
             private void ThrowIfTimedOut(OperationContext operationContext, Stopwatch stopwatch)
             {
                 if (operationContext.IsTimedOut())
@@ -317,7 +293,6 @@ namespace MongoDB.Driver.Core.ConnectionPools
                 stopwatch.Start();
 
                 _pool._poolState.ThrowIfNotReady();
-                AcquireWaitQueueSlot();
             }
 
             private IConnectionHandle EndCheckingOut(PooledConnection pooledConnection, Stopwatch stopwatch)

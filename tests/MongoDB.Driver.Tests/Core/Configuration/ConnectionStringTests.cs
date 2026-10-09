@@ -389,10 +389,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Tls.Should().Be(null);
             subject.TlsInsecure.Should().Be(null);
             subject.Username.Should().BeNull();
-#pragma warning disable 618
-            subject.WaitQueueMultiple.Should().Be(null);
-            subject.WaitQueueSize.Should().Be(null);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(null);
             subject.W.Should().BeNull();
             subject.WTimeout.Should().Be(null);
@@ -441,8 +437,6 @@ namespace MongoDB.Driver.Core.Configuration
 #if DEBUG // TODO: CSOT: Make it public when CSOT will be ready for GA
                 "timeout=42ms;" +
 #endif
-                "waitQueueMultiple=10;" +
-                "waitQueueSize=30;" +
                 "waitQueueTimeout=60ms;" +
                 "w=4;" +
                 "wtimeout=20ms";
@@ -492,10 +486,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.Tls.Should().BeFalse();
             subject.TlsInsecure.Should().Be(false);
             subject.Username.Should().Be("user");
-#pragma warning disable 618
-            subject.WaitQueueMultiple.Should().Be(10);
-            subject.WaitQueueSize.Should().Be(30);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMilliseconds(60));
             subject.W.Should().Be(WriteConcern.WValue.Parse("4"));
             subject.WTimeout.Should().Be(TimeSpan.FromMilliseconds(20));
@@ -1163,35 +1153,6 @@ namespace MongoDB.Driver.Core.Configuration
             var subject = new ConnectionString(connectionString);
 
             subject.WTimeout.Should().Be(TimeSpan.FromMilliseconds(milliseconds));
-        }
-
-        [Theory]
-        [InlineData("mongodb://localhost?waitQueueMultiple=-1", -1)]
-        [InlineData("mongodb://localhost?waitQueueMultiple=0", 0)]
-        [InlineData("mongodb://localhost?waitQueueMultiple=1", 1)]
-        [InlineData("mongodb://localhost?waitQueueMultiple=20", 20)]
-        [InlineData("mongodb://localhost?waitQueueMultiple=2.3", 2.3)]
-        public void When_waitQueueMultiple_is_specified(string connectionString, double waitQueueMultiple)
-        {
-            var subject = new ConnectionString(connectionString);
-
-#pragma warning disable 618
-            subject.WaitQueueMultiple.Should().Be(waitQueueMultiple);
-#pragma warning restore 618
-        }
-
-        [Theory]
-        [InlineData("mongodb://localhost?waitQueueSize=-1", -1)]
-        [InlineData("mongodb://localhost?waitQueueSize=0", 0)]
-        [InlineData("mongodb://localhost?waitQueueSize=1", 1)]
-        [InlineData("mongodb://localhost?waitQueueSize=20", 20)]
-        public void When_waitQueueSize_is_specified(string connectionString, int waitQueueSize)
-        {
-            var subject = new ConnectionString(connectionString);
-
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(waitQueueSize);
-#pragma warning restore 618
         }
 
         [Theory]

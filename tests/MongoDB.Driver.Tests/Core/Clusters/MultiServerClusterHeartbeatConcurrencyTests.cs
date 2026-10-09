@@ -87,10 +87,7 @@ namespace MongoDB.Driver.Core.Clusters
 
             using (var cluster = new MultiServerCluster(clusterSettings, serverFactoryMock.Object, new EventCapturer(), LoggerFactory, new ClientMetadata(null, null)))
             {
-                cluster._minHeartbeatInterval(TimeSpan.FromMilliseconds(10));
-
-                // _minHeartbeatInterval validation might not be necessary, and can be reconsidered along with Reflector testing
-                cluster._minHeartbeatInterval().Should().Be(TimeSpan.FromMilliseconds(10));
+                cluster._rapidHeartbeatInterval(TimeSpan.FromMilliseconds(10));
 
                 ForceClusterId(cluster, __clusterId);
 

@@ -130,8 +130,6 @@ namespace MongoDB.Driver.Core.Configuration
         private bool? _tlsDisableCertificateRevocationCheck;
         private bool? _tlsInsecure;
         private string _username;
-        private double? _waitQueueMultiple;
-        private int? _waitQueueSize;
         private TimeSpan? _waitQueueTimeout;
         private WriteConcern.WValue _w;
         private TimeSpan? _wTimeout;
@@ -557,24 +555,6 @@ namespace MongoDB.Driver.Core.Configuration
         public string Username
         {
             get { return _username; }
-        }
-
-        /// <summary>
-        /// Gets the wait queue multiple.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public double? WaitQueueMultiple
-        {
-            get { return _waitQueueMultiple; }
-        }
-
-        /// <summary>
-        /// Gets the wait queue size.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int? WaitQueueSize
-        {
-            get { return _waitQueueSize; }
         }
 
         /// <summary>
@@ -1284,12 +1264,6 @@ namespace MongoDB.Driver.Core.Configuration
                         throw new MongoConfigurationException($"{name} must be greater than or equal to 0.");
                     }
                     break;
-                case "waitqueuemultiple":
-                    _waitQueueMultiple = ParseDouble(name, value);
-                    break;
-                case "waitqueuesize":
-                    _waitQueueSize = ParseInt32(name, value);
-                    break;
                 case "waitqueuetimeout":
                 case "waitqueuetimeoutms":
                     _waitQueueTimeout = ParseTimeSpan(name, value);
@@ -1445,18 +1419,6 @@ namespace MongoDB.Driver.Core.Configuration
             catch (Exception ex)
             {
                 throw new MongoConfigurationException(string.Format("{0} has an invalid boolean value of {1}.", name, value), ex);
-            }
-        }
-
-        internal static double ParseDouble(string name, string value)
-        {
-            try
-            {
-                return JsonConvert.ToDouble(value);
-            }
-            catch (Exception ex)
-            {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid double value of {1}.", name, value), ex);
             }
         }
 

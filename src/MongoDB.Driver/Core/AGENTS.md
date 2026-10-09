@@ -43,7 +43,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
   - `RandomServerSelector` — random tie-breaker when multiple servers are equally good.
   - `DelegateServerSelector` — wraps an arbitrary `Func<…>` for ad-hoc selection logic (rarely used in production code; useful for tests and bespoke deployments).
 
-**Selection flow:** `SelectServer(selector, timeout)` blocks until a suitable server is found or timeout expires. Internally it waits on the cluster's `DescriptionChanged` event (via an internal `TaskCompletionSource`) and re-runs the selector each time topology changes. (The `MaxServerSelectionWaitQueueSize` setting on `ClusterSettings` bounds the number of waiters, but there is no public `ServerSelectionWaitQueue` type.)
+**Selection flow:** `SelectServer(selector, timeout)` blocks until a suitable server is found or timeout expires. Internally it waits on the cluster's `DescriptionChanged` event (via an internal `TaskCompletionSource`) and re-runs the selector each time topology changes. Waiters are tracked by the private `Cluster.ServerSelectionWaitQueue`, which is **unbounded** — there is no limit on the number of concurrent waiters. While at least one waiter is present, the queue runs a rapid-heartbeat timer (every 500 ms) that requests immediate heartbeats; the waiter counter and the timer start/stop are updated together under a lock, so a thread leaving the queue cannot stop the timer just after another thread entered and started it.
 
 ### SDAM state machine and monitoring loop
 
@@ -163,7 +163,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 ### Settings
 
-- **`ConnectionPoolSettings`:** `MaxConnections`, `MaxConnecting`, `MinConnections`, `MaintenanceInterval`, `WaitQueueTimeout`, `WaitQueueSize` (only `WaitQueueSize` is `[Obsolete]`). Note: `MaxIdleTime` is on `ConnectionSettings`, not `ConnectionPoolSettings` — the pool reads it from each connection during maintenance.
+- **`ConnectionPoolSettings`:** `MaxConnections`, `MaxConnecting`, `MinConnections`, `MaintenanceInterval`, `WaitQueueTimeout`. The number of callers waiting for a connection is not capped — they are bounded only by `WaitQueueTimeout` / the operation's CSOT deadline. Note: `MaxIdleTime` is on `ConnectionSettings`, not `ConnectionPoolSettings` — the pool reads it from each connection during maintenance.
 - The maintenance loop in `MaintenanceHelper` proactively brings the pool up to `MinConnections` on each maintenance tick (the actual min-size top-up runs via private helpers — there is no public `EnsureMinSize` API). Warm-up runs on the background maintenance thread, not at client construction: if the first checkout happens before maintenance has caught up, that checkout still synchronously creates a connection (subject to the `MaxConnecting` semaphore).
 
 ---
@@ -246,6 +246,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 - **`ConnectionString`** — parses `mongodb://` and `mongodb+srv://` URIs.
 - Supports query parameters: `heartbeatIntervalMS`, `serverSelectionTimeoutMS`, `maxPoolSize`, `tls`, `tlsInsecure`, `tlsDisableCertificateRevocationCheck`, `compressors`, `loadBalanced`, `directConnection`, `srvMaxHosts`, `srvServiceName`, among others. (Note: `tlsCertificateKeyFile` is **not** parsed by the C# driver — supply client certificates programmatically via `SslSettings.ClientCertificates`.)
+- Unrecognized options are collected as unknown options and ignored rather than rejected.
 - Performs DNS-SRV resolution for `mongodb+srv://` (see `DnsClientWrapper` in `Misc/`).
 - Returns a normalized list of endpoints and a dictionary of options.
 
@@ -268,7 +269,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 1. **`ClusterSettings`** — cluster-wide: `LoadBalanced`, `ReplicaSetName`, `DirectConnection`, `EndPoints`, heartbeat intervals, etc.
 2. **`ServerSettings`** — per-server defaults for heartbeat timeout.
-3. **`ConnectionPoolSettings`** — per-pool: `MaxConnections`, `MaxConnecting`, `MinConnections`, `MaintenanceInterval`, `WaitQueueTimeout`, and the `[Obsolete]` `WaitQueueSize`.
+3. **`ConnectionPoolSettings`** — per-pool: `MaxConnections`, `MaxConnecting`, `MinConnections`, `MaintenanceInterval`, `WaitQueueTimeout`.
 4. **`ConnectionSettings`** — per-connection: `MaxIdleTime`, compressors, application name, server API version, max BSON size negotiation.
 5. **`TcpStreamSettings`** — socket-level: `AddressFamily`, `ConnectTimeout`, `ReadTimeout`, `WriteTimeout`, `ReceiveBufferSize`, `SendBufferSize`, `SocketConfigurator` (callback for arbitrary `Socket` tuning, e.g. setting keep-alive or `NoDelay`).
 6. **`SslStreamSettings`** — TLS: certificate validation, SNI, client certificate.

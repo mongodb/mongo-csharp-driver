@@ -39,7 +39,6 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly IReadOnlyList<EndPoint> _endPoints;
         private readonly bool _loadBalanced;
         private readonly TimeSpan _localThreshold;
-        private readonly int _maxServerSelectionWaitQueueSize;
         private readonly string _replicaSetName;
         private readonly ConnectionStringScheme _scheme;
         private readonly ServerApi _serverApi;
@@ -59,7 +58,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="endPoints">The end points.</param>
         /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
-        /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverApi">The server API.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
@@ -75,7 +73,6 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default,
-            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<ServerApi> serverApi = default(Optional<ServerApi>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
@@ -91,7 +88,6 @@ namespace MongoDB.Driver.Core.Configuration
             _endPoints = Ensure.IsNotNull(endPoints.WithDefault(__defaultEndPoints), nameof(endPoints)).ToList();
             _loadBalanced = loadBalanced.WithDefault(false);
             _localThreshold = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(localThreshold.WithDefault(TimeSpan.FromMilliseconds(15)), nameof(localThreshold));
-            _maxServerSelectionWaitQueueSize = Ensure.IsGreaterThanOrEqualToZero(maxServerSelectionWaitQueueSize.WithDefault(500), nameof(maxServerSelectionWaitQueueSize));
             _replicaSetName = replicaSetName.WithDefault(null);
             _serverApi = serverApi.WithDefault(null);
             _serverSelectionTimeout = Ensure.IsGreaterThanOrEqualToZero(serverSelectionTimeout.WithDefault(TimeSpan.FromSeconds(30)), nameof(serverSelectionTimeout));
@@ -151,17 +147,6 @@ namespace MongoDB.Driver.Core.Configuration
         public TimeSpan LocalThreshold
         {
             get { return _localThreshold; }
-        }
-
-        /// <summary>
-        /// Gets the maximum size of the server selection wait queue.
-        /// </summary>
-        /// <value>
-        /// The maximum size of the server selection wait queue.
-        /// </value>
-        public int MaxServerSelectionWaitQueueSize
-        {
-            get { return _maxServerSelectionWaitQueueSize; }
         }
 
         /// <summary>
@@ -265,7 +250,6 @@ namespace MongoDB.Driver.Core.Configuration
         /// <param name="endPoints">The end points.</param>
         /// <param name="loadBalanced">The load balanced.</param>
         /// <param name="localThreshold">The local threshold.</param>
-        /// <param name="maxServerSelectionWaitQueueSize">Maximum size of the server selection wait queue.</param>
         /// <param name="replicaSetName">Name of the replica set.</param>
         /// <param name="serverApi">The server API.</param>
         /// <param name="serverSelectionTimeout">The server selection timeout.</param>
@@ -282,7 +266,6 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<IEnumerable<EndPoint>> endPoints = default(Optional<IEnumerable<EndPoint>>),
             Optional<bool> loadBalanced = default,
             Optional<TimeSpan> localThreshold = default(Optional<TimeSpan>),
-            Optional<int> maxServerSelectionWaitQueueSize = default(Optional<int>),
             Optional<string> replicaSetName = default(Optional<string>),
             Optional<ServerApi> serverApi = default(Optional<ServerApi>),
             Optional<TimeSpan> serverSelectionTimeout = default(Optional<TimeSpan>),
@@ -299,7 +282,6 @@ namespace MongoDB.Driver.Core.Configuration
                 endPoints: Optional.Enumerable(endPoints.WithDefault(_endPoints)),
                 loadBalanced: Optional.Create(loadBalanced.WithDefault(_loadBalanced)),
                 localThreshold: localThreshold.WithDefault(_localThreshold),
-                maxServerSelectionWaitQueueSize: maxServerSelectionWaitQueueSize.WithDefault(_maxServerSelectionWaitQueueSize),
                 replicaSetName: replicaSetName.WithDefault(_replicaSetName),
                 serverApi: serverApi.WithDefault(_serverApi),
                 serverSelectionTimeout: serverSelectionTimeout.WithDefault(_serverSelectionTimeout),

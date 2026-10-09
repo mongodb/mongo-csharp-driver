@@ -58,7 +58,6 @@ namespace MongoDB.Driver.Core.Logging
         public const string TopologyDescription = nameof(TopologyDescription);
         public const string TopologyId = nameof(TopologyId);
         public const string WaitQueueTimeoutMS = nameof(WaitQueueTimeoutMS);
-        public const string WaitQueueSize = nameof(WaitQueueSize);
 
         public const string DriverConnectionId_Message = $"{{{DriverConnectionId}}} {{{Message}}}";
         public const string ServerId_Message = $"{{{TopologyId}}} {{{ServerHost}}} {{{ServerPort}}} {{{Message}}}";

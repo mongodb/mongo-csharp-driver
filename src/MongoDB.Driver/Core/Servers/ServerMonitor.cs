@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Servers
 {
     internal sealed class ServerMonitor : IServerMonitor
     {
-        private static readonly TimeSpan __minHeartbeatInterval = TimeSpan.FromMilliseconds(500);
+        public static readonly TimeSpan MinHeartbeatInterval = TimeSpan.FromMilliseconds(500);
 
         private readonly ServerDescription _baseDescription;
         private volatile IConnection _connection;
@@ -510,7 +510,7 @@ namespace MongoDB.Driver.Core.Servers
                     HeartbeatDelay newHeartbeatDelay;
                     lock (_lock)
                     {
-                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), __minHeartbeatInterval);
+                        newHeartbeatDelay = new HeartbeatDelay(metronome.GetNextTickDelay(), MinHeartbeatInterval);
 
                         _heartbeatDelay?.Dispose();
                         _heartbeatDelay = newHeartbeatDelay;

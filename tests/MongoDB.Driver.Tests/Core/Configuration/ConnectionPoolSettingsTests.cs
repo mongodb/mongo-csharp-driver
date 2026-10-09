@@ -33,9 +33,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(2);
             subject.MaxConnections.Should().Be(100);
             subject.MinConnections.Should().Be(0);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(500);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(TimeSpan.FromMinutes(2));
         }
 
@@ -77,14 +74,6 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Fact]
-        public void constructor_should_throw_when_waitQueueSize_is_negative()
-        {
-            Action action = () => new ConnectionPoolSettings(waitQueueSize: -1);
-
-            action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("waitQueueSize");
-        }
-
-        [Fact]
         public void constructor_should_throw_when_waitQueueTimeout_is_negative()
         {
             Action action = () => new ConnectionPoolSettings(waitQueueTimeout: TimeSpan.FromSeconds(-1));
@@ -103,9 +92,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(__defaults.MaxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(__defaults.WaitQueueSize);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
@@ -120,9 +106,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(maxConnecting);
             subject.MaxConnections.Should().Be(__defaults.MaxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(__defaults.WaitQueueSize);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
@@ -130,7 +113,6 @@ namespace MongoDB.Driver.Core.Configuration
         public void constructor_with_maxConnections_should_initialize_instance()
         {
             var maxConnections = 1;
-            var waitQueueSize = maxConnections * 5;
 
             var subject = new ConnectionPoolSettings(maxConnections: maxConnections);
 
@@ -138,27 +120,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(maxConnections);
             subject.MinConnections.Should().Be(__defaults.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(waitQueueSize);
-#pragma warning restore 618
-            subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
-        }
-
-        [Fact]
-        public void constructor_with_maxConnections_and_waitQueueSize_should_initialize_instance()
-        {
-            var maxConnections = 1;
-            var waitQueueSize = 2;
-
-            var subject = new ConnectionPoolSettings(maxConnections: maxConnections, waitQueueSize: waitQueueSize);
-
-            subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
-            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
-            subject.MaxConnections.Should().Be(maxConnections);
-            subject.MinConnections.Should().Be(__defaults.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(waitQueueSize);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
@@ -173,26 +134,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(subject.MaxConnections);
             subject.MinConnections.Should().Be(minConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(__defaults.WaitQueueSize);
-#pragma warning restore 618
-            subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
-        }
-
-        [Fact]
-        public void constructor_with_waitQueueSize_should_initialize_instance()
-        {
-            var waitQueueSize = 123;
-
-            var subject = new ConnectionPoolSettings(waitQueueSize: waitQueueSize);
-
-            subject.MaintenanceInterval.Should().Be(__defaults.MaintenanceInterval);
-            subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
-            subject.MaxConnections.Should().Be(subject.MaxConnections);
-            subject.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(waitQueueSize);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(__defaults.WaitQueueTimeout);
         }
 
@@ -207,9 +148,6 @@ namespace MongoDB.Driver.Core.Configuration
             subject.MaxConnecting.Should().Be(__defaults.MaxConnecting);
             subject.MaxConnections.Should().Be(subject.MaxConnections);
             subject.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            subject.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             subject.WaitQueueTimeout.Should().Be(waitQueueTimeout);
         }
 
@@ -226,9 +164,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
@@ -245,9 +180,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxConnecting.Should().Be(newMaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
@@ -264,9 +196,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(newMaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
@@ -283,33 +212,11 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaxConnecting.Should().Be(subject.MaxConnecting);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(newMinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
         }
 
         [Fact]
-        public void With_waitQueueSizes_should_return_expected_result()
-        {
-            var oldWaitQueueSize = 1;
-            var newWaitQueueSize = 2;
-            var subject = new ConnectionPoolSettings(waitQueueSize: oldWaitQueueSize);
-
-            var result = subject.With(waitQueueSize: newWaitQueueSize);
-
-            result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
-            result.MaxConnecting.Should().Be(subject.MaxConnecting);
-            result.MaxConnections.Should().Be(subject.MaxConnections);
-            result.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(newWaitQueueSize);
-#pragma warning restore 618
-            result.WaitQueueTimeout.Should().Be(subject.WaitQueueTimeout);
-        }
-
-        [Fact]
-        public void With_waitQueueTimeoutl_should_return_expected_result()
+        public void With_waitQueueTimeout_should_return_expected_result()
         {
             var oldWaitQueueTimeout = TimeSpan.FromSeconds(1);
             var newWaitQueueTimeout = TimeSpan.FromSeconds(2);
@@ -320,9 +227,6 @@ namespace MongoDB.Driver.Core.Configuration
             result.MaintenanceInterval.Should().Be(subject.MaintenanceInterval);
             result.MaxConnections.Should().Be(subject.MaxConnections);
             result.MinConnections.Should().Be(subject.MinConnections);
-#pragma warning disable 618
-            result.WaitQueueSize.Should().Be(subject.WaitQueueSize);
-#pragma warning restore 618
             result.WaitQueueTimeout.Should().Be(newWaitQueueTimeout);
         }
 

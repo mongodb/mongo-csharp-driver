@@ -20,7 +20,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 
 namespace MongoDB.Driver
@@ -83,8 +82,6 @@ namespace MongoDB.Driver
         private readonly string _username;
         private readonly bool _useTls;
         private readonly WriteConcern.WValue _w;
-        private readonly double _waitQueueMultiple;
-        private readonly int _waitQueueSize;
         private readonly TimeSpan _waitQueueTimeout;
         private readonly TimeSpan? _wTimeout;
         private readonly string _url;
@@ -149,10 +146,6 @@ namespace MongoDB.Driver
             _username = builder.Username;
             _useTls = builder.UseTls;
             _w = builder.W;
-#pragma warning disable 618
-            _waitQueueMultiple = builder.WaitQueueMultiple;
-            _waitQueueSize = builder.WaitQueueSize;
-#pragma warning restore 618
             _waitQueueTimeout = builder.WaitQueueTimeout;
             _wTimeout = builder.WTimeout;
             _url = builder.ToString(); // keep canonical form
@@ -202,26 +195,6 @@ namespace MongoDB.Driver
         public IReadOnlyList<CompressorConfiguration> Compressors
         {
             get { return _compressors; }
-        }
-
-        /// <summary>
-        /// Gets the actual wait queue size (either WaitQueueSize or WaitQueueMultiple x MaxConnectionPoolSize).
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int ComputedWaitQueueSize
-        {
-            get
-            {
-                if (_waitQueueMultiple == 0.0)
-                {
-                    return _waitQueueSize;
-                }
-                else
-                {
-                    var effectiveMaxConnections = ConnectionStringConversions.GetEffectiveMaxConnections(_maxConnectionPoolSize);
-                    return ConnectionStringConversions.GetComputedWaitQueueSize(effectiveMaxConnections, _waitQueueMultiple);
-                }
-            }
         }
 
         /// <summary>
@@ -560,24 +533,6 @@ namespace MongoDB.Driver
         public WriteConcern.WValue W
         {
             get { return _w; }
-        }
-
-        /// <summary>
-        /// Gets the wait queue multiple (the actual wait queue size will be WaitQueueMultiple x MaxConnectionPoolSize).
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public double WaitQueueMultiple
-        {
-            get { return _waitQueueMultiple; }
-        }
-
-        /// <summary>
-        /// Gets the wait queue size.
-        /// </summary>
-        [Obsolete("This property will be removed in a later release.")]
-        public int WaitQueueSize
-        {
-            get { return _waitQueueSize; }
         }
 
         /// <summary>

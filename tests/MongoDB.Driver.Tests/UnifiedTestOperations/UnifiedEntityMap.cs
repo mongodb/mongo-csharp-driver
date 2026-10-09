@@ -505,7 +505,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
             var retryWrites = true;
             ServerMonitoringMode? serverMonitoringMode = null;
             TimeSpan? serverSelectionTimeout = null;
-            int? waitQueueSize = null;
             TimeSpan? socketTimeout = null;
             TimeSpan? timeout = null;
             var useMultipleShardRouters = false;
@@ -627,9 +626,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                                     break;
                                 case "w":
                                     writeConcern = new WriteConcern(WriteConcern.WValue.Parse(option.Value.ToString()));
-                                    break;
-                                case "waitQueueSize":
-                                    waitQueueSize = option.Value.ToInt32();
                                     break;
                                 case "waitQueueTimeoutMS":
                                     waitQueueTimeout = TimeSpan.FromMilliseconds(option.Value.ToInt32());
@@ -774,9 +770,6 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
                         settings.ReadPreference = readPreference;
                     }
 
-#pragma warning disable CS0618 // Type or member is obsolete
-                    settings.WaitQueueSize = waitQueueSize.GetValueOrDefault(defaultValue: settings.WaitQueueSize);
-#pragma warning restore CS0618 // Type or member is obsolete
                     settings.WaitQueueTimeout = waitQueueTimeout.GetValueOrDefault(defaultValue: settings.WaitQueueTimeout);
                     settings.WriteConcern = writeConcern;
                     settings.HeartbeatInterval = heartbeatFrequency.GetValueOrDefault(defaultValue: TimeSpan.FromMilliseconds(5)); // 5 ms default value for spec tests

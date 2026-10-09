@@ -78,10 +78,9 @@ namespace MongoDB.Driver.Core.Logging
                 CmapCommonParams(),
                 (e, _) => GetParams(e.ServerId, "Connection removed"));
 
-#pragma warning disable CS0618 // Type or member is obsolete
             AddTemplate<ConnectionPoolOpeningEvent, ConnectionSettings>(
                 LogLevel.Debug,
-                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS, WaitQueueSize),
+                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS),
                 (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool opening",
@@ -89,12 +88,11 @@ namespace MongoDB.Driver.Core.Logging
                     e.ConnectionPoolSettings.MinConnections,
                     e.ConnectionPoolSettings.MaxConnections,
                     e.ConnectionPoolSettings.MaxConnecting,
-                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
-                    e.ConnectionPoolSettings.WaitQueueSize));
+                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds));
 
             AddTemplate<ConnectionPoolOpenedEvent, ConnectionSettings>(
                 LogLevel.Debug,
-                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS, WaitQueueSize),
+                CmapCommonParams(MaxIdleTimeMS, MinPoolSize, MaxPoolSize, MaxConnecting, WaitQueueTimeoutMS),
                 (e, _, s) => GetParams(
                     e.ServerId,
                     "Connection pool created",
@@ -102,10 +100,7 @@ namespace MongoDB.Driver.Core.Logging
                     e.ConnectionPoolSettings.MinConnections,
                     e.ConnectionPoolSettings.MaxConnections,
                     e.ConnectionPoolSettings.MaxConnecting,
-                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds,
-                    e.ConnectionPoolSettings.WaitQueueSize));
-
-#pragma warning restore CS0618 // Type or member is obsolete
+                    e.ConnectionPoolSettings.WaitQueueTimeout.TotalMilliseconds));
 
             AddTemplateProvider<ConnectionPoolReadyEvent>(
                 LogLevel.Debug,
