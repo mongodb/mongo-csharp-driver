@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
@@ -703,6 +704,52 @@ namespace MongoDB.Driver.Tests.GridFS
             }
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        [Trait("Category", "Integration")]
+        public async Task Upload_should_create_indexes_unless_AssumeIndexesExist_is_true(
+            [Values(false, true)] bool assumeIndexesExist,
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            var client = DriverTestConfiguration.Client;
+            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
+            var options = new GridFSBucketOptions { AssumeIndexesExist = assumeIndexesExist };
+            var subject = new GridFSBucket(database, options);
+            await DropBucketAsync(subject, async);
+
+            try
+            {
+                if (async)
+                {
+                    await subject.UploadFromBytesAsync("filename", new byte[] { 0 });
+                }
+                else
+                {
+                    subject.UploadFromBytes("filename", new byte[] { 0 });
+                }
+
+                var filesIndexes = database.GetCollection<BsonDocument>("fs.files").Indexes.List().ToList();
+                var chunksIndexes = database.GetCollection<BsonDocument>("fs.chunks").Indexes.List().ToList();
+                if (assumeIndexesExist)
+                {
+                    filesIndexes.Should().NotContain(index => index["name"] == "filename_1_uploadDate_1");
+                    chunksIndexes.Should().NotContain(index => index["name"] == "files_id_1_n_1");
+                }
+                else
+                {
+                    filesIndexes.Should().Contain(index => index["name"] == "filename_1_uploadDate_1");
+                    chunksIndexes.Should().Contain(index => index["name"] == "files_id_1_n_1");
+                }
+            }
+            finally
+            {
+                // restore shared state: with AssumeIndexesExist the upload leaves fs.* non-empty and without the
+                // GridFS indexes, which would suppress index creation for later tests reusing the default bucket
+                await DropBucketAsync(subject, async);
+            }
+        }
+
         // private methods
         private GridFSBucket CreateSubject(GridFSBucketOptions options = null)
         {
@@ -722,6 +769,18 @@ namespace MongoDB.Driver.Tests.GridFS
         private void EnsureBucketExists(IGridFSBucket bucket)
         {
             bucket.UploadFromBytes("filename", new byte[0]);
+        }
+
+        private async Task DropBucketAsync(IGridFSBucket bucket, bool async)
+        {
+            if (async)
+            {
+                await bucket.DropAsync();
+            }
+            else
+            {
+                bucket.Drop();
+            }
         }
     }
 }
