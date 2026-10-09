@@ -137,7 +137,7 @@ namespace MongoDB.Driver
             _srvMaxHosts = 0;
             _srvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
             _sslSettings = null;
-            _timeout = System.Threading.Timeout.InfiniteTimeSpan;
+            _timeout = null;
             _translationOptions = null;
             _useTls = false;
 #pragma warning disable 618
