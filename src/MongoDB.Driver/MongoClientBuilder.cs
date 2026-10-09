@@ -17,6 +17,7 @@ using System;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using ClusterBuilder = MongoDB.Driver.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver;
 
@@ -30,10 +31,6 @@ public sealed class MongoClientBuilder
     /// </summary>
     public static readonly IExtensionManager Extensions = new ExtensionManager();
 
-    // TODO: ClusterBuilder (existing class used in MongoClientSettings.ClusterConfigurator) contains duplicated settings
-    // to the new builder proposed in this file. I believe we should obsolete the ClusterBuilder and
-    // make sure we moved all knobs to the new builders infrastructure.
-
     // TODO: ClusterSource property is not implemented yet, need to decide how and where it goes. In scope of
     // MongoClient disposability work. It is internal on MongoClientSettings, so it is not part of the public
     // surface this builder has to replace and does not block shipping.
@@ -41,8 +38,8 @@ public sealed class MongoClientBuilder
     private readonly AuthenticationBuilder _authenticationBuilder = new();
     private readonly AutoEncryptionBuilder _autoEncryptionBuilder = new();
     private readonly ClientMetadataBuilder _clientMetadataBuilder = new();
+    private readonly ClusterBuilder _clusterBuilder = new();
     private readonly ConnectionPoolBuilder _connectionPoolBuilder = new();
-    private readonly ConnectivityBuilder _connectivityBuilder = new();
     private readonly DiagnosticsBuilder _diagnosticsBuilder = new();
     private readonly NetworkBuilder _networkBuilder = new();
     private readonly OperationsBuilder _operationsBuilder = new();
@@ -110,51 +107,6 @@ public sealed class MongoClientBuilder
     }
 
     /// <summary>
-    /// Builds a <see cref="IMongoClient"/> from the configuration accumulated on this builder.
-    /// </summary>
-    /// <remarks>
-    /// The builder is not consumed by this call; it can be further configured and used to build additional clients.
-    /// Each call returns a new client, and the caller is responsible for disposing it.
-    /// </remarks>
-    /// <returns>A new <see cref="IMongoClient"/>.</returns>
-    public IMongoClient Build()
-    {
-        // TODO: validate combinations of settings before constructing the client. Setters on the inner builders
-        // only validate their own value, so that the result never depends on the order the setters were called
-        // in (or on whether a value came from FromConnectionString or was set in code). Every rule involving
-        // more than one setting belongs here. Existing rules, ported from MongoClientSettings.ThrowIfSettingsAreInvalid
-        // and ConnectionString validation:
-        //   Tls:
-        //     - AllowInsecure and CheckCertificateRevocation cannot both be true.
-        //   Connectivity:
-        //     - DirectConnection cannot be used with the mongodb+srv scheme.
-        //     - DirectConnection cannot be used with more than one server.
-        //     - SrvMaxHosts > 0 requires the mongodb+srv scheme.
-        //     - SrvMaxHosts > 0 cannot be used with ReplicaSetName.
-        //     - A non-default SrvServiceName requires the mongodb+srv scheme.
-        //     - The mongodb+srv scheme requires exactly one server, given without a port.
-        //     - LoadBalanced cannot be used with more than one server, with ReplicaSetName, with SrvMaxHosts > 0,
-        //       or with DirectConnection.
-        //   ConnectionPool:
-        //     - MaxSize must be greater than or equal to MinSize.
-        //   AutoEncryption (when configured):
-        //     - KeyVaultNamespace is required, as is at least one registered KMS provider. Already enforced by
-        //       AutoEncryptionBuilder.ToAutoEncryptionOptions().
-        // New rules to consider (not enforced by MongoClientSettings today):
-        //     - Tls options other than Enabled (client certificates, callbacks, AllowInsecure, AllowedProtocols) are
-        //       configured while Tls.Enabled is false, which currently ignores them silently.
-        //     - Tls.AllowInsecure together with Tls.ServerCertificateValidationCallback; the callback silently wins
-        //       today (see ClusterRegistry.ConfigureSsl).
-        //     - A MONGODB-X509 credential while Tls.Enabled is false.
-
-        // TODO: implement constructing of the MongoClient. The builder stays usable after Build, so the client must
-        // receive a snapshot rather than references to the builder's mutable state: use
-        // AutoEncryptionBuilder.ToAutoEncryptionOptions(), and create a new EventAggregator from a copy of the
-        // DiagnosticsBuilder subscribers.
-        return null;
-    }
-
-    /// <summary>
     /// Configures the client metadata: the application name and library information the client reports
     /// about itself to the server during the handshake.
     /// </summary>
@@ -177,6 +129,26 @@ public sealed class MongoClientBuilder
     }
 
     /// <summary>
+    /// Configures the cluster: the endpoints the client connects to and the topology it expects.
+    /// </summary>
+    /// <returns>The <see cref="ClusterBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public ClusterBuilder Cluster()
+        => _clusterBuilder;
+
+    /// <summary>
+    /// Configures the cluster: the endpoints the client connects to and the topology it expects.
+    /// </summary>
+    /// <param name="configure">A delegate that configures the cluster.</param>
+    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
+    public MongoClientBuilder Cluster(Action<ClusterBuilder> configure)
+    {
+        Ensure.IsNotNull(configure, nameof(configure));
+
+        configure(_clusterBuilder);
+        return this;
+    }
+
+    /// <summary>
     /// Configures the connection pool.
     /// </summary>
     /// <returns>The <see cref="ConnectionPoolBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
@@ -193,26 +165,6 @@ public sealed class MongoClientBuilder
         Ensure.IsNotNull(configure, nameof(configure));
 
         configure(_connectionPoolBuilder);
-        return this;
-    }
-
-    /// <summary>
-    /// Configures connectivity: the endpoints the client connects to and the topology it expects.
-    /// </summary>
-    /// <returns>The <see cref="ConnectivityBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
-    public ConnectivityBuilder Connectivity()
-        => _connectivityBuilder;
-
-    /// <summary>
-    /// Configures connectivity: the endpoints the client connects to and the topology it expects.
-    /// </summary>
-    /// <param name="configure">A delegate that configures connectivity.</param>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder Connectivity(Action<ConnectivityBuilder> configure)
-    {
-        Ensure.IsNotNull(configure, nameof(configure));
-
-        configure(_connectivityBuilder);
         return this;
     }
 
@@ -349,4 +301,49 @@ public sealed class MongoClientBuilder
         return this;
     }
 
+    /// <summary>
+    /// Builds a <see cref="IMongoClient"/> from the configuration accumulated on this builder.
+    /// </summary>
+    /// <remarks>
+    /// The builder is not consumed by this call; it can be further configured and used to build additional clients.
+    /// Each call returns a new client, and the caller is responsible for disposing it.
+    /// </remarks>
+    /// <returns>A new <see cref="IMongoClient"/>.</returns>
+    public IMongoClient Build()
+    {
+        // TODO: validate combinations of settings before constructing the client. Setters on the inner builders
+        // only validate their own value, so that the result never depends on the order the setters were called
+        // in (or on whether a value came from FromConnectionString or was set in code). Every rule involving
+        // more than one setting belongs here. Existing rules, ported from MongoClientSettings.ThrowIfSettingsAreInvalid
+        // and ConnectionString validation:
+        //   Tls:
+        //     - AllowInsecure and CheckCertificateRevocation cannot both be true.
+        //   Cluster:
+        //     - DirectConnection cannot be used with the mongodb+srv scheme.
+        //     - DirectConnection cannot be used with more than one server.
+        //     - SrvMaxHosts > 0 requires the mongodb+srv scheme.
+        //     - SrvMaxHosts > 0 cannot be used with ReplicaSetName.
+        //     - A non-default SrvServiceName requires the mongodb+srv scheme.
+        //     - A SrvAllowedHostsSuffix requires the mongodb+srv scheme.
+        //     - The mongodb+srv scheme requires exactly one server, given without a port.
+        //     - LoadBalanced cannot be used with more than one server, with ReplicaSetName, with SrvMaxHosts > 0,
+        //       or with DirectConnection.
+        //   ConnectionPool:
+        //     - MaxSize must be greater than or equal to MinSize.
+        //   AutoEncryption (when configured):
+        //     - KeyVaultNamespace is required, as is at least one registered KMS provider. Already enforced by
+        //       AutoEncryptionBuilder.ToAutoEncryptionOptions().
+        // New rules to consider (not enforced by MongoClientSettings today):
+        //     - Tls options other than Enabled (client certificates, callbacks, AllowInsecure, AllowedProtocols) are
+        //       configured while Tls.Enabled is false, which currently ignores them silently.
+        //     - Tls.AllowInsecure together with Tls.ServerCertificateValidationCallback; the callback silently wins
+        //       today (see ClusterRegistry.ConfigureSsl).
+        //     - A MONGODB-X509 credential while Tls.Enabled is false.
+
+        // TODO: implement constructing of the MongoClient. The builder stays usable after Build, so the client must
+        // receive a snapshot rather than references to the builder's mutable state: use
+        // AutoEncryptionBuilder.ToAutoEncryptionOptions(), and create a new EventAggregator from a copy of the
+        // DiagnosticsBuilder subscribers.
+        return null;
+    }
 }

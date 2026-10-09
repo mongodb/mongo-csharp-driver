@@ -14,6 +14,7 @@
  */
 
 using System;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
@@ -64,6 +65,27 @@ public sealed class OperationsBuilder
         get;
         set => field = Ensure.IsGreaterThanOrEqualToZero(value, nameof(MaxAdaptiveRetries));
     }
+
+    /// <summary>
+    /// Gets or sets a custom server selector that runs after the selector chosen for the operation (read
+    /// preference or writable server) and before the latency window (<see cref="LocalThreshold"/>) is applied.
+    /// Defaults to <c>null</c>, which means no additional selection.
+    /// </summary>
+    /// <remarks>
+    /// The same instance is used for every server selection made by the client, possibly from several threads
+    /// at once, so it must be thread-safe.
+    /// </remarks>
+    public IServerSelector PostServerSelector { get; set; }
+
+    /// <summary>
+    /// Gets or sets a custom server selector that runs before the selector chosen for the operation (read
+    /// preference or writable server). Defaults to <c>null</c>, which means no additional selection.
+    /// </summary>
+    /// <remarks>
+    /// The same instance is used for every server selection made by the client, possibly from several threads
+    /// at once, so it must be thread-safe.
+    /// </remarks>
+    public IServerSelector PreServerSelector { get; set; }
 
     /// <summary>
     /// Gets or sets the default read concern used by operations that do not specify their own.

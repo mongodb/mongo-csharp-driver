@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Tests
         public IMongoClient UsernamePasswordAuthentication()
         {
             return new MongoClientBuilder()
-                .Connectivity(connectivity => connectivity.Servers = new[] { new MongoServerAddress("localhost", 27017) })
+                .Cluster(cluster => cluster.Servers = new[] { new MongoServerAddress("localhost", 27017) })
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Build();
         }
@@ -90,7 +90,7 @@ namespace MongoDB.Driver.Tests
             var builder = new MongoClientBuilder();
 
             builder.Authentication().UseUsernamePassword("user", "pencil");
-            builder.Connectivity().ReplicaSetName = "rs0";
+            builder.Cluster().ReplicaSetName = "rs0";
             builder.Operations().ReadPreference = ReadPreference.SecondaryPreferred;
 
             return builder.Build();
@@ -180,14 +180,14 @@ namespace MongoDB.Driver.Tests
         {
             return new MongoClientBuilder()
                 .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
-                .Connectivity(connectivity =>
+                .Cluster(cluster =>
                 {
-                    connectivity.Servers = new[]
+                    cluster.Servers = new[]
                     {
                         new MongoServerAddress("mongo-1.example.com", 27017),
                         new MongoServerAddress("mongo-2.example.com", 27017)
                     };
-                    connectivity.ReplicaSetName = "rs0";
+                    cluster.ReplicaSetName = "rs0";
                 })
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Tls(tls => tls.Enabled = true)
