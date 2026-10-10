@@ -1863,7 +1863,9 @@ namespace MongoDB.Driver
                     clause.Value is BsonDocument clauseValue)
                 {
                     var clauseOperator = clauseValue.ElementCount > 0 ? clauseValue.GetElement(0).Name : null;
-                    if (clauseValue.Names.Any(op => existingClauseValue.Contains(op)) ||
+                    if (!IsOperatorDocument(existingClauseValue) ||
+                        !IsOperatorDocument(clauseValue) ||
+                        clauseValue.Names.Any(op => existingClauseValue.Contains(op)) ||
                         __operatorsThatCannotBeCombined.Contains(clauseOperator))
                     {
                         PromoteFilterToDollarForm(document, clause);
@@ -1884,6 +1886,7 @@ namespace MongoDB.Driver
             }
 
             static bool IsFieldName(string fieldOrOperatorName) => !fieldOrOperatorName.StartsWith("$");
+            static bool IsOperatorDocument(BsonDocument value) => value.ElementCount > 0 && value.Names.All(name => name.StartsWith("$"));
         }
 
         private static void PromoteFilterToDollarForm(BsonDocument document, BsonElement? clause)
