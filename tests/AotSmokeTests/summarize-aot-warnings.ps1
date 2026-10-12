@@ -1,4 +1,5 @@
 ﻿# Summarizes Native AOT publish warnings and smoke-test runs into aot-warnings-baseline.txt.
+# Normally invoked by check-aot-warnings.ps1 -Update.
 # Inputs in -ScratchDir: <tfm>-warn.log (from: dotnet publish tests/AotSmokeTests -c Release -f <tfm> -r win-x64 "-flp:warningsonly;logfile=<dir>\<tfm>-warn.log")
 #                       run-<tfm>-w<0|1>.txt (exe output with AOT_SMOKE_WORKAROUNDS=0/1).
 # On Windows with .NET 8 ILCompiler, put the VS Installer folder (vswhere.exe) on PATH before publishing.
@@ -53,8 +54,12 @@ $out.Add('AOT_SMOKE_WORKAROUNDS=0 is the raw baseline; =1 pre-registers serializ
 $out.Add('')
 foreach ($tfm in 'net8.0', 'net10.0') {
     foreach ($w in '0', '1') {
+        $runFile = Join-Path $ScratchDir "run-$tfm-w$w.txt"
+        if (-not (Test-Path $runFile)) {
+            continue
+        }
         $out.Add("[$tfm, AOT_SMOKE_WORKAROUNDS=$w]")
-        $lines = Get-Content (Join-Path $ScratchDir "run-$tfm-w$w.txt")
+        $lines = Get-Content $runFile
         foreach ($l in $lines) {
             if ($l -match '^(Runtime|PASS|FAIL|ALL|\d+ STEP)') {
                 $text = if ($l -match '^FAIL connect') { $l -replace 'Client view of cluster state.*$', '...' } else { $l }
