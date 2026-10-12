@@ -32,12 +32,9 @@ namespace AotSmokeTests
         public int Age { get; set; }
     }
 
-    public class GenericHolder
+    public class Holder<T>
     {
-        public List<string> List { get; set; }
-        public string[] Array { get; set; }
-        public Dictionary<string, int> Dictionary { get; set; }
-        public int? Nullable { get; set; }
+        public T Value { get; set; }
     }
 
     public static class Program
@@ -57,21 +54,11 @@ namespace AotSmokeTests
                 Step("register workaround serializers", RegisterWorkaroundSerializers);
             }
 
-            Step("generic serializers (no server)", () =>
-            {
-                var document = new BsonDocument
-                {
-                    { "List", new BsonArray { "a", "b" } },
-                    { "Array", new BsonArray { "c" } },
-                    { "Dictionary", new BsonDocument("k", 1) },
-                    { "Nullable", 5 }
-                };
-                var bytes = document.ToBson();
-                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).List.Count == 2, "List<string> round trip");
-                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Array.Length == 1, "string[] round trip");
-                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Dictionary["k"] == 1, "Dictionary<string, int> round trip");
-                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Nullable == 5, "int? round trip");
-            });
+            // Server-less round trips through a POCO, one per member type, so each failure is isolated.
+            RoundTripStep("POCO with List<string> member", new List<string> { "a", "b" }, v => v.Count == 2);
+            RoundTripStep("POCO with string[] member", new[] { "c" }, v => v.Length == 1);
+            RoundTripStep("POCO with Dictionary<string, int> member", new Dictionary<string, int> { ["k"] = 1 }, v => v["k"] == 1);
+            RoundTripStep("POCO with int? member", (int?)5, v => v == 5);
 
             IMongoCollection<Person> collection = null;
             Step("connect", () =>
@@ -158,6 +145,16 @@ namespace AotSmokeTests
             BsonSerializer.RegisterSerializer(new ObjectIdSerializer());
             // Roots generic instantiations that the LINQ serializer finder creates with MakeGenericType in a static ctor.
             GC.KeepAlive(new NullableSerializer<BsonBinarySubType>(new EnumSerializer<BsonBinarySubType>()));
+        }
+
+        private static void RoundTripStep<T>(string name, T value, Func<T, bool> verify)
+        {
+            Step(name, () =>
+            {
+                var bytes = new Holder<T> { Value = value }.ToBson();
+                var result = BsonSerializer.Deserialize<Holder<T>>(bytes);
+                Check(verify(result.Value), "value did not round trip");
+            });
         }
 
         private static void Check(bool condition, string message)
