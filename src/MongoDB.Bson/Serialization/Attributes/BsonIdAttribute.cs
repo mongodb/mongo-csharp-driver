@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace MongoDB.Bson.Serialization.Attributes
 {
@@ -25,6 +26,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonIdAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         private Type _idGenerator;
         private int _order = int.MaxValue;
 
@@ -40,6 +42,7 @@ namespace MongoDB.Bson.Serialization.Attributes
         /// <summary>
         /// Gets or sets the Id generator for the Id.
         /// </summary>
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
         public Type IdGenerator
         {
             get { return _idGenerator; }

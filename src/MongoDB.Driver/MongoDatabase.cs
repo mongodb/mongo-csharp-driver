@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -314,7 +315,7 @@ namespace MongoDB.Driver
             await ExecuteWriteOperationAsync(session, operation, options?.Timeout, name, cancellationToken).ConfigureAwait(false);
         }
 
-        public IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings)
+        public IMongoCollection<TDocument> GetCollection<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TDocument>(string name, MongoCollectionSettings settings)
         {
             Ensure.IsNotNullOrEmpty(name, nameof(name));
 

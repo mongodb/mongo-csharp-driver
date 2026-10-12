@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using MongoDB.Bson.IO;
@@ -63,7 +64,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="document">The BsonDocument.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(BsonDocument document, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(document, configurator);
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bsonReader">The BsonReader.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(IBsonReader bsonReader, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(bsonReader, configurator);
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="bytes">The BSON byte array.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(byte[] bytes, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(bytes, configurator);
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="stream">The BSON Stream.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(Stream stream, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(stream, configurator);
 
         /// <summary>
@@ -103,7 +104,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="json">The JSON string.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(string json, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(json, configurator);
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace MongoDB.Bson.Serialization
         /// <param name="textReader">The JSON TextReader.</param>
         /// <param name="configurator">The configurator.</param>
         /// <returns>A deserialized value.</returns>
-        public static TNominalType Deserialize<TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
+        public static TNominalType Deserialize<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TNominalType>(TextReader textReader, Action<BsonDeserializationContext.Builder> configurator = null)
             => BsonSerializationDomain.Default.Deserialize<TNominalType>(textReader, configurator);
 
         /// <summary>
