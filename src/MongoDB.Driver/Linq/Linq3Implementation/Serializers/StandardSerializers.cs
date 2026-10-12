@@ -20,7 +20,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
-using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 {
@@ -50,19 +49,21 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Serializers
 
             __booleanSerializer = (IBsonSerializer<bool>)__standardSerializers[typeof(bool)];
 
-            static void AddStandardSerializers(IBsonSerializer standardSerializer)
+            // generic so that the nullable and array serializers are constructed with static types (Native AOT safe)
+            static void AddStandardSerializers<TValue>(IBsonSerializer<TValue> standardSerializer)
+                where TValue : struct
             {
                 __standardSerializers.Add(standardSerializer.ValueType, standardSerializer);
 
-                var nullableSerializer = NullableSerializer.Create(valueSerializer: standardSerializer);
+                var nullableSerializer = new NullableSerializer<TValue>(standardSerializer);
                 __standardSerializers.Add(nullableSerializer.ValueType, nullableSerializer);
 
-                var arraySerializer = standardSerializer.ValueType == typeof(byte) ?
+                IBsonSerializer arraySerializer = standardSerializer.ValueType == typeof(byte) ?
                     new ByteArraySerializer() : // use this custom serializer for byte arrays
-                    ArraySerializerHelper.CreateSerializer(itemSerializer: standardSerializer);
+                    new ArraySerializer<TValue>(standardSerializer);
                 __standardSerializers.Add(arraySerializer.ValueType, arraySerializer);
 
-                var arrayOfNullableSerializer = ArraySerializerHelper.CreateSerializer(itemSerializer: nullableSerializer);
+                var arrayOfNullableSerializer = new ArraySerializer<TValue?>(nullableSerializer);
                 __standardSerializers.Add(arrayOfNullableSerializer.ValueType, arrayOfNullableSerializer);
             }
         }

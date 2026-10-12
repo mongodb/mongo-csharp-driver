@@ -304,8 +304,13 @@ namespace MongoDB.Bson.Serialization
 
         private bool IsSameMember(MemberInfo a, MemberInfo b)
         {
+#if NET6_0_OR_GREATER
+            // MetadataToken is not available under Native AOT
+            return a.HasSameMetadataDefinitionAs(b);
+#else
             // two MemberInfos refer to the same member if the Module and MetadataToken are equal
             return a.Module == b.Module && a.MetadataToken == b.MetadataToken;
+#endif
         }
 
         private void ThrowFrozenException()

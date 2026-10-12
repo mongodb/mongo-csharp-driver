@@ -59,20 +59,33 @@ internal partial class SerializerFinderVisitor
 
     private static class MethodCallSerializerDeducers
     {
-        private readonly record struct MethodKey
+        // identifies a method by its metadata definition, so one entry matches the method on every constructed generic type
+        private readonly struct MethodKey : IEquatable<MethodKey>
         {
+            private readonly MethodInfo _method;
+
             public MethodKey(MethodInfo method)
             {
-                Token = method.MetadataToken;
-                Module = method.Module;
+                _method = method;
             }
 
-            public int Token { get; }
-            public Module Module { get; }
+            public bool Equals(MethodKey other)
+            {
+#if NET6_0_OR_GREATER
+                // MetadataToken is not available under Native AOT
+                return _method.HasSameMetadataDefinitionAs(other._method);
+#else
+                return _method.Module == other._method.Module && _method.MetadataToken == other._method.MetadataToken;
+#endif
+            }
+
+            public override bool Equals(object obj) => obj is MethodKey other && Equals(other);
+
+            public override int GetHashCode() => (_method.Module.GetHashCode() * 397) ^ _method.Name.GetHashCode();
         }
 
         private static readonly ConcurrentDictionary<MethodKey, Action<SerializerFinderVisitor, MethodCallExpression>> __serializerDeducers = new();
-        private static readonly IBsonSerializer __binarySubTypeSerializer = NullableSerializer.Create(new EnumSerializer<BsonBinarySubType>());
+        private static readonly IBsonSerializer __binarySubTypeSerializer = new NullableSerializer<BsonBinarySubType>(new EnumSerializer<BsonBinarySubType>());
         private static readonly IBsonSerializer __bsonBinaryDataSerializer = new BsonValueCSharpNullSerializer<BsonBinaryData>(BsonBinaryDataSerializer.Instance);
 
         private static readonly IReadOnlyMethodInfoSet __pickWindowMethodWithSortByOverloads = MethodInfoSet.Create(

@@ -143,8 +143,6 @@ namespace AotSmokeTests
             BsonSerializer.RegisterSerializer(new DoubleSerializer());
             BsonSerializer.RegisterSerializer(new BooleanSerializer());
             BsonSerializer.RegisterSerializer(new ObjectIdSerializer());
-            // Roots generic instantiations that the LINQ serializer finder creates with MakeGenericType in a static ctor.
-            GC.KeepAlive(new NullableSerializer<BsonBinarySubType>(new EnumSerializer<BsonBinarySubType>()));
         }
 
         private static void RoundTripStep<T>(string name, T value, Func<T, bool> verify)
