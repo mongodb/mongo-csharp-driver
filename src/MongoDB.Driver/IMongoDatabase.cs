@@ -13,9 +13,11 @@
 * limitations under the License.
 */
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace MongoDB.Driver
 {
@@ -296,7 +298,7 @@ namespace MongoDB.Driver
         /// <param name="name">The name of the collection.</param>
         /// <param name="settings">The settings.</param>
         /// <returns>An implementation of a collection.</returns>
-        IMongoCollection<TDocument> GetCollection<TDocument>(string name, MongoCollectionSettings settings = null);
+        IMongoCollection<TDocument> GetCollection<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TDocument>(string name, MongoCollectionSettings settings = null);
 
         /// <summary>
         /// Lists the names of all the collections in the database.

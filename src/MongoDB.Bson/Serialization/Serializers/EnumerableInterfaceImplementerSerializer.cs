@@ -172,6 +172,16 @@ namespace MongoDB.Bson.Serialization.Serializers
         /// <returns>The final result.</returns>
         protected override TValue FinalizeResult(object accumulator)
         {
+            // common collection types are created directly (no constructor reflection, so Native AOT safe)
+            if (typeof(TValue) == typeof(List<TItem>))
+            {
+                return (TValue)accumulator;
+            }
+            if (typeof(TValue) == typeof(HashSet<TItem>))
+            {
+                return (TValue)(object)new HashSet<TItem>((List<TItem>)accumulator);
+            }
+
             // find and call a constructor that we can pass the accumulator to
             var accumulatorCtor = FindSingleArgumentConstructor(accumulator.GetType());
             if (accumulatorCtor != null)

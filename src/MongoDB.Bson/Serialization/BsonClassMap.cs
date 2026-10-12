@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -321,7 +322,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>() =>
+        public static BsonClassMap<TClass> RegisterClassMap<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TClass>() =>
             BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap<TClass>();
 
         /// <summary>
@@ -330,7 +331,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TClass">The class.</typeparam>
         /// <param name="classMapInitializer">The class map initializer.</param>
         /// <returns>The class map.</returns>
-        public static BsonClassMap<TClass> RegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        public static BsonClassMap<TClass> RegisterClassMap<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
             => BsonSerializationDomain.Default.ClassMapRegistry.RegisterClassMap(classMapInitializer);
 
         /// <summary>
@@ -345,7 +346,7 @@ namespace MongoDB.Bson.Serialization
         /// </summary>
         /// <typeparam name="TClass">The class.</typeparam>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
-        public static bool TryRegisterClassMap<TClass>()
+        public static bool TryRegisterClassMap<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TClass>()
             => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap<TClass>();
 
         /// <summary>
@@ -363,7 +364,7 @@ namespace MongoDB.Bson.Serialization
         /// <typeparam name="TClass">The class.</typeparam>
         /// <param name="classMapInitializer">The class map initializer (only called if the class map is not already registered).</param>
         /// <returns>True if this call registered the class map, false if the class map was already registered.</returns>
-        public static bool TryRegisterClassMap<TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
+        public static bool TryRegisterClassMap<[DynamicallyAccessedMembers(TrimmingAnnotations.ClassMapMembers)] TClass>(Action<BsonClassMap<TClass>> classMapInitializer)
             => BsonSerializationDomain.Default.ClassMapRegistry.TryRegisterClassMap(classMapInitializer);
 
         /// <summary>
