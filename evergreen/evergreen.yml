@@ -1952,7 +1952,6 @@ axes:
         variables:
           OS: "windows-64"
           skip_ECS_auth_test: true
-          skip_web_identity_auth_test: true
         run_on: windows-2022-latest-small
       - id: "ubuntu-2004"
         display_name: "Ubuntu 20.04"
@@ -1977,9 +1976,9 @@ axes:
         display_name: "macOS 14.00"
         variables:
           OS: "macos-1400"
+          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
           skip_EC2_auth_test: true
           skip_ECS_auth_test: true
-          skip_web_identity_auth_test: true
         run_on: macos-14
       - id: "macos-14-arm64"
         display_name: "macOS 14.00 ARM"
@@ -2597,13 +2596,19 @@ buildvariants:
   tasks:
     - name: ".ocsp"
 
-# MONGODB-AWS auth: every credential scenario runs against latest, 4.4 is checked as the minimum supported server,
-# and each AWS SDK build the driver loads (net472, netcoreapp3.1 via net6.0, net8.0 via net10.0) is exercised.
-- matrix_name: aws-auth-tests-windows-minimum-server
-  matrix_spec: { version: "4.4", topology: "standalone", os: "windows-64", framework: "net472" }
+# MONGODB-AWS auth: each OS runs every credential scenario it supports against latest on the lowest (net6.0) and newest
+# (net10.0) .NET target framework, and Windows also runs net472.
+- matrix_name: aws-auth-tests-windows
+  matrix_spec: { version: "latest", topology: "standalone", os: "windows-64", framework: ["net472", "net60", "net100"] }
   display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   run_on:
     - windows-2022-latest-small
+  tasks:
+    - name: aws-auth-tests
+
+- matrix_name: aws-auth-tests-macos
+  matrix_spec: { version: "latest", topology: "standalone", os: "macos-14", framework: ["net60", "net100"] }
+  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   tasks:
     - name: aws-auth-tests
 
