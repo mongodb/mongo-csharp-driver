@@ -9,6 +9,12 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
+  <!-- Native AOT: marks the assembly trimmable and turns on the trim, AOT and single-file analyzers. -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(MongoAotAnalyzerWarnings)</WarningsNotAsErrors>
+  </PropertyGroup>
+
 <!--  The followings have been removed because they are accessed indirectly through MongoDB.Bson, otherwise there will be a double definition   -->
 <!--  <ItemGroup>-->
 <!--    <Compile Include="..\MongoDB.Shared\DictionaryComparer.cs" Link="Shared\DictionaryComparer.cs" />-->

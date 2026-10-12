@@ -10,6 +10,12 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
+  <!-- Native AOT: marks the assembly trimmable and turns on the trim, AOT and single-file analyzers. -->
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+    <IsAotCompatible>true</IsAotCompatible>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);$(MongoAotAnalyzerWarnings)</WarningsNotAsErrors>
+  </PropertyGroup>
+
   <!-- Polyfills that are only needed on .NET Framework; the types they provide are in-box on .NET 6.0 and later. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
