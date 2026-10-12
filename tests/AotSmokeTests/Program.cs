@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -29,6 +30,14 @@ namespace AotSmokeTests
         public ObjectId Id { get; set; }
         public string Name { get; set; }
         public int Age { get; set; }
+    }
+
+    public class GenericHolder
+    {
+        public List<string> List { get; set; }
+        public string[] Array { get; set; }
+        public Dictionary<string, int> Dictionary { get; set; }
+        public int? Nullable { get; set; }
     }
 
     public static class Program
@@ -47,6 +56,22 @@ namespace AotSmokeTests
                 // These document what currently breaks; they are not a fix.
                 Step("register workaround serializers", RegisterWorkaroundSerializers);
             }
+
+            Step("generic serializers (no server)", () =>
+            {
+                var document = new BsonDocument
+                {
+                    { "List", new BsonArray { "a", "b" } },
+                    { "Array", new BsonArray { "c" } },
+                    { "Dictionary", new BsonDocument("k", 1) },
+                    { "Nullable", 5 }
+                };
+                var bytes = document.ToBson();
+                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).List.Count == 2, "List<string> round trip");
+                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Array.Length == 1, "string[] round trip");
+                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Dictionary["k"] == 1, "Dictionary<string, int> round trip");
+                Check(BsonSerializer.Deserialize<GenericHolder>(bytes).Nullable == 5, "int? round trip");
+            });
 
             IMongoCollection<Person> collection = null;
             Step("connect", () =>

@@ -32,16 +32,22 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public class CollectionsSerializationProvider : BsonSerializationProviderBase
     {
-        private static readonly Dictionary<Type, Type> __serializerTypes;
+        private static readonly Dictionary<Type, Func<IBsonSerializationDomain, IBsonSerializerRegistry, IBsonSerializer>> __serializerFactories;
+        private static readonly Dictionary<Type, Type> __serializerTypeDefinitions;
 
         static CollectionsSerializationProvider()
         {
-            __serializerTypes = new Dictionary<Type, Type>
+            // non-generic serializers are constructed directly so no constructor reflection is needed (Native AOT safe)
+            __serializerFactories = new Dictionary<Type, Func<IBsonSerializationDomain, IBsonSerializerRegistry, IBsonSerializer>>
             {
-                { typeof(BitArray), typeof(BitArraySerializer) },
-                { typeof(ExpandoObject), typeof(ExpandoObjectSerializer) },
-                { typeof(Queue), typeof(QueueSerializer) },
-                { typeof(Stack), typeof(StackSerializer) },
+                { typeof(BitArray), (domain, registry) => new BitArraySerializer() },
+                { typeof(ExpandoObject), (domain, registry) => new ExpandoObjectSerializer(domain) },
+                { typeof(Queue), (domain, registry) => new QueueSerializer(registry) },
+                { typeof(Stack), (domain, registry) => new StackSerializer(registry) }
+            };
+
+            __serializerTypeDefinitions = new Dictionary<Type, Type>
+            {
                 { typeof(Queue<>), typeof(QueueSerializer<>) },
                 { typeof(ReadOnlyCollection<>), typeof(ReadOnlyCollectionSerializer<>) },
                 { typeof(Stack<>), typeof(StackSerializer<>) },
@@ -79,10 +85,9 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
-            Type serializerType;
-            if (__serializerTypes.TryGetValue(type, out serializerType))
+            if (__serializerFactories.TryGetValue(type, out var serializerFactory))
             {
-                return CreateSerializer(serializerType, serializerRegistry);
+                return serializerFactory(GetSerializationDomain(serializerRegistry), serializerRegistry);
             }
 
             if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
@@ -90,7 +95,7 @@ namespace MongoDB.Bson.Serialization
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
 
                 Type serializerTypeDefinition;
-                if (__serializerTypes.TryGetValue(genericTypeDefinition, out serializerTypeDefinition))
+                if (__serializerTypeDefinitions.TryGetValue(genericTypeDefinition, out serializerTypeDefinition))
                 {
                     return CreateGenericSerializer(serializerTypeDefinition, typeInfo.GetGenericArguments(), serializerRegistry);
                 }

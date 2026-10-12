@@ -80,7 +80,7 @@ namespace MongoDB.Bson.Serialization
         {
             var serializerTypeInfo = serializerType.GetTypeInfo();
 
-            var domain = (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
+            var domain = GetSerializationDomain(serializerRegistry);
             var serializerCtorWithDomain = serializerTypeInfo.GetConstructor(
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
                 binder: null,
@@ -106,6 +106,11 @@ namespace MongoDB.Bson.Serialization
             throw new MissingMethodException(string.Format(
                 "No suitable constructor found for serializer type: '{0}'.",
                 serializerType.FullName));
+        }
+
+        internal static IBsonSerializationDomain GetSerializationDomain(IBsonSerializerRegistry serializerRegistry)
+        {
+            return (serializerRegistry as IHasSerializationDomain)?.SerializationDomain ?? BsonSerializationDomain.Default;
         }
     }
 }

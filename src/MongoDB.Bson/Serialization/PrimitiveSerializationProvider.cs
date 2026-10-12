@@ -28,46 +28,57 @@ namespace MongoDB.Bson.Serialization
     /// </summary>
     public class PrimitiveSerializationProvider : BsonSerializationProviderBase
     {
-        private static readonly Dictionary<Type, Type> __serializersTypes;
+        private static readonly Dictionary<Type, Func<IBsonSerializationDomain, IBsonSerializerRegistry, IBsonSerializer>> __serializerFactories;
+        private static readonly Dictionary<Type, Type> __serializerTypeDefinitions;
 
         static PrimitiveSerializationProvider()
         {
-            __serializersTypes = new Dictionary<Type, Type>
+            // non-generic serializers are constructed directly so no constructor reflection is needed (Native AOT safe)
+            __serializerFactories = new Dictionary<Type, Func<IBsonSerializationDomain, IBsonSerializerRegistry, IBsonSerializer>>
             {
-                { typeof(Boolean), typeof(BooleanSerializer) },
-                { typeof(Byte), typeof(ByteSerializer) },
-                { typeof(Byte[]), typeof(ByteArraySerializer) },
-                { typeof(Char), typeof(CharSerializer) },
-                { typeof(CultureInfo), typeof(CultureInfoSerializer) },
-                { typeof(DateTime), typeof(DateTimeSerializer) },
+                { typeof(Boolean), (domain, registry) => new BooleanSerializer() },
+                { typeof(Byte), (domain, registry) => new ByteSerializer() },
+                { typeof(Byte[]), (domain, registry) => new ByteArraySerializer() },
+                { typeof(Char), (domain, registry) => new CharSerializer() },
+                { typeof(CultureInfo), (domain, registry) => new CultureInfoSerializer() },
+                { typeof(DateTime), (domain, registry) => new DateTimeSerializer() },
 #if NET6_0_OR_GREATER
-                { typeof(DateOnly), typeof(DateOnlySerializer) },
+                { typeof(DateOnly), (domain, registry) => new DateOnlySerializer() },
 #endif
-                { typeof(DateTimeOffset), typeof(DateTimeOffsetSerializer) },
-                { typeof(Decimal), typeof(DecimalSerializer) },
-                { typeof(Decimal128), typeof(Decimal128Serializer) },
-                { typeof(Double), typeof(DoubleSerializer) },
-                { typeof(Guid), typeof(GuidSerializer) },
+                { typeof(DateTimeOffset), (domain, registry) => new DateTimeOffsetSerializer() },
+                { typeof(Decimal), (domain, registry) => new DecimalSerializer() },
+                { typeof(Decimal128), (domain, registry) => new Decimal128Serializer() },
+                { typeof(Double), (domain, registry) => new DoubleSerializer() },
+                { typeof(Guid), (domain, registry) => new GuidSerializer() },
 #if NET6_0_OR_GREATER
-                { typeof(Half), typeof(HalfSerializer) },
+                { typeof(Half), (domain, registry) => new HalfSerializer() },
 #endif
-                { typeof(Int16), typeof(Int16Serializer) },
-                { typeof(Int32), typeof(Int32Serializer) },
-                { typeof(Int64), typeof(Int64Serializer) },
-                { typeof(IPAddress), typeof(IPAddressSerializer) },
-                { typeof(IPEndPoint), typeof(IPEndPointSerializer) },
+                { typeof(Int16), (domain, registry) => new Int16Serializer() },
+                { typeof(Int32), (domain, registry) => new Int32Serializer() },
+                { typeof(Int64), (domain, registry) => new Int64Serializer() },
+                { typeof(IPAddress), (domain, registry) => new IPAddressSerializer() },
+                { typeof(IPEndPoint), (domain, registry) => new IPEndPointSerializer() },
+                { typeof(Object), (domain, registry) => new ObjectSerializer(domain) },
+                { typeof(ObjectId), (domain, registry) => new ObjectIdSerializer() },
+                { typeof(Regex), (domain, registry) => new RegexSerializer() },
+                { typeof(SByte), (domain, registry) => new SByteSerializer() },
+                { typeof(Single), (domain, registry) => new SingleSerializer() },
+                { typeof(String), (domain, registry) => new StringSerializer() },
+#if NET6_0_OR_GREATER
+                { typeof(TimeOnly), (domain, registry) => new TimeOnlySerializer() },
+#endif
+                { typeof(TimeSpan), (domain, registry) => new TimeSpanSerializer() },
+                { typeof(UInt16), (domain, registry) => new UInt16Serializer() },
+                { typeof(UInt32), (domain, registry) => new UInt32Serializer() },
+                { typeof(UInt64), (domain, registry) => new UInt64Serializer() },
+                { typeof(Uri), (domain, registry) => new UriSerializer() },
+                { typeof(Version), (domain, registry) => new VersionSerializer() }
+            };
+
+            __serializerTypeDefinitions = new Dictionary<Type, Type>
+            {
                 { typeof(KeyValuePair<,>), typeof(KeyValuePairSerializer<,>) },
                 { typeof(Nullable<>), typeof(NullableSerializer<>) },
-                { typeof(Object), typeof(ObjectSerializer) },
-                { typeof(ObjectId), typeof(ObjectIdSerializer) },
-                { typeof(Regex), typeof(RegexSerializer) },
-                { typeof(SByte), typeof(SByteSerializer) },
-                { typeof(Single), typeof(SingleSerializer) },
-                { typeof(String), typeof(StringSerializer) },
-#if NET6_0_OR_GREATER
-                { typeof(TimeOnly), typeof(TimeOnlySerializer) },
-#endif
-                { typeof(TimeSpan), typeof(TimeSpanSerializer) },
                 { typeof(Tuple<>), typeof(TupleSerializer<>) },
                 { typeof(Tuple<,>), typeof(TupleSerializer<,>) },
                 { typeof(Tuple<,,>), typeof(TupleSerializer<,,>) },
@@ -76,10 +87,6 @@ namespace MongoDB.Bson.Serialization
                 { typeof(Tuple<,,,,,>), typeof(TupleSerializer<,,,,,>) },
                 { typeof(Tuple<,,,,,,>), typeof(TupleSerializer<,,,,,,>) },
                 { typeof(Tuple<,,,,,,,>), typeof(TupleSerializer<,,,,,,,>) },
-                { typeof(UInt16), typeof(UInt16Serializer) },
-                { typeof(UInt32), typeof(UInt32Serializer) },
-                { typeof(UInt64), typeof(UInt64Serializer) },
-                { typeof(Uri), typeof(UriSerializer) },
                 { typeof(ValueTuple<>), typeof(ValueTupleSerializer<>) },
                 { typeof(ValueTuple<,>), typeof(ValueTupleSerializer<,>) },
                 { typeof(ValueTuple<,,>), typeof(ValueTupleSerializer<,,>) },
@@ -87,8 +94,7 @@ namespace MongoDB.Bson.Serialization
                 { typeof(ValueTuple<,,,,>), typeof(ValueTupleSerializer<,,,,>) },
                 { typeof(ValueTuple<,,,,,>), typeof(ValueTupleSerializer<,,,,,>) },
                 { typeof(ValueTuple<,,,,,,>), typeof(ValueTupleSerializer<,,,,,,>) },
-                { typeof(ValueTuple<,,,,,,,>), typeof(ValueTupleSerializer<,,,,,,,>) },
-                { typeof(Version), typeof(VersionSerializer) }
+                { typeof(ValueTuple<,,,,,,,>), typeof(ValueTupleSerializer<,,,,,,,>) }
             };
         }
 
@@ -106,16 +112,15 @@ namespace MongoDB.Bson.Serialization
                 throw new ArgumentException(message, "type");
             }
 
-            Type serializerType;
-            if (__serializersTypes.TryGetValue(type, out serializerType))
+            if (__serializerFactories.TryGetValue(type, out var serializerFactory))
             {
-                return CreateSerializer(serializerType, serializerRegistry);
+                return serializerFactory(GetSerializationDomain(serializerRegistry), serializerRegistry);
             }
 
             if (typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters)
             {
                 Type serializerTypeDefinition;
-                if (__serializersTypes.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
+                if (__serializerTypeDefinitions.TryGetValue(type.GetGenericTypeDefinition(), out serializerTypeDefinition))
                 {
                     return CreateGenericSerializer(serializerTypeDefinition, typeInfo.GetGenericArguments(), serializerRegistry);
                 }
