@@ -132,7 +132,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
 
         [Theory]
         [ParameterAttributeData]
-        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-1-test-that-the-driver-updates-metadata
+        // https://github.com/mongodb/specifications/blob/e1fa73dd9d31769d1f10db02d3c776b0cfe7ee31/source/mongodb-handshake/tests/README.md#test-1-test-that-the-driver-updates-metadata
         public async Task ClientMetadataUpdate_Test1_driver_updates_metadata(
             [Values("2.0", null)] string version,
             [Values("Framework Platform", null)] string platform)
@@ -154,7 +154,7 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
 
         [Theory]
         [ParameterAttributeData]
-        // https://github.com/mongodb/specifications/blob/290ee48973ed0dc8a7c54668e35b19cb012e94ed/source/mongodb-handshake/tests/README.md#test-2-multiple-successive-metadata-updates
+        // https://github.com/mongodb/specifications/blob/e1fa73dd9d31769d1f10db02d3c776b0cfe7ee31/source/mongodb-handshake/tests/README.md#test-2-multiple-successive-metadata-updates
         public async Task ClientMetadataUpdate_Test2_multiple_successive_metadata_updates(
             [Values("2.0", null)] string version,
             [Values("Framework Platform", null)] string platform)
@@ -334,6 +334,80 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
             HelloClientDocument(eventCapturer).Should().Be(initialClientMetadata);
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/e1fa73dd9d31769d1f10db02d3c776b0cfe7ee31/source/mongodb-handshake/tests/README.md#test-10-entries-in-drivername-and-driverversion-correspond-by-index
+        public async Task ClientMetadataUpdate_Test10_driver_name_and_version_entries_correspond_by_index(
+            [Values(2, 3, 4, 5, 6, 7, 9, 10, 11, 12)] int testCase) // cases 1 and 8 (null name) are not applicable: the driver requires a non-null library name
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, libraryInfo: null);
+
+            await Ping(client);
+            var driverDocument = HelloClientDocument(eventCapturer)["driver"];
+            var driverName = driverDocument["name"].AsString;
+            var driverVersion = driverDocument["version"].AsString;
+            await WaitForIdleConnection();
+
+            var (appended, expectedName, expectedVersion) = testCase switch
+            {
+                2 => ([new LibraryInfo("F1", null), new LibraryInfo("F2", "2.0")], $"{driverName}|F1|F2", $"{driverVersion}||2.0"),
+                3 => ([new LibraryInfo("F1", null)], $"{driverName}|F1", $"{driverVersion}|"),
+                4 => ([new LibraryInfo("F1", driverVersion)], $"{driverName}|F1", $"{driverVersion}|{driverVersion}"),
+                5 => ([new LibraryInfo(driverName, "1.0")], $"{driverName}|{driverName}", $"{driverVersion}|1.0"),
+                6 => ([new LibraryInfo("F1", "1.0"), new LibraryInfo("F1", "1.0")], $"{driverName}|F1", $"{driverVersion}|1.0"),
+                7 => ([new LibraryInfo("F1", null), new LibraryInfo("F2", null)], $"{driverName}|F1|F2", $"{driverVersion}||"),
+                9 => ([new LibraryInfo("F1", "1.0"), new LibraryInfo("F2", "2.0"), new LibraryInfo("F1", "1.0")], $"{driverName}|F1|F2", $"{driverVersion}|1.0|2.0"),
+                10 => ([new LibraryInfo("F1", "1.0", "P1"), new LibraryInfo("F1", "1.0", "P2")], $"{driverName}|F1|F1", $"{driverVersion}|1.0|1.0"),
+                11 => ([new LibraryInfo(driverName, driverVersion)], $"{driverName}|{driverName}", $"{driverVersion}|{driverVersion}"),
+                12 => (new[] { new LibraryInfo("F1", null), new LibraryInfo("F1", null) }, $"{driverName}|F1", $"{driverVersion}|"),
+                _ => throw new ArgumentOutOfRangeException(nameof(testCase))
+            };
+
+            foreach (var libraryInfo in appended)
+            {
+                client.AppendMetadata(libraryInfo);
+            }
+            await Ping(client);
+
+            var actualDriverDocument = HelloClientDocument(eventCapturer)["driver"];
+            actualDriverDocument["name"].AsString.Should().Be(expectedName);
+            actualDriverDocument["version"].AsString.Should().Be(expectedVersion);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        // https://github.com/mongodb/specifications/blob/e1fa73dd9d31769d1f10db02d3c776b0cfe7ee31/source/mongodb-handshake/tests/README.md#test-11-appending-metadata-containing-the-delimiter-raises-an-error
+        public async Task ClientMetadataUpdate_Test11_appending_metadata_containing_the_delimiter_raises_an_error(
+            [Values(1, 2, 3)] int testCase)
+        {
+            RequireServer.Check().Authentication(authentication: false);
+
+            var (name, version, platform) = testCase switch
+            {
+                1 => ("frame|work", "2.0", "Framework Platform"),
+                2 => ("framework", "2|0", "Framework Platform"),
+                3 => ("framework", "2.0", "Framework|Platform"),
+                _ => throw new ArgumentOutOfRangeException(nameof(testCase))
+            };
+
+            var eventCapturer = CreateHelloEventCapturer();
+            using var client = CreateClient(eventCapturer, new LibraryInfo("library", "1.2", "Library Platform"));
+
+            await Ping(client);
+            var initialClientMetadata = HelloClientDocument(eventCapturer);
+            await WaitForIdleConnection();
+
+            // LibraryInfo rejects the delimiter on construction, so the invalid metadata can never reach AppendMetadata
+            var exception = Record.Exception(() => client.AppendMetadata(new LibraryInfo(name, version, platform)));
+            exception.Should().BeOfType<ArgumentException>();
+            await Ping(client);
+
+            HelloClientDocument(eventCapturer).Should().Be(initialClientMetadata);
+        }
+
         // private methods
         private static EventCapturer CreateHelloEventCapturer() =>
             new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName is "hello" or OppressiveLanguageConstants.LegacyHelloCommandName);
@@ -356,14 +430,8 @@ namespace MongoDB.Driver.Tests.Specifications.mongodb_handshake.prose_tests
         private static BsonDocument WithAppended(BsonDocument clientDocument, string name, string version, string platform)
         {
             var expected = clientDocument.DeepClone().AsBsonDocument;
-            if (name != null)
-            {
-                expected["driver"].AsBsonDocument["name"] = $"{expected["driver"]["name"].AsString}|{name}";
-            }
-            if (version != null)
-            {
-                expected["driver"].AsBsonDocument["version"] = $"{expected["driver"]["version"].AsString}|{version}";
-            }
+            expected["driver"].AsBsonDocument["name"] = $"{expected["driver"]["name"].AsString}|{name}";
+            expected["driver"].AsBsonDocument["version"] = $"{expected["driver"]["version"].AsString}|{version}";
             if (platform != null)
             {
                 expected["platform"] = $"{expected["platform"].AsString}|{platform}";
