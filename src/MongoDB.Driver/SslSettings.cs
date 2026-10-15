@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -220,9 +221,10 @@ namespace MongoDB.Driver
                 return _hashCode;
             }
 
+            int? certCollectionHashCode = _clientCertificateCollection != null ? __certificateCollectionEqualityComparer.GetHashCode(_clientCertificateCollection) : null;
             return new Hasher()
                 .Hash(_checkCertificateRevocation)
-                .HashElements(_clientCertificateCollection?.Cast<object>())
+                .Hash(certCollectionHashCode)
                 .Hash(_clientCertificateSelectionCallback)
                 .Hash(_enabledSslProtocols)
                 .Hash(_serverCertificateValidationCallback)
@@ -271,25 +273,44 @@ namespace MongoDB.Driver
         {
             public bool Equals(X509CertificateCollection lhs, X509CertificateCollection rhs)
             {
-                if (lhs == null || rhs == null)
+                if (object.ReferenceEquals(lhs, rhs))
                 {
-                    return rhs == lhs;
+                    return true;
                 }
 
-                return ((IEnumerable)lhs).Cast<X509Certificate>().SequenceEqual(((IEnumerable)rhs).Cast<X509Certificate>());
+                if (lhs == null || rhs == null)
+                {
+                    return false;
+                }
+
+                if (lhs.Count != rhs.Count)
+                {
+                    return false;
+                }
+
+                // Every certificate is compared even once a mismatch is known: returning early would
+                // reveal through timing which position first differs. "&=" is deliberate - do not
+                // replace it with "&&" or with an early return out of the loop.
+                var result = true;
+                for (var i = 0; i < lhs.Count; i++)
+                {
+                    result &= X509CertificateUtility.AreCertificatesEqual(lhs[i], rhs[i]);
+                }
+
+                return result;
             }
 
             public int GetHashCode(X509CertificateCollection obj)
             {
                 if (obj == null)
                 {
-                    throw new ArgumentNullException("obj");
+                    throw new ArgumentNullException(nameof(obj));
                 }
 
                 var hash = 17;
                 foreach (X509Certificate certificate in obj)
                 {
-                    hash += 37 * hash + certificate.GetHashCode();
+                    hash = 37 * hash + X509CertificateUtility.GetCertificateHashCode(certificate);
                 }
                 return hash;
             }

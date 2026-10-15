@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Reflection;
 using System.Security.Authentication;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
@@ -182,6 +183,158 @@ namespace MongoDB.Driver.Tests
             settings.Freeze();
             Assert.Equal(callback, settings.ServerCertificateValidationCallback);
             Assert.Throws<InvalidOperationException>(() => { settings.ServerCertificateValidationCallback = callback; });
+        }
+
+        [Fact]
+        public void Equals_should_return_false_when_certificates_differ_but_share_issuer_and_serial_number()
+        {
+            var serialNumber = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            using var lhs = CreateSelfSignedCertificate("CN=mongodb-test", serialNumber);
+            using var rhs = CreateSelfSignedCertificate("CN=mongodb-test", serialNumber);
+            lhs.Issuer.Should().Be(rhs.Issuer);
+            lhs.GetSerialNumberString().Should().Be(rhs.GetSerialNumberString());
+
+            var subject = new SslSettings { ClientCertificates = [lhs] };
+            var other = new SslSettings { ClientCertificates = [rhs] };
+
+            subject.Equals(other).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Equals_should_return_true_when_certificates_have_the_same_raw_data()
+        {
+            using var certificate = CreateSelfSignedCertificate("CN=mongodb-test", [1, 2, 3, 4, 5, 6, 7, 8]);
+            using var copy = X509CertificateLoader.LoadCertificate(certificate.RawData);
+
+            var subject = new SslSettings { ClientCertificates = [certificate] };
+            var other = new SslSettings { ClientCertificates = [copy] };
+
+            subject.Equals(other).Should().BeTrue();
+            subject.GetHashCode().Should().Be(other.GetHashCode());
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Equals_should_return_false_when_only_one_certificate_has_a_private_key(bool lhsHasPrivateKey)
+        {
+            using var certificateWithPrivateKey = CreateSelfSignedCertificateWithPrivateKey("CN=mongodb-test", useEcdsa: false);
+            using var certificateWithoutPrivateKey = X509CertificateLoader.LoadCertificate(certificateWithPrivateKey.RawData);
+            certificateWithPrivateKey.HasPrivateKey.Should().BeTrue();
+            certificateWithoutPrivateKey.HasPrivateKey.Should().BeFalse();
+
+            var subject = new SslSettings { ClientCertificates = [lhsHasPrivateKey ? certificateWithPrivateKey : certificateWithoutPrivateKey] };
+            var other = new SslSettings { ClientCertificates = [lhsHasPrivateKey ? certificateWithoutPrivateKey : certificateWithPrivateKey] };
+
+            subject.Equals(other).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Equals_should_return_true_when_certificates_have_the_same_private_key(bool useEcdsa)
+        {
+            using var certificate = CreateSelfSignedCertificateWithPrivateKey("CN=mongodb-test", useEcdsa);
+            using var copy = X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pfx), null);
+            copy.HasPrivateKey.Should().BeTrue();
+
+            var subject = new SslSettings { ClientCertificates = [certificate] };
+            var other = new SslSettings { ClientCertificates = [copy] };
+
+            subject.Equals(other).Should().BeTrue();
+            subject.GetHashCode().Should().Be(other.GetHashCode());
+        }
+
+        [Fact]
+        public void Equals_should_return_true_when_the_same_certificate_file_is_loaded_twice()
+        {
+            var certificateFileName = GetTestCertificateFileName();
+            using var certificate = X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password");
+            using var copy = X509CertificateLoader.LoadPkcs12FromFile(certificateFileName, "password");
+
+            var subject = new SslSettings { ClientCertificates = [certificate] };
+            var other = new SslSettings { ClientCertificates = [copy] };
+
+            subject.Equals(other).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Equals_should_return_false_when_certificates_are_in_a_different_order()
+        {
+            using var first = CreateSelfSignedCertificate("CN=mongodb-test-1", [1]);
+            using var second = CreateSelfSignedCertificate("CN=mongodb-test-2", [2]);
+
+            var subject = new SslSettings { ClientCertificates = [first, second] };
+            var other = new SslSettings { ClientCertificates = [second, first] };
+
+            subject.Equals(other).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(null, null, true)]
+        [InlineData(null, 0, false)]
+        [InlineData(null, 1, false)]
+        [InlineData(null, 2, false)]
+        [InlineData(0, null, false)]
+        [InlineData(1, null, false)]
+        [InlineData(2, null, false)]
+        [InlineData(0, 0, true)]
+        public void Equals_should_handle_null_client_certificates(int? lhsCount, int? rhsCount, bool expectedResult)
+        {
+            var subject = new SslSettings { ClientCertificates = CreateCertificates(lhsCount) };
+            var other = new SslSettings { ClientCertificates = CreateCertificates(rhsCount) };
+
+            try
+            {
+                subject.Equals(other).Should().Be(expectedResult);
+            }
+            finally
+            {
+                if (subject.ClientCertificates != null)
+                {
+                    foreach (var cert in subject.ClientCertificates)
+                    {
+                        cert.Dispose();
+                    }
+                }
+
+                if (other.ClientCertificates != null)
+                {
+                    foreach (var cert in other.ClientCertificates)
+                    {
+                        cert.Dispose();
+                    }
+                }
+            }
+        }
+
+        private X509Certificate[] CreateCertificates(int? count) =>
+            count == null
+                ? null
+                : Enumerable
+                    .Range(0, count.Value)
+                    .Select(i => (X509Certificate)CreateSelfSignedCertificate($"CN=mongodb-test-{i}", [(byte)(i + 1)]))
+                    .ToArray();
+
+        private X509Certificate2 CreateSelfSignedCertificate(string subjectName, byte[] serialNumber)
+        {
+            using var key = System.Security.Cryptography.RSA.Create(2048);
+            var request = new CertificateRequest(subjectName, key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            var notBefore = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            return request.Create(request.SubjectName, X509SignatureGenerator.CreateForRSA(key, RSASignaturePadding.Pkcs1), notBefore, notBefore.AddYears(10), serialNumber);
+        }
+
+        private X509Certificate2 CreateSelfSignedCertificateWithPrivateKey(string subjectName, bool useEcdsa)
+        {
+            var notBefore = new DateTimeOffset(2020, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            if (useEcdsa)
+            {
+                using var ecdsaKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+                return new CertificateRequest(subjectName, ecdsaKey, HashAlgorithmName.SHA256).CreateSelfSigned(notBefore, notBefore.AddYears(10));
+            }
+
+            using var rsaKey = System.Security.Cryptography.RSA.Create(2048);
+            return new CertificateRequest(subjectName, rsaKey, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1).CreateSelfSigned(notBefore, notBefore.AddYears(10));
         }
 
         private string GetTestCertificateFileName()
