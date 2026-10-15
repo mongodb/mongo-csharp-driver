@@ -28,6 +28,9 @@ public static class X509CertificateLoader
     public static X509Certificate2 LoadCertificateFromFile(string certificateFilename) =>
         new (certificateFilename);
 
+    public static X509Certificate2 LoadPkcs12(ReadOnlySpan<byte> data, string password) =>
+        new(data.ToArray(), password);
+
     public static X509Certificate2 LoadPkcs12FromFile(string certificateFilename, string password) =>
         new(certificateFilename, password);
 }
