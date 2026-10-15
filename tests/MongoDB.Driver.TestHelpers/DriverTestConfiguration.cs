@@ -52,8 +52,8 @@ namespace MongoDB.Driver.Tests
                 isThreadSafe: true);
             __collectionNamespace = new CollectionNamespace(__databaseNamespace, "testcollection");
 
-            MongoClientSettings.Extensions.AddAWSAuthentication();
-            MongoClientSettings.Extensions.AddAutoEncryption();
+            MongoClientBuilder.Extensions.AddAWSAuthentication();
+            MongoClientBuilder.Extensions.AddAutoEncryption();
         }
 
         // public static properties
