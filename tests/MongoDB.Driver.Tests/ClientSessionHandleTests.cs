@@ -462,6 +462,35 @@ namespace MongoDB.Driver.Tests
 
         [Theory]
         [ParameterAttributeData]
+        public async Task WithTransaction_callback_with_a_TransientTransactionError_and_infinite_timeout_should_be_retried([Values(true, false)] bool async)
+        {
+            var mockClock = CreateClockMock(DateTime.UtcNow, TimeSpan.FromSeconds(CalculateTime(true)));
+            var options = new ClientSessionOptions { DefaultTransactionOptions = new TransactionOptions(Timeout.InfiniteTimeSpan) };
+            var mockCoreSession = CreateCoreSessionMock(options: options.ToCore());
+            var subject = CreateSubject(options: options, coreSession: mockCoreSession.Object, clock: mockClock.Object);
+            var attempts = 0;
+
+            var result = async ?
+                await subject.WithTransactionAsync((_, _) => Task.FromResult(Callback())) :
+                subject.WithTransaction((_, _) => Callback());
+
+            result.Should().BeTrue();
+            mockCoreSession.As<ICoreSessionInternal>().Verify(handle => handle.StartTransaction(It.IsAny<TransactionOptions>(), It.IsAny<bool>()), Times.Exactly(2));
+
+            bool Callback()
+            {
+                attempts++;
+                if (attempts == 1)
+                {
+                    throw PrepareException(WithTransactionErrorState.TransientTransactionError);
+                }
+
+                return true;
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void WithTransaction_callback_with_a_UnknownTransactionCommitResult_should_not_be_retried([Values(true, false)] bool hasTimedOut)
         {
             var mockClock = CreateClockMock(DateTime.UtcNow, TimeSpan.FromSeconds(CalculateTime(hasTimedOut)));
