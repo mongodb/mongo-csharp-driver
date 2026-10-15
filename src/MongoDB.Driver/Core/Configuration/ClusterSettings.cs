@@ -192,6 +192,7 @@ namespace MongoDB.Driver.Core.Configuration
         /// <value>
         /// The maximum size of the server selection wait queue.
         /// </value>
+        [Obsolete("This property is obsolete and will be removed in the next major version.")]
         public int MaxServerSelectionWaitQueueSize
         {
             get { return _maxServerSelectionWaitQueueSize; }

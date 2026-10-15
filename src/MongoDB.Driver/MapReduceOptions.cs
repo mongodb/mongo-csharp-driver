@@ -157,6 +157,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Gets or sets whether to include timing information.
         /// </summary>
+        [Obsolete("This property is obsolete and will be removed in the next major version.")]
         public bool? Verbose
         {
             get { return _verbose; }
