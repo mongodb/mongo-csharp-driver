@@ -36,6 +36,7 @@ namespace MongoDB.Driver.Tests.Encryption
             {
                 schemaBuilder.Encrypt<Patient>(_collectionNamespace, builder =>
                 {
+#pragma warning disable CS0618 // Type or member is obsolete
                     builder
                         .EncryptMetadata(keyId: _keyId)
                         .Property(p => p.MedicalRecords, BsonType.Array,
@@ -60,6 +61,7 @@ namespace MongoDB.Driver.Tests.Encryption
                                 .PatternProperty("_PIINumber$", BsonType.Int32,
                                     algorithm: EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
                         });
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 } );
             });
@@ -321,6 +323,7 @@ namespace MongoDB.Driver.Tests.Encryption
             Guid? keyId = Guid.Parse(_keyIdString);
             var builder = new EncryptedCollectionBuilder<Patient>();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             builder.PatternProperty(p => p.Insurance, innerBuilder =>
             {
                 innerBuilder
@@ -330,6 +333,7 @@ namespace MongoDB.Driver.Tests.Encryption
                     .PatternProperty("randomRegex*", BsonType.String,
                         EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
             });
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var expected = """
                            {
@@ -411,6 +415,81 @@ namespace MongoDB.Driver.Tests.Encryption
                            """;
 
             AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Fact]
+        public void EncryptedCollection_PatternProperty_nested_with_expression_matches_element_name_as_pattern_and_literally()
+        {
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            builder.PatternProperty(p => p.SecondaryInsurance, innerBuilder =>
+            {
+                innerBuilder
+                    .Property(i => i.PolicyNumber, BsonType.Int32,
+                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+            });
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            var expected = """
+                           {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                   "secondaryInsurance\\$|secondaryInsurance$": {
+                                       "bsonType": "object",
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Theory]
+        [InlineData("Insurance", "insurance")]
+        [InlineData("SecondaryInsurance", @"secondaryInsurance\$|secondaryInsurance$")]
+        [InlineData("insurance", "insurance")]
+        [InlineData("insurance$", @"insurance\$|insurance$")]
+        [InlineData("^insurance.*$", @"\^insurance\.\*\$|^insurance.*$")]
+        [InlineData("a+b", @"a\+b|a+b")]
+        [InlineData("(a)", @"\(a\)|(a)")]
+        [InlineData("insurance(*COMMIT)$", @"insurance\(\*COMMIT\)\$|insurance(*COMMIT)$")]
+        [InlineData("(?x)^insurance$#note", @"\(\?x\)\^insurance\$\#note|(?x)^insurance$#note")]
+        public void EncryptedCollection_PatternProperty_nested_with_string_matches_rendered_name_as_pattern_and_literally(string path, string expectedPattern)
+        {
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty<Insurance>(path, _ => { });
+
+            builder.Build()["patternProperties"].AsBsonDocument.Names.Should().Equal(expectedPattern);
+        }
+
+        [Fact]
+        public void EncryptedCollection_PatternProperty_nested_with_string_on_dictionary_matches_as_pattern_and_literally()
+        {
+            var builder = new EncryptedCollectionBuilder<Dictionary<string, Insurance>>();
+
+            builder.PatternProperty<Insurance>("^insurance.*$", _ => { });
+
+            builder.Build()["patternProperties"].AsBsonDocument.Names.Should().Equal(@"\^insurance\.\*\$|^insurance.*$");
+        }
+
+        [Fact]
+        public void EncryptedCollection_PatternProperty_nested_with_string_on_raw_document_matches_as_pattern_and_literally()
+        {
+            var builder = new EncryptedCollectionBuilder<RawBsonDocument>();
+
+            builder.PatternProperty<Insurance>("^insurance.*$", _ => { });
+
+            builder.Build()["patternProperties"].AsBsonDocument.Names.Should().Equal(@"\^insurance\.\*\$|^insurance.*$");
         }
 
         [Theory]
@@ -687,6 +766,9 @@ namespace MongoDB.Driver.Tests.Encryption
 
             [BsonElement("insurance")]
             public Insurance Insurance { get; set; }
+
+            [BsonElement("secondaryInsurance$")]
+            public Insurance SecondaryInsurance { get; set; }
         }
 
         internal class MedicalRecord

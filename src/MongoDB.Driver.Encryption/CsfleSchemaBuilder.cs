@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 
@@ -147,6 +148,7 @@ namespace MongoDB.Driver.Encryption
         /// <param name="path">The field.</param>
         /// <param name="configure">An action to configure the nested builder.</param>
         /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
+        [Obsolete("Field names are not regex patterns. Use Property to configure a specific field, or pass a regex pattern string to match fields by pattern.")]
         public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
             Expression<Func<TDocument, TField>> path,
             Action<EncryptedCollectionBuilder<TField>> configure)
@@ -156,7 +158,7 @@ namespace MongoDB.Driver.Encryption
         /// Adds a nested pattern property to the schema.
         /// </summary>
         /// <typeparam name="TField">The type of the nested field.</typeparam>
-        /// <param name="path">The field.</param>
+        /// <param name="path">The field, or a regex pattern given as a string.</param>
         /// <param name="configure">An action to configure the nested builder.</param>
         /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
@@ -168,7 +170,15 @@ namespace MongoDB.Driver.Encryption
 
             var fieldName = path.Render(_args).FieldName;
 
-            AddToPatternProperties(fieldName, nestedBuilder.Build());
+            // the rendered name may be a field name or a regex pattern, so match it both ways: as a literal field name
+            // and as a regex (keeping what it has always matched); the literal comes first so the regex's backtracking verbs,
+            // inline options and trailing comments can't stop it from being tried
+            var escapedFieldName = Regex.Escape(fieldName);
+            var pattern = escapedFieldName == fieldName
+                ? fieldName
+                : $"{escapedFieldName}|{fieldName}";
+
+            AddToPatternProperties(pattern, nestedBuilder.Build());
             return this;
         }
 
