@@ -23,6 +23,7 @@ namespace MongoDB.Driver
     /// <summary>
     /// Represents a MongoDB connection pool wait queue full exception.
     /// </summary>
+    [Obsolete("This class is obsolete and will be removed in the next major version.")]
     public class MongoWaitQueueFullException : MongoClientException
     {
         #region static
