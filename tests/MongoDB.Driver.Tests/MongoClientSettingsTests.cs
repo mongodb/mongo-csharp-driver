@@ -322,9 +322,7 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(MongoDefaults.SocketTimeout, settings.SocketTimeout);
             Assert.Equal(null, settings.Socks5ProxySettings);
             Assert.Null(settings.SslSettings);
-#pragma warning disable 618
-            Assert.Equal(false, settings.UseSsl);
-#pragma warning restore 618
+            Assert.Null(settings.Timeout);
             Assert.Equal(false, settings.UseTls);
 #pragma warning disable 618
             Assert.Equal(true, settings.VerifySslCertificate);
