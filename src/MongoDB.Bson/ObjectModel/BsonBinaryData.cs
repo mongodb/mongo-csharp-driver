@@ -49,6 +49,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException(nameof(bytes));
             }
+            ThrowIfInvalidSubType(subType, nameof(subType));
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
             {
                 if (bytes.Length != 16)
@@ -73,6 +74,20 @@ namespace MongoDB.Bson
         {
             _bytes = GuidConverter.ToBytes(guid, guidRepresentation);
             _subType = GuidConverter.GetSubType(guidRepresentation);
+        }
+
+        // internal static methods
+        internal static bool IsValidSubType(long value)
+        {
+            return value >= 0 && value <= 255;
+        }
+
+        internal static void ThrowIfInvalidSubType(BsonBinarySubType subType, string paramName)
+        {
+            if (!IsValidSubType((int)subType))
+            {
+                throw new ArgumentException($"SubType {(int)subType} is not a valid binary subtype. Valid values range from 0 to 255.", paramName);
+            }
         }
 
         // public properties
