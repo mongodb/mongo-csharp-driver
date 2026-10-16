@@ -220,6 +220,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
+            BsonBinaryData.ThrowIfInvalidSubType(value, nameof(value));
 
             stream.WriteByte((byte)value);
         }
