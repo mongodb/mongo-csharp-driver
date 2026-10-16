@@ -115,6 +115,36 @@ namespace MongoDB.Driver.Encryption.Tests
             }
         }
 
+        [Theory]
+        [InlineData("données")]
+        [InlineData("база")]
+        [InlineData("田中")]
+        public void EncryptQueryWithSchemaForNonAsciiDatabaseName(string databaseName)
+        {
+            var listCollectionsReply = ReadJsonTestFile("collection-info.json");
+            var jsonSchema = listCollectionsReply["options"]["validator"]["$jsonSchema"];
+            var schema = new BsonDocument($"{databaseName}.test", jsonSchema);
+
+            var options = new CryptOptions(
+                new[] { CreateKmsCredentials("aws") },
+                BsonUtil.ToBytes(schema));
+
+            using (var cryptClient = CryptClientFactory.Create(options))
+            using (var context =
+                cryptClient.StartEncryptionContext(
+                    db: databaseName,
+                    command: BsonUtil.ToBytes(ReadJsonTestFile("cmd.json"))))
+            {
+                // The schema map entry is found locally, so libmongocrypt asks for markings instead of collection info.
+                var (state, _, operationSent) = ProcessState(context);
+                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
+                operationSent["jsonSchema"].Should().Be(jsonSchema);
+
+                var (_, encryptedCommand) = ProcessContextToCompletion(context);
+                encryptedCommand.Should().Equal(ReadJsonTestFile("encrypted-command.json"));
+            }
+        }
+
         [Fact]
         public void DecryptQuery()
         {
