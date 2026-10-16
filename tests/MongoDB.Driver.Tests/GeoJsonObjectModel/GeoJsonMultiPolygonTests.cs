@@ -83,6 +83,24 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPolygon);
         }
 
+        [Theory]
+        [InlineData("bbox")]
+        [InlineData("coordinates")]
+        [InlineData("crs")]
+        [InlineData("type")]
+        public void TestMultiPolygon2DWithConflictingExtraMember(string name)
+        {
+            var multiPolygon = GeoJson.MultiPolygon(
+                new GeoJsonObjectArgs<GeoJson2DCoordinates> { ExtraMembers = new BsonDocument(name, 1) },
+                GeoJson.PolygonCoordinates(GeoJson.Position(1.0, 2.0), GeoJson.Position(3.0, 4.0), GeoJson.Position(5.0, 6.0), GeoJson.Position(1.0, 2.0)),
+                GeoJson.PolygonCoordinates(GeoJson.Position(2.0, 3.0), GeoJson.Position(4.0, 5.0), GeoJson.Position(6.0, 7.0), GeoJson.Position(2.0, 3.0)));
+
+            var exception = Record.Exception(() => multiPolygon.ToJson());
+
+            Assert.IsType<BsonSerializationException>(exception);
+            Assert.Equal($"GeoJson MultiPolygon extra member '{name}' conflicts with a member of the same name.", exception.Message);
+        }
+
         [Fact]
         public void TestMultiPolygon3D()
         {

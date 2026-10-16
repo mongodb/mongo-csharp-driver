@@ -41,6 +41,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonBoundingBox<TCoordinates>> _boundingBoxSerializer = BsonSerializer.LookupSerializer<GeoJsonBoundingBox<TCoordinates>>();
         private readonly IBsonSerializer<GeoJsonCoordinateReferenceSystem> _coordinateReferenceSystemSerializer = BsonSerializer.LookupSerializer<GeoJsonCoordinateReferenceSystem>();
+        private readonly HashSet<string> _memberNames;
         private readonly string _type;
 
         // constructors
@@ -52,6 +53,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         public GeoJsonObjectSerializerHelper(string type, params SerializerHelper.Member[] derivedMembers)
             : base(CreateCombinedMembers(derivedMembers))
         {
+            _memberNames = CreateMemberNames(derivedMembers);
             _type = type;
         }
 
@@ -72,6 +74,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var combinedMembers = CreateBaseMembers().Concat(derivedMembers).ToArray();
             ThrowIfDuplicateMemberFlags(combinedMembers);
             return combinedMembers;
+        }
+
+        private static HashSet<string> CreateMemberNames(IEnumerable<SerializerHelper.Member> derivedMembers)
+        {
+            var memberNames = CreateBaseMembers().Concat(derivedMembers).Select(m => m.ElementName).Where(n => n != "*");
+            return new HashSet<string>(memberNames);
         }
 
         private static void ThrowIfDuplicateMemberFlags(SerializerHelper.Member[] members)
@@ -177,6 +185,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             {
                 foreach (var element in value)
                 {
+                    if (_memberNames.Contains(element.Name))
+                    {
+                        throw new BsonSerializationException(
+                            $"GeoJson {_type} extra member '{element.Name}' conflicts with a member of the same name.");
+                    }
+
                     context.Writer.WriteName(element.Name);
                     BsonValueSerializer.Instance.Serialize(context, element.Value);
                 }

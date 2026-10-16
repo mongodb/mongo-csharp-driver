@@ -78,6 +78,24 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiLineString);
         }
 
+        [Theory]
+        [InlineData("bbox")]
+        [InlineData("coordinates")]
+        [InlineData("crs")]
+        [InlineData("type")]
+        public void TestMultiLineString2DWithConflictingExtraMember(string name)
+        {
+            var multiLineString = GeoJson.MultiLineString(
+                new GeoJsonObjectArgs<GeoJson2DCoordinates> { ExtraMembers = new BsonDocument(name, 1) },
+                GeoJson.LineStringCoordinates(GeoJson.Position(1.0, 2.0), GeoJson.Position(3.0, 4.0)),
+                GeoJson.LineStringCoordinates(GeoJson.Position(5.0, 6.0), GeoJson.Position(7.0, 8.0)));
+
+            var exception = Record.Exception(() => multiLineString.ToJson());
+
+            Assert.IsType<BsonSerializationException>(exception);
+            Assert.Equal($"GeoJson MultiLineString extra member '{name}' conflicts with a member of the same name.", exception.Message);
+        }
+
         [Fact]
         public void TestMultiLineString3D()
         {
