@@ -54,8 +54,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
+            Assert(subject.AddToSetEach("a", new[] { 1 }), "{$addToSet: {a: {$each: [1]}}}");
             Assert(subject.AddToSetEach("a", new[] { 1, 2 }), "{$addToSet: {a: {$each: [1, 2]}}}");
+            Assert(subject.AddToSetEach("a", new[] { new[] { 1, 2 } }), "{$addToSet: {a: {$each: [[1, 2]]}}}");
             Assert(subject.AddToSetEach("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$addToSet: {a: {$each: [[1, 2], [3, 4]]}}}");
+            Assert(subject.AddToSetEach("a", new[] { BsonDocument.Parse("{$each: [7, 8, 9]}") }), "{$addToSet: {a: {$each: [{$each: [7, 8, 9]}]}}}");
         }
 
         [Fact]
@@ -63,6 +66,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
+            Assert(subject.AddToSetEach(x => x.FavoriteColors, new[] { "green" }), "{$addToSet: {colors: {$each: ['green']}}}");
+            Assert(subject.AddToSetEach("FavoriteColors", new[] { "green" }), "{$addToSet: {colors: {$each: ['green']}}}");
             Assert(subject.AddToSetEach(x => x.FavoriteColors, new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
             Assert(subject.AddToSetEach("FavoriteColors", new[] { "green", "violet" }), "{$addToSet: {colors: {$each: ['green', 'violet']}}}");
         }
@@ -494,8 +499,11 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<BsonDocument>();
 
+            Assert(subject.PullAll("a", new[] { 1 }), "{$pullAll: {a: [1]}}");
             Assert(subject.PullAll("a", new[] { 1, 2 }), "{$pullAll: {a: [1, 2]}}");
+            Assert(subject.PullAll("a", new[] { new[] { 1, 2 } }), "{$pullAll: {a: [[1, 2]]}}");
             Assert(subject.PullAll("a", new[] { new[] { 1, 2 }, new[] { 3, 4 } }), "{$pullAll: {a: [[1, 2], [3, 4]]}}");
+            Assert(subject.PullAll("a", new[] { BsonDocument.Parse("{b: 1}") }), "{$pullAll: {a: [{b: 1}]}}");
         }
 
         [Fact]
@@ -503,6 +511,8 @@ namespace MongoDB.Driver.Tests
         {
             var subject = CreateSubject<Person>();
 
+            Assert(subject.PullAll(x => x.FavoriteColors, new[] { "green" }), "{$pullAll: {colors: ['green']}}");
+            Assert(subject.PullAll("FavoriteColors", new[] { "green" }), "{$pullAll: {colors: ['green']}}");
             Assert(subject.PullAll(x => x.FavoriteColors, new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
             Assert(subject.PullAll("FavoriteColors", new[] { "green", "violet" }), "{$pullAll: {colors: ['green', 'violet']}}");
         }
@@ -545,13 +555,15 @@ namespace MongoDB.Driver.Tests
         [Theory]
         [ParameterAttributeData]
         public void PushEach(
+            [Values(1, 2)] int numberOfValues,
             [Values(null, 10)] int? slice,
             [Values(null, 20)] int? position,
             [Values(null, "{b: 1}")] string sort)
         {
             var subject = CreateSubject<BsonDocument>();
+            var values = Enumerable.Range(1, numberOfValues).ToArray();
 
-            var expectedPushValue = BsonDocument.Parse("{$each: [1, 2]}");
+            var expectedPushValue = new BsonDocument("$each", new BsonArray(values));
             if (slice.HasValue)
             {
                 expectedPushValue.Add("$slice", slice.Value);
@@ -567,19 +579,29 @@ namespace MongoDB.Driver.Tests
 
             var expectedPush = new BsonDocument("$push", new BsonDocument("a", expectedPushValue));
 
-            Assert(subject.PushEach("a", new[] { 1, 2 }, slice, position, sort), expectedPush);
+            Assert(subject.PushEach("a", values, slice, position, sort), expectedPush);
+        }
+
+        [Fact]
+        public void PushEach_with_single_document_value_containing_push_modifiers()
+        {
+            var subject = CreateSubject<BsonDocument>();
+
+            Assert(subject.PushEach("a", new[] { BsonDocument.Parse("{$each: [], $slice: 0}") }), "{$push: {a: {$each: [{$each: [], $slice: 0}]}}}");
         }
 
         [Theory]
         [ParameterAttributeData]
         public void PushEach_Typed(
+            [Values(1, 2)] int numberOfValues,
             [Values(null, 10)] int? slice,
             [Values(null, 20)] int? position,
             [Values(null, "{b: 1}")] string sort)
         {
             var subject = CreateSubject<Person>();
+            var values = new[] { "green", "violet" }.Take(numberOfValues).ToArray();
 
-            var expectedPushValue = BsonDocument.Parse("{$each: ['green', 'violet']}");
+            var expectedPushValue = new BsonDocument("$each", new BsonArray(values));
             if (slice.HasValue)
             {
                 expectedPushValue.Add("$slice", slice.Value);
@@ -595,7 +617,7 @@ namespace MongoDB.Driver.Tests
 
             var expectedPush = new BsonDocument("$push", new BsonDocument("colors", expectedPushValue));
 
-            Assert(subject.PushEach(x => x.FavoriteColors, new[] { "green", "violet" }, slice, position, sort), expectedPush);
+            Assert(subject.PushEach(x => x.FavoriteColors, values, slice, position, sort), expectedPush);
         }
 
         [Fact]
