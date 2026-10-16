@@ -44,7 +44,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 AstExpression ast;
                 if (anyOf.Length == 0)
                 {
-                    ast = AstExpression.Constant(0);
+                    ast = AstExpression.Constant(-1); // IndexOfAny returns -1 when anyOf is empty
                 }
                 else
                 {
@@ -96,6 +96,10 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             {
                 var anyOfExpression = arguments[0];
                 var anyOfChars = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
+                if (anyOfChars == null)
+                {
+                    throw new ExpressionNotSupportedException(anyOfExpression, expression);
+                }
                 return new string(anyOfChars);
             }
 
