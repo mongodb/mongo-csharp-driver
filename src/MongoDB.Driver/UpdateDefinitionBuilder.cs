@@ -1071,10 +1071,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a pop first operator.
+        /// Creates a pop operator.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <returns>A pop first operator.</returns>
+        /// <returns>A pop operator.</returns>
         public UpdateDefinition<TDocument> PopFirst(Expression<Func<TDocument, object>> field)
         {
             return PopFirst(new ExpressionFieldDefinition<TDocument>(field));
@@ -1091,10 +1091,10 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a pop first operator.
+        /// Creates a pop operator.
         /// </summary>
         /// <param name="field">The field.</param>
-        /// <returns>A pop last operator.</returns>
+        /// <returns>A pop operator.</returns>
         public UpdateDefinition<TDocument> PopLast(Expression<Func<TDocument, object>> field)
         {
             return PopLast(new ExpressionFieldDefinition<TDocument>(field));
@@ -1125,24 +1125,24 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Creates a pull operator.
+        /// Creates a pull all operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
-        /// <returns>A pull operator.</returns>
+        /// <returns>A pull all operator.</returns>
         public UpdateDefinition<TDocument> PullAll<TItem>(FieldDefinition<TDocument> field, IEnumerable<TItem> values)
         {
             return new PullUpdateDefinition<TDocument, TItem>(field, values);
         }
 
         /// <summary>
-        /// Creates a pull operator.
+        /// Creates a pull all operator.
         /// </summary>
         /// <typeparam name="TItem">The type of the item.</typeparam>
         /// <param name="field">The field.</param>
         /// <param name="values">The values.</param>
-        /// <returns>A pull operator.</returns>
+        /// <returns>A pull all operator.</returns>
         public UpdateDefinition<TDocument> PullAll<TItem>(Expression<Func<TDocument, IEnumerable<TItem>>> field, IEnumerable<TItem> values)
         {
             return PullAll(new ExpressionFieldDefinition<TDocument>(field), values);
