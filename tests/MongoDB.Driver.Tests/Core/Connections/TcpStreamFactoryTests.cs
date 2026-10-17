@@ -180,6 +180,54 @@ namespace MongoDB.Driver.Core.Connections
             keepAlive.Should().NotBe(0); // .NET returns 1 but Mono returns 8
         }
 
+        [Fact]
+        public void ConfigureConnectedSocket_should_set_the_buffer_sizes_by_default()
+        {
+            using var untouchedSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var settings = new TcpStreamSettings(receiveBufferSize: 1_000_000, sendBufferSize: 2_000_000);
+            var subject = new TcpStreamFactory(settings);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            subject.ConfigureConnectedSocket(socket);
+
+            // the OS may adjust the requested sizes, so the exact values can't be asserted
+            socket.ReceiveBufferSize.Should().NotBe(untouchedSocket.ReceiveBufferSize);
+            socket.SendBufferSize.Should().NotBe(untouchedSocket.SendBufferSize);
+        }
+
+        [Fact]
+        public void ConfigureConnectedSocket_should_not_set_the_buffer_sizes_when_UseOperatingSystemBufferSizes_is_true()
+        {
+            using var untouchedSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+#pragma warning disable CS0618 // Type or member is obsolete
+            var settings = new TcpStreamSettings(receiveBufferSize: 1_000_000, sendBufferSize: 2_000_000)
+                .WithUseOperatingSystemBufferSizes(true);
+#pragma warning restore CS0618 // Type or member is obsolete
+            var subject = new TcpStreamFactory(settings);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            subject.ConfigureConnectedSocket(socket);
+
+            socket.ReceiveBufferSize.Should().Be(untouchedSocket.ReceiveBufferSize);
+            socket.SendBufferSize.Should().Be(untouchedSocket.SendBufferSize);
+        }
+
+        [Fact]
+        public void ConfigureConnectedSocket_should_invoke_SocketConfigurator_when_UseOperatingSystemBufferSizes_is_true()
+        {
+            var invoked = false;
+#pragma warning disable CS0618 // Type or member is obsolete
+            var settings = new TcpStreamSettings(socketConfigurator: (Action<Socket>)(_ => invoked = true))
+                .WithUseOperatingSystemBufferSizes(true);
+#pragma warning restore CS0618 // Type or member is obsolete
+            var subject = new TcpStreamFactory(settings);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            subject.ConfigureConnectedSocket(socket);
+
+            invoked.Should().BeTrue();
+        }
+
         // nested types
         private class TestSocket : Socket
         {
@@ -200,6 +248,11 @@ namespace MongoDB.Driver.Core.Connections
     internal static class TcpStreamFactoryReflector
     {
         internal static TcpStreamSettings _settings(this TcpStreamFactory obj) => (TcpStreamSettings)Reflector.GetFieldValue(obj, nameof(_settings));
+
+        internal static void ConfigureConnectedSocket(this TcpStreamFactory obj, Socket socket)
+        {
+            Reflector.Invoke(obj, nameof(ConfigureConnectedSocket), socket);
+        }
 
         internal static void Connect(this TcpStreamFactory obj, Socket socket, EndPoint endPoint, CancellationToken cancellationToken)
         {
