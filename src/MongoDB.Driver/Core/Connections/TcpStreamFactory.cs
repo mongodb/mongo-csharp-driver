@@ -157,8 +157,16 @@ namespace MongoDB.Driver.Core.Connections
         private void ConfigureConnectedSocket(Socket socket)
         {
             socket.NoDelay = true;
-            socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
-            socket.SendBufferSize = _settings.SendBufferSize;
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var useOperatingSystemBufferSizes = _settings.UseOperatingSystemBufferSizes;
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            if (!useOperatingSystemBufferSizes)
+            {
+                socket.ReceiveBufferSize = _settings.ReceiveBufferSize;
+                socket.SendBufferSize = _settings.SendBufferSize;
+            }
 
             _settings.SocketConfigurator?.Invoke(socket);
         }

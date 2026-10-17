@@ -37,12 +37,16 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReceiveBufferSize.Should().Be(64 * 1024);
             subject.SendBufferSize.Should().Be(64 * 1024);
             subject.SocketConfigurator.Should().BeNull();
+#pragma warning disable CS0618 // Type or member is obsolete
+            subject.UseOperatingSystemBufferSizes.Should().BeFalse();
+#pragma warning restore CS0618 // Type or member is obsolete
             subject.WriteTimeout.Should().Be(null);
         }
 
         [Fact]
         public void constructor_with_other_should_initialize_instance()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             var other = new TcpStreamSettings(
                 addressFamily: AddressFamily.InterNetworkV6,
                 connectTimeout: TimeSpan.FromSeconds(123),
@@ -51,7 +55,8 @@ namespace MongoDB.Driver.Core.Configuration
                 sendBufferSize: 456,
                 socketConfigurator: (Action<Socket>)((Socket _) => { }),
                 writeTimeout: TimeSpan.FromSeconds(789)
-            );
+            ).WithUseOperatingSystemBufferSizes(true);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var result = new TcpStreamSettings(other);
 
@@ -61,6 +66,9 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReceiveBufferSize.Should().Be(other.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(other.SendBufferSize);
             result.SocketConfigurator.Should().Be(other.SocketConfigurator);
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.UseOperatingSystemBufferSizes.Should().BeTrue();
+#pragma warning restore CS0618 // Type or member is obsolete
             result.WriteTimeout.Should().Be(other.WriteTimeout);
         }
 
@@ -327,6 +335,57 @@ namespace MongoDB.Driver.Core.Configuration
             result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
             result.SendBufferSize.Should().Be(subject.SendBufferSize);
             result.SocketConfigurator.Should().Be(newSocketConfigurator);
+            result.WriteTimeout.Should().Be(subject.WriteTimeout);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void With_should_preserve_UseOperatingSystemBufferSizes(bool useOperatingSystemBufferSizes)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var subject = new TcpStreamSettings().WithUseOperatingSystemBufferSizes(useOperatingSystemBufferSizes);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            var result = subject.With(receiveBufferSize: 2, sendBufferSize: 3);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.UseOperatingSystemBufferSizes.Should().Be(useOperatingSystemBufferSizes);
+#pragma warning restore CS0618 // Type or member is obsolete
+            result.ReceiveBufferSize.Should().Be(2);
+            result.SendBufferSize.Should().Be(3);
+        }
+
+        [Theory]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void WithUseOperatingSystemBufferSizes_should_return_expected_result(bool oldValue, bool newValue)
+        {
+#pragma warning disable CS0618 // Type or member is obsolete
+            var subject = new TcpStreamSettings(
+                addressFamily: AddressFamily.InterNetworkV6,
+                connectTimeout: TimeSpan.FromSeconds(1),
+                readTimeout: TimeSpan.FromSeconds(2),
+                receiveBufferSize: 3,
+                sendBufferSize: 4,
+                socketConfigurator: (Action<Socket>)((Socket _) => { }),
+                writeTimeout: TimeSpan.FromSeconds(5)
+            ).WithUseOperatingSystemBufferSizes(oldValue);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            var result = subject.WithUseOperatingSystemBufferSizes(newValue);
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            result.AddressFamily.Should().Be(subject.AddressFamily);
+            result.ConnectTimeout.Should().Be(subject.ConnectTimeout);
+            result.ReadTimeout.Should().Be(subject.ReadTimeout);
+            result.ReceiveBufferSize.Should().Be(subject.ReceiveBufferSize);
+            result.SendBufferSize.Should().Be(subject.SendBufferSize);
+            result.SocketConfigurator.Should().Be(subject.SocketConfigurator);
+#pragma warning disable CS0618 // Type or member is obsolete
+            result.UseOperatingSystemBufferSizes.Should().Be(newValue);
+#pragma warning restore CS0618 // Type or member is obsolete
             result.WriteTimeout.Should().Be(subject.WriteTimeout);
         }
 
