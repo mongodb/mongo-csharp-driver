@@ -111,13 +111,7 @@ namespace MongoDB.Driver.Tests.Specifications
         }
 
         [UnifiedTestsTheory("connection_monitoring_and_pooling.tests.logging")]
-        public void ConnectionMonitoringAndPooling(JsonDrivenTestCase testCase)
-        {
-            SkipNotSupportedTestCases(testCase, "waitQueueSize");
-            SkipNotSupportedTestCases(testCase, "waitQueueMultiple");
-
-            Run(testCase, IsCmapLogValid);
-        }
+        public void ConnectionMonitoringAndPooling(JsonDrivenTestCase testCase) => Run(testCase, IsCmapLogValid);
 
         [UnifiedTestsTheory("collection_management.tests")]
         public void CollectionManagement(JsonDrivenTestCase testCase) => Run(testCase);
