@@ -14,6 +14,9 @@
  */
 
 using System;
+#if !NET6_0_OR_GREATER
+using System.Reflection;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -104,6 +107,26 @@ namespace MongoDB.Driver.Core.Misc
             task.IsCompleted.Should().BeFalse();
             exception.Should().BeOfType<TimeoutException>();
         }
+
+#if !NET6_0_OR_GREATER
+        [Theory]
+        [ParameterAttributeData]
+        public async Task WaitAsync_should_release_cancellation_token_registration_when_task_completes([Values(true, false)] bool generic)
+        {
+            using var cancellationTokenSource = new CancellationTokenSource();
+            var taskCompletionSource = new TaskCompletionSource<int>();
+            Task waitTask = generic ?
+                taskCompletionSource.Task.WaitAsync(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token) :
+                ((Task)taskCompletionSource.Task).WaitAsync(Timeout.InfiniteTimeSpan, cancellationTokenSource.Token);
+
+            GetCancellationCallbackCount(cancellationTokenSource).Should().Be(1);
+
+            taskCompletionSource.SetResult(42);
+            await waitTask;
+
+            GetCancellationCallbackCount(cancellationTokenSource).Should().Be(0);
+        }
+#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -210,6 +233,46 @@ namespace MongoDB.Driver.Core.Misc
 
             return isPromise ? tcs.Task : Task.FromException<TResult>(exception);
         }
+
+#if !NET6_0_OR_GREATER
+        private static int GetCancellationCallbackCount(CancellationTokenSource cancellationTokenSource)
+        {
+            const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var callbackListsField = typeof(CancellationTokenSource).GetField("m_registeredCallbacksLists", bindingFlags);
+            var callbackLists = (Array)callbackListsField.GetValue(cancellationTokenSource);
+            if (callbackLists == null)
+            {
+                return 0;
+            }
+
+            var count = 0;
+            foreach (var callbackList in callbackLists)
+            {
+                if (callbackList == null)
+                {
+                    continue;
+                }
+
+                var fragment = callbackList.GetType().GetField("m_head", bindingFlags).GetValue(callbackList);
+                while (fragment != null)
+                {
+                    var fragmentType = fragment.GetType();
+                    var callbacks = (Array)fragmentType.GetField("m_elements", bindingFlags).GetValue(fragment);
+                    foreach (var callback in callbacks)
+                    {
+                        if (callback != null)
+                        {
+                            count++;
+                        }
+                    }
+
+                    fragment = fragmentType.GetField("m_next", bindingFlags).GetValue(fragment);
+                }
+            }
+
+            return count;
+        }
+#endif
     }
 }
 
