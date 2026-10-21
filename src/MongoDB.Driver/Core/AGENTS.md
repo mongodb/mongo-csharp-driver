@@ -226,7 +226,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 ### Compressor implementations
 
 - **`SnappyCompressor`** — wraps the Snappier library (`using Snappier;`).
-- **`ZlibCompressor`** — wraps `SharpCompress.Compressors.Deflate.ZlibStream`.
+- **`ZlibCompressor`** — wraps `System.IO.Compression.ZLibStream` on net6.0 and later, and `SharpCompress.Compressors.Deflate.ZlibStream` on net472 (the `SharpCompress` package reference is net472-only). Compression levels: net10.0 uses `ZLibCompressionOptions` and honors the exact level 0–9 (-1 means 6); net6.0/net8.0 only have the native `CompressionLevel` enum, so levels are mapped to the nearest of 0 (`NoCompression`), 1 (`Fastest`), 6 (`Optimal`) and 9 (`SmallestSize`).
 - **`ZstandardCompressor`** — wraps the ZstdSharp library.
 - **`NoopCompressor`** — pass-through (for testing or no compression).
 
