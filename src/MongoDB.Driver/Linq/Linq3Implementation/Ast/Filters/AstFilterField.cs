@@ -28,6 +28,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
             _path = Ensure.IsNotNull(path, nameof(path));
         }
 
+        // the field is the implied document or element, so a sub field of it is the first element name of the
+        // (possibly $elemMatch nested) filter document that it ends up in
+        public bool IsImpliedDocument => _path == "@<current>" || _path == "@<elem>";
         public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FilterField;
 
