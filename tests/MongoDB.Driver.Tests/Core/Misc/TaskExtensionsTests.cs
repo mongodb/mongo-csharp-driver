@@ -14,7 +14,7 @@
  */
 
 using System;
-#if !NET6_0_OR_GREATER
+#if NET472
 using System.Reflection;
 #endif
 using System.Threading;
@@ -108,7 +108,7 @@ namespace MongoDB.Driver.Core.Misc
             exception.Should().BeOfType<TimeoutException>();
         }
 
-#if !NET6_0_OR_GREATER
+#if NET472
         [Theory]
         [ParameterAttributeData]
         public async Task WaitAsync_should_release_cancellation_token_registration_when_task_completes([Values(true, false)] bool generic)
@@ -234,7 +234,7 @@ namespace MongoDB.Driver.Core.Misc
             return isPromise ? tcs.Task : Task.FromException<TResult>(exception);
         }
 
-#if !NET6_0_OR_GREATER
+#if NET472
         private static int GetCancellationCallbackCount(CancellationTokenSource cancellationTokenSource)
         {
             const BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
