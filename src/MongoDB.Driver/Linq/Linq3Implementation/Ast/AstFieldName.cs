@@ -23,7 +23,29 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast
         // a nested field, and an empty name is rejected outright.
         public static bool IsSafe(string name)
         {
-            return name.Length > 0 && name[0] != '$' && name.IndexOf('.') < 0;
+            return name != null && name.Length > 0 && name[0] != '$' && name.IndexOf('.') < 0;
+        }
+
+        // an array filter identifier is emitted into a "$[identifier]" path segment, so a name containing "]" or "."
+        // would restructure the segment and a null name would silently turn it into "$[]" (every element). the server
+        // requires an identifier to be alphanumeric and to begin with a lowercase letter, so anything this rejects
+        // the server would reject too.
+        public static bool IsSafeArrayFilterIdentifier(string identifier)
+        {
+            if (identifier == null || identifier.Length == 0 || identifier[0] < 'a' || identifier[0] > 'z')
+            {
+                return false;
+            }
+
+            foreach (var c in identifier)
+            {
+                if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }
