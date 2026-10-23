@@ -186,10 +186,14 @@ namespace AtlasConnectivity.Tests
             var command = new BsonDocument("connectionStatus", 1);
             var response = adminDatabase.RunCommand<BsonDocument>(command);
             response["ok"].ToDouble().Should().Be(1);
+            var authenticatedUsers = response["authInfo"].AsBsonDocument["authenticatedUsers"].AsBsonArray;
             if (isAuthenticated)
             {
-                response["authInfo"].AsBsonDocument["authenticatedUsers"].AsBsonArray.Count.Should()
-                    .BeGreaterOrEqualTo(1);
+                authenticatedUsers.Count.Should().BeGreaterOrEqualTo(1);
+            }
+            else
+            {
+                authenticatedUsers.Count.Should().Be(0);
             }
         }
 
