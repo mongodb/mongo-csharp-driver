@@ -51,9 +51,13 @@ namespace MongoDB.Driver.Core.Operations
             var filter = BsonDocument.Parse("{ _id : 1 }");
             var replacement = new BsonArray { new BsonDocument("$set", new BsonDocument("role", "admin")) };
 
+            using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
+            var collectionNamespace = Fixture.Collection.CollectionNamespace;
+            var collection = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName)
+                .GetCollection<BsonValue>(collectionNamespace.CollectionName);
             var exception = async
-                ? await Record.ExceptionAsync(() => Fixture.Collection.FindOneAndReplaceAsync(filter, replacement))
-                : Record.Exception(() => Fixture.Collection.FindOneAndReplace(filter, replacement));
+                ? await Record.ExceptionAsync(() => collection.FindOneAndReplaceAsync(filter, replacement))
+                : Record.Exception(() => collection.FindOneAndReplace(filter, replacement));
 
             exception.Should().BeOfType<ArgumentException>().Subject
                 .ParamName.Should().Be("replacement");
