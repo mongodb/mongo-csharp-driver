@@ -434,6 +434,11 @@ functions:
         script: |
           ${PREPARE_SHELL}
           . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/atlas_connect
+          . ${DRIVERS_TOOLS}/.evergreen/secrets_handling/setup-secrets.sh drivers/sfp
+
+          printf '%s' "$SFP_ATLAS_X509_BASE64" | base64 -d > "$PROJECT_DIRECTORY/sfp-cert.pem"
+          CLIENT_PEM="$PROJECT_DIRECTORY/sfp-cert.pem" OUT_CLIENT_PATH_VAR="SFP_ATLAS_X509_CERT_PATH" OUT_CLIENT_PASSWORD_VAR=SFP_ATLAS_X509_CERT_PASSWORD . evergreen/convert-client-cert-to-pkcs12.sh
+
           . evergreen/run-atlas-connectivity-tests.sh
 
   run-gssapi-auth-tests:
