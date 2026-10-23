@@ -45,7 +45,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task FindOneAndReplace_should_reject_array_replacement([Values(true, false)]bool async)
+        public async Task FindOneAndReplace_should_reject_array_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
             var filter = BsonDocument.Parse("{ _id : 1 }");
@@ -66,7 +66,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReplaceOne_should_reject_array_replacement([Values(true, false)]bool async)
+        public async Task ReplaceOne_should_reject_array_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
             var filter = BsonDocument.Parse("{ _id : 1 }");
@@ -83,7 +83,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task FindOneAndReplace_should_reject_scalar_replacement([Values(true, false)]bool async)
+        public async Task FindOneAndReplace_should_reject_scalar_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
             var filter = BsonDocument.Parse("{ _id : 1 }");
@@ -100,7 +100,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReplaceOne_should_reject_scalar_replacement([Values(true, false)]bool async)
+        public async Task ReplaceOne_should_reject_scalar_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
             var filter = BsonDocument.Parse("{ _id : 1 }");
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task FindOneAndReplace_should_reject_operator_like_replacement([Values(true, false)]bool async)
+        public async Task FindOneAndReplace_should_reject_operator_like_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
             var filter = BsonDocument.Parse("{ _id : 1 }");
@@ -134,7 +134,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task ReplaceOne_should_reject_operator_like_replacement([Values(true, false)]bool async)
+        public async Task ReplaceOne_should_reject_operator_like_replacement([Values(true, false)] bool async)
         {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
             var filter = BsonDocument.Parse("{ _id : 1 }");
