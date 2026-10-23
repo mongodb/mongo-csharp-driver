@@ -104,6 +104,7 @@ namespace AtlasConnectivity.Tests
             if (clientCertificate != null)
             {
                 mongoClientSettings.UseTls = true;
+                mongoClientSettings.SslSettings ??= new SslSettings();
                 mongoClientSettings.SslSettings.ClientCertificates = [clientCertificate];
             }
             if (compressor != CompressorType.Noop)
