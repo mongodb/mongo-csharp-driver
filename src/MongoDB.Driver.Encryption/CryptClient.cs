@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Starts an explicit encryption context.
         /// </summary>
-        public CryptContext StartExplicitEncryptionContext(byte[] keyId, byte[] keyAltName, string queryType, long? contentionFactor, string encryptionAlgorithm, byte[] message, byte[] rangeOptions, byte[] textOptions, bool isExpressionMode = false)
+        public CryptContext StartExplicitEncryptionContext(byte[] keyId, byte[] keyAltName, string queryType, long? contentionFactor, string encryptionAlgorithm, byte[] message, byte[] rangeOptions, byte[] stringOptions, bool isExpressionMode = false)
         {
             var handle = Library.mongocrypt_ctx_new(_handle);
 
@@ -123,9 +123,9 @@ namespace MongoDB.Driver.Encryption
                 PinnedBinary.RunAsPinnedBinary(handle, rangeOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_range(h, pb));
             }
 
-            if (textOptions != null)
+            if (stringOptions != null)
             {
-                PinnedBinary.RunAsPinnedBinary(handle, textOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_text(h, pb));
+                PinnedBinary.RunAsPinnedBinary(handle, stringOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_text(h, pb));
             }
 
             handle.Check(_status, Library.mongocrypt_ctx_setopt_algorithm(handle, encryptionAlgorithm, -1));
