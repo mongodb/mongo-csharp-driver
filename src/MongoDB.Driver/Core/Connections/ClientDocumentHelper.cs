@@ -427,11 +427,7 @@ namespace MongoDB.Driver.Core.Connections
             foreach (var libraryInfo in libraryInfos)
             {
                 driverName = $"{driverName}|{libraryInfo.Name}";
-
-                if (libraryInfo.Version != null)
-                {
-                    driverVersion = $"{driverVersion}|{libraryInfo.Version}";
-                }
+                driverVersion = $"{driverVersion}|{libraryInfo.Version}";
             }
 
             return new()
