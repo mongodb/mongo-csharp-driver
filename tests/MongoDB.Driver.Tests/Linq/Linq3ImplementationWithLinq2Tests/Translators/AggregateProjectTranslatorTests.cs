@@ -637,6 +637,24 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         }
 
         [Fact]
+        public void Should_translate_indexOfAny_with_empty_anyOf()
+        {
+            var result = Project(x => new { Result = x.A.IndexOfAny(new char[] { }) });
+
+            result.Projection.Should().Be("{ Result: { \"$literal\": -1 }, _id: 0 }");
+
+            result.Value.Result.Should().Be(-1);
+        }
+
+        [Fact]
+        public void Should_throw_for_indexOfAny_with_null_anyOf()
+        {
+            Action act = () => Project(x => new { Result = x.A.IndexOfAny(null) });
+
+            act.ShouldThrow<ExpressionNotSupportedException>();
+        }
+
+        [Fact]
         public void Should_translate_intToString()
         {
             var result = Project(x => new { Result = x.Y.ToString() });
