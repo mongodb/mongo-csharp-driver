@@ -19,12 +19,15 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Configuration
@@ -921,6 +924,36 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ReadPreferenceTags.Count.Should().Be(2);
             subject.ReadPreferenceTags[0].Should().Be(tagSet1);
             subject.ReadPreferenceTags[1].Should().Be(tagSet2);
+        }
+
+        [Theory]
+        [InlineData("dc:x%2Cy%3Az", "dc", "x,y:z")]
+        [InlineData("dc:ny%2Csf", "dc", "ny,sf")]
+        [InlineData("dc:ny%3A1", "dc", "ny:1")]
+        [InlineData("d%2Cc%3A:ny", "d,c:", "ny")]
+        [InlineData("dc:a%26b%3Fc%25d", "dc", "a&b?c%d")]
+        public void When_readPreferenceTags_contains_percent_encoded_separators(string value, string expectedName, string expectedValue)
+        {
+            var subject = new ConnectionString($"mongodb://localhost?readPreferenceTags={value}");
+
+            subject.ReadPreferenceTags.Should().Equal(new TagSet([new Tag(expectedName, expectedValue)]));
+        }
+
+        [Fact]
+        public void Resolve_should_preserve_percent_encoded_separators_in_readPreferenceTags()
+        {
+            var mockDnsResolver = new Mock<IDnsResolver>();
+            mockDnsResolver
+                .Setup(m => m.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns([new SrvRecord(new DnsEndPoint("localhost.test.build.10gen.cc", 27017), TimeSpan.FromSeconds(1))]);
+            mockDnsResolver
+                .Setup(m => m.ResolveTxtRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns([]);
+            var subject = new ConnectionString("mongodb+srv://test5.test.build.10gen.cc/?readPreference=secondary&readPreferenceTags=dc:x%2Cy%3Az", false, mockDnsResolver.Object);
+
+            var resolved = subject.Resolve();
+
+            resolved.ReadPreferenceTags.Should().Equal(new TagSet([new Tag("dc", "x,y:z")]));
         }
 
         [Theory]

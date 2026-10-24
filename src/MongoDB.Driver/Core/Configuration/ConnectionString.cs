@@ -742,7 +742,7 @@ namespace MongoDB.Driver.Core.Configuration
             return new ConnectionString(connectionString, isResolved: true);
 
             string EscapeOptionValue(string key, string value)
-                => string.Equals(key, "authmechanismproperties", StringComparison.OrdinalIgnoreCase) ? value : Uri.EscapeDataString(value);
+                => IsDecodedAfterSplitting(key) ? value : Uri.EscapeDataString(value);
 
         }
 
@@ -810,8 +810,8 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = option.Value.Split('=');
                 var name = parts[0].Trim();
                 var value = parts[1].Trim();
-                // Should not decode authmechanismproperties before splitting by separator.
-                if (!string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase))
+                // Should not decode authmechanismproperties or readpreferencetags before splitting by separator.
+                if (!IsDecodedAfterSplitting(name))
                 {
                     value = Uri.UnescapeDataString(value);
                 }
@@ -1392,6 +1392,10 @@ namespace MongoDB.Driver.Core.Configuration
             return ascii;
         }
 
+        private static bool IsDecodedAfterSplitting(string name)
+            => string.Equals(name, "authmechanismproperties", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(name, "readpreferencetags", StringComparison.OrdinalIgnoreCase);
+
         private static IEnumerable<KeyValuePair<string, string>> GetAuthMechanismProperties(string name, string value)
         {
             foreach (var property in value.Split(','))
@@ -1457,7 +1461,7 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     throw new MongoConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
                 }
-                var tag = new Tag(parts[0].Trim(), parts[1].Trim());
+                var tag = new Tag(Uri.UnescapeDataString(parts[0]).Trim(), Uri.UnescapeDataString(parts[1]).Trim());
                 tags.Add(tag);
             }
             return new TagSet(tags);
