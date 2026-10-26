@@ -21,6 +21,7 @@ createEntities:
         - commandFailedEvent
       uriOptions:
         appName: "retryableReadHandshakeTest"
+
   - database:
       id: &database database
       client: *client
