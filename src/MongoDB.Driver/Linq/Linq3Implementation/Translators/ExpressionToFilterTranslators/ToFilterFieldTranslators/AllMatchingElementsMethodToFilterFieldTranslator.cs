@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -40,6 +41,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 if (identifier == "")
                 {
                     throw new ExpressionNotSupportedException(expression, because: "identifier cannot be an empty string.");
+                }
+
+                // the identifier is emitted into a "$[identifier]" path segment, so a name containing "]" or "."
+                // would restructure the segment and a null name would silently widen the path to "$[]", which
+                // matches every element of the array
+                if (!AstFieldName.IsSafeArrayFilterIdentifier(identifier))
+                {
+                    throw new ExpressionNotSupportedException(expression, because: $"identifier \"{identifier}\" is not valid: it must be alphanumeric and begin with a lowercase letter");
                 }
 
                 if (fieldTranslation.Serializer is IBsonArraySerializer arraySerializer &&
