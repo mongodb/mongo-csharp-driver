@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,11 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static bool[] ReadBool(IBsonReader bsonReader) =>
             ReadBsonArray<bool>(bsonReader, ConversionType.BoolToBool);
 
-        public static byte[] ReadInt8(IBsonReader bsonReader) =>
-            ReadBsonArray<byte>(bsonReader, ConversionType.Int32ToInt8);
+        public static sbyte[] ReadInt8(IBsonReader bsonReader) =>
+            ReadBsonArray<sbyte>(bsonReader, ConversionType.Int32ToInt8);
 
-        public static sbyte[] ReadUInt8(IBsonReader bsonReader) =>
-            ReadBsonArray<sbyte>(bsonReader, ConversionType.Int32ToUInt8);
+        public static byte[] ReadUInt8(IBsonReader bsonReader) =>
+            ReadBsonArray<byte>(bsonReader, ConversionType.Int32ToUInt8);
 
         public static short[] ReadInt16(IBsonReader bsonReader) =>
             ReadBsonArray<short>(bsonReader, ConversionType.Int32ToInt16);
@@ -61,8 +61,8 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static int[] ReadInt32(IBsonReader bsonReader) =>
             ReadBsonArray<int>(bsonReader, ConversionType.Int32ToInt32);
 
-        public static int[] ReadUInt32(IBsonReader bsonReader) =>
-            ReadBsonArray<int>(bsonReader, ConversionType.Int32ToUInt32);
+        public static uint[] ReadUInt32(IBsonReader bsonReader) =>
+            ReadBsonArray<uint>(bsonReader, ConversionType.Int32ToUInt32);
 
         public static float[] ReadSingles(IBsonReader bsonReader) =>
             ReadBsonArray<float>(bsonReader, ConversionType.DoubleToSingle);
@@ -85,12 +85,12 @@ namespace MongoDB.Bson.Serialization.Serializers
         {
             var (bsonDataType, bsonDataSize) = GetBsonDataTypeAndSize(conversionType);
 
-            var array = bsonReader.ReadRawBsonArray();
+            using var array = bsonReader.ReadRawBsonArray();
             using var buffer = ThreadStaticBuffer.RentBuffer(array.Length);
 
             var bytes = buffer.Bytes;
             array.GetBytes(0, bytes, 0, array.Length);
-            var span = bytes.AsSpan();
+            var span = bytes.AsSpan(0, array.Length);
 
             var result = new List<T>();
 
