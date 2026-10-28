@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Core.Connections;
@@ -39,7 +40,7 @@ namespace MongoDB.Driver.Core.Operations
             : base(collectionNamespace, resultSerializer, messageEncoderSettings)
         {
             _filter = Ensure.IsNotNull(filter, nameof(filter));
-            _replacement = Ensure.IsNotNull(replacement, nameof(replacement));
+            _replacement = EnsureReplacementIsValid(replacement);
             _returnDocument = ReturnDocument.Before;
         }
 
@@ -124,6 +125,17 @@ namespace MongoDB.Driver.Core.Operations
                 { "txnNumber", () => transactionNumber, transactionNumber.HasValue },
                 { "let", _let, _let != null }
             };
+        }
+
+        private static BsonDocument EnsureReplacementIsValid(BsonDocument replacement)
+        {
+            Ensure.IsNotNull(replacement, nameof(replacement));
+            if (replacement.ElementCount > 0 && replacement.Elements.First().Name[0] == '$')
+            {
+                throw new ArgumentException("Replacement documents cannot contain update operators.", nameof(replacement));
+            }
+
+            return replacement;
         }
     }
 }

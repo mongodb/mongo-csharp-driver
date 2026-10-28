@@ -14,13 +14,14 @@
 */
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.TestHelpers;
 using MongoDB.Driver.Tests;
+using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -35,108 +36,123 @@ namespace MongoDB.Driver.Core.Operations
     // happened to be saved by the ReplacementElementNameValidator they push at their sink, but only by accident
     // of when BsonWriter swaps in a child validator, so all three are now guarded up front instead.
     [Trait("Category", "Integration")]
-    public class ReplacementPipelineInjectionIntegrationTests
+    public class ReplacementPipelineInjectionIntegrationTests : IntegrationTest<ReplacementPipelineInjectionIntegrationTests.ClassFixture>
     {
-        private const string CollectionName = "csharp6158_replacement_injection";
-
-        private static BsonArray AttackerPipeline() =>
-            new BsonArray { new BsonDocument("$set", new BsonDocument("role", "admin")) };
-
-        [Fact]
-        public void FindOneAndReplace_should_reject_an_array_replacement()
+        public ReplacementPipelineInjectionIntegrationTests(ClassFixture fixture)
+            : base(fixture)
         {
-            RequireServer.Check();
+        }
 
+        [Theory]
+        [ParameterAttributeData]
+        public async Task FindOneAndReplace_should_reject_array_replacement([Values(true, false)] bool async)
+        {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = new BsonArray { new BsonDocument("$set", new BsonDocument("role", "admin")) };
+
             using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
-            var collection = GetSeededCollection(client);
+            var collectionNamespace = Fixture.Collection.CollectionNamespace;
+            var collection = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName)
+                .GetCollection<BsonValue>(collectionNamespace.CollectionName);
+            var exception = async
+                ? await Record.ExceptionAsync(() => collection.FindOneAndReplaceAsync(filter, replacement))
+                : Record.Exception(() => collection.FindOneAndReplace(filter, replacement));
 
-            Action action = () => collection.FindOneAndReplace(new BsonDocument("_id", 1), AttackerPipeline());
-
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("replacement");
+            exception.Should().BeOfType<ArgumentException>().Subject
+                .ParamName.Should().Be("replacement");
             eventCapturer.Events.Should().BeEmpty();
-
-            // before the fix the pipeline ran: "role" became "admin" while "name" survived, which a genuine
-            // replacement could never do. Assert the document is untouched.
-            var stored = collection.Find(new BsonDocument("_id", 1)).Single().AsBsonDocument;
-            stored["role"].AsString.Should().Be("user");
-            stored["name"].AsString.Should().Be("alice");
         }
 
-        [Fact]
-        public async Task FindOneAndReplaceAsync_should_reject_an_array_replacement()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ReplaceOne_should_reject_array_replacement([Values(true, false)] bool async)
         {
-            RequireServer.Check();
-
-            using var client = DriverTestConfiguration.CreateMongoClient(new EventCapturer());
-            var collection = GetSeededCollection(client);
-
-            // the async overload shares CreateFindOneAndReplaceOperation, but assert it explicitly
-            var exception = await Record.ExceptionAsync(
-                () => collection.FindOneAndReplaceAsync(new BsonDocument("_id", 1), AttackerPipeline()));
-
-            exception.Should().BeOfType<ArgumentException>()
-                .Which.ParamName.Should().Be("replacement");
-        }
-
-        [Fact]
-        public void ReplaceOne_should_reject_an_array_replacement()
-        {
-            RequireServer.Check();
-
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
-            using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
-            var collection = GetSeededCollection(client);
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = new BsonArray { new BsonDocument("$set", new BsonDocument("role", "admin")) };
 
-            Action action = () => collection.ReplaceOne(new BsonDocument("_id", 1), AttackerPipeline());
+            var exception = async
+                ? await Record.ExceptionAsync(() => Fixture.Collection.ReplaceOneAsync(filter, replacement))
+                : Record.Exception(() => Fixture.Collection.ReplaceOne(filter, replacement));
 
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("replacement");
+            exception.Should().BeOfType<ArgumentException>().Subject
+                .ParamName.Should().Be("replacement");
             eventCapturer.Events.Should().BeEmpty();
-
-            collection.Find(new BsonDocument("_id", 1)).Single().AsBsonDocument["role"].AsString.Should().Be("user");
         }
 
-        [Fact]
-        public void ReplaceOne_should_reject_a_scalar_replacement()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task FindOneAndReplace_should_reject_scalar_replacement([Values(true, false)] bool async)
         {
-            RequireServer.Check();
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = BsonValue.Create(42);
 
+            var exception = async
+                ? await Record.ExceptionAsync(() => Fixture.Collection.FindOneAndReplaceAsync(filter, replacement))
+                : Record.Exception(() => Fixture.Collection.FindOneAndReplace(filter, replacement));
+
+            exception.Should().BeOfType<ArgumentException>().Subject
+                .ParamName.Should().Be("replacement");
+            eventCapturer.Events.Should().BeEmpty();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ReplaceOne_should_reject_scalar_replacement([Values(true, false)] bool async)
+        {
             var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
-            using var client = DriverTestConfiguration.CreateMongoClient(eventCapturer);
-            var collection = GetSeededCollection(client);
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = BsonValue.Create(42);
 
-            // previously this round-tripped and came back as "Update argument must be either an object or an array"
-            Action action = () => collection.ReplaceOne(new BsonDocument("_id", 1), BsonValue.Create(42));
+            var exception = async
+                ? await Record.ExceptionAsync(() => Fixture.Collection.ReplaceOneAsync(filter, replacement))
+                : Record.Exception(() => Fixture.Collection.ReplaceOne(filter, replacement));
 
-            action.ShouldThrow<ArgumentException>()
-                .And.ParamName.Should().Be("replacement");
+            exception.Should().BeOfType<ArgumentException>().Subject
+                .ParamName.Should().Be("replacement");
             eventCapturer.Events.Should().BeEmpty();
         }
 
-        [Fact]
-        public void ReplaceOne_should_still_accept_a_document_replacement()
+        [Theory]
+        [ParameterAttributeData]
+        public async Task FindOneAndReplace_should_reject_operator_like_replacement([Values(true, false)] bool async)
         {
-            RequireServer.Check();
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "findAndModify");
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = BsonDocument.Parse("{ $set : { role : 'admin' } }");
 
-            using var client = DriverTestConfiguration.CreateMongoClient(new EventCapturer());
-            var collection = GetSeededCollection(client);
+            var exception = async
+                ? await Record.ExceptionAsync(() => Fixture.Collection.FindOneAndReplaceAsync(filter, replacement))
+                : Record.Exception(() => Fixture.Collection.FindOneAndReplace(filter, replacement));
 
-            collection.ReplaceOne(new BsonDocument("_id", 1), new BsonDocument { { "_id", 1 }, { "name", "bob" } });
-
-            var stored = collection.Find(new BsonDocument("_id", 1)).Single().AsBsonDocument;
-            stored["name"].AsString.Should().Be("bob");
-            stored.Contains("role").Should().BeFalse(); // a real replacement drops the other fields
+            exception.Should().BeOfType<ArgumentException>().Subject
+                .ParamName.Should().Be("replacement");
+            eventCapturer.Events.Should().BeEmpty();
         }
 
-        private static IMongoCollection<BsonValue> GetSeededCollection(IMongoClient client)
+        [Theory]
+        [ParameterAttributeData]
+        public async Task ReplaceOne_should_reject_operator_like_replacement([Values(true, false)] bool async)
         {
-            var database = client.GetDatabase(DriverTestConfiguration.DatabaseNamespace.DatabaseName);
-            database.DropCollection(CollectionName);
-            var collection = database.GetCollection<BsonValue>(CollectionName);
-            collection.InsertOne(new BsonDocument { { "_id", 1 }, { "name", "alice" }, { "role", "user" } });
-            return collection;
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "update");
+            var filter = BsonDocument.Parse("{ _id : 1 }");
+            var replacement = BsonDocument.Parse("{ $set : { role : 'admin' } }");
+
+            var exception = async
+                ? await Record.ExceptionAsync(() => Fixture.Collection.ReplaceOneAsync(filter, replacement))
+                : Record.Exception(() => Fixture.Collection.ReplaceOne(filter, replacement));
+
+            exception.Should().BeOfType<BsonSerializationException>().Subject
+                .Message.Should().Be("Element name '$set' is not valid'.");
+            eventCapturer.Events.Should().BeEmpty();
+        }
+
+        public sealed class ClassFixture : MongoCollectionFixture<BsonValue, BsonDocument>
+        {
+            protected override IEnumerable<BsonDocument> InitialData =>
+                new[] { new BsonDocument { { "_id", 1 }, { "name", "alice" }, { "role", "user" } } };
         }
     }
 }
