@@ -56,6 +56,32 @@ namespace MongoDB.Bson.Tests
             e.ParamName.Should().Be("bytes");
         }
 
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_sub_type_is_out_of_range(
+            [Values(-1, 256, 260, 262, int.MaxValue)] int subType)
+        {
+            var bytes = new byte[16];
+
+            var exception = Record.Exception(() => new BsonBinaryData(bytes, (BsonBinarySubType)subType));
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith($"SubType {subType} is not a valid binary subtype.");
+            e.ParamName.Should().Be("subType");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_accept_sub_type_at_range_boundaries(
+            [Values(0, 255)] int subType)
+        {
+            var bytes = new byte[16];
+
+            var result = new BsonBinaryData(bytes, (BsonBinarySubType)subType);
+
+            result.SubType.Should().Be((BsonBinarySubType)subType);
+        }
+
         [Fact]
         public void constructor_should_throw_when_sub_type_is_uuid_and_guid_representation_is_invalid()
         {

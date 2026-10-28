@@ -500,6 +500,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(BsonBinarySubType.Column, 7)]
         [InlineData(BsonBinarySubType.Sensitive, 8)]
         [InlineData(BsonBinarySubType.UserDefined, 0x80)]
+        [InlineData((BsonBinarySubType)255, 255)]
         public void WriteBinarySubType_should_have_expected_effect(
             BsonBinarySubType value,
             byte expectedByte)
@@ -523,6 +524,24 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => stream.WriteBinarySubType(0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(256)]
+        [InlineData(260)]
+        [InlineData(262)]
+        [InlineData(int.MaxValue)]
+        public void WriteBinarySubType_should_throw_when_value_is_out_of_range(int value)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var stream = new BsonStreamAdapter(memoryStream))
+            {
+                Action action = () => stream.WriteBinarySubType((BsonBinarySubType)value);
+
+                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+                memoryStream.ToArray().Should().BeEmpty();
+            }
         }
 
         [Theory]
