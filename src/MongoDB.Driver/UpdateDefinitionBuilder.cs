@@ -781,9 +781,7 @@ namespace MongoDB.Driver
         /// <returns>An add to set operator.</returns>
         public UpdateDefinition<TDocument> AddToSet<TItem>(FieldDefinition<TDocument> field, TItem value)
         {
-            return new AddToSetUpdateDefinition<TDocument, TItem>(
-                field,
-                new[] { value });
+            return new ArrayItemOperatorUpdateDefinition<TDocument, TItem>("$addToSet", field, value);
         }
 
         /// <summary>
@@ -1111,7 +1109,7 @@ namespace MongoDB.Driver
         /// <returns>A pull operator.</returns>
         public UpdateDefinition<TDocument> Pull<TItem>(FieldDefinition<TDocument> field, TItem value)
         {
-            return new PullUpdateDefinition<TDocument, TItem>(field, new[] { value });
+            return new ArrayItemOperatorUpdateDefinition<TDocument, TItem>("$pull", field, value);
         }
 
         /// <summary>
@@ -1195,7 +1193,7 @@ namespace MongoDB.Driver
         /// <returns>A push operator.</returns>
         public UpdateDefinition<TDocument> Push<TItem>(FieldDefinition<TDocument> field, TItem value)
         {
-            return new PushUpdateDefinition<TDocument, TItem>(field, new[] { value });
+            return new ArrayItemOperatorUpdateDefinition<TDocument, TItem>("$push", field, value);
         }
 
         /// <summary>
@@ -1345,23 +1343,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TDocument> args)
         {
             var renderedField = _field.Render(args);
-
-            IBsonSerializer itemSerializer;
-            if (renderedField.FieldSerializer != null)
-            {
-                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                BsonSerializationInfo itemSerializationInfo;
-                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
-                {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
-                    throw new InvalidOperationException(message);
-                }
-                itemSerializer = itemSerializationInfo.Serializer;
-            }
-            else
-            {
-                itemSerializer = args.SerializerRegistry.GetSerializer<TItem>();
-            }
+            var itemSerializer = ArrayFieldSerializerHelper.GetItemSerializer<TItem>(renderedField, args.SerializerRegistry);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1371,22 +1353,15 @@ namespace MongoDB.Driver
                 bsonWriter.WriteName("$addToSet");
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
-                if (_values.Count == 1)
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$each");
+                bsonWriter.WriteStartArray();
+                foreach (var value in _values)
                 {
-                    itemSerializer.Serialize(context, _values[0]);
+                    itemSerializer.Serialize(context, value);
                 }
-                else
-                {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName("$each");
-                    bsonWriter.WriteStartArray();
-                    foreach (var value in _values)
-                    {
-                        itemSerializer.Serialize(context, value);
-                    }
-                    bsonWriter.WriteEndArray();
-                    bsonWriter.WriteEndDocument();
-                }
+                bsonWriter.WriteEndArray();
+                bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
@@ -1531,6 +1506,41 @@ namespace MongoDB.Driver
         }
     }
 
+    internal sealed class ArrayItemOperatorUpdateDefinition<TDocument, TItem> : UpdateDefinition<TDocument>
+    {
+        private readonly string _operatorName;
+        private readonly FieldDefinition<TDocument> _field;
+        private readonly TItem _value;
+
+        public ArrayItemOperatorUpdateDefinition(string operatorName, FieldDefinition<TDocument> field, TItem value)
+        {
+            _operatorName = Ensure.IsNotNull(operatorName, nameof(operatorName));
+            _field = Ensure.IsNotNull(field, nameof(field));
+            _value = value;
+        }
+
+        public override BsonValue Render(RenderArgs<TDocument> args)
+        {
+            var renderedField = _field.Render(args);
+            var itemSerializer = ArrayFieldSerializerHelper.GetItemSerializer<TItem>(renderedField, args.SerializerRegistry);
+
+            var document = new BsonDocument();
+            using (var bsonWriter = new BsonDocumentWriter(document))
+            {
+                var context = BsonSerializationContext.CreateRoot(bsonWriter);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(_operatorName);
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName(renderedField.FieldName);
+                itemSerializer.Serialize(context, _value);
+                bsonWriter.WriteEndDocument();
+                bsonWriter.WriteEndDocument();
+            }
+
+            return document;
+        }
+    }
+
     internal sealed class PullUpdateDefinition<TDocument, TItem> : UpdateDefinition<TDocument>
     {
         private readonly FieldDefinition<TDocument> _field;
@@ -1552,23 +1562,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TDocument> args)
         {
             var renderedField = _field.Render(args);
-
-            IBsonSerializer itemSerializer;
-            if (renderedField.FieldSerializer != null)
-            {
-                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                BsonSerializationInfo itemSerializationInfo;
-                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
-                {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
-                    throw new InvalidOperationException(message);
-                }
-                itemSerializer = itemSerializationInfo.Serializer;
-            }
-            else
-            {
-                itemSerializer = args.SerializerRegistry.GetSerializer<TItem>();
-            }
+            var itemSerializer = ArrayFieldSerializerHelper.GetItemSerializer<TItem>(renderedField, args.SerializerRegistry);
 
             if (_filter != null)
             {
@@ -1583,22 +1577,15 @@ namespace MongoDB.Driver
                 {
                     var context = BsonSerializationContext.CreateRoot(bsonWriter);
                     bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName(_values.Count == 1 ? "$pull" : "$pullAll");
+                    bsonWriter.WriteName("$pullAll");
                     bsonWriter.WriteStartDocument();
                     bsonWriter.WriteName(renderedField.FieldName);
-                    if (_values.Count == 1)
+                    bsonWriter.WriteStartArray();
+                    foreach (var value in _values)
                     {
-                        itemSerializer.Serialize(context, _values[0]);
+                        itemSerializer.Serialize(context, value);
                     }
-                    else
-                    {
-                        bsonWriter.WriteStartArray();
-                        foreach (var value in _values)
-                        {
-                            itemSerializer.Serialize(context, value);
-                        }
-                        bsonWriter.WriteEndArray();
-                    }
+                    bsonWriter.WriteEndArray();
                     bsonWriter.WriteEndDocument();
                     bsonWriter.WriteEndDocument();
                 }
@@ -1627,23 +1614,7 @@ namespace MongoDB.Driver
         public override BsonValue Render(RenderArgs<TDocument> args)
         {
             var renderedField = _field.Render(args);
-
-            IBsonSerializer itemSerializer;
-            if (renderedField.FieldSerializer != null)
-            {
-                var arraySerializer = renderedField.FieldSerializer as IBsonArraySerializer;
-                BsonSerializationInfo itemSerializationInfo;
-                if (arraySerializer == null || !arraySerializer.TryGetItemSerializationInfo(out itemSerializationInfo))
-                {
-                    var message = string.Format("The serializer for field '{0}' must implement IBsonArraySerializer and provide item serialization info.", renderedField.FieldName);
-                    throw new InvalidOperationException(message);
-                }
-                itemSerializer = itemSerializationInfo.Serializer;
-            }
-            else
-            {
-                itemSerializer = args.SerializerRegistry.GetSerializer<TItem>();
-            }
+            var itemSerializer = ArrayFieldSerializerHelper.GetItemSerializer<TItem>(renderedField, args.SerializerRegistry);
 
             var document = new BsonDocument();
             using (var bsonWriter = new BsonDocumentWriter(document))
@@ -1653,32 +1624,25 @@ namespace MongoDB.Driver
                 bsonWriter.WriteName("$push");
                 bsonWriter.WriteStartDocument();
                 bsonWriter.WriteName(renderedField.FieldName);
-                if (!_slice.HasValue && !_position.HasValue && _sort == null && _values.Count == 1)
+                bsonWriter.WriteStartDocument();
+                bsonWriter.WriteName("$each");
+                bsonWriter.WriteStartArray();
+                foreach (var value in _values)
                 {
-                    itemSerializer.Serialize(context, _values[0]);
+                    itemSerializer.Serialize(context, value);
                 }
-                else
+                bsonWriter.WriteEndArray();
+                if (_slice.HasValue)
                 {
-                    bsonWriter.WriteStartDocument();
-                    bsonWriter.WriteName("$each");
-                    bsonWriter.WriteStartArray();
-                    foreach (var value in _values)
-                    {
-                        itemSerializer.Serialize(context, value);
-                    }
-                    bsonWriter.WriteEndArray();
-                    if (_slice.HasValue)
-                    {
-                        bsonWriter.WriteName("$slice");
-                        bsonWriter.WriteInt32(_slice.Value);
-                    }
-                    if (_position.HasValue)
-                    {
-                        bsonWriter.WriteName("$position");
-                        bsonWriter.WriteInt32(_position.Value);
-                    }
-                    bsonWriter.WriteEndDocument();
+                    bsonWriter.WriteName("$slice");
+                    bsonWriter.WriteInt32(_slice.Value);
                 }
+                if (_position.HasValue)
+                {
+                    bsonWriter.WriteName("$position");
+                    bsonWriter.WriteInt32(_position.Value);
+                }
+                bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
                 bsonWriter.WriteEndDocument();
             }
@@ -1689,6 +1653,26 @@ namespace MongoDB.Driver
             }
 
             return document;
+        }
+    }
+
+    internal static class ArrayFieldSerializerHelper
+    {
+        public static IBsonSerializer GetItemSerializer<TItem>(RenderedFieldDefinition renderedField, IBsonSerializerRegistry serializerRegistry)
+        {
+            if (renderedField.FieldSerializer == null)
+            {
+                return serializerRegistry.GetSerializer<TItem>();
+            }
+
+            if (renderedField.FieldSerializer is not IBsonArraySerializer arraySerializer || !arraySerializer.TryGetItemSerializationInfo(out var itemSerializationInfo))
+            {
+                var message =
+                    $"The serializer for field '{renderedField.FieldName}' must implement IBsonArraySerializer and provide item serialization info.";
+                throw new InvalidOperationException(message);
+            }
+
+            return itemSerializationInfo.Serializer;
         }
     }
 
