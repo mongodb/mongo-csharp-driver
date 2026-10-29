@@ -15,6 +15,7 @@
 
 using System.Linq.Expressions;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
@@ -36,6 +37,9 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
 
                 var documentField = ExpressionToFilterFieldTranslator.Translate(context, documentExpression);
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
+
+                FilterFieldNameValidator.EnsureSegmentIsSafe(expression, documentField, fieldName);
+
                 var fieldSerializer = context.GetSerializer(expression);
 
                 return documentField.SubField(fieldName, fieldSerializer);

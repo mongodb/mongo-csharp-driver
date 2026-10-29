@@ -98,6 +98,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
         {
             var sourceTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, sourceExpression);
             var keyTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, keyExpression);
+
+            // the key can be any expression, but a constant null names no field at all, so reject it here rather
+            // than rendering { $getField : { field : null } } for the server to fail on
+            if (keyTranslation.Ast is AstConstantExpression { Value.IsBsonNull: true })
+            {
+                throw new ExpressionNotSupportedException(expression, because: "key cannot be null");
+            }
+
             var ast = AstExpression.GetField(sourceTranslation.Ast, keyTranslation.Ast);
             var valueSerializer = BsonValueSerializer.Instance;
             return new TranslatedExpression(expression, ast, valueSerializer);

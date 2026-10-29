@@ -35,6 +35,14 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
 
                 var documentTranslation = ExpressionToAggregationExpressionTranslator.Translate(context, documentExpression);
                 var fieldName = fieldNameExpression.GetConstantValue<string>(expression);
+
+                // $getField can express any field name, including one that is empty or contains "$" or ".", but a
+                // null name has nothing to render, so reject it here rather than letting the AST throw
+                if (fieldName == null)
+                {
+                    throw new ExpressionNotSupportedException(expression, because: "field name cannot be null");
+                }
+
                 var fieldSerializer = context.GetSerializer(expression);
 
                 var ast = AstExpression.GetField(documentTranslation.Ast, fieldName);
