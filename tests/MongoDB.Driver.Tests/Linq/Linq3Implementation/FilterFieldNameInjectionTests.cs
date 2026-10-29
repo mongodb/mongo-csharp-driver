@@ -420,6 +420,101 @@ public class FilterFieldNameInjectionTests : LinqIntegrationTest<FilterFieldName
         Render(update).Should().Be($"{{ $set : {{ 'A.$[{identifier}]' : 'v' }} }}");
     }
 
+    // "@<current>" and "@<elem>" are the markers the filter AST uses for the implied document and element, not MQL. a
+    // root key equal to one was read as the marker, so x[key]["Ssn"] silently targeted the root Ssn field
+    [Theory]
+    [InlineData("@<current>")]
+    [InlineData("@<elem>")]
+    public void Filter_BsonDocument_root_item_with_a_marker_key_should_throw(string key)
+    {
+        var filter = Builders<BsonDocument>.Filter.Where(x => x[key]["Ssn"] == "v");
+
+        var exception = Record.Exception(() => filter.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry)));
+
+        AssertMarkerKeyIsRejected(exception);
+    }
+
+    [Theory]
+    [InlineData("@<current>")]
+    [InlineData("@<elem>")]
+    public void Where_BsonDocument_root_item_with_a_marker_key_should_throw(string key)
+    {
+        var collection = GetBsonDocumentCollection();
+
+        var queryable = collection.AsQueryable()
+            .Where(x => x[key]["Ssn"] == "v");
+
+        AssertMarkerKeyIsRejected(Record.Exception(() => Translate(collection, queryable)));
+    }
+
+    [Theory]
+    [InlineData("@<current>")]
+    [InlineData("@<elem>")]
+    public void Update_BsonDocument_root_item_with_a_marker_key_should_throw(string key)
+    {
+        var update = Builders<BsonDocument>.Update.Set(x => x[key]["Ssn"], "v");
+
+        var exception = Record.Exception(() => update.Render(new(BsonDocumentSerializer.Instance, BsonSerializer.SerializerRegistry)));
+
+        AssertMarkerKeyIsRejected(exception);
+    }
+
+    [Theory]
+    [InlineData("@<current>")]
+    [InlineData("@<elem>")]
+    public void Find_MqlField_with_a_marker_name_should_throw(string fieldName)
+    {
+        var collection = Fixture.Collection;
+        var serializer = new StringSerializer();
+
+        var filter = Builders<C>.Filter.Where(x => Mql.Field(x, fieldName, serializer) == "v");
+
+        AssertMarkerKeyIsRejected(Record.Exception(() => Render(collection, filter)));
+    }
+
+    // the key reaches AstSimplifier through the aggregation translators, which only require it to have no "$" prefix
+    // and no ".", and AstSimplifier turns { $anyElementTrue : { $map : ... } } over a constant array into a filter on
+    // the same path. "@<elem>.Ssn" would then be stripped to the root "Ssn" when that filter is rendered
+    [Theory]
+    [InlineData("@<current>")]
+    [InlineData("@<elem>")]
+    public void Where_BsonDocument_constant_Any_with_a_marker_key_should_not_become_a_filter(string key)
+    {
+        var collection = GetBsonDocumentCollection();
+        var values = new BsonValue[] { "a", "b" };
+
+        var queryable = collection.AsQueryable()
+            .Where(x => values.Any(v => x[key]["Ssn"] == v));
+
+        var stages = Translate(collection, queryable);
+
+        AssertStages(stages, "{ $match : { $expr : { $anyElementTrue : { $map : { input : ['a', 'b'], as : 'v', in : { $eq : ['$" + key + ".Ssn', '$$v'] } } } } } }");
+    }
+
+    [Fact]
+    public void Where_BsonDocument_constant_Any_with_a_safe_key_should_become_a_filter()
+    {
+        var collection = GetBsonDocumentCollection();
+        var key = "k";
+        var values = new BsonValue[] { "a", "b" };
+
+        var queryable = collection.AsQueryable()
+            .Where(x => values.Any(v => x[key]["Ssn"] == v));
+
+        var stages = Translate(collection, queryable);
+
+        AssertStages(stages, "{ $match : { 'k.Ssn' : { $in : ['a', 'b'] } } }");
+    }
+
+    private IMongoCollection<BsonDocument> GetBsonDocumentCollection() =>
+        Fixture.Collection.Database.GetCollection<BsonDocument>(Fixture.Collection.CollectionNamespace.CollectionName);
+
+    private static void AssertMarkerKeyIsRejected(Exception exception)
+    {
+        exception.Should().BeOfType<UnsafeFilterFieldNameException>();
+        exception.Message.Should().Contain("internal path marker");
+    }
+
     private static void AssertDottedKeyIsRejected(Exception exception)
     {
         exception.Should().BeOfType<UnsafeFilterFieldNameException>();
