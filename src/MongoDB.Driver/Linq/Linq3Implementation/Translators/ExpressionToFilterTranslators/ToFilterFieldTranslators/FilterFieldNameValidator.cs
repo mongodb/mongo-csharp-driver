@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq.Expressions;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 
 namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators
 {
@@ -37,6 +38,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         // - a name containing "." is a path to a nested field, not an element with that name
         // - a "$" prefixed name is read as an operator when it is the first path component
         // - "$", "$[]" and "$[identifier]" are positional operators in an update path
+        // - "@<current>" and "@<elem>" are the markers of the filter AST, so as the first path component they would
+        //   be read as the implied document or element instead of an element with that name
         // any other nested "$" prefixed name is matched and written literally by the server
         public static void EnsureSegmentIsSafe(Expression expression, TranslatedFilterField parent, string segment)
         {
@@ -48,6 +51,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
             if (segment.IndexOf('.') >= 0)
             {
                 throw new UnsafeFilterFieldNameException(expression, $"the name \"{segment}\" contains \".\", which the server would read as a path to a nested field; access each level separately instead, for example x[\"a\"][\"b\"]");
+            }
+
+            if (parent.Ast.IsImpliedDocument && AstFilterField.IsImpliedDocumentMarker(segment))
+            {
+                throw new UnsafeFilterFieldNameException(expression, $"the name \"{segment}\" is reserved by the driver as an internal path marker and would target the wrong field");
             }
 
             if (segment.Length > 0 && segment[0] == '$')

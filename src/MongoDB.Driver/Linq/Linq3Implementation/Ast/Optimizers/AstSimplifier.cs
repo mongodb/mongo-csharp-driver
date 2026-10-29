@@ -118,6 +118,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers
                 inBinaryExpression.Operator == AstBinaryOperator.Eq &&
                 TryGetBinaryExpressionArguments(inBinaryExpression, out AstFieldPathExpression fieldPathExpression, out AstVarExpression varExpression) &&
                 fieldPathExpression.Path.Length > 1 && fieldPathExpression.Path[0] == '$' && fieldPathExpression.Path[1] != '$' &&
+                !AstFilterField.StartsWithImpliedDocumentMarker(fieldPathExpression.Path.Substring(1)) && // a field named like a marker would be read as the marker
                 varExpression == mapExpression.As)
             {
                 // { $expr : { $anyElementTrue : { $map : { input : <constantArray>, as : "<var>", in : { $eq : ["$<dottedFieldName>", "$$<var>"] } } } } }
