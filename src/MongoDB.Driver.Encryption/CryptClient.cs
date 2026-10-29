@@ -16,6 +16,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -77,26 +78,21 @@ namespace MongoDB.Driver.Encryption
         {
             ContextSafeHandle handle = Library.mongocrypt_ctx_new(_handle);
 
-            var stringPointer = Marshal.StringToHGlobalAnsi(db);
+            // libmongocrypt matches the database name against schema map namespaces as UTF-8,
+            // the same encoding the command uses on the wire.
+            var dbBytes = Utf8Encodings.Strict.GetBytes(db);
 
-            try
+            unsafe
             {
-                unsafe
+                fixed (byte* d = dbBytes)
+                fixed (byte* c = command)
                 {
-                    fixed (byte* c = command)
+                    var commandPtr = (IntPtr)c;
+                    using (var pinnedCommand = new PinnedBinary(commandPtr, (uint)command.Length))
                     {
-                        var commandPtr = (IntPtr)c;
-                        using (var pinnedCommand = new PinnedBinary(commandPtr, (uint)command.Length))
-                        {
-                            // Let mongocrypt run strlen
-                            handle.Check(_status, Library.mongocrypt_ctx_encrypt_init(handle, stringPointer, -1, pinnedCommand.Handle));
-                        }
+                        handle.Check(_status, Library.mongocrypt_ctx_encrypt_init(handle, (IntPtr)d, dbBytes.Length, pinnedCommand.Handle));
                     }
                 }
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(stringPointer);
             }
 
             return new CryptContext(handle);
