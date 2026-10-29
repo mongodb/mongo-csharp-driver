@@ -14,6 +14,7 @@
 */
 
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson;
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Tests
         public IMongoClient UsernamePasswordAuthentication()
         {
             return new MongoClientBuilder()
-                .Cluster(cluster => cluster.Servers = new[] { new MongoServerAddress("localhost", 27017) })
+                .Cluster(cluster => cluster.Servers = new[] { new DnsEndPoint("localhost", 27017) })
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Build();
         }
@@ -184,8 +185,8 @@ namespace MongoDB.Driver.Tests
                 {
                     cluster.Servers = new[]
                     {
-                        new MongoServerAddress("mongo-1.example.com", 27017),
-                        new MongoServerAddress("mongo-2.example.com", 27017)
+                        new DnsEndPoint("mongo-1.example.com", 27017),
+                        new DnsEndPoint("mongo-2.example.com", 27017)
                     };
                     cluster.ReplicaSetName = "rs0";
                 })
