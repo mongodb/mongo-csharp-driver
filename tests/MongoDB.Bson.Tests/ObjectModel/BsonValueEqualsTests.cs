@@ -658,9 +658,9 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void TestBsonSymbolEquals()
         {
-            var a = BsonSymbolTable.Lookup("symbol 1");
-            var b = BsonSymbolTable.Lookup("symbol 1");
-            var c = BsonSymbolTable.Lookup("symbol 2");
+            var a = new BsonSymbol("symbol 1");
+            var b = new BsonSymbol("symbol 1");
+            var c = new BsonSymbol("symbol 2");
             var n = (BsonString)null;
 
             Assert.True(object.Equals(a, b));
