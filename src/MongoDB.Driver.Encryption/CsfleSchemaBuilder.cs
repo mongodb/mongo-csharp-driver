@@ -145,31 +145,17 @@ namespace MongoDB.Driver.Encryption
         /// Adds a nested pattern property to the schema.
         /// </summary>
         /// <typeparam name="TField">The type of the nested field.</typeparam>
-        /// <param name="path">The field.</param>
+        /// <param name="pattern">The regex pattern for the property.</param>
         /// <param name="configure">An action to configure the nested builder.</param>
         /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
         public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
-            Expression<Func<TDocument, TField>> path,
-            Action<EncryptedCollectionBuilder<TField>> configure)
-            => PatternProperty(new ExpressionFieldDefinition<TDocument, TField>(path), configure);
-
-        /// <summary>
-        /// Adds a nested pattern property to the schema.
-        /// </summary>
-        /// <typeparam name="TField">The type of the nested field.</typeparam>
-        /// <param name="path">The field.</param>
-        /// <param name="configure">An action to configure the nested builder.</param>
-        /// <returns>The current <see cref="EncryptedCollectionBuilder{TDocument}"/> instance.</returns>
-        public EncryptedCollectionBuilder<TDocument> PatternProperty<TField>(
-            FieldDefinition<TDocument> path,
+            string pattern,
             Action<EncryptedCollectionBuilder<TField>> configure)
         {
             var nestedBuilder = new EncryptedCollectionBuilder<TField>();
             configure(nestedBuilder);
 
-            var fieldName = path.Render(_args).FieldName;
-
-            AddToPatternProperties(fieldName, nestedBuilder.Build());
+            AddToPatternProperties(pattern, nestedBuilder.Build());
             return this;
         }
 
