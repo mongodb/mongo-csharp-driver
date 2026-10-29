@@ -1282,6 +1282,7 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("internal", ".internal")]
         [InlineData("local", ".local")]
         [InlineData(".CORP.", ".corp")]
+        [InlineData(".my_domain.net", ".my_domain.net")]
         public void NormalizeSrvAllowedHostsSuffix_should_return_expected_result(string suffix, string expectedResult)
         {
             var result = ConnectionString.NormalizeSrvAllowedHostsSuffix(suffix);
