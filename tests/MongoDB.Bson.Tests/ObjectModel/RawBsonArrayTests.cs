@@ -281,5 +281,18 @@ namespace MongoDB.Bson.Tests
                 Assert.Equal(2, values[1].AsInt32);
             }
         }
+
+        [Fact]
+        public void ToBson_should_not_include_bytes_past_declared_length_when_nested()
+        {
+            var bytes = new BsonDocument("0", 1).ToBson();
+            var slice = new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
+            using (var rawBsonArray = new RawBsonArray(slice))
+            {
+                var result = new BsonDocument("a", rawBsonArray).ToBson();
+
+                result.Should().Equal(new BsonDocument("a", new BsonArray { 1 }).ToBson());
+            }
+        }
     }
 }

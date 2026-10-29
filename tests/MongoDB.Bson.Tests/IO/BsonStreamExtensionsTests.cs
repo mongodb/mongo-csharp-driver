@@ -785,5 +785,23 @@ namespace MongoDB.Bson.Tests.IO
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
         }
+
+        [Fact]
+        public void WriteSlice_with_offset_and_count_should_write_requested_range_across_chunks()
+        {
+            var bytes = Enumerable.Range(0, 10).Select(i => (byte)i).ToArray();
+            var chunks = new IBsonChunk[]
+            {
+                new ByteArrayChunk(bytes.Take(3).ToArray()),
+                new ByteArrayChunk(bytes.Skip(3).ToArray())
+            };
+            using var slice = new MultiChunkBuffer(chunks, bytes.Length, isReadOnly: true);
+            using var memoryStream = new MemoryStream();
+            using var stream = new BsonStreamAdapter(memoryStream);
+
+            stream.WriteSlice(slice, 1, 7);
+
+            memoryStream.ToArray().Should().Equal(1, 2, 3, 4, 5, 6, 7);
+        }
     }
 }
