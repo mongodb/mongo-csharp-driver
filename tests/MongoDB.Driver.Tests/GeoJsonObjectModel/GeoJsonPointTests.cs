@@ -84,6 +84,23 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, point);
         }
 
+        [Theory]
+        [InlineData("bbox")]
+        [InlineData("coordinates")]
+        [InlineData("crs")]
+        [InlineData("type")]
+        public void TestPoint2DWithConflictingExtraMember(string name)
+        {
+            var point = GeoJson.Point(
+                new GeoJsonObjectArgs<GeoJson2DCoordinates> { ExtraMembers = new BsonDocument(name, 1) },
+                GeoJson.Position(100.0, 0.0));
+
+            var exception = Record.Exception(() => point.ToJson());
+
+            Assert.IsType<BsonSerializationException>(exception);
+            Assert.Equal($"GeoJson Point extra member '{name}' conflicts with a member of the same name.", exception.Message);
+        }
+
         [Fact]
         public void TestPoint2DWithLinkedCoordinateReferenceSystem()
         {
