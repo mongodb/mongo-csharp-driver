@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-using MongoDB.Driver.Core.Misc;
-
 namespace MongoDB.Driver.Configuration;
 
 /// <summary>

@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
@@ -28,7 +29,6 @@ public sealed class ClusterBuilder
     internal ClusterBuilder()
     {
         Scheme = ConnectionStringScheme.MongoDB;
-        Servers = new[] { new MongoServerAddress("localhost") };
         SrvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
     }
 
@@ -58,10 +58,10 @@ public sealed class ClusterBuilder
     /// Gets or sets the list of server addresses. The default value is a single
     /// <c>localhost:27017</c> address.
     /// </summary>
-    public IEnumerable<MongoServerAddress> Servers
+    public IEnumerable<EndPoint> Servers
     {
         get;
-        set => field = new List<MongoServerAddress>(Ensure.IsNotNull(value, nameof(Servers))).AsReadOnly();
+        set => field = new List<EndPoint>(Ensure.IsNotNull(value, nameof(Servers))).AsReadOnly();
     }
 
     /// <summary>
