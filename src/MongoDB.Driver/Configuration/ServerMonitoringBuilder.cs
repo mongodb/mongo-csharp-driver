@@ -59,5 +59,9 @@ public sealed class ServerMonitoringBuilder
     /// <see cref="ServerMonitoringMode.Auto"/>, which uses streaming except when the client detects that
     /// it is running inside a FaaS environment.
     /// </summary>
-    public ServerMonitoringMode Mode { get; set; }
+    public ServerMonitoringMode Mode
+    {
+        get;
+        set;
+    }
 }

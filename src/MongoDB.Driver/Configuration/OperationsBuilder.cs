@@ -42,7 +42,11 @@ public sealed class OperationsBuilder
     /// Gets or sets whether overload retargeting is enabled. The default value is <c>false</c>.
     /// </summary>
     /// <remarks>This option requires MongoDB Atlas Server Version 9.0 and above.</remarks>
-    public bool EnableOverloadRetargeting { get; set; }
+    public bool EnableOverloadRetargeting
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the window, measured from the round trip time of the fastest suitable server, within
@@ -75,7 +79,11 @@ public sealed class OperationsBuilder
     /// The same instance is used for every server selection made by the client, possibly from several threads
     /// at once, so it must be thread-safe.
     /// </remarks>
-    public IServerSelector PostServerSelector { get; set; }
+    public IServerSelector PostServerSelector
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets a custom server selector that runs before the selector chosen for the operation (read
@@ -85,7 +93,11 @@ public sealed class OperationsBuilder
     /// The same instance is used for every server selection made by the client, possibly from several threads
     /// at once, so it must be thread-safe.
     /// </remarks>
-    public IServerSelector PreServerSelector { get; set; }
+    public IServerSelector PreServerSelector
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the default read concern used by operations that do not specify their own.
@@ -110,18 +122,30 @@ public sealed class OperationsBuilder
     /// <summary>
     /// Gets or sets whether reads are retried once after a retryable error. The default value is <c>true</c>.
     /// </summary>
-    public bool RetryReads { get; set; }
+    public bool RetryReads
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets whether writes are retried once after a retryable error. The default value is <c>true</c>.
     /// </summary>
-    public bool RetryWrites { get; set; }
+    public bool RetryWrites
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the server API version to declare on every command. The default value is <c>null</c>,
     /// which does not declare an API version.
     /// </summary>
-    public ServerApi ServerApi { get; set; }
+    public ServerApi ServerApi
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets how long the client waits for a suitable server to become available before failing
