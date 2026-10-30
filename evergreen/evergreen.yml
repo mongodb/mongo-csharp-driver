@@ -1984,7 +1984,6 @@ axes:
         display_name: "macOS 14.00 ARM"
         variables:
           OS: "macos-14-arm64"
-          skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: macos-14-arm64
