@@ -26,9 +26,10 @@ namespace MongoDB.Driver.Configuration;
 /// </summary>
 public sealed class ClusterBuilder
 {
-    internal ClusterBuilder()
+    internal ClusterBuilder(ConnectionStringScheme scheme, IReadOnlyList<EndPoint> servers)
     {
-        Scheme = ConnectionStringScheme.MongoDB;
+        Scheme = scheme;
+        Servers = Ensure.IsNotNull(servers, nameof(servers));
         SrvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
     }
 
@@ -67,7 +68,6 @@ public sealed class ClusterBuilder
     public ConnectionStringScheme Scheme
     {
         get;
-        internal set;
     }
 
     /// <summary>
@@ -78,7 +78,6 @@ public sealed class ClusterBuilder
     public IReadOnlyList<EndPoint> Servers
     {
         get;
-        internal set;
     }
 
     /// <summary>
