@@ -51,7 +51,7 @@ namespace MongoDB.Driver.Core.Configuration
     {
         // constants
         private const int DefaultMongoDBPort = 27017;
-        private const int DefaultSrvPort = 53;
+        internal const int DefaultSrvPort = 53;
 
         // private static fields
         // the single labels that srvAllowedHostsSuffix may name, per the specification. They name
