@@ -33,38 +33,39 @@ public sealed class ClusterBuilder
     }
 
     /// <summary>
-    /// Gets whether the client connects directly to a single server rather than discovering
+    /// Gets or sets whether the client connects directly to a single server rather than discovering
     /// and monitoring the topology it belongs to. The default value is <c>false</c>.
     /// </summary>
-    public bool DirectConnection { get; init; }
+    public bool DirectConnection { get; set; }
 
     /// <summary>
-    /// Gets whether load balanced mode is used. The default value is <c>false</c>.
+    /// Gets or sets whether load balanced mode is used. The default value is <c>false</c>.
     /// </summary>
-    public bool LoadBalanced { get; init; }
+    public bool LoadBalanced { get; set; }
 
     /// <summary>
-    /// Gets the name of the replica set the servers are expected to belong to. The default value is <c>null</c>.
+    /// Gets or sets the name of the replica set the servers are expected to belong to. The default value is <c>null</c>.
     /// </summary>
     public string ReplicaSetName
     {
         get;
-        init => field = Ensure.IsNotNullOrEmpty(value, nameof(ReplicaSetName));
+        set => field = Ensure.IsNotNullOrEmpty(value, nameof(ReplicaSetName));
     }
 
     /// <summary>
-    /// Gets the connection string scheme.
+    /// Gets the connection string scheme. It is determined by the <see cref="MongoClientBuilder"/> factory method
+    /// that created the builder.
     /// </summary>
-    public ConnectionStringScheme Scheme { get; init; }
+    public ConnectionStringScheme Scheme { get; internal set; }
 
     /// <summary>
-    /// Gets the server end points. Only <see cref="DnsEndPoint"/> and <see cref="IPEndPoint"/> are supported.
+    /// Gets or sets the server end points. Only <see cref="DnsEndPoint"/> and <see cref="IPEndPoint"/> are supported.
     /// With the <see cref="ConnectionStringScheme.MongoDBPlusSrv"/> scheme this is the single SRV host name.
     /// </summary>
     public IReadOnlyList<EndPoint> Servers
     {
         get;
-        init;
+        set;
     }
 
     /// <summary>

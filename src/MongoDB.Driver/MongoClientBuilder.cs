@@ -56,57 +56,24 @@ public sealed class MongoClientBuilder
     }
 
     /// <summary>
-    /// Creates a builder that connects directly to a single server.
+    /// Creates a builder initialized from a MongoDB connection string.
     /// </summary>
-    /// <param name="endPoint">The server address as <c>host</c> or <c>host:port</c>. The default port is 27017.</param>
+    /// <param name="connectionString">The connection string.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder DirectConnection(string endPoint)
-        =>  DirectConnection(ParseEndPoint(endPoint, nameof(endPoint)));
+    public static MongoClientBuilder FromConnectionString(string connectionString)
+        => FromConnectionString(new ConnectionString(connectionString));
 
     /// <summary>
-    /// Creates a builder that connects directly to a single server, without discovering or monitoring the
-    /// topology it belongs to.
+    /// Creates a builder initialized from a MongoDB connection string.
     /// </summary>
-    /// <param name="endPoint">The server end point: a <see cref="DnsEndPoint"/> or an <see cref="IPEndPoint"/>.</param>
+    /// <param name="connectionString">The connection string.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder DirectConnection(EndPoint endPoint)
+    public static MongoClientBuilder FromConnectionString(ConnectionString connectionString)
     {
-        Ensure.IsNotNull(endPoint, nameof(endPoint));
+        Ensure.IsNotNull(connectionString, nameof(connectionString));
 
-        return new MongoClientBuilder(new ClusterBuilder
-        {
-            Servers = [endPoint],
-            DirectConnection = true
-        });
-    }
-
-    /// <summary>
-    /// Creates a builder that connects directly to a single server, and expects it to be a member of the
-    /// replica set with the given name.
-    /// </summary>
-    /// <param name="endPoint">The server address as <c>host</c> or <c>host:port</c>. The default port is 27017.</param>
-    /// <param name="replicaSetName">The replica set name, or <c>null</c> to not verify it.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder DirectConnection(string endPoint, string replicaSetName)
-        => DirectConnection(ParseEndPoint(endPoint, nameof(endPoint)), replicaSetName);
-
-    /// <summary>
-    /// Creates a builder that connects directly to a single server, and expects it to be a member of the
-    /// replica set with the given name.
-    /// </summary>
-    /// <param name="endPoint">The server end point: a <see cref="DnsEndPoint"/> or an <see cref="IPEndPoint"/>.</param>
-    /// <param name="replicaSetName">The replica set name, or <c>null</c> to not verify it.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder DirectConnection(EndPoint endPoint, string replicaSetName)
-    {
-        Ensure.IsNotNull(endPoint, nameof(endPoint));
-
-        return new MongoClientBuilder(new ClusterBuilder
-        {
-            Servers = [endPoint],
-            DirectConnection = true,
-            ReplicaSetName = replicaSetName
-        });
+        // TODO: Discuss if it should be ConnectionString or MongoUrl here, and deprecate another.
+        return null;
     }
 
     /// <summary>
@@ -146,27 +113,6 @@ public sealed class MongoClientBuilder
         => new(new ClusterBuilder { Servers = endPoints.ToArray() });
 
     /// <summary>
-    /// Creates a builder initialized from a MongoDB connection string.
-    /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder FromConnectionString(string connectionString)
-        => FromConnectionString(new ConnectionString(connectionString));
-
-    /// <summary>
-    /// Creates a builder initialized from a MongoDB connection string.
-    /// </summary>
-    /// <param name="connectionString">The connection string.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder FromConnectionString(ConnectionString connectionString)
-    {
-        Ensure.IsNotNull(connectionString, nameof(connectionString));
-
-        // TODO: Discuss if it should be ConnectionString or MongoUrl here, and deprecate another.
-        return null;
-    }
-
-    /// <summary>
     /// Creates a builder that connects to a mongodb+srv:// deployment: the servers are found by looking up
     /// the SRV records of the given host name.
     /// </summary>
@@ -190,59 +136,6 @@ public sealed class MongoClientBuilder
         {
             Scheme = ConnectionStringScheme.MongoDBPlusSrv,
             Servers = [new DnsEndPoint(dnsEndPoint.Host, ConnectionString.DefaultSrvPort)]
-        });
-    }
-
-    /// <summary>
-    /// Creates a builder that connects to a load balancer in front of the deployment, in load balanced mode.
-    /// </summary>
-    /// <param name="endPoint">The load balancer address as <c>host</c> or <c>host:port</c>. The default port is 27017.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder LoadBalanced(string endPoint)
-        => LoadBalanced(ParseEndPoint(endPoint, nameof(endPoint)));
-
-
-    /// <summary>
-    /// Creates a builder that connects to a load balancer in front of the deployment, in load balanced mode.
-    /// </summary>
-    /// <param name="endPoint">The load balancer end point: a <see cref="DnsEndPoint"/> or an <see cref="IPEndPoint"/>.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder LoadBalanced(EndPoint endPoint)
-    {
-        Ensure.IsNotNull(endPoint, nameof(endPoint));
-
-        return new(new ClusterBuilder
-        {
-            Servers = [endPoint],
-            LoadBalanced = true
-        });
-    }
-
-    /// <summary>
-    /// Creates a builder that connects to a replica set. The name is verified: servers that report a
-    /// different replica set name are not used.
-    /// </summary>
-    /// <param name="replicaSetName">The replica set name.</param>
-    /// <param name="endPoints">The seed addresses as <c>host</c> or <c>host:port</c>. The default port is 27017.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder ReplicaSet(IEnumerable<string> endPoints, string replicaSetName)
-        => ReplicaSet(ParseEndPoints(endPoints, nameof(endPoints)), replicaSetName);
-
-    /// <summary>
-    /// Creates a builder that connects to a replica set. The name is verified: servers that report a
-    /// different replica set name are not used.
-    /// </summary>
-    /// <param name="replicaSetName">The replica set name.</param>
-    /// <param name="endPoints">The seed end points: <see cref="DnsEndPoint"/> or <see cref="IPEndPoint"/> instances.</param>
-    /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
-    public static MongoClientBuilder ReplicaSet(IEnumerable<EndPoint> endPoints, string replicaSetName)
-    {
-        Ensure.IsNotNullOrEmpty(replicaSetName, nameof(replicaSetName));
-
-        return new(new ClusterBuilder
-        {
-            Servers = endPoints.ToArray(),
-            ReplicaSetName = replicaSetName
         });
     }
 
