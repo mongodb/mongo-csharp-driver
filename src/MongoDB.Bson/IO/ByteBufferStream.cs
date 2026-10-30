@@ -594,10 +594,10 @@ namespace MongoDB.Bson.IO
                     SetBytes(segmentEncoded.Array, actualLength);
                 }
 
-                void SetBytes(byte[] bytes, int lenght)
+                void SetBytes(byte[] bytes, int length)
                 {
-                    _buffer.SetBytes(_position, bytes, 0, actualLength);
-                    _buffer.SetByte(_position + actualLength, 0);
+                    _buffer.SetBytes(_position, bytes, 0, length);
+                    _buffer.SetByte(_position + length, 0);
                 }
             }
 
