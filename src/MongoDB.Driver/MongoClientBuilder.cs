@@ -92,7 +92,7 @@ public sealed class MongoClientBuilder
     /// <param name="endPoint">The seed end point.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoint(EndPoint endPoint)
-        => new(new ClusterBuilder { Servers = [ endPoint ] });
+        => new(new ClusterBuilder(ConnectionStringScheme.MongoDB, [endPoint]));
 
     /// <summary>
     /// Creates a builder that discovers the topology starting from the given seed servers. Use it for
@@ -110,7 +110,7 @@ public sealed class MongoClientBuilder
     /// <param name="endPoints">The seed end points.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoints(IEnumerable<EndPoint> endPoints)
-        => new(new ClusterBuilder { Servers = endPoints.ToArray() });
+        => new(new ClusterBuilder(ConnectionStringScheme.MongoDB, endPoints.ToArray()));
 
     /// <summary>
     /// Creates a builder that connects to a mongodb+srv:// deployment: the servers are found by looking up
@@ -132,11 +132,9 @@ public sealed class MongoClientBuilder
         }
 
         // The port is not used by SRV, ConnectionString uses the same placeholder
-        return new(new ClusterBuilder
-        {
-            Scheme = ConnectionStringScheme.MongoDBPlusSrv,
-            Servers = [new DnsEndPoint(dnsEndPoint.Host, ConnectionString.DefaultSrvPort)]
-        });
+        return new(new ClusterBuilder(
+            ConnectionStringScheme.MongoDBPlusSrv,
+            [new DnsEndPoint(dnsEndPoint.Host, ConnectionString.DefaultSrvPort)]));
     }
 
     /// <summary>
