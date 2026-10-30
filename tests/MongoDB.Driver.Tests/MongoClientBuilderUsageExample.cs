@@ -56,19 +56,22 @@ namespace MongoDB.Driver.Tests
                 .Build();
         }
 
-        // The target is chosen by the factory method, and the factories only accept compatible combinations.
+        // The servers are chosen by the factory method, the topology hints are set on the cluster section.
         public void ChoosingTheTarget()
         {
-            // Seed list, the topology is discovered (standalone server, replica set or sharded cluster).
+            // A single seed, the topology is discovered (standalone server, replica set or sharded cluster).
             MongoClientBuilder.FromEndPoint("mongo-1.example.com");
-            // Seed list, the topology is discovered (standalone server, replica set or sharded cluster).
+            // A seed list, the topology is discovered.
             MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com:27018"]);
             // Replica set: the name is verified.
-            MongoClientBuilder.ReplicaSet(["mongo-1.example.com", "mongo-2.example.com"], "rs0");
+            MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com"])
+                .Cluster(cluster => cluster.ReplicaSetName = "rs0");
             // A single server, without topology discovery.
-            MongoClientBuilder.DirectConnection("localhost:27017");
+            MongoClientBuilder.FromEndPoint("localhost:27017")
+                .Cluster(cluster => cluster.DirectConnection = true);
             // A load balancer in front of the deployment.
-            MongoClientBuilder.LoadBalanced("lb.example.com");
+            MongoClientBuilder.FromEndPoint("lb.example.com")
+                .Cluster(cluster => cluster.LoadBalanced = true);
             // mongodb+srv, with SRV specific options.
             MongoClientBuilder.FromSrv("cluster0.example.mongodb.net")
                 .Cluster(cluster => cluster.SrvMaxHosts = 3);
@@ -108,8 +111,9 @@ namespace MongoDB.Driver.Tests
         // fluent chain.
         public IMongoClient ConfiguringInnerBuildersDirectly()
         {
-            var builder = MongoClientBuilder.ReplicaSet(["mongo-1.example.com", "mongo-2.example.com"], "rs0");
+            var builder = MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com"]);
 
+            builder.Cluster().ReplicaSetName = "rs0";
             builder.Authentication().UseUsernamePassword("user", "pencil");
             builder.Operations().ReadPreference = ReadPreference.SecondaryPreferred;
 
@@ -204,12 +208,12 @@ namespace MongoDB.Driver.Tests
         public IMongoClient FullyConfiguredClient()
         {
             return MongoClientBuilder
-                .ReplicaSet(
-                    [
-                        new DnsEndPoint("mongo-1.example.com", 27017),
-                        new DnsEndPoint("mongo-2.example.com", 27017)
-                    ],
-                    "rs0")
+                .FromEndPoints(
+                [
+                    new DnsEndPoint("mongo-1.example.com", 27017),
+                    new DnsEndPoint("mongo-2.example.com", 27017)
+                ])
+                .Cluster(cluster => cluster.ReplicaSetName = "rs0")
                 .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Tls(tls => tls.Enabled = true)

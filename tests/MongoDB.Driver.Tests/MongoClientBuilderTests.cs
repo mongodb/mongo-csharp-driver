@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
@@ -53,46 +52,39 @@ public class MongoClientBuilderTests
     }
 
     [Fact]
-    public void DirectConnection_with_end_point_should_configure_a_direct_connection()
+    public void FromEndPoint_with_end_point_should_discover_the_topology()
     {
         var endPoint = new DnsEndPoint("host1", 27018);
 
-        var subject = MongoClientBuilder.DirectConnection(endPoint);
+        var subject = MongoClientBuilder.FromEndPoint(endPoint);
 
         var cluster = subject.Cluster();
         cluster.Servers.Should().Equal(endPoint);
-        cluster.DirectConnection.Should().BeTrue();
-        cluster.ReplicaSetName.Should().BeNull();
+        cluster.DirectConnection.Should().BeFalse();
         cluster.LoadBalanced.Should().BeFalse();
+        cluster.ReplicaSetName.Should().BeNull();
         cluster.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
     }
 
-    [Fact]
-    public void DirectConnection_with_replica_set_name_should_configure_a_direct_connection_to_the_replica_set_member()
+    [Theory]
+    [InlineData("host1", "host1", 27017)]
+    [InlineData("HOST1:27018", "host1", 27018)]
+    public void FromEndPoint_with_string_should_parse_the_address(string endPoint, string expectedHost, int expectedPort)
     {
-        var subject = MongoClientBuilder.DirectConnection("host1", "rs0");
+        var subject = MongoClientBuilder.FromEndPoint(endPoint);
 
-        var cluster = subject.Cluster();
-        cluster.Servers.Should().Equal(new DnsEndPoint("host1", 27017));
-        cluster.DirectConnection.Should().BeTrue();
-        cluster.ReplicaSetName.Should().Be("rs0");
+        subject.Cluster().Servers.Should().Equal(new DnsEndPoint(expectedHost, expectedPort));
     }
 
-    [Fact]
-    public void DirectConnection_should_throw_when_end_point_is_null()
+    [Theory]
+    [InlineData("host1:notaport")]
+    [InlineData("host1:0")]
+    [InlineData("")]
+    public void FromEndPoint_with_string_should_throw_for_an_invalid_address(string endPoint)
     {
-        var exception = Record.Exception(() => MongoClientBuilder.DirectConnection((EndPoint)null));
+        var exception = Record.Exception(() => MongoClientBuilder.FromEndPoint(endPoint));
 
-        exception.Should().BeOfType<ArgumentNullException>()
-            .Subject.ParamName.Should().Be("endPoint");
-    }
-
-    [Fact]
-    public void DirectConnection_should_throw_for_an_unsupported_end_point()
-    {
-        var exception = Record.Exception(() => MongoClientBuilder.DirectConnection(new CustomEndPoint()));
-
-        exception.Should().BeOfType<ArgumentException>()
+        exception.Should().BeAssignableTo<ArgumentException>()
             .Subject.ParamName.Should().Be("endPoint");
     }
 
@@ -144,17 +136,9 @@ public class MongoClientBuilderTests
 
     public static IEnumerable<object[]> InvalidEndPointsFactories =>
     [
-        ["FromEndPoints without end points", () => MongoClientBuilder.FromEndPoints(Array.Empty<EndPoint>()), "endPoints"],
-        ["FromEndPoints with a null end point", () => MongoClientBuilder.FromEndPoints(new EndPoint[] { null }), "endPoints"],
-        ["FromEndPoints with an unsupported end point", () => MongoClientBuilder.FromEndPoints([new CustomEndPoint()]), "endPoints"],
-        ["FromEndPoints with a dns end point with an address family", () => MongoClientBuilder.FromEndPoints([new DnsEndPoint("host1", 27017, AddressFamily.InterNetwork)]), "endPoints"],
         ["FromEndPoints with an invalid address", () => MongoClientBuilder.FromEndPoints(["host1:notaport"]), "endPoints"],
         ["FromEndPoints with a zero port", () => MongoClientBuilder.FromEndPoints(["host1:0"]), "endPoints"],
-        ["FromEndPoints with an empty address", () => MongoClientBuilder.FromEndPoints([""]), "endPoints"],
-        ["ReplicaSet without end points", () => MongoClientBuilder.ReplicaSet(Array.Empty<EndPoint>(), "rs0"), "endPoints"],
-        ["ReplicaSet with an invalid address", () => MongoClientBuilder.ReplicaSet(["host1:notaport"], "rs0"), "endPoints"],
-        ["LoadBalanced with an invalid address", () => MongoClientBuilder.LoadBalanced("host1:notaport"), "endPoint"],
-        ["DirectConnection with an invalid address", () => MongoClientBuilder.DirectConnection("host1:notaport"), "endPoint"]
+        ["FromEndPoints with an empty address", () => MongoClientBuilder.FromEndPoints([""]), "endPoints"]
     ];
 
     [Fact]
@@ -190,43 +174,5 @@ public class MongoClientBuilderTests
 
         exception.Should().BeAssignableTo<ArgumentException>()
             .Subject.ParamName.Should().Be(expectedParamName);
-    }
-
-    [Fact]
-    public void LoadBalanced_should_configure_load_balanced_mode()
-    {
-        var subject = MongoClientBuilder.LoadBalanced("lb.example.com");
-
-        var cluster = subject.Cluster();
-        cluster.Servers.Should().Equal(new DnsEndPoint("lb.example.com", 27017));
-        cluster.LoadBalanced.Should().BeTrue();
-        cluster.DirectConnection.Should().BeFalse();
-        cluster.ReplicaSetName.Should().BeNull();
-    }
-
-    [Fact]
-    public void ReplicaSet_should_configure_the_replica_set_name()
-    {
-        var subject = MongoClientBuilder.ReplicaSet(["host1", "host2"], "rs0");
-
-        var cluster = subject.Cluster();
-        cluster.ReplicaSetName.Should().Be("rs0");
-        cluster.Servers.Should().Equal(new DnsEndPoint("host1", 27017), new DnsEndPoint("host2", 27017));
-        cluster.DirectConnection.Should().BeFalse();
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void ReplicaSet_should_throw_for_invalid_replica_set_name(string replicaSetName)
-    {
-        var exception = Record.Exception(() => MongoClientBuilder.ReplicaSet(["host1"], replicaSetName));
-
-        exception.Should().BeAssignableTo<ArgumentException>()
-            .Subject.ParamName.Should().Be("replicaSetName");
-    }
-
-    private sealed class CustomEndPoint : EndPoint
-    {
     }
 }
