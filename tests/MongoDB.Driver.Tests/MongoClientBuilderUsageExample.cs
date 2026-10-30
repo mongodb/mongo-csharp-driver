@@ -56,12 +56,30 @@ namespace MongoDB.Driver.Tests
                 .Build();
         }
 
+        // The target is chosen by the factory method, and the factories only accept compatible combinations.
+        public void ChoosingTheTarget()
+        {
+            // Seed list, the topology is discovered (standalone server, replica set or sharded cluster).
+            MongoClientBuilder.FromEndPoint("mongo-1.example.com");
+            // Seed list, the topology is discovered (standalone server, replica set or sharded cluster).
+            MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com:27018"]);
+            // Replica set: the name is verified.
+            MongoClientBuilder.ReplicaSet(["mongo-1.example.com", "mongo-2.example.com"], "rs0");
+            // A single server, without topology discovery.
+            MongoClientBuilder.DirectConnection("localhost:27017");
+            // A load balancer in front of the deployment.
+            MongoClientBuilder.LoadBalanced("lb.example.com");
+            // mongodb+srv, with SRV specific options.
+            MongoClientBuilder.FromSrv("cluster0.example.mongodb.net")
+                .Cluster(cluster => cluster.SrvMaxHosts = 3);
+        }
+
         // Username / password authentication with the mechanism negotiated with the server
         // (SCRAM-SHA-256, falling back to SCRAM-SHA-1).
         public IMongoClient UsernamePasswordAuthentication()
         {
-            return new MongoClientBuilder()
-                .Cluster(cluster => cluster.Servers = new[] { new DnsEndPoint("localhost", 27017) })
+            return MongoClientBuilder
+                .FromEndPoint("localhost:27017")
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Build();
         }
@@ -69,7 +87,8 @@ namespace MongoDB.Driver.Tests
         // MONGODB-OIDC with one of the built-in environments (for example, workload identity on Azure).
         public IMongoClient OidcAuthenticationWithBuiltInEnvironment()
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromSrv("cluster0.example.mongodb.net")
                 .Authentication(auth => auth.UseOidcCredential("azure", "my-client-id"))
                 .Build();
         }
@@ -78,7 +97,8 @@ namespace MongoDB.Driver.Tests
         // application gets it.
         public IMongoClient OidcAuthenticationWithCallback()
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromSrv("cluster0.example.mongodb.net")
                 .Authentication(auth => auth.UseOidcCredential(new MyOidcCallback()))
                 .Build();
         }
@@ -88,10 +108,9 @@ namespace MongoDB.Driver.Tests
         // fluent chain.
         public IMongoClient ConfiguringInnerBuildersDirectly()
         {
-            var builder = new MongoClientBuilder();
+            var builder = MongoClientBuilder.ReplicaSet(["mongo-1.example.com", "mongo-2.example.com"], "rs0");
 
             builder.Authentication().UseUsernamePassword("user", "pencil");
-            builder.Cluster().ReplicaSetName = "rs0";
             builder.Operations().ReadPreference = ReadPreference.SecondaryPreferred;
 
             return builder.Build();
@@ -101,7 +120,8 @@ namespace MongoDB.Driver.Tests
         // and the declared API version.
         public IMongoClient OperationsDefaults()
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromEndPoints(["localhost"])
                 .Operations(operations =>
                 {
                     operations.ServerSelectionTimeout = TimeSpan.FromSeconds(10);
@@ -118,7 +138,8 @@ namespace MongoDB.Driver.Tests
         // Network level settings: timeouts and wire compression.
         public IMongoClient NetworkSettings()
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromEndPoints(["localhost"])
                 .Network(network =>
                 {
                     network.ConnectTimeout = TimeSpan.FromSeconds(5);
@@ -132,7 +153,8 @@ namespace MongoDB.Driver.Tests
         // handlers can be registered for different event types.
         public IMongoClient Diagnostics(Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromEndPoints(["localhost"])
                 .Diagnostics(diagnostics =>
                 {
                     diagnostics.Logging = new LoggingSettings(loggerFactory);
@@ -145,7 +167,8 @@ namespace MongoDB.Driver.Tests
         // Automatic client-side field level encryption with a local master key.
         public IMongoClient AutoEncryption(byte[] localMasterKey)
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromEndPoints(["localhost"])
                 .AutoEncryption(encryption =>
                 {
                     encryption.KeyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
@@ -161,7 +184,8 @@ namespace MongoDB.Driver.Tests
         // environment, plus a named Azure provider configured through its options object.
         public IMongoClient AutoEncryptionWithCloudKms(string tenantId, string clientId, string clientSecret)
         {
-            return new MongoClientBuilder()
+            return MongoClientBuilder
+                .FromEndPoints(["localhost"])
                 .AutoEncryption(encryption =>
                 {
                     encryption.KeyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
@@ -179,17 +203,14 @@ namespace MongoDB.Driver.Tests
         // Everything at once, to show how the areas read side by side in a single chain.
         public IMongoClient FullyConfiguredClient()
         {
-            return new MongoClientBuilder()
-                .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
-                .Cluster(cluster =>
-                {
-                    cluster.Servers = new[]
-                    {
+            return MongoClientBuilder
+                .ReplicaSet(
+                    [
                         new DnsEndPoint("mongo-1.example.com", 27017),
                         new DnsEndPoint("mongo-2.example.com", 27017)
-                    };
-                    cluster.ReplicaSetName = "rs0";
-                })
+                    ],
+                    "rs0")
+                .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Tls(tls => tls.Enabled = true)
                 .ConnectionPool(pool => pool.MaxSize = 200)
