@@ -585,6 +585,10 @@ functions:
              echo "This platform does not support the ECS auth test, skipping..."
              exit 0
           fi
+          if [ "${FRAMEWORK}" != "net6.0" ]; then
+             echo "The ECS auth test runs only on net6.0, skipping..."
+             exit 0
+          fi
           ./evergreen/compile-sources.sh
           echo "Project Directory: $PROJECT_DIRECTORY"
           # SRC_DIRECTORY is workaround since EG_TOOLS expects "src" folder as a root
@@ -1969,22 +1973,17 @@ axes:
         display_name: "Ubuntu 24.04"
         variables:
           OS: "ubuntu-2404"
-          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
-          skip_EC2_auth_test: true
         run_on: ubuntu2404-small
       - id: "macos-14"
         display_name: "macOS 14.00"
         variables:
           OS: "macos-1400"
-          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
-          skip_EC2_auth_test: true
           skip_ECS_auth_test: true
         run_on: macos-14
       - id: "macos-14-arm64"
         display_name: "macOS 14.00 ARM"
         variables:
           OS: "macos-14-arm64"
-          skip_EC2_auth_test: true
           skip_ECS_auth_test: true
           skip_web_identity_auth_test: true
         run_on: macos-14-arm64
@@ -2612,15 +2611,9 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: aws-auth-tests-ubuntu-2204
-  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2204", framework: "net100" }
-  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
-  tasks:
-    - name: aws-auth-tests
-
-# run-mongodb-aws-ecs-test.sh pins net6.0 inside the ECS container, so this cell's framework must match it
+# The ECS test runs only on net6.0, the framework run-mongodb-aws-ecs-test.sh pins inside the ECS container
 - matrix_name: aws-auth-tests-ubuntu-2404
-  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2404", framework: "net60" }
+  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2404", framework: ["net60", "net100"] }
   display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   tasks:
     - name: aws-auth-tests
