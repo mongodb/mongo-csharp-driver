@@ -64,7 +64,11 @@ public sealed class NetworkBuilder
     /// as a fallback. Has no effect on servers given as an IP address. The default value is <c>false</c>,
     /// which tries IPv4 addresses first.
     /// </summary>
-    public bool IPv6 { get; set; }
+    public bool IPv6
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the size, in bytes, of each socket's receive buffer. Must be greater than zero.
@@ -95,7 +99,11 @@ public sealed class NetworkBuilder
     /// The delegate is called for every connection the client opens, including the ones used to monitor
     /// servers, possibly from several threads at once, so it must be thread-safe.
     /// </remarks>
-    public Action<Socket> SocketConfigurator { get; set; }
+    public Action<Socket> SocketConfigurator
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the socket read and write timeout. Must be infinite, or greater than or equal to zero.
@@ -111,5 +119,9 @@ public sealed class NetworkBuilder
     /// Gets or sets the SOCKS5 proxy the client connects through. The default value is <c>null</c>,
     /// which connects directly.
     /// </summary>
-    public Socks5ProxySettings Socks5Proxy { get; set; }
+    public Socks5ProxySettings Socks5Proxy
+    {
+        get;
+        set;
+    }
 }

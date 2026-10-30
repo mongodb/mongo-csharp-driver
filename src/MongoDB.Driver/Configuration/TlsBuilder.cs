@@ -37,7 +37,11 @@ public sealed class TlsBuilder
     /// Gets or sets the TLS protocol versions the client may negotiate with the server. The handshake uses
     /// the highest version supported by both sides. The default value is TLS 1.2 and TLS 1.3.
     /// </summary>
-    public SslProtocols AllowedProtocols { get; set; }
+    public SslProtocols AllowedProtocols
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether to relax TLS constraints as much as possible. Setting this
@@ -46,14 +50,22 @@ public sealed class TlsBuilder
     /// care; it is intended for testing against servers with self-signed certificates. The default value
     /// is <c>false</c>.
     /// </summary>
-    public bool AllowInsecure { get; set; }
+    public bool AllowInsecure
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether to check for certificate revocation. Cannot be combined with
     /// <see cref="AllowInsecure"/>; building the client fails if both are <c>true</c>. The default value is
     /// <c>false</c>.
     /// </summary>
-    public bool CheckCertificateRevocation { get; set; }
+    public bool CheckCertificateRevocation
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the client certificates presented to the server. The default value is <c>null</c>.
@@ -68,16 +80,28 @@ public sealed class TlsBuilder
     /// Gets or sets the callback used to select the client certificate presented to the server.
     /// The default value is <c>null</c>.
     /// </summary>
-    public LocalCertificateSelectionCallback ClientCertificateSelectionCallback { get; set; }
+    public LocalCertificateSelectionCallback ClientCertificateSelectionCallback
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether to connect using TLS. The default value is <c>false</c>.
     /// </summary>
-    public bool Enabled { get; set; }
+    public bool Enabled
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the callback used to validate the certificate presented by the server.
     /// The default value is <c>null</c>, which uses the default validation.
     /// </summary>
-    public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
+    public RemoteCertificateValidationCallback ServerCertificateValidationCallback
+    {
+        get;
+        set;
+    }
 }

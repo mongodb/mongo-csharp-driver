@@ -29,11 +29,19 @@ public sealed class TranslationBuilder
     /// Gets or sets the server version to target when translating expressions. The default value is
     /// <c>null</c>, which targets the newest supported behavior.
     /// </summary>
-    public ServerVersion? CompatibilityLevel { get; set; }
+    public ServerVersion? CompatibilityLevel
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets whether client side projections are enabled. The default value is <c>null</c>,
     /// which leaves the provider default in effect.
     /// </summary>
-    public bool? EnableClientSideProjections { get; set; }
+    public bool? EnableClientSideProjections
+    {
+        get;
+        set;
+    }
 }

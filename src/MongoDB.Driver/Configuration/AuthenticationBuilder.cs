@@ -34,5 +34,9 @@ public sealed class AuthenticationBuilder
     /// Gets or sets the credential used to authenticate with the server. The default value is
     /// <c>null</c>, which connects without authenticating.
     /// </summary>
-    public MongoCredential Credential { get; set; }
+    public MongoCredential Credential
+    {
+        get;
+        set;
+    }
 }

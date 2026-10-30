@@ -35,7 +35,11 @@ public sealed class DiagnosticsBuilder
     /// <summary>
     /// Gets or sets the logging settings. The default value is <c>null</c>, which disables logging.
     /// </summary>
-    public LoggingSettings Logging { get; set; }
+    public LoggingSettings Logging
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the tracing options for OpenTelemetry instrumentation. The default value is
@@ -43,7 +47,11 @@ public sealed class DiagnosticsBuilder
     /// subscribed to the driver's activity source, and the query text is not recorded. Set
     /// <see cref="TracingOptions.Disabled"/> to <c>true</c> to disable tracing for this client.
     /// </summary>
-    public TracingOptions Tracing { get; set; }
+    public TracingOptions Tracing
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Subscribes a handler to events of type <typeparamref name="TEvent"/>. Subscriptions accumulate:
