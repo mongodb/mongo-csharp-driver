@@ -22,7 +22,7 @@ using MongoDB.Driver.Core.Misc;
 namespace MongoDB.Driver.Configuration;
 
 /// <summary>
-/// Configures the endpoints a <see cref="MongoClient"/> connects to and the topology it expects.
+/// Describes the endpoints a <see cref="MongoClient"/> connects to and the topology it expects.
 /// </summary>
 public sealed class ClusterBuilder
 {
@@ -33,35 +33,38 @@ public sealed class ClusterBuilder
     }
 
     /// <summary>
-    /// Gets or sets whether the client connects directly to a single server rather than discovering
+    /// Gets whether the client connects directly to a single server rather than discovering
     /// and monitoring the topology it belongs to. The default value is <c>false</c>.
     /// </summary>
-    public bool DirectConnection { get; set; }
+    public bool DirectConnection { get; init; }
 
     /// <summary>
-    /// Gets or sets whether load balanced mode is used. The default value is <c>false</c>.
+    /// Gets whether load balanced mode is used. The default value is <c>false</c>.
     /// </summary>
-    public bool LoadBalanced { get; set; }
+    public bool LoadBalanced { get; init; }
 
     /// <summary>
-    /// Gets or sets the name of the replica set. The default value is <c>null</c>.
+    /// Gets the name of the replica set the servers are expected to belong to. The default value is <c>null</c>.
     /// </summary>
-    public string ReplicaSetName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the connection string scheme. The default value is
-    /// <see cref="ConnectionStringScheme.MongoDB"/>.
-    /// </summary>
-    public ConnectionStringScheme Scheme { get; set; }
-
-    /// <summary>
-    /// Gets or sets the list of server addresses. The default value is a single
-    /// <c>localhost:27017</c> address.
-    /// </summary>
-    public IEnumerable<EndPoint> Servers
+    public string ReplicaSetName
     {
         get;
-        set => field = new List<EndPoint>(Ensure.IsNotNull(value, nameof(Servers))).AsReadOnly();
+        init => field = Ensure.IsNotNullOrEmpty(value, nameof(ReplicaSetName));
+    }
+
+    /// <summary>
+    /// Gets the connection string scheme.
+    /// </summary>
+    public ConnectionStringScheme Scheme { get; init; }
+
+    /// <summary>
+    /// Gets the server end points. Only <see cref="DnsEndPoint"/> and <see cref="IPEndPoint"/> are supported.
+    /// With the <see cref="ConnectionStringScheme.MongoDBPlusSrv"/> scheme this is the single SRV host name.
+    /// </summary>
+    public IReadOnlyList<EndPoint> Servers
+    {
+        get;
+        init;
     }
 
     /// <summary>
