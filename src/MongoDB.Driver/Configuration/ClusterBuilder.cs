@@ -36,12 +36,20 @@ public sealed class ClusterBuilder
     /// Gets or sets whether the client connects directly to a single server rather than discovering
     /// and monitoring the topology it belongs to. The default value is <c>false</c>.
     /// </summary>
-    public bool DirectConnection { get; set; }
+    public bool DirectConnection
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets whether load balanced mode is used. The default value is <c>false</c>.
     /// </summary>
-    public bool LoadBalanced { get; set; }
+    public bool LoadBalanced
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the name of the replica set the servers are expected to belong to. The default value is <c>null</c>.
@@ -56,16 +64,21 @@ public sealed class ClusterBuilder
     /// Gets the connection string scheme. It is determined by the <see cref="MongoClientBuilder"/> factory method
     /// that created the builder.
     /// </summary>
-    public ConnectionStringScheme Scheme { get; internal set; }
+    public ConnectionStringScheme Scheme
+    {
+        get;
+        internal set;
+    }
 
     /// <summary>
-    /// Gets or sets the server end points. Only <see cref="DnsEndPoint"/> and <see cref="IPEndPoint"/> are supported.
+    /// Gets the server end points. Only <see cref="DnsEndPoint"/> and <see cref="IPEndPoint"/> are supported.
     /// With the <see cref="ConnectionStringScheme.MongoDBPlusSrv"/> scheme this is the single SRV host name.
+    /// They are determined by the <see cref="MongoClientBuilder"/> factory method that created the builder.
     /// </summary>
     public IReadOnlyList<EndPoint> Servers
     {
         get;
-        set;
+        internal set;
     }
 
     /// <summary>

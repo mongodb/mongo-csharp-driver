@@ -45,5 +45,9 @@ public sealed class ClientMetadataBuilder
     /// metadata sent during the handshake. Intended for ODMs and framework integrations rather than
     /// applications. The default value is <c>null</c>.
     /// </summary>
-    public LibraryInfo LibraryInfo { get; set; }
+    public LibraryInfo LibraryInfo
+    {
+        get;
+        set;
+    }
 }

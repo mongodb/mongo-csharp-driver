@@ -56,13 +56,21 @@ public sealed class AutoEncryptionBuilder
     /// Gets or sets a value indicating whether to bypass automatic encryption. Decryption still occurs.
     /// The default value is <c>false</c>.
     /// </summary>
-    public bool BypassAutoEncryption { get; set; }
+    public bool BypassAutoEncryption
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether to bypass query analysis, which removes the need for
     /// mongocryptd or the crypt shared library. The default value is <c>null</c>.
     /// </summary>
-    public bool? BypassQueryAnalysis { get; set; }
+    public bool? BypassQueryAnalysis
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets options passed through to libmongocrypt, such as the mongocryptd spawn arguments.
@@ -79,13 +87,21 @@ public sealed class AutoEncryptionBuilder
     /// Gets or sets how long a data key may be cached before it is fetched from the key vault again.
     /// The default value is <c>null</c>, which uses the libmongocrypt default of 60 seconds.
     /// </summary>
-    public TimeSpan? KeyExpiration { get; set; }
+    public TimeSpan? KeyExpiration
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the client used to access the key vault. The default value is <c>null</c>, which
     /// uses the client being built.
     /// </summary>
-    public IMongoClient KeyVaultClient { get; set; }
+    public IMongoClient KeyVaultClient
+    {
+        get;
+        set;
+    }
 
     /// <summary>
     /// Gets or sets the collection holding the data keys. Required.
@@ -100,7 +116,11 @@ public sealed class AutoEncryptionBuilder
     /// Gets or sets the connector used to open connections to KMS hosts. The default value is
     /// <c>null</c>, which connects directly.
     /// </summary>
-    public IKmsConnector KmsConnector { get; set; }
+    public IKmsConnector KmsConnector
+    {
+        get;
+        set;
+    }
 
     // TODO: reevaluate taking SslSettings here and on the per-provider KMS options (AwsKmsProviderOptions etc.).
     // Cluster TLS is flattened into TlsBuilder, so KMS TLS is the only remaining place SslSettings appears on
