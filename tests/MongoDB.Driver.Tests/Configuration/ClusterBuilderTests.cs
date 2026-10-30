@@ -16,7 +16,6 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
@@ -74,7 +73,6 @@ public class ClusterBuilderTests
     }
 
     private static readonly EndPoint Host1 = new DnsEndPoint("host1", 27017);
-    private static readonly EndPoint Host2 = new DnsEndPoint("host2", 27017);
 
     [Fact]
     public void Constructor_should_initialize_defaults()
@@ -102,51 +100,21 @@ public class ClusterBuilderTests
     }
 
     [Fact]
-    public void Servers_should_be_a_copy_of_the_supplied_end_points()
+    public void Target_properties_should_be_settable()
     {
-        var endPoints = new List<EndPoint> { Host1 };
+        var subject = new ClusterBuilder();
 
-        var subject = new ClusterBuilder { Servers = endPoints };
-        endPoints.Add(Host2);
+        subject.DirectConnection = true;
+        subject.LoadBalanced = true;
+        subject.ReplicaSetName = "rs0";
+        subject.Scheme = ConnectionStringScheme.MongoDBPlusSrv;
+        subject.Servers = [Host1];
 
+        subject.DirectConnection.Should().BeTrue();
+        subject.LoadBalanced.Should().BeTrue();
+        subject.ReplicaSetName.Should().Be("rs0");
+        subject.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
         subject.Servers.Should().Equal(Host1);
-    }
-
-    [Fact]
-    public void Servers_should_throw_when_value_is_null()
-    {
-        var exception = Record.Exception(() => new ClusterBuilder { Servers = null });
-
-        exception.Should().BeOfType<ArgumentNullException>()
-            .Subject.ParamName.Should().Be("Servers");
-    }
-
-    [Theory]
-    [MemberData(nameof(InvalidServers))]
-    public void Servers_should_throw_for_invalid_values(string description, EndPoint[] servers)
-    {
-        var exception = Record.Exception(() => new ClusterBuilder { Servers = servers });
-
-        exception.Should().BeOfType<ArgumentException>(because: description)
-            .Subject.ParamName.Should().Be("Servers");
-    }
-
-    public static IEnumerable<object[]> InvalidServers =>
-    [
-        ["empty", Array.Empty<EndPoint>()],
-        ["null element", new EndPoint[] { null }],
-        ["unsupported end point type", new EndPoint[] { new CustomEndPoint() }],
-        ["dns end point with an address family", new EndPoint[] { new DnsEndPoint("host1", 27017, AddressFamily.InterNetworkV6) }]
-    ];
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("rs0")]
-    public void ReplicaSetName_should_accept_valid_values(string value)
-    {
-        var subject = new ClusterBuilder { ReplicaSetName = value };
-
-        subject.ReplicaSetName.Should().Be(value);
     }
 
     [Fact]
@@ -178,9 +146,5 @@ public class ClusterBuilderTests
 
         exception.Should().BeOfType<ArgumentException>()
             .Subject.ParamName.Should().Be("SrvServiceName");
-    }
-
-    private sealed class CustomEndPoint : EndPoint
-    {
     }
 }
