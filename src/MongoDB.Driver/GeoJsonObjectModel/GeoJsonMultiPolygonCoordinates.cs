@@ -30,7 +30,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonMultiPolygonCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private ReadOnlyCollection<GeoJsonPolygonCoordinates<TCoordinates>> _polygons;
+        private readonly ReadOnlyCollection<GeoJsonPolygonCoordinates<TCoordinates>> _polygons;
 
         // constructors
         /// <summary>

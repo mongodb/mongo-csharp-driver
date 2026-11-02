@@ -27,8 +27,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonTimeOnlyOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private BsonType _representation;
-        private TimeOnlyUnits _units;
+        private readonly BsonType _representation;
+        private readonly TimeOnlyUnits _units;
 
         // constructors
         /// <summary>

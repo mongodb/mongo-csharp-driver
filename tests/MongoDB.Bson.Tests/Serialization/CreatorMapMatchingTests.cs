@@ -35,9 +35,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class TBsonConstructor
         {
-            private int _chosen;
-            private int _x;
-            private int _y;
+            private readonly int _chosen;
+            private readonly int _x;
+            private readonly int _y;
 
             [BsonConstructor]
             public TBsonConstructor()
@@ -157,9 +157,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class TDelegate
         {
-            private int _chosen;
-            private int _x;
-            private int _y;
+            private readonly int _chosen;
+            private readonly int _x;
+            private readonly int _y;
 
             public TDelegate()
             {
@@ -223,9 +223,9 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class TExpressionCallingConstructor
         {
-            private int _chosen;
-            private int _x;
-            private int _y;
+            private readonly int _chosen;
+            private readonly int _x;
+            private readonly int _y;
 
             public TExpressionCallingConstructor()
             {
@@ -450,7 +450,7 @@ namespace MongoDB.Bson.Tests.Serialization
         public class TBaseClass
         {
             protected int _chosen;
-            private int _x;
+            private readonly int _x;
 
             [BsonConstructor]
             public TBaseClass()
@@ -473,7 +473,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class TDerivedClass : TBaseClass
         {
-            private int _y;
+            private readonly int _y;
             private int _z;
 
             [BsonConstructor]

@@ -90,7 +90,7 @@ namespace MongoDB.Driver
         /// </summary>
         public class Unacknowledged : DeleteResult
         {
-            private static Unacknowledged __instance = new Unacknowledged();
+            private static readonly Unacknowledged __instance = new Unacknowledged();
 
             /// <summary>
             /// Gets the instance.

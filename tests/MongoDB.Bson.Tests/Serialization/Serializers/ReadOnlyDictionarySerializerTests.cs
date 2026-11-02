@@ -61,7 +61,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
         public class CustomIReadOnlyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
         {
-            private ReadOnlyDictionary<TKey, TValue> _map;
+            private readonly ReadOnlyDictionary<TKey, TValue> _map;
 
             public CustomIReadOnlyDictionary(IDictionary<TKey, TValue> map)
             {

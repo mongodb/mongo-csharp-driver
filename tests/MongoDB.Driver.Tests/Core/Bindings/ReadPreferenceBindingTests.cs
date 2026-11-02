@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadPreferenceBindingTests
     {
-        private Mock<IClusterInternal> _mockCluster;
+        private readonly Mock<IClusterInternal> _mockCluster;
 
         public ReadPreferenceBindingTests()
         {

@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Authentication.External
     internal sealed class ExternalCredentialsAuthenticators
     {
         #region static
-        private static Lazy<ExternalCredentialsAuthenticators> __instance = new Lazy<ExternalCredentialsAuthenticators>(() => new ExternalCredentialsAuthenticators(), isThreadSafe: true);
+        private static readonly Lazy<ExternalCredentialsAuthenticators> __instance = new Lazy<ExternalCredentialsAuthenticators>(() => new ExternalCredentialsAuthenticators(), isThreadSafe: true);
         // public static
         public static ExternalCredentialsAuthenticators Instance => __instance.Value;
         #endregion

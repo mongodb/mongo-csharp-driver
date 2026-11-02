@@ -29,13 +29,13 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class MongoBulkWriteOperationExceptionTests
     {
-        private ConnectionId _connectionId;
-        private List<WriteRequest> _processedRequests;
-        private BulkWriteOperationResult _result;
-        private List<WriteRequest> _unprocessedRequests;
-        private List<BulkWriteOperationUpsert> _upserts;
-        private List<BulkWriteOperationError> _writeErrors;
-        private BulkWriteConcernError _writeConcernError;
+        private readonly ConnectionId _connectionId;
+        private readonly List<WriteRequest> _processedRequests;
+        private readonly BulkWriteOperationResult _result;
+        private readonly List<WriteRequest> _unprocessedRequests;
+        private readonly List<BulkWriteOperationUpsert> _upserts;
+        private readonly List<BulkWriteOperationError> _writeErrors;
+        private readonly BulkWriteConcernError _writeConcernError;
 
         public MongoBulkWriteOperationExceptionTests()
         {

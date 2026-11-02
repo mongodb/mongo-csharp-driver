@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Core.Operations
         private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
         private int _maxAdaptiveRetries;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private bool? _nameOnly;
         private bool _retryRequested;
 

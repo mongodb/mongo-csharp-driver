@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 {
     internal sealed class AstUnsetStage : AstStage
     {
-        private IReadOnlyList<string> _fields;
+        private readonly IReadOnlyList<string> _fields;
 
         public AstUnsetStage(IEnumerable<string> fields)
         {

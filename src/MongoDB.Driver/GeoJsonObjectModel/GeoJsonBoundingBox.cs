@@ -27,8 +27,8 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonBoundingBox<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private TCoordinates _max;
-        private TCoordinates _min;
+        private readonly TCoordinates _max;
+        private readonly TCoordinates _min;
 
         // constructors
         /// <summary>

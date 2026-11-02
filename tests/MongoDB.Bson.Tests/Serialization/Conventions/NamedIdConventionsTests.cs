@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class NamedIdConventionsTests
     {
-        private NamedIdMemberConvention _subject;
+        private readonly NamedIdMemberConvention _subject;
 
         public NamedIdConventionsTests()
         {

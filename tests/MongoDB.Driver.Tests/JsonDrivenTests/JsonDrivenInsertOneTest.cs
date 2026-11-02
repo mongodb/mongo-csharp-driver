@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private BsonDocument _document;
-        private InsertOneOptions _options = new InsertOneOptions();
+        private readonly InsertOneOptions _options = new InsertOneOptions();
         private IClientSessionHandle _session;
 
         // public constructors

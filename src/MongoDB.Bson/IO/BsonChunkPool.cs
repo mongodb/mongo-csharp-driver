@@ -227,8 +227,8 @@ namespace MongoDB.Bson.IO
 
         private sealed class ReferenceCountedChunk
         {
-            private byte[] _chunk;
-            private BsonChunkPool _pool;
+            private readonly byte[] _chunk;
+            private readonly BsonChunkPool _pool;
             private int _referenceCount;
 
             public ReferenceCountedChunk(byte[] chunk, BsonChunkPool pool)

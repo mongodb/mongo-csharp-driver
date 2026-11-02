@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         private static WriteConcernError __writeConcernError;
         private static WriteError __writeError;
         private static bool __oneTimeSetupHasRun = false;
-        private static object __oneTimeSetupLock = new object();
+        private static readonly object __oneTimeSetupLock = new object();
 
         public MongoWriteExceptionTests()
         {

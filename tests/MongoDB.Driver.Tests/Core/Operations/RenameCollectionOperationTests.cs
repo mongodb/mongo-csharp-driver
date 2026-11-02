@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Core.Operations
     public class RenameCollectionOperationTests : OperationTestBase
     {
         // fields
-        private CollectionNamespace _newCollectionNamespace;
+        private readonly CollectionNamespace _newCollectionNamespace;
 
         // constructors
         public RenameCollectionOperationTests()

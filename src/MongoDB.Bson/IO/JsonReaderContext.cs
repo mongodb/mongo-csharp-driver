@@ -18,8 +18,8 @@ namespace MongoDB.Bson.IO
     internal class JsonReaderContext
     {
         // private fields
-        private JsonReaderContext _parentContext;
-        private ContextType _contextType;
+        private readonly JsonReaderContext _parentContext;
+        private readonly ContextType _contextType;
 
         // constructors
         // used by Clone

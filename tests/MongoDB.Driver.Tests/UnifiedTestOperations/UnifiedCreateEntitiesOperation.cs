@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
     public sealed class UnifiedCreateEntitiesOperation : IUnifiedSpecialTestOperation
     {
         private readonly BsonArray _entities;
-        private UnifiedEntityMap _entityMap;
+        private readonly UnifiedEntityMap _entityMap;
 
         public UnifiedCreateEntitiesOperation(UnifiedEntityMap entityMap, BsonArray entities)
         {

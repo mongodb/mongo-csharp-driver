@@ -35,11 +35,11 @@ namespace MongoDB.Driver.Tests
     public static class DriverTestConfiguration
     {
         // private static fields
-        private static Lazy<IMongoClient> __client;
-        private static Lazy<IMongoClient> __clientWithMultipleShardRouters;
-        private static CollectionNamespace __collectionNamespace;
-        private static DatabaseNamespace __databaseNamespace;
-        private static Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
+        private static readonly Lazy<IMongoClient> __client;
+        private static readonly Lazy<IMongoClient> __clientWithMultipleShardRouters;
+        private static readonly CollectionNamespace __collectionNamespace;
+        private static readonly DatabaseNamespace __databaseNamespace;
+        private static readonly Lazy<IReadOnlyList<IMongoClient>> __directClientsToShardRouters;
 
         // static constructor
         static DriverTestConfiguration()

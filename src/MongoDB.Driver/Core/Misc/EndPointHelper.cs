@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Core.Misc
     public static class EndPointHelper
     {
         // static fields
-        private static IEqualityComparer<EndPoint> __endPointEqualityComparer = new EndPointEqualityComparerImpl();
+        private static readonly IEqualityComparer<EndPoint> __endPointEqualityComparer = new EndPointEqualityComparerImpl();
 
         // static properties
         /// <summary>

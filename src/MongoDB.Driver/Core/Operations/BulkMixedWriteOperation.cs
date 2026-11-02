@@ -318,7 +318,7 @@ namespace MongoDB.Driver.Core.Operations
             private bool _hasWriteErrors;
             private readonly bool _isOrdered;
             private List<WriteRequestWithIndex> _unprocessed;
-            private WriteConcern _writeConcern;
+            private readonly WriteConcern _writeConcern;
 
             // constructors
             public BatchHelper(IEnumerable<WriteRequest> requests, bool ordered, WriteConcern writeConcern)

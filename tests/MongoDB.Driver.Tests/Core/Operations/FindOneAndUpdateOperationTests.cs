@@ -31,9 +31,9 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class FindOneAndUpdateOperationTests : OperationTestBase
     {
-        private BsonDocument _filter;
-        private IBsonSerializer<BsonDocument> _findAndModifyValueDeserializer;
-        private BsonDocument _update;
+        private readonly BsonDocument _filter;
+        private readonly IBsonSerializer<BsonDocument> _findAndModifyValueDeserializer;
+        private readonly BsonDocument _update;
 
         public FindOneAndUpdateOperationTests()
         {

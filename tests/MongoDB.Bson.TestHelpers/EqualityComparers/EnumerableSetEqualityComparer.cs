@@ -23,7 +23,7 @@ namespace MongoDB.Bson.TestHelpers.EqualityComparers
 {
     public class EnumerableSetEqualityComparer<T> : IEqualityComparer<IEnumerable<T>>
     {
-        private IEqualityComparer<T> _comparer;
+        private readonly IEqualityComparer<T> _comparer;
 
         public EnumerableSetEqualityComparer(IEqualityComparer<T> comparer)
         {

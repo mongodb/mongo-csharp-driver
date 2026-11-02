@@ -29,14 +29,14 @@ namespace MongoDB.Driver.Core.Tests.Core.Misc
     {
         private static readonly IBsonSerializer<int> __itemSerializer1 = new Int32Serializer(BsonType.Int32);
         private static readonly IBsonSerializer<int> __itemSerializer2 = new Int32Serializer(BsonType.String);
-        private static IElementNameValidator __itemElementNameValidator1 = new NoOpElementNameValidator();
-        private static IElementNameValidator __itemElementNameValidator2 = new UpdateElementNameValidator();
-        private static int __maxBatchCount1 = 1;
-        private static int __maxBatchCount2 = 2;
-        private static int __maxBatchSize1 = 1;
-        private static int __maxBatchSize2 = 2;
-        private static int __maxItemSize1 = 1;
-        private static int __maxItemSize2 = 2;
+        private static readonly IElementNameValidator __itemElementNameValidator1 = new NoOpElementNameValidator();
+        private static readonly IElementNameValidator __itemElementNameValidator2 = new UpdateElementNameValidator();
+        private static readonly int __maxBatchCount1 = 1;
+        private static readonly int __maxBatchCount2 = 2;
+        private static readonly int __maxBatchSize1 = 1;
+        private static readonly int __maxBatchSize2 = 2;
+        private static readonly int __maxItemSize1 = 1;
+        private static readonly int __maxItemSize2 = 2;
 
         [Fact]
         public void Equals_derived_should_return_false()

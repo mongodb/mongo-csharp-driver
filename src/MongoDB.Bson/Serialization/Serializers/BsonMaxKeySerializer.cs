@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class BsonMaxKeySerializer : BsonValueSerializerBase<BsonMaxKey>
     {
         // private static fields
-        private static BsonMaxKeySerializer __instance = new BsonMaxKeySerializer();
+        private static readonly BsonMaxKeySerializer __instance = new BsonMaxKeySerializer();
 
         // constructors
         /// <summary>

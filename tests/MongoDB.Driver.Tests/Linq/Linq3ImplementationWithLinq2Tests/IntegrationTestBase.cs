@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests
         protected static IMongoCollection<Root> __customCollection;
         protected static List<Root> __customDocuments;
 
-        private static ConcurrentDictionary<Type, bool> __oneTimeSetupTracker = new ConcurrentDictionary<Type, bool>();
+        private static readonly ConcurrentDictionary<Type, bool> __oneTimeSetupTracker = new ConcurrentDictionary<Type, bool>();
 
         protected IntegrationTestBase()
         {

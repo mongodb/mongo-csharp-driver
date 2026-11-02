@@ -1612,7 +1612,7 @@ namespace MongoDB.Driver
         private readonly FieldDefinition<TDocument> _field;
         private readonly int? _position;
         private readonly int? _slice;
-        private SortDefinition<TItem> _sort;
+        private readonly SortDefinition<TItem> _sort;
         private readonly List<TItem> _values;
 
         public PushUpdateDefinition(FieldDefinition<TDocument> field, IEnumerable<TItem> values, int? slice = null, int? position = null, SortDefinition<TItem> sort = null)

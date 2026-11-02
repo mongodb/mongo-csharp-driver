@@ -149,7 +149,7 @@ namespace MongoDB.Driver
     [Obsolete("Use Aggregation pipeline instead.")]
     public abstract class MapReduceOutputOptions
     {
-        private static MapReduceOutputOptions __inline = new InlineOutput();
+        private static readonly MapReduceOutputOptions __inline = new InlineOutput();
 
         private MapReduceOutputOptions()
         { }

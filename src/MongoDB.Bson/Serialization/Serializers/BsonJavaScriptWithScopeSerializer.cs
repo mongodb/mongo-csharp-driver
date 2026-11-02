@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class BsonJavaScriptWithScopeSerializer : BsonValueSerializerBase<BsonJavaScriptWithScope>
     {
         // private static fields
-        private static BsonJavaScriptWithScopeSerializer __instance = new BsonJavaScriptWithScopeSerializer();
+        private static readonly BsonJavaScriptWithScopeSerializer __instance = new BsonJavaScriptWithScopeSerializer();
 
         // constructors
         /// <summary>

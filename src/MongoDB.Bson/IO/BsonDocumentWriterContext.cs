@@ -18,11 +18,11 @@ namespace MongoDB.Bson.IO
     internal class BsonDocumentWriterContext
     {
         // private fields
-        private BsonDocumentWriterContext _parentContext;
-        private ContextType _contextType;
-        private BsonDocument _document;
-        private BsonArray _array;
-        private string _code;
+        private readonly BsonDocumentWriterContext _parentContext;
+        private readonly ContextType _contextType;
+        private readonly BsonDocument _document;
+        private readonly BsonArray _array;
+        private readonly string _code;
         private string _name;
 
         // constructors

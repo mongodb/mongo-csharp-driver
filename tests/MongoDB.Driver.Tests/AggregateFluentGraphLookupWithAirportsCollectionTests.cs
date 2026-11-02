@@ -31,10 +31,10 @@ namespace MongoDB.Driver.Tests
     {
         #region static
         // private static fields
-        private static IMongoCollection<Airport> __airportsCollection;
-        private static IMongoDatabase __database;
-        private static Lazy<bool> __ensureTestData;
-        private static IMongoCollection<Traveler> __travelersCollection;
+        private static readonly IMongoCollection<Airport> __airportsCollection;
+        private static readonly IMongoDatabase __database;
+        private static readonly Lazy<bool> __ensureTestData;
+        private static readonly IMongoCollection<Traveler> __travelersCollection;
 
         private static Airport __jfk, __bos, __ord, __pwm, __lhr;
         private static Traveler __dev, __eliot, __jeff;

@@ -23,8 +23,8 @@ namespace MongoDB.Driver
     /// <typeparam name="TId">The type of the identifier.</typeparam>
     public sealed class AggregateSortByCountResult<TId>
     {
-        private long _count;
-        private TId _id;
+        private readonly long _count;
+        private readonly TId _id;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregateCountResult" /> class.

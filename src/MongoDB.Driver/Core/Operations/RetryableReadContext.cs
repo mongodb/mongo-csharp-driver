@@ -32,8 +32,8 @@ namespace MongoDB.Driver.Core.Operations
         private bool _disposed;
         private readonly bool _enableOverloadRetargeting;
         private readonly int _maxAdaptiveRetries;
-        private bool _retryRequested;
-        private IRandom _random;
+        private readonly bool _retryRequested;
+        private readonly IRandom _random;
 
         public RetryableReadContext(IReadBinding binding, bool retryRequested, int maxAdaptiveRetries, bool enableOverloadRetargeting, IRandom random = null)
         {

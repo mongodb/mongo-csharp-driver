@@ -37,13 +37,13 @@ namespace MongoDB.Driver.Tests
 {
     public class OfTypeMongoCollectionTests
     {
-        private BsonDocument _ofTypeFilter;
-        private BsonDocument _expectedFilter;
-        private BsonDocument _providedFilter;
-        private Mock<IMongoCollection<A>> _mockRootCollection;
-        private Mock<IMongoCollection<B>> _mockDerivedCollection;
-        private IMongoCollection<A> _rootCollection;
-        private IMongoCollection<B> _derivedCollection;
+        private readonly BsonDocument _ofTypeFilter;
+        private readonly BsonDocument _expectedFilter;
+        private readonly BsonDocument _providedFilter;
+        private readonly Mock<IMongoCollection<A>> _mockRootCollection;
+        private readonly Mock<IMongoCollection<B>> _mockDerivedCollection;
+        private readonly IMongoCollection<A> _rootCollection;
+        private readonly IMongoCollection<B> _derivedCollection;
 
         public OfTypeMongoCollectionTests()
         {

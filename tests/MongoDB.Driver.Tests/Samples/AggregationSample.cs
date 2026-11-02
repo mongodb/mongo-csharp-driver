@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Samples
     {
         private static IMongoCollection<ZipEntry> __collection;
         private static bool __oneTimeSetupHasRun = false;
-        private static object __oneTimeSetupLock = new object();
+        private static readonly object __oneTimeSetupLock = new object();
 
         public AggregationSample()
         {

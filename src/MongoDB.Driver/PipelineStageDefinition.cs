@@ -58,9 +58,9 @@ namespace MongoDB.Driver
     /// <typeparam name="TOutput">The type of the output.</typeparam>
     public class RenderedPipelineStageDefinition<TOutput> : IRenderedPipelineStageDefinition
     {
-        private string _operatorName;
-        private IReadOnlyList<BsonDocument> _documents;
-        private IBsonSerializer<TOutput> _outputSerializer;
+        private readonly string _operatorName;
+        private readonly IReadOnlyList<BsonDocument> _documents;
+        private readonly IBsonSerializer<TOutput> _outputSerializer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderedPipelineStageDefinition{TOutput}"/> class.

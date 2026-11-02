@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         #region static
         // private static fields
-        private static IBsonSerializer<BsonDocument> __findCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
+        private static readonly IBsonSerializer<BsonDocument> __findCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
             "cursor", new PartiallyRawBsonDocumentSerializer(
                 "firstBatch", new RawBsonArraySerializer()));
         #endregion

@@ -45,8 +45,8 @@ namespace MongoDB.Driver.Tests
             "getnonce"
         };
 
-        private string _collectionName = "test";
-        private string _databaseName = "test";
+        private readonly string _collectionName = "test";
+        private readonly string _databaseName = "test";
 
         public PinnedShardRouterTests(ITestOutputHelper output) : base(output)
         {

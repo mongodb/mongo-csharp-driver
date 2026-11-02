@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
 {
     public sealed class UnifiedLogMatcher
     {
-        private UnifiedValueMatcher _valueMatcher;
+        private readonly UnifiedValueMatcher _valueMatcher;
 
         public UnifiedLogMatcher(UnifiedValueMatcher valueMatcher)
         {

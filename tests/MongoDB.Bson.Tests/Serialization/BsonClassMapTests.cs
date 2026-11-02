@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests.Serialization
 #pragma warning disable 649 // never assigned to
         private class A
         {
-            private int fieldNotMapped;
+            private readonly int fieldNotMapped;
             public readonly int FieldNotMapped2;
             public int FieldMapped;
             [BsonElement("FieldMappedByAttribute")]
@@ -104,7 +104,7 @@ namespace MongoDB.Bson.Tests.Serialization
 #pragma warning disable 169 // never used
         private class C
         {
-            private string f;
+            private readonly string f;
             private string p { get; set; }
         }
 #pragma warning restore

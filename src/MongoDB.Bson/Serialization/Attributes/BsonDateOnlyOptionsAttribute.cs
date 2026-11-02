@@ -27,8 +27,8 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonDateOnlyOptionsAttribute : BsonSerializationOptionsAttribute
     {
         // private fields
-        private BsonType _representation;
-        private DateOnlyDocumentFormat _documentFormat;
+        private readonly BsonType _representation;
+        private readonly DateOnlyDocumentFormat _documentFormat;
 
         // constructors
 

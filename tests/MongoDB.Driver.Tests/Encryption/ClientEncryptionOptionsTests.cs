@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.Encryption
 {
     public class ClientEncryptionOptionsTests
     {
-        private static CollectionNamespace __keyVaultNamespace = CollectionNamespace.FromFullName("db.coll");
+        private static readonly CollectionNamespace __keyVaultNamespace = CollectionNamespace.FromFullName("db.coll");
 
         [Fact]
         public void Ctor_should_throw_when_keyVaultClient_is_null()

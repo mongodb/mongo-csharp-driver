@@ -27,8 +27,8 @@ namespace MongoDB.Driver.Tests.Authentication.Libgssapi
     [Trait("Category", "GssapiMechanism")]
     public class GssapiSecurityCredentialTests
     {
-        private string _username;
-        private string _password;
+        private readonly string _username;
+        private readonly string _password;
 
         public GssapiSecurityCredentialTests()
         {

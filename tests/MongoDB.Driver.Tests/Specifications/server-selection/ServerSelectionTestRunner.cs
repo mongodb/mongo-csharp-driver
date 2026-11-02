@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_selection
 {
     public class ServerSelectionTestRunner
     {
-        private ClusterId _clusterId = new ClusterId();
+        private readonly ClusterId _clusterId = new ClusterId();
 
         [Theory]
         [ClassData(typeof(TestCaseFactory))]

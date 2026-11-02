@@ -31,8 +31,8 @@ namespace MongoDB.Driver
         private static readonly Regex __serverAddressRegex = new Regex($@"^(?<host>{HostPattern})(:(?<port>\d+))?$", RegexOptions.Compiled);
 
         // private fields
-        private string _host;
-        private int _port;
+        private readonly string _host;
+        private readonly int _port;
 
         // constructors
         /// <summary>

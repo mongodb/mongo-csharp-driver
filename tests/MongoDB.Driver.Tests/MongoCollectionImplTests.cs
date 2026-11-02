@@ -44,7 +44,7 @@ namespace MongoDB.Driver
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(0), new DnsEndPoint("localhost", 27017)), 0);
         private readonly ReadConcern _readConcern = ReadConcern.Majority;
-        private MockOperationExecutor _operationExecutor;
+        private readonly MockOperationExecutor _operationExecutor;
 
         public MongoCollectionImplTests()
         {

@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class ScalarValueObjectSerializationTests
     {
-        private static object[] __scalarValues = new object[]
+        private static readonly object[] __scalarValues = new object[]
         {
             new BsonBinaryData(new byte[] { 1, 2, 3 }),
             true,

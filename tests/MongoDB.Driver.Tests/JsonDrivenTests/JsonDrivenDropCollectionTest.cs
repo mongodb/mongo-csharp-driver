@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private string _collectionName;
-        private DropCollectionOptions _dropCollectionOptions;
+        private readonly DropCollectionOptions _dropCollectionOptions;
 
         // public constructors
         public JsonDrivenDropCollectionTest(IMongoDatabase database, Dictionary<string, object> objectMap)

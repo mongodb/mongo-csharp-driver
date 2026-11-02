@@ -310,8 +310,8 @@ public static class PolymorphicFindWithCastFilterTestsExpressionCombiner
 
     public class ParameterUpdateVisitor : System.Linq.Expressions.ExpressionVisitor
     {
-        private ParameterExpression _oldParameter;
-        private ParameterExpression _newParameter;
+        private readonly ParameterExpression _oldParameter;
+        private readonly ParameterExpression _newParameter;
 
         public ParameterUpdateVisitor(ParameterExpression oldParameter, ParameterExpression newParameter)
         {

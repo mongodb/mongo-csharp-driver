@@ -21,7 +21,7 @@ namespace MongoDB.Bson
 {
     internal class BsonDefaultsRegistry : IBsonDefaults
     {
-        private IBsonSerializationDomain _serializationDomain;
+        private readonly IBsonSerializationDomain _serializationDomain;
         private bool _dynamicArraySerializerWasSet;
         private IBsonSerializer _dynamicArraySerializer;
         private bool _dynamicDocumentSerializerWasSet;

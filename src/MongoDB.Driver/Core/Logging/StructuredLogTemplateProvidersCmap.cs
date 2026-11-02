@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static partial class StructuredLogTemplateProviders
     {
-        private static string[] __cmapCommonParams = new[]
+        private static readonly string[] __cmapCommonParams = new[]
         {
             TopologyId,
             ServerHost,

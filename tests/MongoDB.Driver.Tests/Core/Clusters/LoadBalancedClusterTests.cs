@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Tests.Core.Clusters
 {
     public class LoadBalancedClusterTests : LoggableTestClass
     {
-        private EventCapturer _capturedEvents;
+        private readonly EventCapturer _capturedEvents;
         private readonly MockClusterableServerFactory _mockServerFactory;
         private ClusterSettings _settings;
         private readonly EndPoint _endPoint = new DnsEndPoint("localhost", 27017);

@@ -25,8 +25,8 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class ConventionRunnerTests
     {
-        private ConventionPack _pack;
-        private ConventionRunner _subject;
+        private readonly ConventionPack _pack;
+        private readonly ConventionRunner _subject;
 
         public ConventionRunnerTests()
         {

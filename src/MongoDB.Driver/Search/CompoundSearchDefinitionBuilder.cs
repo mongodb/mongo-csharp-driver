@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Search
         private List<SearchDefinition<TDocument>> _should;
         private List<SearchDefinition<TDocument>> _filter;
         private int _minimumShouldMatch = 0;
-        private SearchScoreDefinition<TDocument> _score;
+        private readonly SearchScoreDefinition<TDocument> _score;
         private List<string> _doesNotAffect;
 
         /// <summary>

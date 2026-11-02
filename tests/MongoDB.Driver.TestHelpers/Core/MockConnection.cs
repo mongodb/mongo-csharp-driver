@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Core.TestHelpers
     internal sealed class MockConnection : IConnectionHandle
     {
         // fields
-        private ConnectionId _connectionId;
+        private readonly ConnectionId _connectionId;
         private readonly ConnectionSettings _connectionSettings;
         private bool? _isExpired;
         private readonly TaskCompletionSource<bool> _isExpiredTaskCompletionSource;

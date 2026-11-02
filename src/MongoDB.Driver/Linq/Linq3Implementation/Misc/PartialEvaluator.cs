@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
     internal static class PartialEvaluator
     {
         #region static
-        private static Type[] __customLinqExtensionMethodClasses = new[]
+        private static readonly Type[] __customLinqExtensionMethodClasses = new[]
         {
             typeof(DateTimeExtensions),
             typeof(LinqExtensions),

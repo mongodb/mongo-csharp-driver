@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class StringObjectIdIdGeneratorConventionsTests
     {
-        private StringObjectIdIdGeneratorConvention _subject;
+        private readonly StringObjectIdIdGeneratorConvention _subject;
 
         public StringObjectIdIdGeneratorConventionsTests()
         {

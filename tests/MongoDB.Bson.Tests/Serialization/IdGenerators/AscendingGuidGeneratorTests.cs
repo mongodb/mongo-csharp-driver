@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Tests.Serialization
 {
     public class AscendingGuidGeneratorTests
     {
-        private AscendingGuidGenerator _generator = new AscendingGuidGenerator();
+        private readonly AscendingGuidGenerator _generator = new AscendingGuidGenerator();
 
         [Fact]
         public void TestIsEmpty()

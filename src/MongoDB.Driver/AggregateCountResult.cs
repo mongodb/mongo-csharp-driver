@@ -23,7 +23,7 @@ namespace MongoDB.Driver
     /// </summary>
     public sealed class AggregateCountResult
     {
-        private long _count;
+        private readonly long _count;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AggregateCountResult"/> class.

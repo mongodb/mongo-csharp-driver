@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     internal sealed class JsonDrivenListDatabasesTest : JsonDrivenClientTest
     {
         // private fields
-        private ListDatabasesOptions _options = new ListDatabasesOptions();
+        private readonly ListDatabasesOptions _options = new ListDatabasesOptions();
         private IClientSessionHandle _session;
 
         // public constructors

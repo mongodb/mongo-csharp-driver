@@ -36,13 +36,13 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         private static IMongoDatabase __database;
         private static IMongoCollection<C> __collection;
         private static bool __oneTimeSetupHasRun = false;
-        private static object __oneTimeSetupLock = new object();
+        private static readonly object __oneTimeSetupLock = new object();
 
-        private ObjectId _id1 = ObjectId.GenerateNewId();
-        private ObjectId _id2 = ObjectId.GenerateNewId();
-        private ObjectId _id3 = ObjectId.GenerateNewId();
-        private ObjectId _id4 = ObjectId.GenerateNewId();
-        private ObjectId _id5 = ObjectId.GenerateNewId();
+        private readonly ObjectId _id1 = ObjectId.GenerateNewId();
+        private readonly ObjectId _id2 = ObjectId.GenerateNewId();
+        private readonly ObjectId _id3 = ObjectId.GenerateNewId();
+        private readonly ObjectId _id4 = ObjectId.GenerateNewId();
+        private readonly ObjectId _id5 = ObjectId.GenerateNewId();
 
         public LegacyPredicateTranslatorTests()
         {

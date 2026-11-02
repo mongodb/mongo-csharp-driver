@@ -24,7 +24,7 @@ namespace MongoDB.Bson
     public class BsonNull : BsonValue, IComparable<BsonNull>, IEquatable<BsonNull>
     {
         // private static fields
-        private static BsonNull __value = new BsonNull();
+        private static readonly BsonNull __value = new BsonNull();
 
         // constructors
         // private so only the singleton instance can be created

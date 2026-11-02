@@ -33,9 +33,9 @@ namespace MongoDB.Driver.GridFS
 
         // fields
         private bool _aborted;
-        private List<byte[]> _batch;
+        private readonly List<byte[]> _batch;
         private long _batchPosition;
-        private int _batchSize;
+        private readonly int _batchSize;
         private readonly IWriteBinding _binding;
         private readonly GridFSBucket<TFileId> _bucket;
         private readonly int _chunkSizeBytes;

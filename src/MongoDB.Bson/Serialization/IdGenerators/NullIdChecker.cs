@@ -23,7 +23,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class NullIdChecker : IIdGenerator
     {
         // private static fields
-        private static NullIdChecker __instance = new NullIdChecker();
+        private static readonly NullIdChecker __instance = new NullIdChecker();
 
         // constructors
         /// <summary>

@@ -26,7 +26,7 @@ namespace MongoDB.Driver
 {
     public class MongoIncompatibleDriverExceptionTests
     {
-        private ClusterDescription _clusterDescription;
+        private readonly ClusterDescription _clusterDescription;
 
         public MongoIncompatibleDriverExceptionTests()
         {

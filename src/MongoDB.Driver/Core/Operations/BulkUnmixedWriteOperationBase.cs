@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private bool? _bypassDocumentValidation;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private bool _enableOverloadRetargeting;
         private readonly bool _isOperationRetryable;
@@ -39,7 +39,7 @@ namespace MongoDB.Driver.Core.Operations
         private int? _maxBatchCount;
         private int? _maxBatchLength;
         private MessageEncoderSettings _messageEncoderSettings;
-        private List<TWriteRequest> _requests;
+        private readonly List<TWriteRequest> _requests;
         private bool _retryRequested;
         private WriteConcern _writeConcern = WriteConcern.Acknowledged;
 

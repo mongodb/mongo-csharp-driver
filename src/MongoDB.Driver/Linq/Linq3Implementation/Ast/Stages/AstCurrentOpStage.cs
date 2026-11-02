@@ -25,11 +25,11 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Stages
 {
     internal sealed class AstCurrentOpStage : AstStage
     {
-        private bool? _allUsers;
-        private bool? _idleConnections;
-        private bool? _idleCursors;
-        private bool? _idleSessions;
-        private bool? _localOps;
+        private readonly bool? _allUsers;
+        private readonly bool? _idleConnections;
+        private readonly bool? _idleCursors;
+        private readonly bool? _idleSessions;
+        private readonly bool? _localOps;
 
         public AstCurrentOpStage(
             bool? allUsers = null,

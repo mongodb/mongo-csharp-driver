@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
     // Regression test for CSHARP-4337.
     public class TernaryWithEnumRepresentationProjectionTests : LinqIntegrationTest<TernaryWithEnumRepresentationProjectionTests.ClassFixture>
     {
-        private static (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[] __predicate_should_use_correct_representation_test_cases = new (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[]
+        private static readonly (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[] __predicate_should_use_correct_representation_test_cases = new (Expression<Func<C, R<bool>>> Projection, string ExpectedStage, bool[] ExpectedResults)[]
         {
             (d => new R<bool> { N = d.Id, V = d.I1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : ['$I1', 1] }, _id : 0 } }", new[] { true, false }),
             (d => new R<bool> { N = d.Id, V = d.S1 == E.E1 ? true : false }, "{ $project : { N : '$_id', V : { $eq : ['$S1', 'E1'] }, _id : 0 } }", new[] { true, false }),
@@ -70,7 +70,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.OrderBy(r => r.N).Select(r => r.V).Should().Equal(expectedResults);
         }
 
-        private static (Expression<Func<C, R<E>>> Projection, string ExpectedStage, E[] ExpectedResults)[] __result_should_use_correct_representation_test_cases = new (Expression<Func<C, R<E>>> Projection, string ExpectedStage, E[] ExpectedResults)[]
+        private static readonly (Expression<Func<C, R<E>>> Projection, string ExpectedStage, E[] ExpectedResults)[] __result_should_use_correct_representation_test_cases = new (Expression<Func<C, R<E>>> Projection, string ExpectedStage, E[] ExpectedResults)[]
         {
             (d => new R<E> { N = d.Id, V = true ? E.E1 : E.E2 }, "{ $project : { N : '$_id', V : { $literal : 1 }, _id : 0 } }", new[] { E.E1, E.E1 }),
             (d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? E.E1 : E.E2 }, "{ $project : { N : '$_id', V : { $cond : { if : { $eq : ['$I1', 1] }, then : 1, else : 2 } }, _id : 0 } }", new[] { E.E1, E.E2 }),
@@ -115,7 +115,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3Implementation.Translators.ExpressionTo
             results.OrderBy(r => r.N).Select(r => r.V).Should().Equal(expectedResults);
         }
 
-        private static Expression<Func<C, R<E>>>[] __result_with_mixed_representations_should_throw_test_cases = new Expression<Func<C, R<E>>>[]
+        private static readonly Expression<Func<C, R<E>>>[] __result_with_mixed_representations_should_throw_test_cases = new Expression<Func<C, R<E>>>[]
         {
             d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.I1 : d.S2 },
             d => new R<E> { N = d.Id, V = d.I1 == E.E1 ? d.S1 : d.I2 }

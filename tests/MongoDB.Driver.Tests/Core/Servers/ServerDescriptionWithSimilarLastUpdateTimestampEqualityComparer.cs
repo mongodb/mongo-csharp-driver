@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Core.Servers
 {
     public class ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer : IEqualityComparer<ServerDescription>
     {
-        private static IEqualityComparer<ServerDescription> __instance = new ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer();
+        private static readonly IEqualityComparer<ServerDescription> __instance = new ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer();
 
         public static IEqualityComparer<ServerDescription> Instance => __instance;
 

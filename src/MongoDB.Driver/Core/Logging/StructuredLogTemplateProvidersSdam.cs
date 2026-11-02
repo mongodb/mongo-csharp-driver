@@ -20,7 +20,7 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static partial class StructuredLogTemplateProviders
     {
-        private static string[] __sdamCommonParams = new[]
+        private static readonly string[] __sdamCommonParams = new[]
         {
             TopologyId,
             DriverConnectionId,

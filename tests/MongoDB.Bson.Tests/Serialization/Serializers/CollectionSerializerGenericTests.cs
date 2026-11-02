@@ -480,8 +480,8 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
             public LinkedList<string> LL { get; set; }
         }
 
-        private static string id1 = "123456789012345678901234";
-        private static string id2 = "432109876543210987654321";
+        private static readonly string id1 = "123456789012345678901234";
+        private static readonly string id2 = "432109876543210987654321";
 
         [Fact]
         public void TestNull()

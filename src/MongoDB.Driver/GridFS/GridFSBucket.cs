@@ -42,7 +42,7 @@ namespace MongoDB.Driver.GridFS
         private readonly IClusterInternal _cluster;
         private readonly IMongoDatabase _database;
         private bool _ensureIndexesDone;
-        private SemaphoreSlim _ensureIndexesSemaphore = new SemaphoreSlim(1);
+        private readonly SemaphoreSlim _ensureIndexesSemaphore = new SemaphoreSlim(1);
         private readonly IBsonSerializer<GridFSFileInfo<TFileId>> _fileInfoSerializer;
         private readonly BsonSerializationInfo _idSerializationInfo;
         private readonly ImmutableGridFSBucketOptions _options;

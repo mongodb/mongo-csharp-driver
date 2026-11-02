@@ -23,8 +23,8 @@ namespace MongoDB.Driver.Tests
 {
     public class FilterDefinitionBuilderNullableIntComparedToIntWithStringRepresentationTests
     {
-        private static RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
-        private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
+        private static readonly RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
+        private static readonly FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public class C
         {

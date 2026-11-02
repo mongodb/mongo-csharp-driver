@@ -62,9 +62,9 @@ namespace MongoDB.Driver.Authentication.ScramSha
 
     internal class ScramCacheKey
     {
-        private int _iterationCount;
-        private SecureString _password;
-        private byte[] _salt;
+        private readonly int _iterationCount;
+        private readonly SecureString _password;
+        private readonly byte[] _salt;
 
         internal ScramCacheKey(SecureString password, byte[] salt, int iterationCount)
         {
@@ -146,8 +146,8 @@ namespace MongoDB.Driver.Authentication.ScramSha
 
     internal class ScramCacheEntry
     {
-        private byte[] _clientKey;
-        private byte[] _serverKey;
+        private readonly byte[] _clientKey;
+        private readonly byte[] _serverKey;
 
         public ScramCacheEntry(byte[] clientKey, byte[] serverKey)
         {

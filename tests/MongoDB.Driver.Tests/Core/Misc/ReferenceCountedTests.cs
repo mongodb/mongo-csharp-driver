@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Misc
 {
     public class ReferenceCountedTests
     {
-        private Mock<IDisposable> _mockDisposable;
+        private readonly Mock<IDisposable> _mockDisposable;
 
         public ReferenceCountedTests()
         {

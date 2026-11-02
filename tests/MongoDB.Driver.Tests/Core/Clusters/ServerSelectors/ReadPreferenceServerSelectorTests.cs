@@ -24,10 +24,10 @@ namespace MongoDB.Driver.Core.Clusters.ServerSelectors
 {
     public class ReadPreferenceServerSelectorTests
     {
-        private ClusterDescription _description;
-        private ServerDescription _primary;
-        private ServerDescription _secondary1;
-        private ServerDescription _secondary2;
+        private readonly ClusterDescription _description;
+        private readonly ServerDescription _primary;
+        private readonly ServerDescription _secondary1;
+        private readonly ServerDescription _secondary2;
 
         public ReadPreferenceServerSelectorTests()
         {

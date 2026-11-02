@@ -25,7 +25,7 @@ namespace MongoDB.Bson.Serialization.Serializers
     public sealed class BsonDocumentSerializer : BsonValueSerializerBase<BsonDocument>, IBsonDocumentSerializer, IBsonIdProvider
     {
         // private static fields
-        private static BsonDocumentSerializer __instance = new BsonDocumentSerializer();
+        private static readonly BsonDocumentSerializer __instance = new BsonDocumentSerializer();
 
         // constructors
         /// <summary>

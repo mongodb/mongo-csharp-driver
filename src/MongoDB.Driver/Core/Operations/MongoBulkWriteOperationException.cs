@@ -25,10 +25,10 @@ namespace MongoDB.Driver.Core.Operations
     internal sealed class MongoBulkWriteOperationException : MongoServerException
     {
         // fields
-        private BulkWriteOperationResult _result;
-        private IReadOnlyList<WriteRequest> _unprocessedRequests;
-        private BulkWriteConcernError _writeConcernError;
-        private IReadOnlyList<BulkWriteOperationError> _writeErrors;
+        private readonly BulkWriteOperationResult _result;
+        private readonly IReadOnlyList<WriteRequest> _unprocessedRequests;
+        private readonly BulkWriteConcernError _writeConcernError;
+        private readonly IReadOnlyList<BulkWriteOperationError> _writeErrors;
 
         // constructors
         /// <summary>

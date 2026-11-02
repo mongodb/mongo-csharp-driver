@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
     {
         private static readonly List<string> __numericTypes = ["int", "long", "double", "decimal"];
 
-        private UnifiedEntityMap _entityMap;
+        private readonly UnifiedEntityMap _entityMap;
 
         public UnifiedValueMatcher(UnifiedEntityMap entityMap)
         {

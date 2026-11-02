@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class WritableServerBindingTests
     {
-        private Mock<IClusterInternal> _mockCluster;
+        private readonly Mock<IClusterInternal> _mockCluster;
 
         public WritableServerBindingTests()
         {

@@ -22,8 +22,8 @@ namespace MongoDB.Driver.Tests
 {
     public class OfTypeSerializerTests
     {
-        private static IBsonSerializer<D> __derivedDocumentSerializer1 = new DSerializer1();
-        private static IBsonSerializer<D> __derivedDocumentSerializer2 = new DSerializer2();
+        private static readonly IBsonSerializer<D> __derivedDocumentSerializer1 = new DSerializer1();
+        private static readonly IBsonSerializer<D> __derivedDocumentSerializer2 = new DSerializer2();
 
         [Fact]
         public void Equals_null_should_return_false()

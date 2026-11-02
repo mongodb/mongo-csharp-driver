@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ReadBindingHandleTests
     {
-        private Mock<IReadBinding> _mockReadBinding;
+        private readonly Mock<IReadBinding> _mockReadBinding;
 
         public ReadBindingHandleTests()
         {

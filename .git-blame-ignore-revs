@@ -1,3 +1,11 @@
 # .git-blame-ignore-revs
 # Cleanup unnecessary whitespaces
 1186b9330245593f940cac35e85bcb5494ee9a80
+# CSHARP-6142: Enable and apply code-style rules CS-TV-01, CS-EX-02, CS-NM-03, CS-FL-03
+e560bcede28659008ff0d72724c600db8fbad4a7
+# CSHARP-6143: Normalize whitespace formatting across the codebase with dotnet format
+2a9419cabbfb40bab4c7177afd953669a3f43065
+# CSHARP-6161: Enable the code-style rules that need little or no reformatting
+61ef548e4898a0228c7243f267dea1233f5a9432
+# CSHARP-6189: Make the license headers, encoding and line endings uniform and enforce them in CI
+c60e8ebb3d356bbbe72dcb8d8062403e58805d0d

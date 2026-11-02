@@ -30,9 +30,9 @@ namespace MongoDB.Driver
     public class MongoDBRef : IEquatable<MongoDBRef>
     {
         // private fields
-        private string _databaseName;
-        private string _collectionName;
-        private BsonValue _id;
+        private readonly string _databaseName;
+        private readonly string _collectionName;
+        private readonly BsonValue _id;
 
         // constructors
         // default constructor is private and only used for deserialization

@@ -26,8 +26,8 @@ namespace MongoDB.Driver
 {
     public class MongoExceptionTests
     {
-        private Exception _innerException = new Exception("inner");
-        private string _message = "message";
+        private readonly Exception _innerException = new Exception("inner");
+        private readonly string _message = "message";
 
         [Fact]
         public void constructor_should_initialize_subject()

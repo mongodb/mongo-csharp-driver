@@ -107,6 +107,12 @@ Scoping the check to a single project is quicker than running it over the whole 
 dotnet format src/MongoDB.Bson/MongoDB.Bson.csproj --verify-no-changes
 ```
 
+Large formatting-only commits are listed in `.git-blame-ignore-revs`. GitHub honors the file automatically; to make `git blame` skip those commits locally, run once:
+
+```zsh
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Submit a PR
 
 Push your branch to your fork once all tests pass. [Squash multiple commits into one](https://stackoverflow.com/questions/5189560/how-do-i-squash-my-last-n-commits-together) and rebase on the latest upstream first (use the "Sync fork" button on your fork's page).

@@ -43,13 +43,13 @@ namespace MongoDB.Driver.Core.ConnectionPools
     [Trait("Category", "Pool")]
     public class ExclusiveConnectionPoolTests : LoggableTestClass
     {
-        private Mock<IConnectionFactory> _mockConnectionFactory;
-        private Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
-        private DnsEndPoint _endPoint;
+        private readonly Mock<IConnectionFactory> _mockConnectionFactory;
+        private readonly Mock<IConnectionExceptionHandler> _mockConnectionExceptionHandler;
+        private readonly DnsEndPoint _endPoint;
         private EventCapturer _capturedEvents;
-        private EventLogger<LogCategories.Connection> _eventLogger;
-        private ServerId _serverId;
-        private ConnectionPoolSettings _settings;
+        private readonly EventLogger<LogCategories.Connection> _eventLogger;
+        private readonly ServerId _serverId;
+        private readonly ConnectionPoolSettings _settings;
         private ExclusiveConnectionPool _subject;
 
         public ExclusiveConnectionPoolTests(ITestOutputHelper output) : base(output)

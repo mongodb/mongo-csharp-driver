@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Core.Bindings
 {
     public class ChannelSourceHandleTests
     {
-        private Mock<IChannelSource> _mockChannelSource;
+        private readonly Mock<IChannelSource> _mockChannelSource;
 
         public ChannelSourceHandleTests()
         {

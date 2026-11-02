@@ -29,12 +29,12 @@ namespace MongoDB.Driver.Core.ConnectionPools
 {
     public class ExclusiveConnectionPoolFactoryTests
     {
-        private IConnectionFactory _connectionFactory;
-        private IConnectionExceptionHandler _connectionExceptionHandler;
-        private IEventSubscriber _eventSubscriber;
-        private DnsEndPoint _endPoint;
-        private ServerId _serverId;
-        private ConnectionPoolSettings _settings;
+        private readonly IConnectionFactory _connectionFactory;
+        private readonly IConnectionExceptionHandler _connectionExceptionHandler;
+        private readonly IEventSubscriber _eventSubscriber;
+        private readonly DnsEndPoint _endPoint;
+        private readonly ServerId _serverId;
+        private readonly ConnectionPoolSettings _settings;
 
         public ExclusiveConnectionPoolFactoryTests()
         {

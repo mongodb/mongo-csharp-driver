@@ -29,14 +29,14 @@ namespace MongoDB.Driver.Encryption
     {
         // MUST be static fields since otherwise these callbacks can be collected via the garbage collector
         // regardless they're used by mongocrypt level or no
-        private static Library.Delegates.CryptoCallback __cryptoAes256EcbEncryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.EncryptEcb);
-        private static Library.Delegates.CryptoCallback __cryptoAes256CbcDecryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.DecryptCbc);
-        private static Library.Delegates.CryptoCallback __cryptoAes256CbcEncryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.EncryptCbc);
-        private static Library.Delegates.HashCallback __cryptoHashCallback = new Library.Delegates.HashCallback(HashCallback.Hash);
-        private static Library.Delegates.CryptoHmacCallback __cryptoHmacSha256Callback = new Library.Delegates.CryptoHmacCallback(HmacShaCallbacks.HmacSha256);
-        private static Library.Delegates.CryptoHmacCallback __cryptoHmacSha512Callback = new Library.Delegates.CryptoHmacCallback(HmacShaCallbacks.HmacSha512);
-        private static Library.Delegates.RandomCallback __randomCallback = new Library.Delegates.RandomCallback(SecureRandomCallback.GenerateRandom);
-        private static Library.Delegates.CryptoHmacCallback __signRsaesPkcs1HmacCallback = new Library.Delegates.CryptoHmacCallback(SigningRSAESPKCSCallback.RsaSign);
+        private static readonly Library.Delegates.CryptoCallback __cryptoAes256EcbEncryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.EncryptEcb);
+        private static readonly Library.Delegates.CryptoCallback __cryptoAes256CbcDecryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.DecryptCbc);
+        private static readonly Library.Delegates.CryptoCallback __cryptoAes256CbcEncryptCallback = new Library.Delegates.CryptoCallback(CipherCallbacks.EncryptCbc);
+        private static readonly Library.Delegates.HashCallback __cryptoHashCallback = new Library.Delegates.HashCallback(HashCallback.Hash);
+        private static readonly Library.Delegates.CryptoHmacCallback __cryptoHmacSha256Callback = new Library.Delegates.CryptoHmacCallback(HmacShaCallbacks.HmacSha256);
+        private static readonly Library.Delegates.CryptoHmacCallback __cryptoHmacSha512Callback = new Library.Delegates.CryptoHmacCallback(HmacShaCallbacks.HmacSha512);
+        private static readonly Library.Delegates.RandomCallback __randomCallback = new Library.Delegates.RandomCallback(SecureRandomCallback.GenerateRandom);
+        private static readonly Library.Delegates.CryptoHmacCallback __signRsaesPkcs1HmacCallback = new Library.Delegates.CryptoHmacCallback(SigningRSAESPKCSCallback.RsaSign);
 
         // mongocrypt_is_crypto_available is only available in libmongocrypt version >= 1.9
         private static readonly Version __mongocryptIsCryptoAvailableMinVersion = Version.Parse("1.9");

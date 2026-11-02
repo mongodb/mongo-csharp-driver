@@ -21,8 +21,8 @@ namespace MongoDB.Driver.Tests
 {
     public class FilterDefinitionBuilderEnumComparedToEnumTests
     {
-        private static RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
-        private static FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
+        private static readonly RenderArgs<C> __args = new(BsonSerializer.SerializerRegistry.GetSerializer<C>(), BsonSerializer.SerializerRegistry);
+        private static readonly FilterDefinitionBuilder<C> __subject = Builders<C>.Filter;
 
         public enum E { A, B };
 

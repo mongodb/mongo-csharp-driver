@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Tests.Serialization
 {
     public class CombGuidGeneratorTests
     {
-        private CombGuidGenerator _generator = new CombGuidGenerator();
+        private readonly CombGuidGenerator _generator = new CombGuidGenerator();
 
         [Fact]
         public void TestNewCombGuid()

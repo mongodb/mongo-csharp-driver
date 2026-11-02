@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class StringObjectIdGenerator : IIdGenerator
     {
         // private static fields
-        private static StringObjectIdGenerator __instance = new StringObjectIdGenerator();
+        private static readonly StringObjectIdGenerator __instance = new StringObjectIdGenerator();
 
         // constructors
         /// <summary>
