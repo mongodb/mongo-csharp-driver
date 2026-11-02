@@ -1,3 +1,5 @@
 *.docx binary
 *.dll binary
 *.snk binary
+*.cs text eol=lf
+*.sh text eol=lf
