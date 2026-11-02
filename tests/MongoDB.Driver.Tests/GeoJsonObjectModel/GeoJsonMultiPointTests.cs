@@ -78,6 +78,24 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
             TestRoundTrip(expected, multiPoint);
         }
 
+        [Theory]
+        [InlineData("bbox")]
+        [InlineData("coordinates")]
+        [InlineData("crs")]
+        [InlineData("type")]
+        public void TestMultiPoint2DWithConflictingExtraMember(string name)
+        {
+            var multiPoint = GeoJson.MultiPoint(
+                new GeoJsonObjectArgs<GeoJson2DCoordinates> { ExtraMembers = new BsonDocument(name, 1) },
+                GeoJson.Position(1.0, 2.0),
+                GeoJson.Position(3.0, 4.0));
+
+            var exception = Record.Exception(() => multiPoint.ToJson());
+
+            Assert.IsType<BsonSerializationException>(exception);
+            Assert.Equal($"GeoJson MultiPoint extra member '{name}' conflicts with a member of the same name.", exception.Message);
+        }
+
         [Fact]
         public void TestMultiPoint3D()
         {

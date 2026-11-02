@@ -53,16 +53,16 @@ public class ClientMetadataTests
     }
 
     [Fact]
-    public void Append_should_skip_empty_version_subfield()
+    public void Append_should_keep_empty_version_entry_aligned_with_name()
     {
         var subject = new ClientMetadata(applicationName: null, libraryInfo: null);
 
         subject.Append(new LibraryInfo("lib1", version: null));
         subject.Append(new LibraryInfo("lib2", "2.0"));
 
-        var driverVersion = subject.GetClientDocument()["driver"]["version"].AsString;
-        driverVersion.Should().EndWith("|2.0");
-        driverVersion.Split('|').Should().HaveCount(2); // base version + the single non-empty appended version
+        var driver = subject.GetClientDocument()["driver"];
+        driver["name"].AsString.Should().EndWith("|lib1|lib2");
+        driver["version"].AsString.Should().EndWith("||2.0");
     }
 
     [Fact]

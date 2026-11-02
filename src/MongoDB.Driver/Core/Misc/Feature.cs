@@ -168,11 +168,6 @@ public class Feature
     public static Feature Csfle2QEv2StringAlgorithm { get; } = new("csfle2Qev2StringAlgorithm", WireVersion.Server90);
 
     /// <summary>
-    /// Gets the csfle2 string (preview) query types feature (prefixPreview, suffixPreview, substringPreview).
-    /// </summary>
-    public static Feature Csfle2QEv2StringPreviewAlgorithm { get; } = new("csfle2Qev2StringPreviewAlgorithm", WireVersion.Server82);
-
-    /// <summary>
     /// Gets the date operators added in 5.0 feature.
     /// </summary>
     public static Feature DateOperatorsNewIn50 { get; } = new("DateOperatorsNewIn50", WireVersion.Server50);

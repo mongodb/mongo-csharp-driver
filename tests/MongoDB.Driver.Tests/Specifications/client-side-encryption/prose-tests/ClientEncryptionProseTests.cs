@@ -2884,11 +2884,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Supports(Feature.Csfle2QEv2StringAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: false);
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false);
         }
 
         // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Substring queries require server 9.0+ (GA). The substringPreview query type is covered by StringSubstringPreviewExplicitEncryptionTest.
+        // Substring queries require server 9.0+ (GA).
         [Theory]
         [ParameterAttributeData]
         public void StringSubstringExplicitEncryptionTest(
@@ -2899,49 +2899,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Supports(Feature.Csfle2QEv2StringAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: false);
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true);
         }
 
-        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Substring preview queries are supported on servers before 9.0 (libmongocrypt 1.18.1+) and are
-        // rejected on server 9.0+. GA substring is covered by StringSubstringExplicitEncryptionTest.
-        [Theory]
-        [ParameterAttributeData]
-        public void StringSubstringPreviewExplicitEncryptionTest(
-            [Values(5, 6)] int testCase,
-            [Values(true, false)] bool async)
-        {
-            RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-                .VersionLessThanOrEqualTo("8.99.99");
-
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: true);
-        }
-
-        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Prefix/suffix preview queries are supported on servers before 9.0 (libmongocrypt 1.19.1+) and are
-        // rejected on server 9.0+, so this is gated to 8.2-8.x. GA prefix/suffix is covered by StringExplicitEncryptionTest.
-        [Theory]
-        [ParameterAttributeData]
-        public void StringPreviewExplicitEncryptionTest(
-            [Values(1, 2, 3, 4)] int testCase,
-            [Values(true, false)] bool async)
-        {
-            RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-                .VersionLessThanOrEqualTo("8.99.99");
-
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: true);
-        }
-
-        private void RunStringExplicitEncryptionTestCase(int testCase, bool async, bool isSubstring, bool isPreview)
+        private void RunStringExplicitEncryptionTestCase(int testCase, bool async, bool isSubstring)
         {
             var prefixSuffixCollectionNamespace = new CollectionNamespace("db", "prefix-suffix");
-            var prefixSuffixPreviewCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-preview");
             var substringCollectionNamespace = new CollectionNamespace("db", "substring");
-            var substringPreviewCollectionNamespace = new CollectionNamespace("db", "substring-preview");
             var prefixSuffixCiDiCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-ci-di");
             var substringCiDiCollectionNamespace = new CollectionNamespace("db", "substring-ci-di");
 
@@ -2950,22 +2914,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // Each collection has a different minimum server version, so only create the collections relevant to the cases under test.
             if (isSubstring)
             {
-                if (isPreview)
-                {
-                    // The substring-preview collection requires a server before 9.0.
-                    DropAndCreateCollection(keyVaultClient, substringPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-preview.json"]);
-                }
-                else
-                {
-                    // The substring collections require server 9.0+.
-                    DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
-                    DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
-                }
-            }
-            else if (isPreview)
-            {
-                // The prefix-suffix-preview collection requires a server before 9.0.
-                DropAndCreateCollection(keyVaultClient, prefixSuffixPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix-preview.json"]);
+                // The substring collections require server 9.0+.
+                DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
+                DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
             }
             else
             {
@@ -2987,21 +2938,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var autoEncryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local"))
             {
                 var prefixSuffixCollection = GetCollection(encryptedClient, prefixSuffixCollectionNamespace);
-                var prefixSuffixPreviewCollection = GetCollection(encryptedClient, prefixSuffixPreviewCollectionNamespace);
                 var substringCollection = GetCollection(encryptedClient, substringCollectionNamespace);
-                var substringPreviewCollection = GetCollection(encryptedClient, substringPreviewCollectionNamespace);
                 var prefixSuffixCiDiCollectionAuto = GetCollection(autoEncryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var prefixSuffixCiDiCollectionExplicit = GetCollection(encryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var substringCiDiCollectionAuto = GetCollection(autoEncryptedClient, substringCiDiCollectionNamespace);
                 var substringCiDiCollectionExplicit = GetCollection(encryptedClient, substringCiDiCollectionNamespace);
-
-                // Prefix/suffix cases run against either the GA prefix-suffix collection (server 9.0+) or the preview
-                // prefix-suffix-preview collection (server < 9.0); the matching query types are chosen in RunTestCase.
-                var prefixSuffixCollectionForCase = isPreview ? prefixSuffixPreviewCollection : prefixSuffixCollection;
-
-                // Substring cases 5-6 run against either the GA substring collection (server 9.0+) or the preview
-                // substring-preview collection (server < 9.0); the matching query type is chosen in RunTestCase.
-                var substringCollectionForCase = isPreview ? substringPreviewCollection : substringCollection;
 
                 var valueToEncrypt = "foobarbaz";
 
@@ -3016,7 +2957,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         valueToEncrypt,
                         async);
 
-                    Insert(substringCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(substringCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
                 }
                 else
                 {
@@ -3030,13 +2971,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         valueToEncrypt,
                         async);
 
-                    Insert(prefixSuffixCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(prefixSuffixCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
                 }
 
                 RunTestCase(
                     clientEncryption,
-                    prefixSuffixCollectionForCase,
-                    substringCollectionForCase,
+                    prefixSuffixCollection,
+                    substringCollection,
                     prefixSuffixCiDiCollectionAuto,
                     prefixSuffixCiDiCollectionExplicit,
                     substringCiDiCollectionAuto,
@@ -3052,20 +2993,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 IMongoCollection<BsonDocument> substringCiDiCollectionAuto,
                 IMongoCollection<BsonDocument> substringCiDiCollectionExplicit)
             {
-                // Cases 1-4 (prefix/suffix) and 5-6 (substring) use the GA query types on 9.0+ and the preview
-                // query types on older servers, via the variables below. Cases 7-11 are GA-only (never run by the
-                // *PreviewExplicitEncryptionTest theories) and intentionally hardcode the GA query types.
-                var prefixQueryType = isPreview ? "prefixPreview" : "prefix";
-                var suffixQueryType = isPreview ? "suffixPreview" : "suffix";
-                var substringQueryType = isPreview ? "substringPreview" : "substring";
-
                 switch (testCase)
                 {
                     case 1: // can find a document by prefix
                         {
                             var encryptedFoo = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     new PrefixOptions(10, 2))),
@@ -3082,7 +3016,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptedBaz = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     suffixOptions: new SuffixOptions(10, 2))),
@@ -3099,7 +3033,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptedBaz = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     new PrefixOptions(10, 2))),
@@ -3116,7 +3050,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptedFoo = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     suffixOptions: new SuffixOptions(10, 2))),
@@ -3133,7 +3067,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptedBar = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     substringOptions: new SubstringOptions(10, 6, 2))),
@@ -3150,7 +3084,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         {
                             var encryptedQux = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     substringOptions: new SubstringOptions(10, 6, 2))),

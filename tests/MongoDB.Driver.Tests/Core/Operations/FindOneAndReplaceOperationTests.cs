@@ -68,6 +68,33 @@ namespace MongoDB.Driver.Core.Operations
             argumentNullException.ParamName.Should().Be("replacement");
         }
 
+        [Theory]
+        [InlineData("{ $set : { x : 1 } }")]
+        [InlineData("{ $unset : { x : 1 }, $set : { y : 2 } }")]
+        public void Constructor_should_throw_when_replacement_contains_update_operators(string replacementJson)
+        {
+            var replacement = BsonDocument.Parse(replacementJson);
+
+            var exception = Record.Exception(() => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings));
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("replacement");
+        }
+
+        [Theory]
+        [InlineData("{ }")]
+        [InlineData("{ _id : 10, a : 1 }")]
+        [InlineData("{ a : { $set : 1 } }")] // a "$" is only invalid at the top level
+        [InlineData("{ a : [ { $set : 1 } ] }")]
+        public void Constructor_should_not_throw_when_replacement_does_not_contain_top_level_update_operators(string replacementJson)
+        {
+            var replacement = BsonDocument.Parse(replacementJson);
+
+            var exception = Record.Exception(() => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings));
+
+            exception.Should().BeNull();
+        }
+
         [Fact]
         public void Constructor_should_throw_when_result_resultSerializer_is_null()
         {

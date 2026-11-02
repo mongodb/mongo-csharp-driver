@@ -490,10 +490,11 @@ namespace MongoDB.Bson.IO
             {
                 ThrowInvalidState("WriteRawBsonArray", BsonWriterState.Value);
             }
+            var length = RawBsonSliceHelper.GetValidatedLength(slice, nameof(slice));
 
             _bsonStream.WriteBsonType(BsonType.Array);
             WriteNameHelper();
-            _bsonStream.WriteSlice(slice); // assumes slice is a valid raw BSON array
+            _bsonStream.WriteSlice(slice, 0, length);
 
             State = GetNextState();
         }
@@ -509,13 +510,14 @@ namespace MongoDB.Bson.IO
             {
                 ThrowInvalidState("WriteRawBsonDocument", BsonWriterState.Initial, BsonWriterState.Value, BsonWriterState.ScopeDocument, BsonWriterState.Done);
             }
+            var length = RawBsonSliceHelper.GetValidatedLength(slice, nameof(slice));
 
             if (State == BsonWriterState.Value)
             {
                 _bsonStream.WriteBsonType(BsonType.Document);
                 WriteNameHelper();
             }
-            _bsonStream.WriteSlice(slice); // assumes byteBuffer is a valid raw BSON document
+            _bsonStream.WriteSlice(slice, 0, length);
 
             if (_context.ContextType == ContextType.TopLevel)
             {

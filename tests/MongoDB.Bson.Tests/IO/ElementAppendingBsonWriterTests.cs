@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
@@ -172,6 +173,81 @@ namespace MongoDB.Bson.Tests.IO
             subject.WriteStartDocument();
 
             mockWriter.Verify(m => m.WriteStartDocument(), Times.Once);
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_not_write_bytes_past_declared_length()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            var slice = new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
+            using var stream = new MemoryStream();
+            using var binaryWriter = new BsonBinaryWriter(stream);
+            var subject = new ElementAppendingBsonWriter(binaryWriter, new[] { new BsonElement("y", 2) }, null);
+
+            subject.WriteRawBsonDocument(slice);
+
+            stream.ToArray().Should().Equal(new BsonDocument { { "x", 1 }, { "y", 2 } }.ToBson());
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_throw_before_writing_when_slice_is_invalid()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            BitConverter.GetBytes(bytes.Length + 1).CopyTo(bytes, 0);
+            var slice = new ByteArrayBuffer(bytes, isReadOnly: true);
+            using var stream = new MemoryStream();
+            using var binaryWriter = new BsonBinaryWriter(stream);
+            var subject = new ElementAppendingBsonWriter(binaryWriter, new[] { new BsonElement("y", 2) }, null);
+
+            var exception = Record.Exception(() => subject.WriteRawBsonDocument(slice));
+
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("slice");
+            stream.Length.Should().Be(0);
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_append_elements_after_nested_values()
+        {
+            var document = new BsonDocument { { "x", new BsonDocument("y", new BsonArray { 1, 2 }) }, { "s", "abc" } };
+            var slice = new ByteArrayBuffer(document.ToBson(), isReadOnly: true);
+            using var stream = new MemoryStream();
+            using var binaryWriter = new BsonBinaryWriter(stream);
+            var subject = new ElementAppendingBsonWriter(binaryWriter, new[] { new BsonElement("z", 3) }, null);
+
+            subject.WriteRawBsonDocument(slice);
+
+            stream.ToArray().Should().Equal(new BsonDocument(document) { { "z", 3 } }.ToBson());
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_preserve_duplicate_element_names()
+        {
+            var document = new BsonDocument(allowDuplicateNames: true) { { "x", 1 }, { "x", 2 } };
+            var slice = new ByteArrayBuffer(document.ToBson(), isReadOnly: true);
+            using var stream = new MemoryStream();
+            using var binaryWriter = new BsonBinaryWriter(stream);
+            var subject = new ElementAppendingBsonWriter(binaryWriter, new[] { new BsonElement("y", 2) }, null);
+
+            subject.WriteRawBsonDocument(slice);
+
+            stream.ToArray().Should().Equal(new BsonDocument(allowDuplicateNames: true) { { "x", 1 }, { "x", 2 }, { "y", 2 } }.ToBson());
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_write_nested_document_and_append_elements_to_outer_document()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            var slice = new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
+            using var stream = new MemoryStream();
+            using var binaryWriter = new BsonBinaryWriter(stream);
+            var subject = new ElementAppendingBsonWriter(binaryWriter, new[] { new BsonElement("y", 2) }, null);
+
+            subject.WriteStartDocument();
+            subject.WriteName("a");
+            subject.WriteRawBsonDocument(slice);
+            subject.WriteEndDocument();
+
+            stream.ToArray().Should().Equal(new BsonDocument { { "a", new BsonDocument("x", 1) }, { "y", 2 } }.ToBson());
         }
     }
 

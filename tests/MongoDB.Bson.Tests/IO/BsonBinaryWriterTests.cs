@@ -143,5 +143,87 @@ namespace MongoDB.Bson.Tests.IO
             subType.Should().Be(expectedSubType);
             guidBytes.Should().Equal(expectedGuidBytes);
         }
+
+        [Fact]
+        public void WriteRawBsonArray_should_not_write_bytes_past_declared_length()
+        {
+            var slice = CreateSliceWithTrailingBytes(new BsonDocument("0", 1).ToBson());
+            using var stream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(stream);
+
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+            writer.WriteRawBsonArray(slice);
+            writer.WriteEndDocument();
+
+            stream.ToArray().Should().Equal(new BsonDocument("a", new BsonArray { 1 }).ToBson());
+        }
+
+        [Fact]
+        public void WriteRawBsonArray_should_throw_before_writing_when_slice_is_invalid()
+        {
+            var slice = CreateSliceWithInvalidLength(new BsonDocument("0", 1).ToBson());
+            using var stream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(stream);
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+
+            var exception = Record.Exception(() => writer.WriteRawBsonArray(slice));
+
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("slice");
+            stream.Length.Should().Be(4);
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_not_write_bytes_past_declared_length()
+        {
+            var slice = CreateSliceWithTrailingBytes(new BsonDocument("x", 1).ToBson());
+            using var stream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(stream);
+
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+            writer.WriteRawBsonDocument(slice);
+            writer.WriteEndDocument();
+
+            stream.ToArray().Should().Equal(new BsonDocument("a", new BsonDocument("x", 1)).ToBson());
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_not_write_bytes_past_declared_length_at_top_level()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            var slice = CreateSliceWithTrailingBytes(bytes);
+            using var stream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(stream);
+
+            writer.WriteRawBsonDocument(slice);
+
+            stream.ToArray().Should().Equal(bytes);
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_throw_before_writing_when_slice_is_invalid()
+        {
+            var slice = CreateSliceWithInvalidLength(new BsonDocument("x", 1).ToBson());
+            using var stream = new MemoryStream();
+            using var writer = new BsonBinaryWriter(stream);
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+
+            var exception = Record.Exception(() => writer.WriteRawBsonDocument(slice));
+
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("slice");
+            stream.Length.Should().Be(4);
+        }
+
+        private static IByteBuffer CreateSliceWithInvalidLength(byte[] bytes)
+        {
+            BitConverter.GetBytes(bytes.Length + 1).CopyTo(bytes, 0);
+            return new ByteArrayBuffer(bytes, isReadOnly: true);
+        }
+
+        private static IByteBuffer CreateSliceWithTrailingBytes(byte[] bytes)
+            => new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
     }
 }

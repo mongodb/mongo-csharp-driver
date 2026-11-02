@@ -220,6 +220,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
+            BsonBinaryData.ThrowIfInvalidSubType(value, nameof(value));
 
             stream.WriteByte((byte)value);
         }
@@ -306,15 +307,17 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentNullException("slice");
             }
 
-            var position = 0;
-            var count = slice.Length;
+            stream.WriteSlice(slice, 0, slice.Length);
+        }
 
+        internal static void WriteSlice(this BsonStream stream, IByteBuffer slice, int offset, int count)
+        {
             while (count > 0)
             {
-                var segment = slice.AccessBackingBytes(position);
+                var segment = slice.AccessBackingBytes(offset);
                 var partialCount = Math.Min(count, segment.Count);
                 stream.WriteBytes(segment.Array, segment.Offset, partialCount);
-                position += partialCount;
+                offset += partialCount;
                 count -= partialCount;
             }
         }

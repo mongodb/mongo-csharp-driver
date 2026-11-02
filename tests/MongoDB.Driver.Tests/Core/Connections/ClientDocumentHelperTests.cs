@@ -88,7 +88,7 @@ namespace MongoDB.Driver.Core.Connections
                 var driverDocumentCombined = new BsonDocument()
                 {
                     { "name", $"{driverDocument["name"]}|{name}" },
-                    { "version", version != null ? $"{driverDocument["version"]}|{version}" : driverDocument["version"] }
+                    { "version", $"{driverDocument["version"]}|{version}" }
                 };
 
                 return new(new(name, version), driverDocumentCombined.ToString());
@@ -110,13 +110,13 @@ namespace MongoDB.Driver.Core.Connections
 
             driverDocument["name"].AsString.Should().Be(expectedDriverName);
 
-            if (libVersion != null)
+            if (libName == null)
             {
-                driverDocument["version"].AsString.Should().EndWith(libVersion);
+                driverDocument["version"].AsString.Should().NotContain("|");
             }
             else
             {
-                driverDocument["version"].AsString.Should().NotContain("|");
+                driverDocument["version"].AsString.Should().EndWith($"|{libVersion}");
             }
         }
 

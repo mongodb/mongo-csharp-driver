@@ -125,6 +125,11 @@ namespace MongoDB.Driver
         {
             if (operationContext.Timeout.HasValue)
             {
+                if (operationContext.Timeout == Timeout.InfiniteTimeSpan)
+                {
+                    return false;
+                }
+
                 return operationContext.Elapsed + delay >= operationContext.Timeout;
             }
 
