@@ -4,7 +4,7 @@
   "serialNumber": "urn:uuid:81169c32-6e20-467a-86c5-c904b1bf1022",
   "version": 2,
   "metadata": {
-    "timestamp": "2026-10-29T01:42:41Z",
+    "timestamp": "2026-11-03T16:36:24Z",
     "tools": {
       "components": [
         {
@@ -27,10 +27,10 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.13.0-1-gaa06f7b83e",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e",
       "name": "mongo-csharp-driver",
-      "version": "3.13.0-1-gaa06f7b83e",
-      "purl": "pkg:nuget/mongo-csharp-driver@3.13.0-1-gaa06f7b83e"
+      "version": "3.13.0-2-g697028088e",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e"
     }
   },
   "components": [
@@ -180,45 +180,6 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:nuget/Microsoft.CodeQuality.Analyzers@2.6.2",
-      "authors": [
-        {
-          "name": "Microsoft"
-        }
-      ],
-      "name": "Microsoft.CodeQuality.Analyzers",
-      "version": "2.6.2",
-      "description": "CodeQuality Analyzers",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "360E49EE67E1296FFFBA5FFA46B0D20E079CDC0C01E768DC779000DBFCCF5E322D5478EC9BC9F4DF707CF150937392AEA415F93258B089808DBD5E5DF302E2AE"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=529443"
-          }
-        }
-      ],
-      "copyright": "© Microsoft Corporation. All rights reserved.",
-      "purl": "pkg:nuget/Microsoft.CodeQuality.Analyzers@2.6.2",
-      "externalReferences": [
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "website"
-        },
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "vcs"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "bom-ref": "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
       "authors": [
         {
@@ -258,45 +219,6 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:nuget/Microsoft.NetCore.Analyzers@2.6.2",
-      "authors": [
-        {
-          "name": "Microsoft"
-        }
-      ],
-      "name": "Microsoft.NetCore.Analyzers",
-      "version": "2.6.2",
-      "description": "Analyzers for .NetCore APIs",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "7789D7FC25B53928F9A0648C325C1B37AAC7ACA13C9A760C80FF68DCE847158C153546120F009591FD427A7478E977B17B28B5D5FB096329965CD2618865911E"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=529443"
-          }
-        }
-      ],
-      "copyright": "© Microsoft Corporation. All rights reserved.",
-      "purl": "pkg:nuget/Microsoft.NetCore.Analyzers@2.6.2",
-      "externalReferences": [
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "website"
-        },
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "vcs"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "bom-ref": "pkg:nuget/Microsoft.NETCore.Platforms@5.0.0",
       "authors": [
         {
@@ -329,45 +251,6 @@
         },
         {
           "url": "git://github.com/dotnet/runtime",
-          "type": "vcs"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "bom-ref": "pkg:nuget/Microsoft.NetFramework.Analyzers@2.6.2",
-      "authors": [
-        {
-          "name": "Microsoft"
-        }
-      ],
-      "name": "Microsoft.NetFramework.Analyzers",
-      "version": "2.6.2",
-      "description": "Analyzers for APIs specific to the full .NetFramework which are not present in .NetCore.",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "F168ABE9DA2DBBDE3ADB945EAF2D3E9C9EA4E1CEA05C340FF4D4BD06D02094DCEE1127B8167CE2BB771620DEC12B2B17A3E2B19C18605A19332250087AC2F5EB"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=529443"
-          }
-        }
-      ],
-      "copyright": "© Microsoft Corporation. All rights reserved.",
-      "purl": "pkg:nuget/Microsoft.NetFramework.Analyzers@2.6.2",
-      "externalReferences": [
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "website"
-        },
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
           "type": "vcs"
         }
       ]
@@ -1285,45 +1168,6 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:nuget/Text.Analyzers@2.6.2",
-      "authors": [
-        {
-          "name": "Microsoft"
-        }
-      ],
-      "name": "Text.Analyzers",
-      "version": "2.6.2",
-      "description": "Text Analyzers",
-      "scope": "required",
-      "hashes": [
-        {
-          "alg": "SHA-512",
-          "content": "900B93DFB1ACA2056ACE3FFD9090E551185F8C60A3A4F76653BC5E4D0A011856096700C959EF77FE44C00E20064A9055E1D9F91E74D0FD573FFF6F5CFC1E9024"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=529443"
-          }
-        }
-      ],
-      "copyright": "© Microsoft Corporation. All rights reserved.",
-      "purl": "pkg:nuget/Text.Analyzers@2.6.2",
-      "externalReferences": [
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "website"
-        },
-        {
-          "url": "https://github.com/dotnet/roslyn-analyzers",
-          "type": "vcs"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "bom-ref": "pkg:nuget/ZstdSharp.Port@0.7.3",
       "authors": [
         {
@@ -1392,19 +1236,10 @@
       ]
     },
     {
-      "ref": "pkg:nuget/Microsoft.CodeQuality.Analyzers@2.6.2"
-    },
-    {
       "ref": "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0"
     },
     {
-      "ref": "pkg:nuget/Microsoft.NetCore.Analyzers@2.6.2"
-    },
-    {
       "ref": "pkg:nuget/Microsoft.NETCore.Platforms@5.0.0"
-    },
-    {
-      "ref": "pkg:nuget/Microsoft.NetFramework.Analyzers@2.6.2"
     },
     {
       "ref": "pkg:nuget/Microsoft.Win32.Registry@5.0.0",
@@ -1414,7 +1249,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@3.13.0-1-gaa06f7b83e",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e",
       "dependsOn": [
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
@@ -1545,9 +1380,6 @@
       "dependsOn": [
         "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2"
       ]
-    },
-    {
-      "ref": "pkg:nuget/Text.Analyzers@2.6.2"
     },
     {
       "ref": "pkg:nuget/ZstdSharp.Port@0.7.3",

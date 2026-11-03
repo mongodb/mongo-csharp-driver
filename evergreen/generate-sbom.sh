@@ -50,7 +50,7 @@ fi
 # released as of v6.2.0). The list below includes both the top-level PrivateAssets="All"
 # packages (in case --exclude-dev's behavior changes) and the orphaned children actually
 # observed in output today.
-EXCLUDE_FILTER="Microsoft.CodeAnalysis.FxCopAnalyzers,Microsoft.NETFramework.ReferenceAssemblies,Microsoft.NETFramework.ReferenceAssemblies.net461,Microsoft.NETFramework.ReferenceAssemblies.net472,Microsoft.SourceLink.GitHub,Microsoft.SourceLink.Common,Microsoft.Build.Tasks.Git"
+EXCLUDE_FILTER="Microsoft.CodeAnalysis.FxCopAnalyzers,Microsoft.CodeQuality.Analyzers,Microsoft.NetCore.Analyzers,Microsoft.NetFramework.Analyzers,Text.Analyzers,Microsoft.NETFramework.ReferenceAssemblies,Microsoft.NETFramework.ReferenceAssemblies.net461,Microsoft.NETFramework.ReferenceAssemblies.net472,Microsoft.SourceLink.GitHub,Microsoft.SourceLink.Common,Microsoft.Build.Tasks.Git"
 
 dotnet-CycloneDX "${SBOM_SLNF}" \
   --disable-package-restore \
