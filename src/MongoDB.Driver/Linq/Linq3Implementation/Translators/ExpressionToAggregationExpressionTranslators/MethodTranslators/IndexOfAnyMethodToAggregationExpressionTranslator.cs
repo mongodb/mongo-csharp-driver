@@ -98,7 +98,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 var anyOfChars = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
                 if (anyOfChars == null)
                 {
-                    throw new ExpressionNotSupportedException(anyOfExpression, expression);
+                    throw new ExpressionNotSupportedException(anyOfExpression, expression, because: "anyOf should not be null");
                 }
                 return new string(anyOfChars);
             }

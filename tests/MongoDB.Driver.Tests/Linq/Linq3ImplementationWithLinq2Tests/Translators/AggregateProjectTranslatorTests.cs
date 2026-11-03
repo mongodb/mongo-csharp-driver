@@ -651,7 +651,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         {
             Action act = () => Project(x => new { Result = x.A.IndexOfAny(null) });
 
-            act.ShouldThrow<ExpressionNotSupportedException>();
+            act.ShouldThrow<ExpressionNotSupportedException>().WithMessage("*because anyOf should not be null*");
         }
 
         [Fact]

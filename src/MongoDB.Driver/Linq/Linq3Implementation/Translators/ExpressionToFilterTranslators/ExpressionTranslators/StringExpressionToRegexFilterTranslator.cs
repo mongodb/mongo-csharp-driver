@@ -566,7 +566,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     anyOf = anyOfExpression.GetConstantValue<char[]>(containingExpression: expression);
                     if (anyOf == null)
                     {
-                        throw new ExpressionNotSupportedException(anyOfExpression);
+                        throw new ExpressionNotSupportedException(anyOfExpression, because: "anyOf should not be null");
                     }
                     if (anyOf.Length == 0)
                     {

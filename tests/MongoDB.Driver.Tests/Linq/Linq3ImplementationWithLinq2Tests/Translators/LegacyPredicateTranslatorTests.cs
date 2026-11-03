@@ -700,6 +700,7 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
             var exception = Record.Exception(() => Assert<C>(c => c.S.IndexOfAny(null) == 0, 0, null));
 
             exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("because anyOf should not be null");
         }
 
         [Fact]
