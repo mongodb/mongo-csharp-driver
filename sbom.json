@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
   "serialNumber": "urn:uuid:81169c32-6e20-467a-86c5-c904b1bf1022",
-  "version": 2,
+  "version": 3,
   "metadata": {
-    "timestamp": "2026-11-03T16:36:24Z",
+    "timestamp": "2026-11-03T16:53:27Z",
     "tools": {
       "components": [
         {
@@ -27,10 +27,10 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.13.0-6-g619336b184",
       "name": "mongo-csharp-driver",
-      "version": "3.13.0-2-g697028088e",
-      "purl": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e"
+      "version": "3.13.0-6-g619336b184",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.13.0-6-g619336b184"
     }
   },
   "components": [
@@ -55,8 +55,8 @@
       "licenses": [
         {
           "license": {
-            "name": "Unknown - See URL",
-            "url": "http://aws.amazon.com/apache2.0/"
+            "id": "Apache-2.0",
+            "url": "https://github.com/aws/aws-sdk-net/blob/main/License.txt"
           }
         }
       ],
@@ -89,8 +89,8 @@
       "licenses": [
         {
           "license": {
-            "name": "Unknown - See URL",
-            "url": "http://aws.amazon.com/apache2.0/"
+            "id": "Apache-2.0",
+            "url": "https://github.com/aws/aws-sdk-net/blob/main/License.txt"
           }
         }
       ],
@@ -199,8 +199,8 @@
       "licenses": [
         {
           "license": {
-            "name": "Unknown - See URL",
-            "url": "https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt"
+            "id": "Apache-2.0",
+            "url": "https://github.com/aspnet/Logging/blob/master/LICENSE.txt"
           }
         }
       ],
@@ -387,14 +387,6 @@
           "content": "80DA6158E55B9BCF7E0B5E6379B9CF45A632914F037B53C5BF5609576E3CD7821F7861956B73D74470D2D0C2E56DD235A5EF4CA6FFE7E192B820DC2D023AAFF2"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation. All rights reserved.",
       "purl": "pkg:nuget/System.Buffers@4.5.1",
       "externalReferences": [
@@ -498,14 +490,6 @@
           "content": "BFCA5A21E3E1986B9765B13DC6FBCD6F8B89E4C1383855D1D7EF256BF1BF2F51889769DB5365859DD7606FBF6454ADD4DAEB3BAB56994FFB98FD1D03FE8BC1E6"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
       "purl": "pkg:nuget/System.IO@4.3.0",
       "externalReferences": [
@@ -531,14 +515,6 @@
         {
           "alg": "SHA-512",
           "content": "E8C8E536C97B94AC3443C940B30DAD43CF6E97DC7A8C3D989371048FE74E168606384F5E0143BDC0D86F7783BF9FDEE8417964CB3A8A5D752713E90B125172DC"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
-          }
         }
       ],
       "copyright": "© Microsoft Corporation. All rights reserved.",
@@ -606,14 +582,6 @@
           "content": "163EDEEF734D1F0A1FF7B8053D326EABC82FE86F3DE72C6466DD780D59D974487882F2A5F16AE4B02C0D8C8A7F25E617FF2BBFAB133F88EBFD6A2F99637169ED"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation. All rights reserved.",
       "purl": "pkg:nuget/System.Net.Http@4.3.4",
       "externalReferences": [
@@ -641,14 +609,6 @@
           "content": "81D46B509B3546B8D6DC9079A7CDA162303AEF1A1E14BBE1D127522168D388DF2A13195B16DFD1B57C1560D73906E909FDFF4E2B34104BA81A9336C97874EA1E"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
       "purl": "pkg:nuget/System.Numerics.Vectors@4.4.0",
       "externalReferences": [
@@ -674,14 +634,6 @@
         {
           "alg": "SHA-512",
           "content": "9C04EC0530F608AAF801837A791B33857E2CA6D2265A6049C01FD4E972825967E709CAD3070F174829B7400F608E9A641D3AFC3A45D4636D4C47DD43DD0657B3"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
-          }
         }
       ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
@@ -747,14 +699,6 @@
         {
           "alg": "SHA-512",
           "content": "92AB2249F08073CFAFDC4CFBD7DB36D651AD871B8D8BA961006982187DE374BF4A30AF93F15F73B05AF343F7A70CBD484B04D646570587636AE72171EB0714FB"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
         }
       ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
@@ -860,14 +804,6 @@
           "content": "6F4905329A3CC9E62D274C885F275EE31C5AF57A6C9FD1A5080D039CB748E0277BEF3DC8CE42863CAC78365084E00A032279BF3D2B7254A49F3FB1566A29AD1B"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
       "purl": "pkg:nuget/System.Runtime.InteropServices.RuntimeInformation@4.3.0",
       "externalReferences": [
@@ -933,14 +869,6 @@
           "content": "7641D70C2BA6F37BF429D5D949BDA427F078098C2DCB8924FD79B23BB22C4B956EF14235422D8B1CC5720CBBCC6CFEE8943D5FF87CE7ABF0D54C5E8BCE2AA5E2"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
       "purl": "pkg:nuget/System.Security.Cryptography.Algorithms@4.3.0",
       "externalReferences": [
@@ -966,14 +894,6 @@
         {
           "alg": "SHA-512",
           "content": "5C26ADD23E63542F37506F5FA1F72E8980F03743D529CD8E583D1054B8D8A579FB773FA035A00D9073DB84DB6BE4F47CAC340D1EBC6D23DD761DBDBD600075E0"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
         }
       ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
@@ -1003,14 +923,6 @@
           "content": "5AD8273F998EBB9CCA2F7BD03143D3F6D57B5D560657B26D6F4E78D038010FB30C379A23A27C08730F15C9B66F4BA565A06984EC246DFC79ACF1A741B0DD4347"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
       "purl": "pkg:nuget/System.Security.Cryptography.Primitives@4.3.0",
       "externalReferences": [
@@ -1036,14 +948,6 @@
         {
           "alg": "SHA-512",
           "content": "318D86AB5528E2B444EC3E4B9824C1BE82BB93DB513EAB34B238E486F886C4D74310ED82C2110401FE5CD790E4D97F4A023A0B2D5C2E29952D3FD02E42734D00"
-        }
-      ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "http://go.microsoft.com/fwlink/?LinkId=329770"
-          }
         }
       ],
       "copyright": "© Microsoft Corporation.  All rights reserved.",
@@ -1149,14 +1053,6 @@
           "content": "68052086E77D3C7198737A3DA163D67740B7C44F93250C39659B3BF21B6547A9ABF64CBF40481F5C78F24361AF3AAF47D52D188B371554A0928A7F7665C1FC14"
         }
       ],
-      "licenses": [
-        {
-          "license": {
-            "name": "Unknown - See URL",
-            "url": "https://github.com/dotnet/corefx/blob/master/LICENSE.TXT"
-          }
-        }
-      ],
       "copyright": "© Microsoft Corporation. All rights reserved.",
       "purl": "pkg:nuget/System.Threading.Tasks.Extensions@4.5.4",
       "externalReferences": [
@@ -1206,10 +1102,10 @@
     },
     {
       "type": "library",
-      "bom-ref": "pkg:github/mongodb/libmongocrypt@1.20.4",
+      "bom-ref": "pkg:github/mongodb/libmongocrypt@1.21.1",
       "name": "libmongocrypt",
-      "version": "1.20.4",
-      "purl": "pkg:github/mongodb/libmongocrypt@1.20.4"
+      "version": "1.21.1",
+      "purl": "pkg:github/mongodb/libmongocrypt@1.21.1"
     }
   ],
   "dependencies": [
@@ -1249,7 +1145,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@3.13.0-2-g697028088e",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.13.0-6-g619336b184",
       "dependsOn": [
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
@@ -1262,7 +1158,7 @@
         "pkg:nuget/System.Runtime.CompilerServices.Unsafe@6.1.2",
         "pkg:nuget/System.Runtime.InteropServices.RuntimeInformation@4.3.0",
         "pkg:nuget/ZstdSharp.Port@0.7.3",
-        "pkg:github/mongodb/libmongocrypt@1.20.4"
+        "pkg:github/mongodb/libmongocrypt@1.21.1"
       ]
     },
     {
