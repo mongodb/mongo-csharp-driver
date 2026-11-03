@@ -107,6 +107,20 @@ namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.pro
                 .Subject.Host.Should().Be("db.cluster.localhost");
         }
 
+        // https://github.com/mongodb/specifications/blob/master/source/initial-dns-seedlist-discovery/tests/README.md#15-accept-an-underscore-in-srvallowedhostssuffix
+        [Fact]
+        public void Accept_underscore_in_srvAllowedHostsSuffix()
+        {
+            var uri = "mongodb+srv://blogs.my_domain.net/?srvAllowedHostsSuffix=.my_domain.net";
+            var connectionString = new ConnectionString(uri, true, new MockDnsResolver("cluster.my_domain.net"));
+
+            var resolved = connectionString.Resolve();
+
+            resolved.Hosts.Should().ContainSingle()
+                .Which.Should().BeOfType<DnsEndPoint>()
+                .Subject.Host.Should().Be("cluster.my_domain.net");
+        }
+
         private class MockDnsResolver(string dnsEndPointString) : IDnsResolver
         {
             public List<SrvRecord> ResolveSrvRecords(string service, CancellationToken cancellation)
