@@ -38,12 +38,13 @@ public sealed class ConnectionPoolBuilder
     /// <summary>
     /// Gets or sets the interval at which the pool prunes idle and expired connections and tops up
     /// to <see cref="MinSize"/>. <see cref="Timeout.InfiniteTimeSpan"/> disables the
-    /// maintenance thread. Must be infinite, or greater than or equal to zero. The default value is 1 minute.
+    /// maintenance thread. Must be infinite or greater than zero; a zero interval would make the maintenance
+    /// thread spin continuously. The default value is 1 minute.
     /// </summary>
     public TimeSpan MaintenanceInterval
     {
         get;
-        set => field = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, nameof(MaintenanceInterval));
+        set => field = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(MaintenanceInterval));
     }
 
     /// <summary>

@@ -15,9 +15,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Configuration;
+using MongoDB.Driver.Encryption;
 using Xunit;
 
 namespace MongoDB.Driver.Tests.Configuration;
@@ -71,8 +73,8 @@ public class AutoEncryptionBuilderTests
             KeyVaultClient = keyVaultClient,
             KeyVaultNamespace = __keyVaultNamespace
         };
-        var tlsSettings = new SslSettings { CheckCertificateRevocation = true };
-        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, tlsSettings);
+        var tls = new KmsTlsOptions { CheckCertificateRevocation = true, AllowedProtocols = SslProtocols.Tls12 };
+        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, tls);
         subject.RegisterSchema(__collectionNamespace, new BsonDocument("bsonType", "object"));
 
         var result = subject.ToAutoEncryptionOptions();
@@ -84,7 +86,8 @@ public class AutoEncryptionBuilderTests
         result.KeyVaultClient.Should().BeSameAs(keyVaultClient);
         result.KeyVaultNamespace.Should().Be(__keyVaultNamespace);
         result.KmsProviders["kmip"].Should().Equal(new Dictionary<string, object> { { "endpoint", "kmip.example.com" } });
-        result.TlsOptions["kmip"].Should().Be(tlsSettings);
+        result.TlsOptions["kmip"].CheckCertificateRevocation.Should().BeTrue();
+        result.TlsOptions["kmip"].EnabledSslProtocols.Should().Be(SslProtocols.Tls12);
         result.SchemaMap[__collectionNamespace.FullName].Should().Be(new BsonDocument("bsonType", "object"));
         result.EncryptedFieldsMap.Should().BeNull();
     }
@@ -94,17 +97,17 @@ public class AutoEncryptionBuilderTests
     {
         var key = new byte[96];
         var kmsOptions = new Dictionary<string, object> { { "key", key } };
-        var tlsSettings = new SslSettings();
+        var tls = new KmsTlsOptions();
         var schema = new BsonDocument("bsonType", "object");
         var extraOptions = new Dictionary<string, object> { { "cryptSharedLibPath", "/a" } };
         var subject = new AutoEncryptionBuilder { KeyVaultNamespace = __keyVaultNamespace, ExtraOptions = extraOptions };
-        subject.RegisterKmsProvider("local", kmsOptions, tlsSettings);
+        subject.RegisterKmsProvider("local", kmsOptions, tls);
         subject.RegisterSchema(__collectionNamespace, schema);
 
         key[0] = 1;
         kmsOptions["key"] = "not a byte array";
         kmsOptions.Add("extra", 42);
-        tlsSettings.CheckCertificateRevocation = true;
+        tls.CheckCertificateRevocation = true;
         schema.Add("required", new BsonArray { "ssn" });
         extraOptions["cryptSharedLibPath"] = "/b";
         var result = subject.ToAutoEncryptionOptions();
@@ -124,7 +127,7 @@ public class AutoEncryptionBuilderTests
         var result = subject.ToAutoEncryptionOptions();
 
         subject.RegisterAwsKmsProvider();
-        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, new SslSettings());
+        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, new KmsTlsOptions());
         subject.RegisterSchema(__collectionNamespace, new BsonDocument("bsonType", "object"));
         subject.RegisterEncryptedFields(CollectionNamespace.FromFullName("medical.visits"), new BsonDocument("fields", new BsonArray()));
 
@@ -135,15 +138,15 @@ public class AutoEncryptionBuilderTests
     }
 
     [Fact]
-    public void RegisterKmsProvider_should_freeze_the_registered_tls_settings()
+    public void ToAutoEncryptionOptions_should_not_share_tls_settings_between_results()
     {
         var subject = new AutoEncryptionBuilder { KeyVaultNamespace = __keyVaultNamespace };
-        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, new SslSettings());
+        subject.RegisterKmsProvider("kmip", new Dictionary<string, object> { { "endpoint", "kmip.example.com" } }, new KmsTlsOptions());
 
-        var result = subject.ToAutoEncryptionOptions();
+        var result1 = subject.ToAutoEncryptionOptions();
+        result1.TlsOptions["kmip"].CheckCertificateRevocation = true;
+        var result2 = subject.ToAutoEncryptionOptions();
 
-        var exception = Record.Exception(() => result.TlsOptions["kmip"].CheckCertificateRevocation = true);
-
-        exception.Should().BeOfType<InvalidOperationException>();
+        result2.TlsOptions["kmip"].CheckCertificateRevocation.Should().BeFalse();
     }
 }

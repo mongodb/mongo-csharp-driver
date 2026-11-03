@@ -47,10 +47,10 @@ public sealed class AwsKmsProviderOptions
     public string SessionToken { get; set; }
 
     /// <summary>
-    /// Gets or sets the TLS settings used to reach the KMS host. The default value is <c>null</c>, which
-    /// uses the default TLS settings.
+    /// Gets or sets the TLS options used to reach the KMS host. The default value is <c>null</c>, which
+    /// uses the default TLS options.
     /// </summary>
-    public SslSettings TlsSettings { get; set; }
+    public KmsTlsOptions Tls { get; set; }
 
     internal Dictionary<string, object> ToKmsProviderOptions(bool isNamed)
     {

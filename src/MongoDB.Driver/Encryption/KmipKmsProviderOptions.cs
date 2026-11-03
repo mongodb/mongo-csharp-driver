@@ -23,7 +23,7 @@ namespace MongoDB.Driver.Encryption;
 /// </summary>
 /// <remarks>
 /// KMIP servers usually authenticate the client by its TLS client certificate, which is configured through
-/// <see cref="TlsSettings"/>.
+/// <see cref="Tls"/>.
 /// The values are copied when the provider is registered, so later changes to this instance have no effect.
 /// </remarks>
 public sealed class KmipKmsProviderOptions
@@ -34,10 +34,10 @@ public sealed class KmipKmsProviderOptions
     public string Endpoint { get; set; }
 
     /// <summary>
-    /// Gets or sets the TLS settings used to reach the KMIP server, including the client certificate. The
-    /// default value is <c>null</c>, which uses the default TLS settings.
+    /// Gets or sets the TLS options used to reach the KMIP server, including the client certificate. The
+    /// default value is <c>null</c>, which uses the default TLS options.
     /// </summary>
-    public SslSettings TlsSettings { get; set; }
+    public KmsTlsOptions Tls { get; set; }
 
     internal Dictionary<string, object> ToKmsProviderOptions()
     {

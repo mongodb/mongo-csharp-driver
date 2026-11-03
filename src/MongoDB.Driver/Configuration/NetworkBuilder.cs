@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using System.Threading;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -34,7 +35,7 @@ public sealed class NetworkBuilder
         ConnectTimeout = MongoDefaults.ConnectTimeout;
         ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
         SendBufferSize = MongoDefaults.TcpSendBufferSize;
-        SocketTimeout = MongoDefaults.SocketTimeout;
+        SocketTimeout = Timeout.InfiniteTimeSpan;
     }
 
     /// <summary>
@@ -49,13 +50,14 @@ public sealed class NetworkBuilder
     }
 
     /// <summary>
-    /// Gets or sets how long to wait for a socket to connect. Must be infinite, or greater than or equal
-    /// to zero. Defaults to <see cref="MongoDefaults.ConnectTimeout"/> (30 seconds).
+    /// Gets or sets how long to wait for a socket to connect. Must be infinite or greater than zero;
+    /// a zero timeout would fail every connection attempt that does not complete immediately.
+    /// Defaults to <see cref="MongoDefaults.ConnectTimeout"/> (30 seconds).
     /// </summary>
     public TimeSpan ConnectTimeout
     {
         get;
-        set => field = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, nameof(ConnectTimeout));
+        set => field = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(ConnectTimeout));
     }
 
     /// <summary>
@@ -106,13 +108,15 @@ public sealed class NetworkBuilder
     }
 
     /// <summary>
-    /// Gets or sets the socket read and write timeout. Must be infinite, or greater than or equal to zero.
-    /// Defaults to <see cref="MongoDefaults.SocketTimeout"/> (zero, which uses the operating system default).
+    /// Gets or sets the socket read and write timeout. Must be infinite or greater than zero.
+    /// <see cref="Timeout.InfiniteTimeSpan"/>, the default, means that the driver applies no socket timeout:
+    /// a read waits until data arrives, the operation's own timeout or cancellation ends it, or the operating
+    /// system's TCP keep-alive detects that the connection is dead.
     /// </summary>
     public TimeSpan SocketTimeout
     {
         get;
-        set => field = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, nameof(SocketTimeout));
+        set => field = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(SocketTimeout));
     }
 
     /// <summary>
