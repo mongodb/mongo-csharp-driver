@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Linq;
@@ -49,6 +49,7 @@ namespace MongoDB.Bson
             {
                 throw new ArgumentNullException(nameof(bytes));
             }
+            ThrowIfInvalidSubType(subType, nameof(subType));
             if (subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy)
             {
                 if (bytes.Length != 16)
@@ -73,6 +74,20 @@ namespace MongoDB.Bson
         {
             _bytes = GuidConverter.ToBytes(guid, guidRepresentation);
             _subType = GuidConverter.GetSubType(guidRepresentation);
+        }
+
+        // internal static methods
+        internal static bool IsValidSubType(long value)
+        {
+            return value >= 0 && value <= 255;
+        }
+
+        internal static void ThrowIfInvalidSubType(BsonBinarySubType subType, string paramName)
+        {
+            if (!IsValidSubType((int)subType))
+            {
+                throw new ArgumentException($"SubType {(int)subType} is not a valid binary subtype. Valid values range from 0 to 255.", paramName);
+            }
         }
 
         // public properties

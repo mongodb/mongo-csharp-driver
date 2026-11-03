@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Threading;
@@ -166,11 +166,6 @@ public class Feature
     /// Gets the csfle2 string algorithm feature.
     /// </summary>
     public static Feature Csfle2QEv2StringAlgorithm { get; } = new("csfle2Qev2StringAlgorithm", WireVersion.Server90);
-
-    /// <summary>
-    /// Gets the csfle2 string (preview) query types feature (prefixPreview, suffixPreview, substringPreview).
-    /// </summary>
-    public static Feature Csfle2QEv2StringPreviewAlgorithm { get; } = new("csfle2Qev2StringPreviewAlgorithm", WireVersion.Server82);
 
     /// <summary>
     /// Gets the date operators added in 5.0 feature.

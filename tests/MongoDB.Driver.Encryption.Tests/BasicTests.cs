@@ -1,11 +1,10 @@
-/*
- * Copyright 2019–present MongoDB, Inc.
+/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -112,6 +111,36 @@ namespace MongoDB.Driver.Encryption.Tests
                 (state, _, operationSent) = ProcessState(context);
                 state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_READY);
                 operationSent.Should().Equal((ReadJsonTestFile("encrypted-command.json")));
+            }
+        }
+
+        [Theory]
+        [InlineData("données")]
+        [InlineData("база")]
+        [InlineData("田中")]
+        public void EncryptQueryWithSchemaForNonAsciiDatabaseName(string databaseName)
+        {
+            var listCollectionsReply = ReadJsonTestFile("collection-info.json");
+            var jsonSchema = listCollectionsReply["options"]["validator"]["$jsonSchema"];
+            var schema = new BsonDocument($"{databaseName}.test", jsonSchema);
+
+            var options = new CryptOptions(
+                new[] { CreateKmsCredentials("aws") },
+                BsonUtil.ToBytes(schema));
+
+            using (var cryptClient = CryptClientFactory.Create(options))
+            using (var context =
+                cryptClient.StartEncryptionContext(
+                    db: databaseName,
+                    command: BsonUtil.ToBytes(ReadJsonTestFile("cmd.json"))))
+            {
+                // The schema map entry is found locally, so libmongocrypt asks for markings instead of collection info.
+                var (state, _, operationSent) = ProcessState(context);
+                state.Should().Be(CryptContext.StateCode.MONGOCRYPT_CTX_NEED_MONGO_MARKINGS);
+                operationSent["jsonSchema"].Should().Be(jsonSchema);
+
+                var (_, encryptedCommand) = ProcessContextToCompletion(context);
+                encryptedCommand.Should().Equal(ReadJsonTestFile("encrypted-command.json"));
             }
         }
 
@@ -679,7 +708,7 @@ namespace MongoDB.Driver.Encryption.Tests
 
         private static CryptContext StartExplicitEncryptionContextWithKeyId(CryptClient client, byte[] keyId, string encryptionAlgorithm, byte[] message)
         {
-            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null, textOptions: null);
+            return client.StartExplicitEncryptionContext(keyId, keyAltName: null, queryType: null, contentionFactor: null, encryptionAlgorithm, message, rangeOptions: null, stringOptions: null);
         }
 
         private static IEnumerable<string> FindTestDirectories()

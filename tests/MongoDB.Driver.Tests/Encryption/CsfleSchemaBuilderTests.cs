@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.Encryption
                         })
                         .PatternProperty("_PIIString$", BsonType.String, EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
                         .PatternProperty("_PIIArray$", BsonType.Array, EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random)
-                        .PatternProperty(p => p.Insurance, innerBuilder =>
+                        .PatternProperty<Insurance>("insurance", innerBuilder =>
                         {
                             innerBuilder
                                 .PatternProperty("_PIIString$", BsonType.String,
@@ -316,55 +316,6 @@ namespace MongoDB.Driver.Tests.Encryption
         }
 
         [Fact]
-        public void EncryptedCollection_PatternProperty_nested_works_as_expected()
-        {
-            Guid? keyId = Guid.Parse(KeyIdString);
-            var builder = new EncryptedCollectionBuilder<Patient>();
-
-            builder.PatternProperty(p => p.Insurance, innerBuilder =>
-            {
-                innerBuilder
-                    .EncryptMetadata(keyId)
-                    .Property("policyNumber", BsonType.Int32,
-                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic)
-                    .PatternProperty("randomRegex*", BsonType.String,
-                        EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Random);
-            });
-
-            var expected = """
-                           {
-                               "bsonType": "object",
-                               "patternProperties": {
-                                   "insurance": {
-                                       "bsonType": "object",
-                                       "encryptMetadata": {
-                                         "keyId": [{ "$binary" : { "base64" : "b0r0cADRQB+sOfRZAqDAyA==", "subType" : "04" } }]
-                                       },
-                                       "properties": {
-                                           "policyNumber": {
-                                               "encrypt": {
-                                                   "bsonType": "int",
-                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
-                                               }
-                                           }
-                                       },
-                                       "patternProperties": {
-                                           "randomRegex*": {
-                                               "encrypt": {
-                                                   "bsonType": "string",
-                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Random"
-                                               }
-                                           }
-                                       }
-                                   }
-                               }
-                           }
-                           """;
-
-            AssertOutcomeCollectionBuilder(builder, expected);
-        }
-
-        [Fact]
         public void EncryptedCollection_PatternProperty_nested_with_string_works_as_expected()
         {
             Guid? keyId = Guid.Parse(KeyIdString);
@@ -521,6 +472,39 @@ namespace MongoDB.Driver.Tests.Encryption
                                }
                              }
                              """;
+
+            AssertOutcomeCollectionBuilder(builder, expected);
+        }
+
+        [Fact]
+        public void EncryptedCollection_PatternProperty_nested_with_string_uses_pattern_verbatim()
+        {
+            var builder = new EncryptedCollectionBuilder<Patient>();
+
+            builder.PatternProperty<Insurance>("Insurance", innerBuilder =>
+            {
+                innerBuilder.Property("policyNumber", BsonType.Int32,
+                    EncryptionAlgorithm.AEAD_AES_256_CBC_HMAC_SHA_512_Deterministic);
+            });
+
+            var expected = """
+                           {
+                               "bsonType": "object",
+                               "patternProperties": {
+                                   "Insurance": {
+                                       "bsonType": "object",
+                                       "properties": {
+                                           "policyNumber": {
+                                               "encrypt": {
+                                                   "bsonType": "int",
+                                                   "algorithm": "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic"
+                                               }
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           """;
 
             AssertOutcomeCollectionBuilder(builder, expected);
         }

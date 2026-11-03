@@ -1,17 +1,17 @@
 /* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -307,19 +307,20 @@ namespace MongoDB.Bson.IO
         {
             // overridden in BsonBinaryWriter to write the raw bytes to the stream
             // for all other streams, deserialize the raw bytes and serialize the resulting array instead
+            var length = RawBsonSliceHelper.GetValidatedLength(slice, nameof(slice));
 
             using (var chunkSource = new InputBufferChunkSource(BsonChunkPool.Default))
             using (var buffer = new MultiChunkBuffer(chunkSource))
             using (var stream = new ByteBufferStream(buffer))
             {
                 // wrap the array in a fake document so we can deserialize it
-                var documentLength = slice.Length + 8;
+                var documentLength = length + 8;
                 buffer.EnsureCapacity(documentLength);
                 stream.WriteInt32(documentLength);
                 stream.WriteBsonType(BsonType.Array);
                 stream.WriteByte((byte)'x');
                 stream.WriteByte(0);
-                stream.WriteSlice(slice);
+                stream.WriteSlice(slice, 0, length);
                 stream.WriteByte(0);
                 buffer.MakeReadOnly();
 
@@ -346,6 +347,7 @@ namespace MongoDB.Bson.IO
         {
             // overridden in BsonBinaryWriter to write the raw bytes to the stream
             // for all other streams, deserialize the raw bytes and serialize the resulting document instead
+            RawBsonSliceHelper.GetValidatedLength(slice, nameof(slice));
 
             using (var stream = new ByteBufferStream(slice, ownsBuffer: false))
             using (var bsonReader = new BsonBinaryReader(stream, BsonBinaryReaderSettings.Defaults))

@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Threading.Tasks;
@@ -66,6 +66,33 @@ namespace MongoDB.Driver.Core.Operations
 
             var argumentNullException = exception.Should().BeOfType<ArgumentNullException>().Subject;
             argumentNullException.ParamName.Should().Be("replacement");
+        }
+
+        [Theory]
+        [InlineData("{ $set : { x : 1 } }")]
+        [InlineData("{ $unset : { x : 1 }, $set : { y : 2 } }")]
+        public void Constructor_should_throw_when_replacement_contains_update_operators(string replacementJson)
+        {
+            var replacement = BsonDocument.Parse(replacementJson);
+
+            var exception = Record.Exception(() => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings));
+
+            var argumentException = exception.Should().BeOfType<ArgumentException>().Subject;
+            argumentException.ParamName.Should().Be("replacement");
+        }
+
+        [Theory]
+        [InlineData("{ }")]
+        [InlineData("{ _id : 10, a : 1 }")]
+        [InlineData("{ a : { $set : 1 } }")] // a "$" is only invalid at the top level
+        [InlineData("{ a : [ { $set : 1 } ] }")]
+        public void Constructor_should_not_throw_when_replacement_does_not_contain_top_level_update_operators(string replacementJson)
+        {
+            var replacement = BsonDocument.Parse(replacementJson);
+
+            var exception = Record.Exception(() => new FindOneAndReplaceOperation<BsonDocument>(_collectionNamespace, _filter, replacement, BsonDocumentSerializer.Instance, _messageEncoderSettings));
+
+            exception.Should().BeNull();
         }
 
         [Fact]

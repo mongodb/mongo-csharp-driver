@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Linq;
@@ -54,6 +54,32 @@ namespace MongoDB.Bson.Tests
             var e = exception.Should().BeOfType<ArgumentException>().Subject;
             e.Message.Should().StartWith($"Length must be 16, not {length}, when subType is {subType}.");
             e.ParamName.Should().Be("bytes");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_throw_when_sub_type_is_out_of_range(
+            [Values(-1, 256, 260, 262, int.MaxValue)] int subType)
+        {
+            var bytes = new byte[16];
+
+            var exception = Record.Exception(() => new BsonBinaryData(bytes, (BsonBinarySubType)subType));
+
+            var e = exception.Should().BeOfType<ArgumentException>().Subject;
+            e.Message.Should().StartWith($"SubType {subType} is not a valid binary subtype.");
+            e.ParamName.Should().Be("subType");
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void constructor_should_accept_sub_type_at_range_boundaries(
+            [Values(0, 255)] int subType)
+        {
+            var bytes = new byte[16];
+
+            var result = new BsonBinaryData(bytes, (BsonBinarySubType)subType);
+
+            result.SubType.Should().Be((BsonBinarySubType)subType);
         }
 
         [Fact]

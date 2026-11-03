@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.IO;
@@ -220,6 +220,7 @@ namespace MongoDB.Bson.IO
             {
                 throw new ArgumentNullException("stream");
             }
+            BsonBinaryData.ThrowIfInvalidSubType(value, nameof(value));
 
             stream.WriteByte((byte)value);
         }
@@ -306,15 +307,17 @@ namespace MongoDB.Bson.IO
                 throw new ArgumentNullException("slice");
             }
 
-            var position = 0;
-            var count = slice.Length;
+            stream.WriteSlice(slice, 0, slice.Length);
+        }
 
+        internal static void WriteSlice(this BsonStream stream, IByteBuffer slice, int offset, int count)
+        {
             while (count > 0)
             {
-                var segment = slice.AccessBackingBytes(position);
+                var segment = slice.AccessBackingBytes(offset);
                 var partialCount = Math.Min(count, segment.Count);
                 stream.WriteBytes(segment.Array, segment.Offset, partialCount);
-                position += partialCount;
+                offset += partialCount;
                 count -= partialCount;
             }
         }

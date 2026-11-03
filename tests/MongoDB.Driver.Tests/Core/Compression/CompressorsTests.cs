@@ -1,17 +1,17 @@
-﻿/* Copyright 2019-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +21,6 @@ using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
 using MongoDB.TestHelpers.XunitExtensions;
-using SharpCompress.IO;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Compression
@@ -108,18 +107,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         }
 
         [Theory]
-        [InlineData(CompressorType.Zlib, -1)]
-        [InlineData(CompressorType.Zlib, 0)]
-        [InlineData(CompressorType.Zlib, 1)]
-        [InlineData(CompressorType.Zlib, 2)]
-        [InlineData(CompressorType.Zlib, 3)]
-        [InlineData(CompressorType.Zlib, 4)]
-        [InlineData(CompressorType.Zlib, 5)]
-        [InlineData(CompressorType.Zlib, 6)]
-        [InlineData(CompressorType.Zlib, 7)]
-        [InlineData(CompressorType.Zlib, 8)]
-        [InlineData(CompressorType.Zlib, 9)]
-        public void Zlib_should_read_the_previously_written_message(CompressorType compressorType, int compressionOption)
+        [ParameterAttributeData]
+        public void Zlib_should_read_the_previously_written_message([Range(-1, 9)] int compressionLevel)
         {
             var bytes = Encoding.ASCII.GetBytes(TestMessage);
             int zlibHeaderSize = 21;
@@ -128,9 +117,9 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
                 bytes,
                 (input, output) =>
                 {
-                    var compressor = GetCompressor(compressorType, compressionOption);
+                    var compressor = GetCompressor(CompressorType.Zlib, compressionLevel);
                     compressor.Compress(input, output);
-                    if (compressionOption != 0)
+                    if (compressionLevel != 0)
                     {
                         input.Length.Should().BeGreaterThan(output.Length);
                     }
@@ -219,15 +208,11 @@ namespace MongoDB.Driver.Core.Tests.Core.Compression
         private void Assert(byte[] bytes, Action<ByteBufferStream, MemoryStream> test, Action<ByteBufferStream, MemoryStream> assertResult = null)
         {
             using (var buffer = new ByteArrayBuffer(bytes))
+            using (var memoryStream = new MemoryStream())
+            using (var byteBufferStream = new ByteBufferStream(buffer))
             {
-                var memoryStream = new MemoryStream();
-                var byteBufferStream = new ByteBufferStream(buffer);
-                using (SharpCompressStream.CreateNonDisposing(memoryStream))
-                using (SharpCompressStream.CreateNonDisposing(byteBufferStream))
-                {
-                    test(byteBufferStream, memoryStream);
-                    assertResult?.Invoke(byteBufferStream, memoryStream);
-                }
+                test(byteBufferStream, memoryStream);
+                assertResult?.Invoke(byteBufferStream, memoryStream);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿/* Copyright 2010-present MongoDB Inc.
+/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -500,6 +500,7 @@ namespace MongoDB.Bson.Tests.IO
         [InlineData(BsonBinarySubType.Column, 7)]
         [InlineData(BsonBinarySubType.Sensitive, 8)]
         [InlineData(BsonBinarySubType.UserDefined, 0x80)]
+        [InlineData((BsonBinarySubType)255, 255)]
         public void WriteBinarySubType_should_have_expected_effect(
             BsonBinarySubType value,
             byte expectedByte)
@@ -523,6 +524,24 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => stream.WriteBinarySubType(0);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(256)]
+        [InlineData(260)]
+        [InlineData(262)]
+        [InlineData(int.MaxValue)]
+        public void WriteBinarySubType_should_throw_when_value_is_out_of_range(int value)
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var stream = new BsonStreamAdapter(memoryStream))
+            {
+                Action action = () => stream.WriteBinarySubType((BsonBinarySubType)value);
+
+                action.ShouldThrow<ArgumentException>().And.ParamName.Should().Be("value");
+                memoryStream.ToArray().Should().BeEmpty();
+            }
         }
 
         [Theory]
@@ -765,6 +784,24 @@ namespace MongoDB.Bson.Tests.IO
             Action action = () => stream.WriteSlice(slice);
 
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("stream");
+        }
+
+        [Fact]
+        public void WriteSlice_with_offset_and_count_should_write_requested_range_across_chunks()
+        {
+            var bytes = Enumerable.Range(0, 10).Select(i => (byte)i).ToArray();
+            var chunks = new IBsonChunk[]
+            {
+                new ByteArrayChunk(bytes.Take(3).ToArray()),
+                new ByteArrayChunk(bytes.Skip(3).ToArray())
+            };
+            using var slice = new MultiChunkBuffer(chunks, bytes.Length, isReadOnly: true);
+            using var memoryStream = new MemoryStream();
+            using var stream = new BsonStreamAdapter(memoryStream);
+
+            stream.WriteSlice(slice, 1, 7);
+
+            memoryStream.ToArray().Should().Equal(1, 2, 3, 4, 5, 6, 7);
         }
     }
 }

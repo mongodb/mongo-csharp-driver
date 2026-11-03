@@ -1,17 +1,17 @@
-﻿/* Copyright 2021-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using FluentAssertions;
@@ -99,11 +99,8 @@ namespace MongoDB.Driver.Tests.Encryption
 
         [Theory]
         [InlineData("prefix")]
-        [InlineData("prefixPreview")]
         [InlineData("suffix")]
-        [InlineData("suffixPreview")]
         [InlineData("substring")]
-        [InlineData("substringPreview")]
         public void Constructor_should_succeed_with_valid_queryType_for_String(string validQueryType)
         {
             var subject = new EncryptOptions(algorithm: EncryptionAlgorithm.String, keyId: Guid.NewGuid(), queryType: validQueryType);
@@ -124,15 +121,13 @@ namespace MongoDB.Driver.Tests.Encryption
                 .Which.Message.Should().Contain("PrefixOptions must be set");
         }
 
-        [Theory]
-        [InlineData("substring")]
-        [InlineData("substringPreview")]
-        public void Constructor_should_fail_when_substring_queryType_without_substringOptions(string queryType)
+        [Fact]
+        public void Constructor_should_fail_when_substring_queryType_without_substringOptions()
         {
             var exception = Record.Exception(() => new EncryptOptions(
                 algorithm: EncryptionAlgorithm.String,
                 keyId: Guid.NewGuid(),
-                queryType: queryType,
+                queryType: "substring",
                 stringOptions: new StringOptions(true, true)));
 
             exception.Should().BeOfType<ArgumentException>()

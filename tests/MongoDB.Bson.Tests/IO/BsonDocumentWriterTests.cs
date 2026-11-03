@@ -1,19 +1,20 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using Xunit;
@@ -1591,6 +1592,70 @@ namespace MongoDB.Bson.Tests.IO
             var binaryData = document["v"].AsBsonBinaryData;
             binaryData.SubType.Should().Be(expectedSubType);
             binaryData.Bytes.Should().Equal(expectedBytes);
+        }
+
+        [Fact]
+        public void WriteRawBsonArray_should_ignore_bytes_past_declared_length()
+        {
+            var bytes = new BsonDocument("0", 1).ToBson();
+            var slice = new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+            writer.WriteRawBsonArray(slice);
+            writer.WriteEndDocument();
+
+            document.Should().Be(new BsonDocument("a", new BsonArray { 1 }));
+        }
+
+        [Fact]
+        public void WriteRawBsonArray_should_throw_when_slice_is_invalid()
+        {
+            var bytes = new BsonDocument("0", 1).ToBson();
+            BitConverter.GetBytes(bytes.Length + 1).CopyTo(bytes, 0);
+            var slice = new ByteArrayBuffer(bytes, isReadOnly: true);
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+
+            var exception = Record.Exception(() => writer.WriteRawBsonArray(slice));
+
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("slice");
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_ignore_bytes_past_declared_length()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            var slice = new ByteArrayBuffer(bytes.Concat(new byte[] { 1, 2, 3 }).ToArray(), isReadOnly: true);
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+            writer.WriteRawBsonDocument(slice);
+            writer.WriteEndDocument();
+
+            document.Should().Be(new BsonDocument("a", new BsonDocument("x", 1)));
+        }
+
+        [Fact]
+        public void WriteRawBsonDocument_should_throw_when_slice_is_invalid()
+        {
+            var bytes = new BsonDocument("x", 1).ToBson();
+            BitConverter.GetBytes(bytes.Length + 1).CopyTo(bytes, 0);
+            var slice = new ByteArrayBuffer(bytes, isReadOnly: true);
+            var document = new BsonDocument();
+            using var writer = new BsonDocumentWriter(document);
+            writer.WriteStartDocument();
+            writer.WriteName("a");
+
+            var exception = Record.Exception(() => writer.WriteRawBsonDocument(slice));
+
+            exception.Should().BeOfType<ArgumentException>().Which.ParamName.Should().Be("slice");
         }
     }
 }

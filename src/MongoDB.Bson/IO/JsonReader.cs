@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -979,6 +979,16 @@ namespace MongoDB.Bson.IO
                 HexUtils.IsValidHexString(value);
         }
 
+        private static BsonBinarySubType ToBinaryDataSubType(long value)
+        {
+            if (!BsonBinaryData.IsValidSubType(value))
+            {
+                throw new FormatException($"JSON reader expected a binary subtype between 0 and 255 but found '{value}'.");
+            }
+
+            return (BsonBinarySubType)value;
+        }
+
         private (BsonBinaryData, Guid?) ParseBinDataConstructor()
         {
             VerifyToken("(");
@@ -997,7 +1007,7 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken(")");
             var bytes = Convert.FromBase64String(bytesToken.StringValue);
-            var subType = (BsonBinarySubType)subTypeToken.Int32Value;
+            var subType = ToBinaryDataSubType(subTypeToken.Int32Value);
             return (new BsonBinaryData(bytes, subType), null);
         }
 
@@ -1111,11 +1121,20 @@ namespace MongoDB.Bson.IO
             var subTypeToken = PopToken();
             if (subTypeToken.Type == JsonTokenType.String)
             {
-                subType = (BsonBinarySubType)Convert.ToInt32(subTypeToken.StringValue, 16);
+                int subTypeValue;
+                try
+                {
+                    subTypeValue = Convert.ToInt32(subTypeToken.StringValue, 16);
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is FormatException || ex is OverflowException)
+                {
+                    throw new FormatException($"JSON reader expected $type to be a hex string but found '{subTypeToken.StringValue}'.", ex);
+                }
+                subType = ToBinaryDataSubType(subTypeValue);
             }
             else if (subTypeToken.Type == JsonTokenType.Int32 || subTypeToken.Type == JsonTokenType.Int64)
             {
-                subType = (BsonBinarySubType)subTypeToken.Int32Value;
+                subType = ToBinaryDataSubType(subTypeToken.Int64Value);
             }
             else
             {
@@ -1142,7 +1161,7 @@ namespace MongoDB.Bson.IO
             }
             VerifyToken(")");
             var bytes = BsonUtils.ParseHexString(bytesToken.StringValue);
-            var subType = (BsonBinarySubType)subTypeToken.Int32Value;
+            var subType = ToBinaryDataSubType(subTypeToken.Int32Value);
 
             if ((subType == BsonBinarySubType.UuidStandard || subType == BsonBinarySubType.UuidLegacy) &&
                 bytes.Length != 16)

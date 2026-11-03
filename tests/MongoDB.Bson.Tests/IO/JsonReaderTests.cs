@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -142,6 +142,56 @@ namespace MongoDB.Bson.Tests.IO
                 result.Should().Be(new BsonBinaryData(expectedBytes, expectedSubType));
                 reader.State.Should().Be(BsonReaderState.Initial);
                 reader.IsAtEndOfFile().Should().BeTrue();
+            }
+        }
+
+        [Theory]
+        [InlineData("{ $binary : \"AQ==\", $type : 256 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : 260 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : 262 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : -1 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : 4294967296 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : 4294967302 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : 8589934594 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : -4294967296 }")]
+        [InlineData("{ $binary : \"AQ==\", $type : \"104\" }")]
+        [InlineData("{ $binary : \"AQ==\", $type : \"0x104\" }")]
+        [InlineData("{ $binary : \"AQ==\", $type : \"ffffffff\" }")]
+        [InlineData("{ $binary : \"AQ==\", $type : \"fffffffff\" }")]
+        [InlineData("{ $binary : { base64 : \"AQ==\", subType : \"104\" } }")]
+        [InlineData("{ $binary : { subType : \"104\", base64 : \"AQ==\" } }")]
+        [InlineData("BinData(-1, \"AQ==\")")]
+        [InlineData("BinData(256, \"AQ==\")")]
+        [InlineData("BinData(260, \"AQ==\")")]
+        [InlineData("BinData(262, \"AQ==\")")]
+        [InlineData("BinData(4294967302, \"AQ==\")")]
+        [InlineData("HexData(-1, \"01\")")]
+        [InlineData("HexData(256, \"01\")")]
+        [InlineData("HexData(260, \"01\")")]
+        [InlineData("HexData(262, \"01\")")]
+        [InlineData("HexData(4294967302, \"01\")")]
+        public void TestBinaryDataSubTypeOutOfRange(string json)
+        {
+            using (var reader = new JsonReader(json))
+            {
+                var exception = Record.Exception(() => reader.ReadBinaryData());
+
+                exception.Should().BeOfType<FormatException>();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void TestBinaryDataUnnamedSubTypeRoundTrips(
+            [Values(10, 127, 129, 255)] int subType,
+            [Values(JsonOutputMode.CanonicalExtendedJson, JsonOutputMode.RelaxedExtendedJson)] JsonOutputMode outputMode)
+        {
+            var binaryData = new BsonBinaryData(new byte[] { 1 }, (BsonBinarySubType)subType);
+            var json = binaryData.ToJson(writerSettings: new JsonWriterSettings { OutputMode = outputMode });
+
+            using (var reader = new JsonReader(json))
+            {
+                reader.ReadBinaryData().Should().Be(binaryData);
             }
         }
 

@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using System;
 using System.Collections.Generic;
@@ -41,6 +41,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
         // private fields
         private readonly IBsonSerializer<GeoJsonBoundingBox<TCoordinates>> _boundingBoxSerializer;
         private readonly IBsonSerializer<GeoJsonCoordinateReferenceSystem> _coordinateReferenceSystemSerializer;
+        private readonly HashSet<string> _memberNames;
         private readonly string _type;
 
         // constructors
@@ -60,6 +61,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var serializerRegistry = serializationDomain.SerializerRegistry;
             _boundingBoxSerializer = serializerRegistry.GetSerializer<GeoJsonBoundingBox<TCoordinates>>();
             _coordinateReferenceSystemSerializer = serializerRegistry.GetSerializer<GeoJsonCoordinateReferenceSystem>();
+            _memberNames = CreateMemberNames(derivedMembers);
             _type = type;
         }
 
@@ -80,6 +82,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             var combinedMembers = CreateBaseMembers().Concat(derivedMembers).ToArray();
             ThrowIfDuplicateMemberFlags(combinedMembers);
             return combinedMembers;
+        }
+
+        private static HashSet<string> CreateMemberNames(IEnumerable<SerializerHelper.Member> derivedMembers)
+        {
+            var memberNames = CreateBaseMembers().Concat(derivedMembers).Select(m => m.ElementName).Where(n => n != "*");
+            return new HashSet<string>(memberNames);
         }
 
         private static void ThrowIfDuplicateMemberFlags(SerializerHelper.Member[] members)
@@ -185,6 +193,12 @@ namespace MongoDB.Driver.GeoJsonObjectModel.Serializers
             {
                 foreach (var element in value)
                 {
+                    if (_memberNames.Contains(element.Name))
+                    {
+                        throw new BsonSerializationException(
+                            $"GeoJson {_type} extra member '{element.Name}' conflicts with a member of the same name.");
+                    }
+
                     context.Writer.WriteName(element.Name);
                     BsonValueSerializer.Instance.Serialize(context, element.Value);
                 }

@@ -1,11 +1,10 @@
-/*
- * Copyright 2019–present MongoDB, Inc.
+/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +15,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MongoDB.Bson.IO;
 
 namespace MongoDB.Driver.Encryption
 {
@@ -77,26 +77,21 @@ namespace MongoDB.Driver.Encryption
         {
             ContextSafeHandle handle = Library.mongocrypt_ctx_new(_handle);
 
-            var stringPointer = Marshal.StringToHGlobalAnsi(db);
+            // libmongocrypt matches the database name against schema map namespaces as UTF-8,
+            // the same encoding the command uses on the wire.
+            var dbBytes = Utf8Encodings.Strict.GetBytes(db);
 
-            try
+            unsafe
             {
-                unsafe
+                fixed (byte* d = dbBytes)
+                fixed (byte* c = command)
                 {
-                    fixed (byte* c = command)
+                    var commandPtr = (IntPtr)c;
+                    using (var pinnedCommand = new PinnedBinary(commandPtr, (uint)command.Length))
                     {
-                        var commandPtr = (IntPtr)c;
-                        using (var pinnedCommand = new PinnedBinary(commandPtr, (uint)command.Length))
-                        {
-                            // Let mongocrypt run strlen
-                            handle.Check(_status, Library.mongocrypt_ctx_encrypt_init(handle, stringPointer, -1, pinnedCommand.Handle));
-                        }
+                        handle.Check(_status, Library.mongocrypt_ctx_encrypt_init(handle, (IntPtr)d, dbBytes.Length, pinnedCommand.Handle));
                     }
                 }
-            }
-            finally
-            {
-                Marshal.FreeHGlobal(stringPointer);
             }
 
             return new CryptContext(handle);
@@ -105,7 +100,7 @@ namespace MongoDB.Driver.Encryption
         /// <summary>
         /// Starts an explicit encryption context.
         /// </summary>
-        public CryptContext StartExplicitEncryptionContext(byte[] keyId, byte[] keyAltName, string queryType, long? contentionFactor, string encryptionAlgorithm, byte[] message, byte[] rangeOptions, byte[] textOptions, bool isExpressionMode = false)
+        public CryptContext StartExplicitEncryptionContext(byte[] keyId, byte[] keyAltName, string queryType, long? contentionFactor, string encryptionAlgorithm, byte[] message, byte[] rangeOptions, byte[] stringOptions, bool isExpressionMode = false)
         {
             var handle = Library.mongocrypt_ctx_new(_handle);
 
@@ -123,9 +118,9 @@ namespace MongoDB.Driver.Encryption
                 PinnedBinary.RunAsPinnedBinary(handle, rangeOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_range(h, pb));
             }
 
-            if (textOptions != null)
+            if (stringOptions != null)
             {
-                PinnedBinary.RunAsPinnedBinary(handle, textOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_text(h, pb));
+                PinnedBinary.RunAsPinnedBinary(handle, stringOptions, _status, (h, pb) => Library.mongocrypt_ctx_setopt_algorithm_text(h, pb));
             }
 
             handle.Check(_status, Library.mongocrypt_ctx_setopt_algorithm(handle, encryptionAlgorithm, -1));

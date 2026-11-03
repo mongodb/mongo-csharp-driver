@@ -12,6 +12,8 @@ createEntities:
       useMultipleMongoses: false
       observeLogMessages:
         command: debug
+      uriOptions:
+        appName: "commandLoggingRedactionTest"
   - client:
       id: &failPointClient failPointClient
       useMultipleMongoses: false
@@ -67,6 +69,7 @@ tests:
             data:
               failCommands: ["authenticate"]
               closeConnection: true
+              appName: "commandLoggingRedactionTest"
       - name: runCommand
         object: *database
         arguments:
@@ -139,6 +142,7 @@ tests:
             data:
               failCommands: ["saslStart"]
               closeConnection: true
+              appName: "commandLoggingRedactionTest"
       - name: runCommand
         object: *database
         arguments:
@@ -211,6 +215,7 @@ tests:
             data:
               failCommands: ["saslContinue"]
               closeConnection: true
+              appName: "commandLoggingRedactionTest"
       - name: runCommand
         object: *database
         arguments:

@@ -1,17 +1,17 @@
-﻿/* Copyright 2010-present MongoDB Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+/* Copyright 2010-present MongoDB Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -76,6 +76,24 @@ namespace MongoDB.Driver.Tests.GeoJsonObjectModel
 
             var expected = "{ 'type' : 'MultiPoint', 'coordinates' : [[1.0, 2.0], [3.0, 4.0]], 'x' : 1 }".Replace("'", "\"");
             TestRoundTrip(expected, multiPoint);
+        }
+
+        [Theory]
+        [InlineData("bbox")]
+        [InlineData("coordinates")]
+        [InlineData("crs")]
+        [InlineData("type")]
+        public void TestMultiPoint2DWithConflictingExtraMember(string name)
+        {
+            var multiPoint = GeoJson.MultiPoint(
+                new GeoJsonObjectArgs<GeoJson2DCoordinates> { ExtraMembers = new BsonDocument(name, 1) },
+                GeoJson.Position(1.0, 2.0),
+                GeoJson.Position(3.0, 4.0));
+
+            var exception = Record.Exception(() => multiPoint.ToJson());
+
+            Assert.IsType<BsonSerializationException>(exception);
+            Assert.Equal($"GeoJson MultiPoint extra member '{name}' conflicts with a member of the same name.", exception.Message);
         }
 
         [Fact]
