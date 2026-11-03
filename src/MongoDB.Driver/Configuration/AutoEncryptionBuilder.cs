@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Configuration;
 /// or encrypted fields are registered. <see cref="KeyVaultNamespace"/> is then required, as is at least one KMS
 /// provider, registered with one of the provider specific extension methods in
 /// <see cref="MongoClientBuilderExtensions"/> (such as <c>RegisterAwsKmsProvider</c>) or with
-/// <see cref="RegisterKmsProvider(string, IReadOnlyDictionary{string, object}, SslSettings)"/>. Both are
+/// <see cref="RegisterKmsProvider(string, IReadOnlyDictionary{string, object}, KmsTlsOptions)"/>. Both are
 /// verified when the client is built.
 /// </para>
 /// <para>
@@ -46,7 +46,7 @@ public sealed class AutoEncryptionBuilder
     private readonly Dictionary<string, BsonDocument> _encryptedFieldsMap = new();
     private readonly Dictionary<string, IReadOnlyDictionary<string, object>> _kmsProviders = new();
     private readonly Dictionary<string, BsonDocument> _schemaMap = new();
-    private readonly Dictionary<string, SslSettings> _tlsOptions = new();
+    private readonly Dictionary<string, KmsTlsOptions> _kmsTlsOptions = new();
 
     internal AutoEncryptionBuilder()
     {
@@ -122,16 +122,6 @@ public sealed class AutoEncryptionBuilder
         set;
     }
 
-    // TODO: reevaluate taking SslSettings here and on the per-provider KMS options (AwsKmsProviderOptions etc.).
-    // Cluster TLS is flattened into TlsBuilder, so KMS TLS is the only remaining place SslSettings appears on
-    // the new builder surface, which keeps the type alive.
-    // Options: keep it (per-KMS-host TLS is a genuinely different concern from cluster TLS), or introduce
-    // a small dedicated per-provider TLS type.
-
-    // NOTE: do not merge these overloads into one method with optional parameters. Optional parameter
-    // defaults are compiled into the caller's assembly, so adding a parameter later would break already
-    // compiled callers, and adding an overload would make existing call sites ambiguous. Keeping every
-    // parameter required leaves room to add one more overload without breaking anything.
     /// <summary>
     /// Registers a KMS provider.
     /// </summary>
@@ -147,10 +137,10 @@ public sealed class AutoEncryptionBuilder
     public AutoEncryptionBuilder RegisterKmsProvider(
         string name,
         IReadOnlyDictionary<string, object> options)
-        => RegisterKmsProvider(name, options, tlsSettings: null);
+        => RegisterKmsProvider(name, options, tls: null);
 
     /// <summary>
-    /// Registers a KMS provider and the TLS settings used to reach it.
+    /// Registers a KMS provider and the TLS options used to reach it.
     /// </summary>
     /// <param name="name">
     /// The provider name, either a bare provider such as <c>"aws"</c> or a named provider such as
@@ -160,12 +150,12 @@ public sealed class AutoEncryptionBuilder
     /// The provider options. Every value must be a <see cref="string"/> or a <c>byte[]</c>.
     /// An empty dictionary requests on-demand credentials for providers that support them.
     /// </param>
-    /// <param name="tlsSettings">The TLS settings used to reach the provider, or <c>null</c> for the defaults.</param>
+    /// <param name="tls">The TLS options used to reach the provider, or <c>null</c> for the defaults.</param>
     /// <returns>The same <see cref="AutoEncryptionBuilder"/> instance so that calls can be chained.</returns>
     public AutoEncryptionBuilder RegisterKmsProvider(
         string name,
         IReadOnlyDictionary<string, object> options,
-        SslSettings tlsSettings)
+        KmsTlsOptions tls)
     {
         Ensure.IsNotNullOrEmpty(name, nameof(name));
         Ensure.IsNotNull(options, nameof(options));
@@ -190,16 +180,10 @@ public sealed class AutoEncryptionBuilder
             });
         }
 
-        var tlsSettingsCopy = tlsSettings?.Clone().Freeze();
-        if (tlsSettingsCopy != null && tlsSettingsCopy.ServerCertificateValidationCallback != null)
-        {
-            throw new ArgumentException("Insecure TLS options prohibited.", nameof(tlsSettings));
-        }
-
         _kmsProviders.Add(name, new ReadOnlyDictionary<string, object>(optionsCopy));
-        if (tlsSettingsCopy != null)
+        if (tls != null)
         {
-            _tlsOptions.Add(name, tlsSettingsCopy);
+            _kmsTlsOptions.Add(name, new KmsTlsOptions(tls));
         }
 
         return this;
@@ -262,6 +246,7 @@ public sealed class AutoEncryptionBuilder
     // Returns null when automatic encryption has not been configured. The outer dictionaries are copied so that
     // later registrations on this builder do not reach a client that was already built; the values are copies
     // owned by this builder (see the Register* methods) that are never mutated, so sharing them is safe.
+    // The exception is the SslSettings, which are mutable and are therefore created anew on every call.
     internal AutoEncryptionOptions ToAutoEncryptionOptions()
     {
         var isConfigured =
@@ -290,7 +275,7 @@ public sealed class AutoEncryptionBuilder
             extraOptions: Optional.Create(ExtraOptions),
             keyVaultClient: Optional.Create(KeyVaultClient),
             schemaMap: Optional.Create<IReadOnlyDictionary<string, BsonDocument>>(_schemaMap.Count == 0 ? null : new Dictionary<string, BsonDocument>(_schemaMap)),
-            tlsOptions: new Dictionary<string, SslSettings>(_tlsOptions),
+            tlsOptions: _kmsTlsOptions.ToDictionary(o => o.Key, o => o.Value.ToSslSettings()),
             encryptedFieldsMap: Optional.Create<IReadOnlyDictionary<string, BsonDocument>>(_encryptedFieldsMap.Count == 0 ? null : new Dictionary<string, BsonDocument>(_encryptedFieldsMap)),
             bypassQueryAnalysis: BypassQueryAnalysis,
             kmsConnector: Optional.Create(KmsConnector));

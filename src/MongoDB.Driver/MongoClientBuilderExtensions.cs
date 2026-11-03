@@ -293,7 +293,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNull(builder, nameof(builder));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider("aws", options.ToKmsProviderOptions(isNamed: false), options.TlsSettings);
+        return builder.RegisterKmsProvider("aws", options.ToKmsProviderOptions(isNamed: false), options.Tls);
     }
 
     /// <summary>
@@ -309,7 +309,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNullOrEmpty(name, nameof(name));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider($"aws:{name}", options.ToKmsProviderOptions(isNamed: true), options.TlsSettings);
+        return builder.RegisterKmsProvider($"aws:{name}", options.ToKmsProviderOptions(isNamed: true), options.Tls);
     }
 
     /// <summary>
@@ -332,7 +332,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNull(builder, nameof(builder));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider("azure", options.ToKmsProviderOptions(isNamed: false), options.TlsSettings);
+        return builder.RegisterKmsProvider("azure", options.ToKmsProviderOptions(isNamed: false), options.Tls);
     }
 
     /// <summary>
@@ -348,7 +348,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNullOrEmpty(name, nameof(name));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider($"azure:{name}", options.ToKmsProviderOptions(isNamed: true), options.TlsSettings);
+        return builder.RegisterKmsProvider($"azure:{name}", options.ToKmsProviderOptions(isNamed: true), options.Tls);
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNull(builder, nameof(builder));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider("gcp", options.ToKmsProviderOptions(isNamed: false), options.TlsSettings);
+        return builder.RegisterKmsProvider("gcp", options.ToKmsProviderOptions(isNamed: false), options.Tls);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNullOrEmpty(name, nameof(name));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider($"gcp:{name}", options.ToKmsProviderOptions(isNamed: true), options.TlsSettings);
+        return builder.RegisterKmsProvider($"gcp:{name}", options.ToKmsProviderOptions(isNamed: true), options.Tls);
     }
 
     /// <summary>
@@ -401,7 +401,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNull(builder, nameof(builder));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider("kmip", options.ToKmsProviderOptions(), options.TlsSettings);
+        return builder.RegisterKmsProvider("kmip", options.ToKmsProviderOptions(), options.Tls);
     }
 
     /// <summary>
@@ -417,7 +417,7 @@ public static class MongoClientBuilderExtensions
         Ensure.IsNotNullOrEmpty(name, nameof(name));
         Ensure.IsNotNull(options, nameof(options));
 
-        return builder.RegisterKmsProvider($"kmip:{name}", options.ToKmsProviderOptions(), options.TlsSettings);
+        return builder.RegisterKmsProvider($"kmip:{name}", options.ToKmsProviderOptions(), options.Tls);
     }
 
     /// <summary>
