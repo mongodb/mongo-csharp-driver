@@ -23,7 +23,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
+using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 

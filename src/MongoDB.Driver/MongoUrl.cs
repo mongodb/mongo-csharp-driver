@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Servers;
 

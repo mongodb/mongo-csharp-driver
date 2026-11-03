@@ -19,7 +19,7 @@ using System.IO;
 using System.Text;
 using FluentAssertions;
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 

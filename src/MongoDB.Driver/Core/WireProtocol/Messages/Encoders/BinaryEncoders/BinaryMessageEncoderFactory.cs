@@ -14,7 +14,7 @@
  */
 
 using System.IO;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.WireProtocol.Messages.Encoders.BinaryEncoders

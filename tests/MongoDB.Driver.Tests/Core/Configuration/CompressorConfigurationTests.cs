@@ -1,4 +1,4 @@
-/* Copyright 2010-present MongoDB Inc.
+﻿/* Copyright 2010-present MongoDB Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  */
 
 using FluentAssertions;
-using MongoDB.Driver.Core.Compression;
-using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Compression;
+using MongoDB.Driver.Configuration;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Tests.Core.Configuration

@@ -16,7 +16,7 @@
 using System;
 using System.Collections.Generic;
 using MongoDB.Bson;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
