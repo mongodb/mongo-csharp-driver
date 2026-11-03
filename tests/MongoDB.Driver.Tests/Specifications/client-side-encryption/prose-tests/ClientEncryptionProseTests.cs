@@ -137,7 +137,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
                                 exception
                                     .Should().BeOfType<MongoEncryptionCreateCollectionException>().Which.InnerException
-                                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.") ;
+                                    .Should().BeOfType<InvalidOperationException>().Which.Message.Should().Contain("There are no encrypted fields defined for the collection.");
                             }
                             break;
                         case 3: // Case 3: Invalid ``keyId``
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                     .Should().BeOfType<MongoCommandException>().Which.Message.Should().Contain("BSON field 'create.encryptedFields.fields.keyId' is the wrong type 'bool', expected type 'binData'");
                             }
                             break;
-                       case 4: // Case 4: Insert encrypted value
+                        case 4: // Case 4: Insert encrypted value
                             {
                                 var createCollectionOptions = new CreateCollectionOptions { EncryptedFields = encryptedFields };
                                 var collection = CreateEncryptedCollection<BsonDocument>(client, clientEncryption, __collCollectionNamespace, createCollectionOptions, kmsProvider, async, out var effectiveEncryptedFields);
@@ -1939,7 +1939,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             {
                 try
                 {
-                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception,"The message received was unexpected or badly formatted");
+                    AssertInnerEncryptionException<System.ComponentModel.Win32Exception>(exception, "The message received was unexpected or badly formatted");
                 }
                 catch (XunitException) // assertation failed
                 {
@@ -2648,7 +2648,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                { "$project": { "_id": 0 } }
                            ]
                            """;
-            var expectedResult1 ="""{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            var expectedResult1 = """{"csfle" : "csfle", "matched" : [ {"no_schema" : "no_schema"} ]}""";
             RunTestCase(csfleNamespace, pipeline1, expectedResult1);
 
             // Case 2: db.qe joins db.no_schema
@@ -2666,7 +2666,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0, "__safeContent__" : 0}}
                            ]
                            """;
-            var expectedResult2 ="""{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
+            var expectedResult2 = """{"qe" : "qe", "matched" : [ {"no_schema" : "no_schema"} ]}""";
             RunTestCase(qeNamespace, pipeline2, expectedResult2);
 
             // Case 3: db.no_schema joins db.csfle
@@ -2683,7 +2683,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult3 ="""{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
+            var expectedResult3 = """{"no_schema" : "no_schema", "matched" : [ {"csfle" : "csfle"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline3, expectedResult3);
 
             // Case 4: db.no_schema joins db.qe
@@ -2700,7 +2700,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult4 ="""{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
+            var expectedResult4 = """{"no_schema" : "no_schema", "matched" : [ {"qe" : "qe"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline4, expectedResult4);
 
             // Case 5: db.csfle joins db.csfle2
@@ -2717,7 +2717,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult5 ="""{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
+            var expectedResult5 = """{"csfle" : "csfle", "matched" : [ {"csfle2" : "csfle2"} ]}""";
             RunTestCase(csfleNamespace, pipeline5, expectedResult5);
 
             // Case 6: db.qe joins db.qe2
@@ -2734,7 +2734,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                               {"$project" : {"_id" : 0, "__safeContent__" : 0}}
                            ]
                            """;
-            var expectedResult6 ="""{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
+            var expectedResult6 = """{"qe" : "qe", "matched" : [ {"qe2" : "qe2"} ]}""";
             RunTestCase(qeNamespace, pipeline6, expectedResult6);
 
             // Case 7: db.no_schema joins db.no_schema2
@@ -2751,7 +2751,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                {"$project" : {"_id" : 0}}
                            ]
                            """;
-            var expectedResult7 ="""{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
+            var expectedResult7 = """{"no_schema" : "no_schema", "matched" : [ {"no_schema2" : "no_schema2"} ]}""";
             RunTestCase(noSchemaNamespace, pipeline7, expectedResult7);
 
             // Case 8: db.csfle joins db.qe
@@ -2888,11 +2888,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Supports(Feature.Csfle2QEv2StringAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: false);
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false);
         }
 
         // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Substring queries require server 9.0+ (GA). The substringPreview query type is covered by StringSubstringPreviewExplicitEncryptionTest.
+        // Substring queries require server 9.0+ (GA).
         [Theory]
         [ParameterAttributeData]
         public void StringSubstringExplicitEncryptionTest(
@@ -2903,49 +2903,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 .Supports(Feature.Csfle2QEv2StringAlgorithm)
                 .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: false);
+            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true);
         }
 
-        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Substring preview queries are supported on servers before 9.0 (libmongocrypt 1.18.1+) and are
-        // rejected on server 9.0+. GA substring is covered by StringSubstringExplicitEncryptionTest.
-        [Theory]
-        [ParameterAttributeData]
-        public void StringSubstringPreviewExplicitEncryptionTest(
-            [Values(5, 6)] int testCase,
-            [Values(true, false)] bool async)
-        {
-            RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-                .VersionLessThanOrEqualTo("8.99.99");
-
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: true, isPreview: true);
-        }
-
-        // https://github.com/mongodb/specifications/blob/master/source/client-side-encryption/tests/README.md#27-string-explicit-encryption
-        // Prefix/suffix preview queries are supported on servers before 9.0 (libmongocrypt 1.19.1+) and are
-        // rejected on server 9.0+, so this is gated to 8.2-8.x. GA prefix/suffix is covered by StringExplicitEncryptionTest.
-        [Theory]
-        [ParameterAttributeData]
-        public void StringPreviewExplicitEncryptionTest(
-            [Values(1, 2, 3, 4)] int testCase,
-            [Values(true, false)] bool async)
-        {
-            RequireServer.Check()
-                .Supports(Feature.Csfle2QEv2StringPreviewAlgorithm)
-                .ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced)
-                .VersionLessThanOrEqualTo("8.99.99");
-
-            RunStringExplicitEncryptionTestCase(testCase, async, isSubstring: false, isPreview: true);
-        }
-
-        private void RunStringExplicitEncryptionTestCase(int testCase, bool async, bool isSubstring, bool isPreview)
+        private void RunStringExplicitEncryptionTestCase(int testCase, bool async, bool isSubstring)
         {
             var prefixSuffixCollectionNamespace = new CollectionNamespace("db", "prefix-suffix");
-            var prefixSuffixPreviewCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-preview");
             var substringCollectionNamespace = new CollectionNamespace("db", "substring");
-            var substringPreviewCollectionNamespace = new CollectionNamespace("db", "substring-preview");
             var prefixSuffixCiDiCollectionNamespace = new CollectionNamespace("db", "prefix-suffix-ci-di");
             var substringCiDiCollectionNamespace = new CollectionNamespace("db", "substring-ci-di");
 
@@ -2954,22 +2918,9 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // Each collection has a different minimum server version, so only create the collections relevant to the cases under test.
             if (isSubstring)
             {
-                if (isPreview)
-                {
-                    // The substring-preview collection requires a server before 9.0.
-                    DropAndCreateCollection(keyVaultClient, substringPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-preview.json"]);
-                }
-                else
-                {
-                    // The substring collections require server 9.0+.
-                    DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
-                    DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
-                }
-            }
-            else if (isPreview)
-            {
-                // The prefix-suffix-preview collection requires a server before 9.0.
-                DropAndCreateCollection(keyVaultClient, prefixSuffixPreviewCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-prefix-suffix-preview.json"]);
+                // The substring collections require server 9.0+.
+                DropAndCreateCollection(keyVaultClient, substringCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring.json"]);
+                DropAndCreateCollection(keyVaultClient, substringCiDiCollectionNamespace, encryptedFields: JsonFileReader.Instance.Documents["etc.data.encryptedFields-substring-ci-di.json"]);
             }
             else
             {
@@ -2991,21 +2942,11 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             using (var autoEncryptedClient = ConfigureClientEncrypted(kmsProviderFilter: "local"))
             {
                 var prefixSuffixCollection = GetCollection(encryptedClient, prefixSuffixCollectionNamespace);
-                var prefixSuffixPreviewCollection = GetCollection(encryptedClient, prefixSuffixPreviewCollectionNamespace);
                 var substringCollection = GetCollection(encryptedClient, substringCollectionNamespace);
-                var substringPreviewCollection = GetCollection(encryptedClient, substringPreviewCollectionNamespace);
                 var prefixSuffixCiDiCollectionAuto = GetCollection(autoEncryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var prefixSuffixCiDiCollectionExplicit = GetCollection(encryptedClient, prefixSuffixCiDiCollectionNamespace);
                 var substringCiDiCollectionAuto = GetCollection(autoEncryptedClient, substringCiDiCollectionNamespace);
                 var substringCiDiCollectionExplicit = GetCollection(encryptedClient, substringCiDiCollectionNamespace);
-
-                // Prefix/suffix cases run against either the GA prefix-suffix collection (server 9.0+) or the preview
-                // prefix-suffix-preview collection (server < 9.0); the matching query types are chosen in RunTestCase.
-                var prefixSuffixCollectionForCase = isPreview ? prefixSuffixPreviewCollection : prefixSuffixCollection;
-
-                // Substring cases 5-6 run against either the GA substring collection (server 9.0+) or the preview
-                // substring-preview collection (server < 9.0); the matching query type is chosen in RunTestCase.
-                var substringCollectionForCase = isPreview ? substringPreviewCollection : substringCollection;
 
                 var valueToEncrypt = "foobarbaz";
 
@@ -3020,7 +2961,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         valueToEncrypt,
                         async);
 
-                    Insert(substringCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(substringCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
                 }
                 else
                 {
@@ -3034,13 +2975,13 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                         valueToEncrypt,
                         async);
 
-                    Insert(prefixSuffixCollectionForCase, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
+                    Insert(prefixSuffixCollection, async, new BsonDocument { { "_id", 0 }, { "encryptedText", encryptedText } });
                 }
 
                 RunTestCase(
                     clientEncryption,
-                    prefixSuffixCollectionForCase,
-                    substringCollectionForCase,
+                    prefixSuffixCollection,
+                    substringCollection,
                     prefixSuffixCiDiCollectionAuto,
                     prefixSuffixCiDiCollectionExplicit,
                     substringCiDiCollectionAuto,
@@ -3056,233 +2997,226 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                 IMongoCollection<BsonDocument> substringCiDiCollectionAuto,
                 IMongoCollection<BsonDocument> substringCiDiCollectionExplicit)
             {
-                // Cases 1-4 (prefix/suffix) and 5-6 (substring) use the GA query types on 9.0+ and the preview
-                // query types on older servers, via the variables below. Cases 7-11 are GA-only (never run by the
-                // *PreviewExplicitEncryptionTest theories) and intentionally hardcode the GA query types.
-                var prefixQueryType = isPreview ? "prefixPreview" : "prefix";
-                var suffixQueryType = isPreview ? "suffixPreview" : "suffix";
-                var substringQueryType = isPreview ? "substringPreview" : "substring";
-
                 switch (testCase)
                 {
                     case 1: // can find a document by prefix
-                    {
-                        var encryptedFoo = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                new PrefixOptions(10, 2))),
-                            "foo",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedFoo);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 2: // can find a document by suffix
-                    {
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "baz",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 3: // assert no document found by prefix
-                    {
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: prefixQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                new PrefixOptions(10, 2))),
-                            "baz",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBaz);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 4: // assert no document found by suffix
-                    {
-                        var encryptedFoo = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: suffixQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "foo",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedFoo);
-
-                        var findResult = Find(prefixSuffixCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 5: // can find a document by substring
-                    {
-                        var encryptedBar = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                substringOptions: new SubstringOptions(10, 6, 2))),
-                            "bar",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
-
-                        var findResult = Find(substringCollection, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foobarbaz");
-                        break;
-                    }
-                    case 6: // assert no document found by substring
-                    {
-                        var encryptedQux = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: substringQueryType, stringOptions: new StringOptions(
-                                true,
-                                true,
-                                substringOptions: new SubstringOptions(10, 6, 2))),
-                            "qux",
-                            async);
-
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedQux);
-
-                        var findResult = Find(substringCollection, filter, async).ToList();
-                        findResult.Should().BeEmpty();
-                        break;
-                    }
-                    case 7: // assert contentionFactor is required
-                    {
-                        var exception = Record.Exception(() =>
                         {
-                            ExplicitEncrypt(
+                            var encryptedFoo = ExplicitEncrypt(
                                 clientEncryption,
-                                encryptOptions.With(contentionFactor: null, queryType: "prefix", stringOptions: new StringOptions(
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
                                     true,
                                     true,
                                     new PrefixOptions(10, 2))),
                                 "foo",
                                 async);
-                        });
 
-                        exception.Should().BeOfType<MongoEncryptionException>()
-                            .Which.Message.Should().Contain("contention factor is required for string algorithm");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedFoo);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 2: // can find a document by suffix
+                        {
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "baz",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 3: // assert no document found by prefix
+                        {
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    new PrefixOptions(10, 2))),
+                                "baz",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBaz);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 4: // assert no document found by suffix
+                        {
+                            var encryptedFoo = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "foo",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedFoo);
+
+                            var findResult = Find(prefixSuffixCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 5: // can find a document by substring
+                        {
+                            var encryptedBar = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "bar",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
+
+                            var findResult = Find(substringCollection, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foobarbaz");
+                            break;
+                        }
+                    case 6: // assert no document found by substring
+                        {
+                            var encryptedQux = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    true,
+                                    true,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "qux",
+                                async);
+
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedQux);
+
+                            var findResult = Find(substringCollection, filter, async).ToList();
+                            findResult.Should().BeEmpty();
+                            break;
+                        }
+                    case 7: // assert contentionFactor is required
+                        {
+                            var exception = Record.Exception(() =>
+                            {
+                                ExplicitEncrypt(
+                                    clientEncryption,
+                                    encryptOptions.With(contentionFactor: null, queryType: "prefix", stringOptions: new StringOptions(
+                                        true,
+                                        true,
+                                        new PrefixOptions(10, 2))),
+                                    "foo",
+                                    async);
+                            });
+
+                            exception.Should().BeOfType<MongoEncryptionException>()
+                                .Which.Message.Should().Contain("contention factor is required for string algorithm");
+                            break;
+                        }
                     case 8: // can find an auto-encrypted case indexed document by prefix and suffix
-                    {
-                        Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "BingQiLin"));
+                        {
+                            Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "BingQiLin"));
 
-                        var encryptedBing = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                new PrefixOptions(10, 2))),
-                            "bing",
-                            async);
+                            var encryptedBing = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    new PrefixOptions(10, 2))),
+                                "bing",
+                                async);
 
-                        var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBing);
-                        var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
-                        prefixResult["encryptedText"].AsString.Should().Be("BingQiLin");
+                            var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedBing);
+                            var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
+                            prefixResult["encryptedText"].AsString.Should().Be("BingQiLin");
 
-                        var encryptedLin = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "lin",
-                            async);
+                            var encryptedLin = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "lin",
+                                async);
 
-                        var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedLin);
-                        var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
-                        suffixResult["encryptedText"].AsString.Should().Be("BingQiLin");
-                        break;
-                    }
+                            var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedLin);
+                            var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
+                            suffixResult["encryptedText"].AsString.Should().Be("BingQiLin");
+                            break;
+                        }
                     case 9: // can find an auto-encrypted diacritic-insensitively indexed document by prefix and suffix
-                    {
-                        Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "cafébarbäz"));
+                        {
+                            Insert(prefixSuffixCiDiCollectionAuto, async, new BsonDocument("encryptedText", "cafébarbäz"));
 
-                        var encryptedCafe = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                new PrefixOptions(10, 2))),
-                            "cafe",
-                            async);
+                            var encryptedCafe = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "prefix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    new PrefixOptions(10, 2))),
+                                "cafe",
+                                async);
 
-                        var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedCafe);
-                        var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
-                        prefixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
+                            var prefixFilter = CreateFindFilter("$encStrStartsWith", "encryptedText", encryptedCafe);
+                            var prefixResult = Find(prefixSuffixCiDiCollectionExplicit, prefixFilter, async).Single();
+                            prefixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
 
-                        var encryptedBaz = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                suffixOptions: new SuffixOptions(10, 2))),
-                            "baz",
-                            async);
+                            var encryptedBaz = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "suffix", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    suffixOptions: new SuffixOptions(10, 2))),
+                                "baz",
+                                async);
 
-                        var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
-                        var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
-                        suffixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
-                        break;
-                    }
+                            var suffixFilter = CreateFindFilter("$encStrEndsWith", "encryptedText", encryptedBaz);
+                            var suffixResult = Find(prefixSuffixCiDiCollectionExplicit, suffixFilter, async).Single();
+                            suffixResult["encryptedText"].AsString.Should().Be("cafébarbäz");
+                            break;
+                        }
                     case 10: // can find an auto-encrypted case-insensitively indexed document by substring
-                    {
-                        Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "FooBarBaz"));
+                        {
+                            Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "FooBarBaz"));
 
-                        var encryptedBar = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                substringOptions: new SubstringOptions(10, 6, 2))),
-                            "bar",
-                            async);
+                            var encryptedBar = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "bar",
+                                async);
 
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
-                        var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("FooBarBaz");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedBar);
+                            var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("FooBarBaz");
+                            break;
+                        }
                     case 11: // can find an auto-encrypted diacritic-insensitively indexed document by substring
-                    {
-                        Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "foocafébaz"));
+                        {
+                            Insert(substringCiDiCollectionAuto, async, new BsonDocument("encryptedText", "foocafébaz"));
 
-                        var encryptedCafe = ExplicitEncrypt(
-                            clientEncryption,
-                            encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
-                                false,
-                                false,
-                                substringOptions: new SubstringOptions(10, 6, 2))),
-                            "cafe",
-                            async);
+                            var encryptedCafe = ExplicitEncrypt(
+                                clientEncryption,
+                                encryptOptions.With(queryType: "substring", stringOptions: new StringOptions(
+                                    false,
+                                    false,
+                                    substringOptions: new SubstringOptions(10, 6, 2))),
+                                "cafe",
+                                async);
 
-                        var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedCafe);
-                        var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
-                        findResult["encryptedText"].AsString.Should().Be("foocafébaz");
-                        break;
-                    }
+                            var filter = CreateFindFilter("$encStrContains", "encryptedText", encryptedCafe);
+                            var findResult = Find(substringCiDiCollectionExplicit, filter, async).Single();
+                            findResult["encryptedText"].AsString.Should().Be("foocafébaz");
+                            break;
+                        }
                     default: throw new Exception($"Unexpected test case {testCase}.");
                 }
             }
@@ -3308,7 +3242,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             void DropAndCreateCollection(IMongoClient client, CollectionNamespace collectionNamespace, BsonDocument encryptedFields)
             {
-                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings{ WriteConcern = WriteConcern.WMajority });
+                var db = client.GetDatabase(collectionNamespace.DatabaseNamespace.DatabaseName, new MongoDatabaseSettings { WriteConcern = WriteConcern.WMajority });
                 db.DropCollection(collectionNamespace.CollectionName, new DropCollectionOptions { EncryptedFields = encryptedFields });
                 db.CreateCollection(collectionNamespace.CollectionName, new CreateCollectionOptions { EncryptedFields = encryptedFields });
             }
@@ -3561,7 +3495,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
 
             var clientEncryptedSettings =
                 CreateMongoClientSettings(
-                    keyVaultNamespace: keyVaultCollectionNamespace ??__keyVaultCollectionNamespace,
+                    keyVaultNamespace: keyVaultCollectionNamespace ?? __keyVaultCollectionNamespace,
                     schemaMapDocument: schemaMap,
                     kmsProviders: kmsProviders,
                     externalKeyVaultClient: externalKeyVaultClient,

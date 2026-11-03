@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Encryption
     /// Prefix options.
     /// </summary>
     /// <remarks>
-    /// PrefixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "prefix" and "prefixPreview" queries.
+    /// PrefixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "prefix" queries.
     /// </remarks>
     public sealed class PrefixOptions
     {
@@ -140,7 +140,7 @@ namespace MongoDB.Driver.Encryption
     /// Substring options.
     /// </summary>
     /// <remarks>
-    /// SubstringOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "substring" and "substringPreview" queries.
+    /// SubstringOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "substring" queries.
     /// </remarks>
     public sealed class SubstringOptions
     {
@@ -199,7 +199,7 @@ namespace MongoDB.Driver.Encryption
     /// Suffix options.
     /// </summary>
     /// <remarks>
-    /// SuffixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "suffix" and "suffixPreview" queries.
+    /// SuffixOptions is used with StringOptions (or the deprecated TextOptions) and provides further options to support "suffix" queries.
     /// </remarks>
     public sealed class SuffixOptions
     {
@@ -243,7 +243,7 @@ namespace MongoDB.Driver.Encryption
     /// String options.
     /// </summary>
     /// <remarks>
-    /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "prefixPreview", "substring", "substringPreview", "suffix", and "suffixPreview" query types.
+    /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "substring", and "suffix" query types.
     /// StringOptions only applies when the encryption algorithm is "String".
     /// </remarks>
     public sealed class StringOptions
@@ -382,7 +382,7 @@ namespace MongoDB.Driver.Encryption
                 _ => encryptionAlgorithm.ToString(),
             };
 
-        private static readonly string[] ValidStringQueryTypes = ["prefix", "prefixPreview", "substring", "substringPreview", "suffix", "suffixPreview"];
+        private static readonly string[] ValidStringQueryTypes = ["prefix", "substring", "suffix"];
         #endregion
 
         // private fields
@@ -625,7 +625,7 @@ namespace MongoDB.Driver.Encryption
         /// The query type.
         /// </value>
         /// <remarks>
-        /// Currently, we only support "equality", "range", "prefix", "prefixPreview", "substring", "substringPreview", "suffix" or "suffixPreview" queryTypes.
+        /// Currently, we only support "equality", "range", "prefix", "substring" or "suffix" queryTypes.
         /// </remarks>
         public string QueryType => _queryType;
 
@@ -646,7 +646,7 @@ namespace MongoDB.Driver.Encryption
         /// Gets the string options.
         /// </summary>
         /// <remarks>
-        /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "prefixPreview", "substring", "substringPreview", "suffix", and "suffixPreview" query types.
+        /// StringOptions specifies options for a Queryable Encryption field that supports the "prefix", "substring", and "suffix" query types.
         /// StringOptions only applies when the encryption algorithm is "String".
         /// </remarks>
         public StringOptions StringOptions => _stringOptions;
@@ -769,14 +769,14 @@ namespace MongoDB.Driver.Encryption
             if ((_stringOptions != null || _textOptions != null) && _queryType != null)
             {
                 Ensure.That(
-                    !((_queryType == "prefix" || _queryType == "prefixPreview") && (_stringOptions?.PrefixOptions ?? _textOptions?.PrefixOptions) == null),
-                    "PrefixOptions must be set when queryType is 'prefix' or 'prefixPreview'");
+                    !(_queryType == "prefix" && (_stringOptions?.PrefixOptions ?? _textOptions?.PrefixOptions) == null),
+                    "PrefixOptions must be set when queryType is 'prefix'");
                 Ensure.That(
-                    !((_queryType == "substring" || _queryType == "substringPreview") && (_stringOptions?.SubstringOptions ?? _textOptions?.SubstringOptions) == null),
-                    "SubstringOptions must be set when queryType is 'substring' or 'substringPreview'");
+                    !(_queryType == "substring" && (_stringOptions?.SubstringOptions ?? _textOptions?.SubstringOptions) == null),
+                    "SubstringOptions must be set when queryType is 'substring'");
                 Ensure.That(
-                    !((_queryType == "suffix" || _queryType == "suffixPreview") && (_stringOptions?.SuffixOptions ?? _textOptions?.SuffixOptions) == null),
-                    "SuffixOptions must be set when queryType is 'suffix' or 'suffixPreview'");
+                    !(_queryType == "suffix" && (_stringOptions?.SuffixOptions ?? _textOptions?.SuffixOptions) == null),
+                    "SuffixOptions must be set when queryType is 'suffix'");
             }
 #pragma warning restore CS0618
         }
