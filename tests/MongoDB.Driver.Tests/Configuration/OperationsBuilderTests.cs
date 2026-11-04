@@ -16,6 +16,7 @@
 using FluentAssertions;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Configuration;
 using Moq;
 using Xunit;
 
@@ -44,5 +45,30 @@ public class OperationsBuilderTests
 
         subject.PreServerSelector.Should().BeSameAs(preSelector);
         subject.PostServerSelector.Should().BeSameAs(postSelector);
+    }
+
+    [Fact]
+    public void ApplyConnectionString_should_throw_when_read_preference_tags_are_given_without_a_mode()
+    {
+        var subject = new OperationsBuilder();
+        var connectionString = new ConnectionString("mongodb://host1/?readPreferenceTags=dc:east");
+
+        var exception = Record.Exception(() => subject.ApplyConnectionString(connectionString));
+
+        exception.Should().BeOfType<MongoConfigurationException>();
+    }
+
+    [Fact]
+    public void ApplyConnectionString_should_keep_defaults_when_options_are_not_specified()
+    {
+        var subject = new OperationsBuilder();
+
+        subject.ApplyConnectionString(new ConnectionString("mongodb://host1"));
+
+        subject.ReadConcern.Should().Be(ReadConcern.Default);
+        subject.ReadPreference.Should().Be(ReadPreference.Primary);
+        subject.WriteConcern.Should().Be(WriteConcern.Acknowledged);
+        subject.RetryReads.Should().BeTrue();
+        subject.RetryWrites.Should().BeTrue();
     }
 }

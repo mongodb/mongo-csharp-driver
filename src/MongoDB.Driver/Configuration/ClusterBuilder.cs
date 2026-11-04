@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
@@ -124,5 +125,115 @@ public sealed class ClusterBuilder
     {
         get;
         set => field = Ensure.IsNotNullOrEmpty(value, nameof(SrvServiceName));
+    }
+
+    internal void Validate()
+    {
+        var servers = Servers;
+        var isSrv = Scheme == ConnectionStringScheme.MongoDBPlusSrv;
+
+        if (servers.Count == 0)
+        {
+            throw new InvalidOperationException("At least one server must be specified.");
+        }
+
+        if (servers.Any(server => server is not (DnsEndPoint or IPEndPoint)))
+        {
+            throw new InvalidOperationException("Servers must be specified as DnsEndPoint or IPEndPoint.");
+        }
+
+        if (isSrv)
+        {
+            if (servers.Count != 1)
+            {
+                throw new InvalidOperationException("Only 1 host is allowed when using the mongodb+srv scheme.");
+            }
+
+            if (servers[0] is not DnsEndPoint)
+            {
+                throw new InvalidOperationException("The host for the mongodb+srv scheme must be a DNS name, not an IP address.");
+            }
+        }
+
+        if (DirectConnection)
+        {
+            if (isSrv)
+            {
+                throw new InvalidOperationException("SRV cannot be used with direct connections.");
+            }
+
+            if (servers.Count > 1)
+            {
+                throw new InvalidOperationException("Multiple host names cannot be used with direct connections.");
+            }
+        }
+
+        if (SrvMaxHosts > 0)
+        {
+            if (!isSrv)
+            {
+                throw new InvalidOperationException("SrvMaxHosts can only be used with the mongodb+srv scheme.");
+            }
+
+            if (ReplicaSetName != null)
+            {
+                throw new InvalidOperationException("Specifying SrvMaxHosts when connecting to a replica set is invalid.");
+            }
+        }
+
+        if (!isSrv && SrvServiceName != MongoInternalDefaults.MongoClientSettings.SrvServiceName)
+        {
+            throw new InvalidOperationException("Specifying SrvServiceName is only allowed with the mongodb+srv scheme.");
+        }
+
+        if (!isSrv && SrvAllowedHostsSuffix != null)
+        {
+            throw new InvalidOperationException("Specifying SrvAllowedHostsSuffix is only allowed with the mongodb+srv scheme.");
+        }
+
+        if (LoadBalanced)
+        {
+            if (servers.Count > 1)
+            {
+                throw new InvalidOperationException("Load balanced mode cannot be used with multiple host names.");
+            }
+
+            if (ReplicaSetName != null)
+            {
+                throw new InvalidOperationException("ReplicaSetName cannot be used with load balanced mode.");
+            }
+
+            if (SrvMaxHosts > 0)
+            {
+                throw new InvalidOperationException("SrvMaxHosts cannot be used with load balanced mode.");
+            }
+
+            if (DirectConnection)
+            {
+                throw new InvalidOperationException("Load balanced mode cannot be used with direct connection.");
+            }
+        }
+    }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        DirectConnection = connectionString.DirectConnection;
+        LoadBalanced = connectionString.LoadBalanced;
+        if (connectionString.ReplicaSet != null)
+        {
+            ReplicaSetName = connectionString.ReplicaSet;
+        }
+        if (connectionString.SrvAllowedHostsSuffix != null)
+        {
+            SrvAllowedHostsSuffix = connectionString.SrvAllowedHostsSuffix;
+        }
+        if (connectionString.SrvMaxHosts.HasValue)
+        {
+            SrvMaxHosts = connectionString.SrvMaxHosts.Value;
+        }
+        if (connectionString.SrvServiceName != null)
+        {
+            SrvServiceName = connectionString.SrvServiceName;
+        }
     }
 }

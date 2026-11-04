@@ -50,4 +50,12 @@ public sealed class ClientMetadataBuilder
         get;
         set;
     }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        if (connectionString.ApplicationName != null)
+        {
+            ApplicationName = connectionString.ApplicationName;
+        }
+    }
 }

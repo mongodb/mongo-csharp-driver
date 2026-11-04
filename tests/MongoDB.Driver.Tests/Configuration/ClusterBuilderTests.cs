@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using FluentAssertions;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
@@ -27,6 +28,8 @@ namespace MongoDB.Driver.Tests.Configuration;
 public class ClusterBuilderTests
 {
     private static readonly EndPoint Host1 = new DnsEndPoint("host1", 27017);
+    private static readonly EndPoint Host2 = new DnsEndPoint("host2", 27017);
+    private static readonly EndPoint SrvHost = new DnsEndPoint("cluster0.example.com", ConnectionString.DefaultSrvPort);
 
     [Fact]
     public void SrvAllowedHostsSuffix_should_default_to_null()
@@ -150,5 +153,121 @@ public class ClusterBuilderTests
 
         exception.Should().BeOfType<ArgumentException>()
             .Subject.ParamName.Should().Be("SrvServiceName");
+    }
+
+    [Theory]
+    [MemberData(nameof(ValidConfigurations))]
+    public void Validate_should_accept_valid_configuration(string description, Func<ClusterBuilder> create)
+    {
+        var subject = create();
+
+        var exception = Record.Exception(() => subject.Validate());
+
+        exception.Should().BeNull(because: description);
+    }
+
+    public static IEnumerable<object[]> ValidConfigurations =>
+    [
+        ["single server", () => Create()],
+        ["replica set", () => Create([Host1, Host2], b => b.ReplicaSetName = "rs")],
+        ["direct connection", () => Create(b => b.DirectConnection = true)],
+        ["load balanced", () => Create(b => b.LoadBalanced = true)],
+        ["srv", () => CreateSrv()],
+        ["srv with max hosts", () => CreateSrv(b => b.SrvMaxHosts = 2)],
+        ["srv with service name", () => CreateSrv(b => b.SrvServiceName = "custom")],
+        ["srv with allowed hosts suffix", () => CreateSrv(b => b.SrvAllowedHostsSuffix = ".example.com")]
+    ];
+
+    [Theory]
+    [MemberData(nameof(InvalidConfigurations))]
+    public void Validate_should_throw_for_invalid_configuration(string expectedMessage, Func<ClusterBuilder> create)
+    {
+        var subject = create();
+
+        var exception = Record.Exception(() => subject.Validate());
+
+        exception.Should().BeOfType<InvalidOperationException>();
+        exception.Message.Should().Contain(expectedMessage);
+    }
+
+    public static IEnumerable<object[]> InvalidConfigurations =>
+    [
+        ["At least one server must be specified", () => new ClusterBuilder(ConnectionStringScheme.MongoDB, [])],
+        [
+            "Servers must be specified as DnsEndPoint or IPEndPoint",
+            () => new ClusterBuilder(ConnectionStringScheme.MongoDB, [new UnixDomainSocketEndPoint("/tmp/mongodb.sock")])
+        ],
+        [
+            "Only 1 host is allowed when using the mongodb+srv scheme",
+            () => new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost, new DnsEndPoint("cluster1.example.com", 53)])
+        ],
+        [
+            "must be a DNS name",
+            () => new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [new IPEndPoint(IPAddress.Loopback, 53)])
+        ],
+        ["SRV cannot be used with direct connections", () => CreateSrv(b => b.DirectConnection = true)],
+        [
+            "Multiple host names cannot be used with direct connections",
+            () => Create([Host1, Host2], b => b.DirectConnection = true)
+        ],
+        ["SrvMaxHosts can only be used with the mongodb+srv scheme", () => Create(b => b.SrvMaxHosts = 1)],
+        [
+            "Specifying SrvMaxHosts when connecting to a replica set is invalid",
+            () => CreateSrv(b =>
+            {
+                b.SrvMaxHosts = 1;
+                b.ReplicaSetName = "rs";
+            })
+        ],
+        ["SrvServiceName is only allowed with the mongodb+srv scheme", () => Create(b => b.SrvServiceName = "custom")],
+        [
+            "SrvAllowedHostsSuffix is only allowed with the mongodb+srv scheme",
+            () => Create(b => b.SrvAllowedHostsSuffix = ".example.com")
+        ],
+        [
+            "Load balanced mode cannot be used with multiple host names",
+            () => Create([Host1, Host2], b => b.LoadBalanced = true)
+        ],
+        [
+            "ReplicaSetName cannot be used with load balanced mode",
+            () => Create(b =>
+            {
+                b.LoadBalanced = true;
+                b.ReplicaSetName = "rs";
+            })
+        ],
+        [
+            "SrvMaxHosts cannot be used with load balanced mode",
+            () => CreateSrv(b =>
+            {
+                b.LoadBalanced = true;
+                b.SrvMaxHosts = 1;
+            })
+        ],
+        [
+            "Load balanced mode cannot be used with direct connection",
+            () => Create(b =>
+            {
+                b.LoadBalanced = true;
+                b.DirectConnection = true;
+            })
+        ]
+    ];
+
+    private static ClusterBuilder Create(Action<ClusterBuilder> configure = null)
+        => Create([Host1], configure);
+
+    private static ClusterBuilder Create(EndPoint[] servers, Action<ClusterBuilder> configure = null)
+    {
+        var builder = new ClusterBuilder(ConnectionStringScheme.MongoDB, servers);
+        configure?.Invoke(builder);
+        return builder;
+    }
+
+    private static ClusterBuilder CreateSrv(Action<ClusterBuilder> configure = null)
+    {
+        var builder = new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost]);
+        configure?.Invoke(builder);
+        return builder;
     }
 }

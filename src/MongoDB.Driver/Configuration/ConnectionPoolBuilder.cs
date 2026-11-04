@@ -15,6 +15,7 @@
 
 using System;
 using System.Threading;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Configuration;
@@ -107,5 +108,41 @@ public sealed class ConnectionPoolBuilder
     {
         get;
         set => field = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(value, nameof(WaitQueueTimeout));
+    }
+
+    internal void Validate()
+    {
+        if (MaxSize < MinSize)
+        {
+            throw new InvalidOperationException("MaxSize must be greater than or equal to MinSize.");
+        }
+    }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        if (connectionString.MaxConnecting.HasValue)
+        {
+            MaxConnecting = connectionString.MaxConnecting.Value;
+        }
+        if (connectionString.MaxIdleTime.HasValue)
+        {
+            MaxConnectionIdleTime = connectionString.MaxIdleTime.Value;
+        }
+        if (connectionString.MaxLifeTime.HasValue)
+        {
+            MaxConnectionLifeTime = connectionString.MaxLifeTime.Value;
+        }
+        if (connectionString.MaxPoolSize.HasValue)
+        {
+            MaxSize = ConnectionStringConversions.GetEffectiveMaxConnections(connectionString.MaxPoolSize.Value);
+        }
+        if (connectionString.MinPoolSize.HasValue)
+        {
+            MinSize = connectionString.MinPoolSize.Value;
+        }
+        if (connectionString.WaitQueueTimeout.HasValue)
+        {
+            WaitQueueTimeout = connectionString.WaitQueueTimeout.Value;
+        }
     }
 }

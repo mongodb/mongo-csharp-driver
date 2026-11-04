@@ -17,10 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using ClusterBuilder = MongoDB.Driver.Configuration.ClusterBuilder;
+using CoreClusterBuilder = MongoDB.Driver.Core.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver;
 
@@ -71,9 +73,20 @@ public sealed class MongoClientBuilder
     public static MongoClientBuilder FromConnectionString(ConnectionString connectionString)
     {
         Ensure.IsNotNull(connectionString, nameof(connectionString));
-
         // TODO: Discuss if it should be ConnectionString or MongoUrl here, and deprecate another.
-        return null;
+
+        connectionString = connectionString.Resolve(resolveHosts: false);
+
+        var builder = new MongoClientBuilder(new ClusterBuilder(connectionString.Scheme, connectionString.Hosts));
+        builder._authenticationBuilder.ApplyConnectionString(connectionString);
+        builder._clientMetadataBuilder.ApplyConnectionString(connectionString);
+        builder._clusterBuilder.ApplyConnectionString(connectionString);
+        builder._connectionPoolBuilder.ApplyConnectionString(connectionString);
+        builder._networkBuilder.ApplyConnectionString(connectionString);
+        builder._operationsBuilder.ApplyConnectionString(connectionString);
+        builder._serverMonitoringBuilder.ApplyConnectionString(connectionString);
+        builder._tlsBuilder.ApplyConnectionString(connectionString);
+        return builder;
     }
 
     /// <summary>
@@ -303,16 +316,12 @@ public sealed class MongoClientBuilder
         return this;
     }
 
-    /// <summary>
-    /// Configures serialization.
-    /// </summary>
-    /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
     // TODO: should have SerializationBuilder parameter
     // TODO: WriteEncoding and ReadEncoding: should we either dropped them or moved under the serialization builder
-    public MongoClientBuilder Serialization()
-    {
-        return this;
-    }
+    // public MongoClientBuilder Serialization()
+    // {
+    //     return this;
+    // }
 
     /// <summary>
     /// Configures server monitoring: how the client discovers and tracks the state of each server.
@@ -384,40 +393,193 @@ public sealed class MongoClientBuilder
     /// <returns>A new <see cref="IMongoClient"/>.</returns>
     public IMongoClient Build()
     {
-        // TODO: validate combinations of settings before constructing the client. Setters on the inner builders
-        // only validate their own value, so that the result never depends on the order the setters were called
-        // in (or on whether a value came from FromConnectionString or was set in code). Every rule involving
-        // more than one setting belongs here. Existing rules, ported from MongoClientSettings.ThrowIfSettingsAreInvalid
-        // and ConnectionString validation:
-        //   Tls:
-        //     - AllowInsecure and CheckCertificateRevocation cannot both be true.
-        //   Cluster:
-        //     - DirectConnection cannot be used with the mongodb+srv scheme.
-        //     - DirectConnection cannot be used with more than one server.
-        //     - SrvMaxHosts > 0 requires the mongodb+srv scheme.
-        //     - SrvMaxHosts > 0 cannot be used with ReplicaSetName.
-        //     - A non-default SrvServiceName requires the mongodb+srv scheme.
-        //     - A SrvAllowedHostsSuffix requires the mongodb+srv scheme.
-        //     - The mongodb+srv scheme requires exactly one server, given without a port.
-        //     - LoadBalanced cannot be used with more than one server, with ReplicaSetName, with SrvMaxHosts > 0,
-        //       or with DirectConnection.
-        //   ConnectionPool:
-        //     - MaxSize must be greater than or equal to MinSize.
-        //   AutoEncryption (when configured):
-        //     - KeyVaultNamespace is required, as is at least one registered KMS provider. Already enforced by
-        //       AutoEncryptionBuilder.ToAutoEncryptionOptions().
-        // New rules to consider (not enforced by MongoClientSettings today):
-        //     - Tls options other than Enabled (client certificates, callbacks, AllowInsecure, AllowedProtocols) are
-        //       configured while Tls.Enabled is false, which currently ignores them silently.
-        //     - Tls.AllowInsecure together with Tls.ServerCertificateValidationCallback; the callback silently wins
-        //       today (see ClusterRegistry.ConfigureSsl).
-        //     - A MONGODB-X509 credential while Tls.Enabled is false.
+        Validate();
 
-        // TODO: implement constructing of the MongoClient. The builder stays usable after Build, so the client must
-        // receive a snapshot rather than references to the builder's mutable state: use
-        // AutoEncryptionBuilder.ToAutoEncryptionOptions(), and create a new EventAggregator from a copy of the
-        // DiagnosticsBuilder subscribers.
-        return null;
+        var settings = ToMongoClientSettings();
+        settings.Freeze();
+        return new MongoClient(settings);
+    }
+
+    // Setters on the inner builders only validate their own value, so that the result never depends on the order
+    // the setters were called in. Rules involving more than one setting are checked in Build instead: the ones
+    // that concern a single builder by that builder's Validate, the ones spanning builders here. Most are ported
+    // from MongoClientSettings.ThrowIfSettingsAreInvalid and ConnectionString validation; the rest are rules that
+    // MongoClientSettings does not enforce, where the combination is silently ignored today.
+    internal void Validate()
+    {
+        _tlsBuilder.Validate();
+        _clusterBuilder.Validate();
+        _connectionPoolBuilder.Validate();
+        ValidateAuthentication();
+    }
+
+    internal MongoClientSettings ToMongoClientSettings()
+    {
+        // The settings must not reference any mutable state of the builder, because the builder stays usable
+        // after Build (see the remarks on Build).
+        var settings = new MongoClientSettings();
+
+        // Authentication
+        settings.Credential = _authenticationBuilder.Credential;
+
+        // AutoEncryption
+        settings.AutoEncryptionOptions = _autoEncryptionBuilder.ToAutoEncryptionOptions();
+
+        // ClientMetadata
+        settings.ApplicationName = _clientMetadataBuilder.ApplicationName;
+        settings.LibraryInfo = _clientMetadataBuilder.LibraryInfo;
+
+        // Cluster. SrvMaxHosts goes before Servers: the Servers setter shuffles the list when SrvMaxHosts > 0.
+        settings.DirectConnection = _clusterBuilder.DirectConnection;
+        settings.LoadBalanced = _clusterBuilder.LoadBalanced;
+        settings.ReplicaSetName = _clusterBuilder.ReplicaSetName;
+        settings.Scheme = _clusterBuilder.Scheme;
+        settings.SrvAllowedHostsSuffix = _clusterBuilder.SrvAllowedHostsSuffix;
+        settings.SrvMaxHosts = _clusterBuilder.SrvMaxHosts;
+        settings.SrvServiceName = _clusterBuilder.SrvServiceName;
+        settings.Servers = _clusterBuilder.Servers.Select(ToServerAddress).ToList();
+
+        // ConnectionPool
+        settings.MaxConnecting = _connectionPoolBuilder.MaxConnecting;
+        settings.MaxConnectionIdleTime = _connectionPoolBuilder.MaxConnectionIdleTime;
+        settings.MaxConnectionLifeTime = _connectionPoolBuilder.MaxConnectionLifeTime;
+        settings.MaxConnectionPoolSize = _connectionPoolBuilder.MaxSize;
+        settings.MinConnectionPoolSize = _connectionPoolBuilder.MinSize;
+        settings.WaitQueueTimeout = _connectionPoolBuilder.WaitQueueTimeout;
+
+        // Diagnostics
+        settings.LoggingSettings = _diagnosticsBuilder.Logging;
+        settings.TracingOptions = _diagnosticsBuilder.Tracing;
+
+        // Network
+        settings.Compressors = _networkBuilder.Compressors.ToArray();
+        settings.ConnectTimeout = _networkBuilder.ConnectTimeout;
+        settings.IPv6 = _networkBuilder.IPv6;
+        settings.SocketTimeout = _networkBuilder.SocketTimeout;
+        settings.Socks5ProxySettings = _networkBuilder.Socks5Proxy;
+
+        // Operations
+        settings.EnableOverloadRetargeting = _operationsBuilder.EnableOverloadRetargeting;
+        settings.LocalThreshold = _operationsBuilder.LocalThreshold;
+        settings.MaxAdaptiveRetries = _operationsBuilder.MaxAdaptiveRetries;
+        settings.ReadConcern = _operationsBuilder.ReadConcern;
+        settings.ReadPreference = _operationsBuilder.ReadPreference;
+        settings.RetryReads = _operationsBuilder.RetryReads;
+        settings.RetryWrites = _operationsBuilder.RetryWrites;
+        settings.ServerApi = _operationsBuilder.ServerApi;
+        settings.ServerSelectionTimeout = _operationsBuilder.ServerSelectionTimeout;
+        settings.WriteConcern = _operationsBuilder.WriteConcern;
+
+        // ServerMonitoring
+        settings.HeartbeatInterval = _serverMonitoringBuilder.HeartbeatInterval;
+        settings.HeartbeatTimeout = _serverMonitoringBuilder.HeartbeatTimeout;
+        settings.ServerMonitoringMode = _serverMonitoringBuilder.Mode;
+
+        // Tls. The SslSettings are created only when TLS is enabled: TlsBuilder.Validate rejects TLS options otherwise.
+        settings.UseTls = _tlsBuilder.Enabled;
+        if (_tlsBuilder.Enabled)
+        {
+            settings.SslSettings = new SslSettings
+            {
+                CheckCertificateRevocation = _tlsBuilder.CheckCertificateRevocation,
+                ClientCertificates = _tlsBuilder.ClientCertificates,
+                ClientCertificateSelectionCallback = _tlsBuilder.ClientCertificateSelectionCallback,
+                EnabledSslProtocols = _tlsBuilder.AllowedProtocols,
+                ServerCertificateValidationCallback = _tlsBuilder.ServerCertificateValidationCallback
+            };
+            settings.AllowInsecureTls = _tlsBuilder.AllowInsecure;
+        }
+
+        // Translation
+        if (_translationBuilder.CompatibilityLevel != null || _translationBuilder.EnableClientSideProjections != null)
+        {
+            settings.TranslationOptions = new ExpressionTranslationOptions
+            {
+                CompatibilityLevel = _translationBuilder.CompatibilityLevel,
+                EnableClientSideProjections = _translationBuilder.EnableClientSideProjections
+            };
+        }
+
+        // MongoClientSettings has no counterpart for the following, they are applied to the cluster instead
+        settings.ClusterConfigurator = CreateClusterConfigurator();
+
+        return settings;
+    }
+
+    private Action<CoreClusterBuilder> CreateClusterConfigurator()
+    {
+        var configurators = new List<Action<CoreClusterBuilder>>();
+
+        var subscribers = _diagnosticsBuilder.GetSubscribers();
+        if (subscribers.Count > 0)
+        {
+            configurators.Add(builder =>
+            {
+                foreach (var subscriber in subscribers)
+                {
+                    builder.Subscribe(subscriber);
+                }
+            });
+        }
+
+        var preServerSelector = _operationsBuilder.PreServerSelector;
+        var postServerSelector = _operationsBuilder.PostServerSelector;
+        if (preServerSelector != null || postServerSelector != null)
+        {
+            configurators.Add(builder => builder.ConfigureCluster(clusterSettings => clusterSettings.With(
+                preServerSelector: preServerSelector != null ? Optional.Create(preServerSelector) : default,
+                postServerSelector: postServerSelector != null ? Optional.Create(postServerSelector) : default)));
+        }
+
+        // A null buffer size keeps the driver default.
+        var receiveBufferSize = _networkBuilder.ReceiveBufferSize;
+        var sendBufferSize = _networkBuilder.SendBufferSize;
+        var socketConfigurator = _networkBuilder.SocketConfigurator;
+        var isReceiveBufferSizeCustom = receiveBufferSize.HasValue && receiveBufferSize.Value != MongoDefaults.TcpReceiveBufferSize;
+        var isSendBufferSizeCustom = sendBufferSize.HasValue && sendBufferSize.Value != MongoDefaults.TcpSendBufferSize;
+        if (isReceiveBufferSizeCustom || isSendBufferSizeCustom || socketConfigurator != null)
+        {
+            configurators.Add(builder => builder.ConfigureTcp(tcpSettings => tcpSettings.With(
+                receiveBufferSize: isReceiveBufferSizeCustom ? Optional.Create(receiveBufferSize.Value) : default,
+                sendBufferSize: isSendBufferSizeCustom ? Optional.Create(sendBufferSize.Value) : default,
+                socketConfigurator: socketConfigurator != null ? Optional.Create(socketConfigurator) : default)));
+        }
+
+        var maintenanceInterval = _connectionPoolBuilder.MaintenanceInterval;
+        if (maintenanceInterval != new ConnectionPoolSettings().MaintenanceInterval)
+        {
+            configurators.Add(builder => builder.ConfigureConnectionPool(poolSettings => poolSettings.With(
+                maintenanceInterval: maintenanceInterval)));
+        }
+
+        // Left null when there is nothing to apply, so that equal settings keep sharing a cluster
+        if (configurators.Count == 0)
+        {
+            return null;
+        }
+
+        return builder =>
+        {
+            foreach (var configurator in configurators)
+            {
+                configurator(builder);
+            }
+        };
+    }
+
+    private void ValidateAuthentication()
+    {
+        var credential = _authenticationBuilder.Credential;
+        if (credential?.Mechanism == MongoDBX509Authenticator.MechanismName && !_tlsBuilder.Enabled)
+        {
+            throw new InvalidOperationException("The MONGODB-X509 authentication mechanism requires TLS to be enabled.");
+        }
+    }
+
+    private static MongoServerAddress ToServerAddress(EndPoint endPoint)
+    {
+        var (host, port) = endPoint.GetHostAndPort();
+        return new MongoServerAddress(host, port);
     }
 
     private static EndPoint ParseEndPoint(string value, string paramName)
