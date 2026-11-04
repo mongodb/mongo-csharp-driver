@@ -329,7 +329,7 @@ namespace MongoDB.Driver.Core.Operations
 
                 operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
 
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
+                return await CreateCursorAsync(operationContext, context.ChannelSource, context.Channel, result).ConfigureAwait(false);
             }
         }
 
@@ -380,15 +380,51 @@ namespace MongoDB.Driver.Core.Operations
 
         private IAsyncCursor<TResult> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
         {
-            if (result.CursorId.HasValue)
+            if (!result.CursorId.HasValue)
             {
-                return CreateCursorFromCursorResult(operationContext, channelSource, channel, result);
+                return new SingleBatchAsyncCursor<TResult>(result.Results);
             }
 
-            return new SingleBatchAsyncCursor<TResult>(result.Results);
+            IReadOnlyList<TResult> firstBatch;
+            try
+            {
+                firstBatch = DeserializeFirstBatch(result);
+            }
+            catch
+            {
+                CreateCursorToKill(operationContext, channelSource, channel, result)?.Dispose();
+                throw;
+            }
+
+            return CreateCursorFromCursorResult(operationContext, channelSource, channel, result, firstBatch);
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
+        private async Task<IAsyncCursor<TResult>> CreateCursorAsync(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
+        {
+            if (!result.CursorId.HasValue)
+            {
+                return new SingleBatchAsyncCursor<TResult>(result.Results);
+            }
+
+            IReadOnlyList<TResult> firstBatch;
+            try
+            {
+                firstBatch = DeserializeFirstBatch(result);
+            }
+            catch
+            {
+                var cursorToKill = CreateCursorToKill(operationContext, channelSource, channel, result);
+                if (cursorToKill != null)
+                {
+                    await cursorToKill.DisposeAsync().ConfigureAwait(false);
+                }
+                throw;
+            }
+
+            return CreateCursorFromCursorResult(operationContext, channelSource, channel, result, firstBatch);
+        }
+
+        private AsyncCursor<TResult> CreateCursorFromCursorResult(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result, IReadOnlyList<TResult> firstBatch)
         {
             var cursorId = result.CursorId.GetValueOrDefault(0);
             var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
@@ -397,7 +433,7 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.Session.Fork(),
                 result.CollectionNamespace,
                 _comment,
-                result.Results,
+                firstBatch,
                 cursorId,
                 result.PostBatchResumeToken,
                 _batchSize,
@@ -408,6 +444,26 @@ namespace MongoDB.Driver.Core.Operations
                 _retryRequested,
                 maxAdaptiveRetries: _maxAdaptiveRetries,
                 enableOverloadRetargeting: _enableOverloadRetargeting);
+        }
+
+        private AsyncCursor<TResult> CreateCursorToKill(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
+        {
+            try
+            {
+                return result.CursorId.GetValueOrDefault(0) == 0 ? null : CreateCursorFromCursorResult(operationContext, channelSource, channel, result, []);
+            }
+            catch
+            {
+                return null; // best effort, must not replace the original exception
+            }
+        }
+
+        private List<TResult> DeserializeFirstBatch(AggregateResult result)
+        {
+            using (result.FirstBatch)
+            {
+                return CursorBatchDeserializationHelper.DeserializeBatch(result.FirstBatch, _resultSerializer, MessageEncoderSettings);
+            }
         }
 
         private void EnsureIsReadOnlyPipeline()
@@ -423,12 +479,15 @@ namespace MongoDB.Driver.Core.Operations
             public BsonTimestamp AtClusterTime;
             public long? CursorId;
             public CollectionNamespace CollectionNamespace;
+            public RawBsonArray FirstBatch;
             public BsonDocument PostBatchResumeToken;
             public TResult[] Results;
         }
 
         internal class AggregateResultDeserializer : SerializerBase<AggregateResult>
         {
+            private static readonly CursorDeserializer __cursorDeserializer = new CursorDeserializer();
+
             private readonly IBsonSerializer<TResult> _resultSerializer;
 
             public AggregateResultDeserializer(IBsonSerializer<TResult> resultSerializer)
@@ -446,8 +505,7 @@ namespace MongoDB.Driver.Core.Operations
                     var elementName = reader.ReadName();
                     if (elementName == "cursor")
                     {
-                        var cursorDeserializer = new CursorDeserializer(_resultSerializer);
-                        result = cursorDeserializer.Deserialize(context);
+                        result = __cursorDeserializer.Deserialize(context);
                     }
                     else if (elementName == "result")
                     {
@@ -479,12 +537,7 @@ namespace MongoDB.Driver.Core.Operations
 
         internal class CursorDeserializer : SerializerBase<AggregateResult>
         {
-            private readonly IBsonSerializer<TResult> _resultSerializer;
-
-            public CursorDeserializer(IBsonSerializer<TResult> resultSerializer)
-            {
-                _resultSerializer = resultSerializer;
-            }
+            private static readonly RawBsonArraySerializer __firstBatchSerializer = new RawBsonArraySerializer();
 
             public override AggregateResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
             {
@@ -510,8 +563,7 @@ namespace MongoDB.Driver.Core.Operations
                             break;
 
                         case "firstBatch":
-                            var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
-                            result.Results = arraySerializer.Deserialize(context);
+                            result.FirstBatch = __firstBatchSerializer.Deserialize(context);
                             break;
 
                         case "postBatchResumeToken":
@@ -526,18 +578,6 @@ namespace MongoDB.Driver.Core.Operations
                 reader.ReadEndDocument();
                 return result;
             }
-
-            public override bool Equals(object obj)
-            {
-                if (object.ReferenceEquals(obj, null)) { return false; }
-                if (object.ReferenceEquals(this, obj)) { return true; }
-                return
-                    base.Equals(obj) &&
-                    obj is CursorDeserializer other &&
-                    object.Equals(_resultSerializer, other._resultSerializer);
-            }
-
-            public override int GetHashCode() => 0;
         }
     }
 }

@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -23,6 +24,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -911,6 +913,48 @@ namespace MongoDB.Driver.Core.Operations
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
 
             VerifySessionIdWasSentWhenSupported(subject, "find", async);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_kill_cursor_when_first_batch_deserialization_throws(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandSucceededEvent>(e => e.CommandName == "find")
+                .Capture<CommandStartedEvent>(e => e.CommandName == "killCursors");
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 2 };
+
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                var exception = await Record.ExceptionAsync(() => ExecuteOperationAsync(subject, cluster, async));
+
+                exception.Should().BeOfType<FormatException>();
+                var cursorId = eventCapturer.Events.OfType<CommandSucceededEvent>().Single().Reply["cursor"]["id"];
+                var killCursors = eventCapturer.Events.OfType<CommandStartedEvent>().Should().ContainSingle().Subject;
+                killCursors.Command["cursors"].AsBsonArray.Should().Be(new BsonArray { cursorId });
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_not_send_killCursors_when_first_batch_deserialization_throws_and_cursor_is_exhausted(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "killCursors");
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings);
+
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                var exception = await Record.ExceptionAsync(() => ExecuteOperationAsync(subject, cluster, async));
+
+                exception.Should().BeOfType<FormatException>();
+                eventCapturer.Events.Should().BeEmpty();
+            }
         }
 
         [Theory]
