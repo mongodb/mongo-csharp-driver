@@ -36,18 +36,20 @@ internal class ZstandardCompressor : ICompressor
 
     public void Compress(Stream input, Stream output)
     {
-        using (var zstandardStream = new CompressionStream(output, _compressionLevel))
-        {
-            input.EfficientCopyTo(zstandardStream);
-            zstandardStream.Flush();
-        }
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
+        using var zstandardStream = new CompressionStream(output, _compressionLevel);
+        input.EfficientCopyTo(zstandardStream);
+        zstandardStream.Flush();
     }
 
     public void Decompress(Stream input, Stream output)
     {
-        using (var zstandardStream = new DecompressionStream(input))
-        {
-            zstandardStream.CopyTo(output);
-        }
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
+        using var zstandardStream = new DecompressionStream(input);
+        zstandardStream.CopyTo(output);
     }
 }

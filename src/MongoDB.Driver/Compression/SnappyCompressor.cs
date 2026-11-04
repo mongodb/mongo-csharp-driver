@@ -31,6 +31,9 @@ internal class SnappyCompressor : ICompressor
     /// <param name="output">The output stream.</param>
     public void Compress(Stream input, Stream output)
     {
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
         var uncompressedSize = (int)(input.Length - input.Position);
         var uncompressedBytes = new byte[uncompressedSize]; // does not include uncompressed message headers
         input.ReadBytes(uncompressedBytes, offset: 0, count: uncompressedSize);
@@ -47,6 +50,9 @@ internal class SnappyCompressor : ICompressor
     /// <param name="output">The output stream.</param>
     public void Decompress(Stream input, Stream output)
     {
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
         var compressedSize = (int)(input.Length - input.Position);
         var compressedBytes = new byte[compressedSize];
         input.ReadBytes(compressedBytes, offset: 0, count: compressedSize);

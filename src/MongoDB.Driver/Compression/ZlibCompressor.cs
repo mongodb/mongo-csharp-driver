@@ -57,6 +57,9 @@ internal sealed class ZlibCompressor : ICompressor
     /// <inheritdoc />
     public void Compress(Stream input, Stream output)
     {
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
         using var zlibStream = CreateCompressionStream(output);
 #if NET6_0_OR_GREATER
         input.EfficientCopyTo(zlibStream);
@@ -70,6 +73,9 @@ internal sealed class ZlibCompressor : ICompressor
     /// <inheritdoc />
     public void Decompress(Stream input, Stream output)
     {
+        Ensure.IsNotNull(input, nameof(input));
+        Ensure.IsNotNull(output, nameof(output));
+
         using var zlibStream = CreateDecompressionStream(input);
         zlibStream.CopyTo(output);
     }

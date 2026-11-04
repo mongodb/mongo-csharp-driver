@@ -20,7 +20,7 @@ using MongoDB.Driver.Compression;
 using MongoDB.Driver.Configuration;
 using Xunit;
 
-namespace MongoDB.Driver.Core.Tests.Core.Compression
+namespace MongoDB.Driver.Tests.Compression
 {
     public class CompressorSourceTests
     {
