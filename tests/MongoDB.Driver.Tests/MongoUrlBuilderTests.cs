@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests
     [Trait("Category", "ConnectionString")]
     public class MongoUrlBuilderTests
     {
-        private MongoServerAddress _localhost = new MongoServerAddress("localhost");
+        private readonly MongoServerAddress _localhost = new MongoServerAddress("localhost");
         private const string BaseUrl = "mongodb://appuser:s3cret@db.internal/?tls=true";
         private const string BaseSrvUrl = "mongodb+srv://appuser:s3cret@db.internal/";
 

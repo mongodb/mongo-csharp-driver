@@ -435,7 +435,7 @@ namespace MongoDB.Bson.Tests.IO
         }
 
         // private methods
-        private static string __hexDigits = "0123456789abcdef";
+        private static readonly string __hexDigits = "0123456789abcdef";
 
         private byte[] DecodeByteString(string byteString)
         {

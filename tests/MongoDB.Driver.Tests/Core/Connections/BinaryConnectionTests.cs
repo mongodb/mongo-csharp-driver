@@ -43,17 +43,17 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class BinaryConnectionTests : LoggableTestClass
     {
-        private ConnectionInitializerContext _connectionInitializerContext;
-        private ConnectionInitializerContext _connectionInitializerContextAfterAuthentication;
-        private Mock<IConnectionInitializer> _mockConnectionInitializer;
-        private ConnectionDescription _connectionDescription;
-        private DnsEndPoint _endPoint;
-        private EventCapturer _capturedEvents;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
-        private Mock<IStreamFactory> _mockStreamFactory;
+        private readonly ConnectionInitializerContext _connectionInitializerContext;
+        private readonly ConnectionInitializerContext _connectionInitializerContextAfterAuthentication;
+        private readonly Mock<IConnectionInitializer> _mockConnectionInitializer;
+        private readonly ConnectionDescription _connectionDescription;
+        private readonly DnsEndPoint _endPoint;
+        private readonly EventCapturer _capturedEvents;
+        private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
+        private readonly Mock<IStreamFactory> _mockStreamFactory;
         private readonly ServerId _serverId;
 
-        private BinaryConnection _subject;
+        private readonly BinaryConnection _subject;
 
         public BinaryConnectionTests(Xunit.Abstractions.ITestOutputHelper output) : base(output)
         {

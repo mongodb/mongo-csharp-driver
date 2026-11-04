@@ -36,9 +36,9 @@ namespace MongoDB.Driver
 {
     public class MongoDatabaseImplTests
     {
-        private IMongoClient _client;
-        private MockOperationExecutor _operationExecutor;
-        private MongoDatabase _subject;
+        private readonly IMongoClient _client;
+        private readonly MockOperationExecutor _operationExecutor;
+        private readonly MongoDatabase _subject;
 
         public MongoDatabaseImplTests()
         {

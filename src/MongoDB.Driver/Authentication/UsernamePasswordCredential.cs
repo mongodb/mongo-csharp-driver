@@ -22,9 +22,9 @@ namespace MongoDB.Driver.Authentication
     internal sealed class UsernamePasswordCredential
     {
         private readonly Lazy<SecureString> _saslPreppedPassword;
-        private string _source;
-        private SecureString _password;
-        private string _username;
+        private readonly string _source;
+        private readonly SecureString _password;
+        private readonly string _username;
 
         // constructors
         /// <summary>

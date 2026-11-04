@@ -27,10 +27,10 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class ObjectDiscriminatorConvention : IDiscriminatorConvention, IHasSerializationDomain
     {
         // private static fields
-        private static ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
+        private static readonly ObjectDiscriminatorConvention __instance = new ObjectDiscriminatorConvention("_t");
 
         // private fields
-        private string _elementName;
+        private readonly string _elementName;
         private readonly IBsonSerializationDomain _serializationDomain;
 
         // constructors

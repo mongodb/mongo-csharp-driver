@@ -24,11 +24,11 @@ namespace MongoDB.Driver.Core.Async
 {
     public class MetronomeTests
     {
-        private FrozenClock _clock;
+        private readonly FrozenClock _clock;
         private readonly TimeSpan _halfPeriod = TimeSpan.FromMilliseconds(500);
         private readonly TimeSpan _period = TimeSpan.FromMilliseconds(1000);
         private readonly TimeSpan _quarterPeriod = TimeSpan.FromMilliseconds(250);
-        private Metronome _subject;
+        private readonly Metronome _subject;
         private readonly TimeSpan _threeQuarterPeriod = TimeSpan.FromMilliseconds(750);
 
         public MetronomeTests()

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class NamedExtraElementsConventionsTests
     {
-        private NamedExtraElementsMemberConvention _subject;
+        private readonly NamedExtraElementsMemberConvention _subject;
 
         public NamedExtraElementsConventionsTests()
         {

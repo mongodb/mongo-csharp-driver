@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     internal sealed class JsonDrivenBulkWriteTest : JsonDrivenCollectionTest
     {
         // private fields
-        private BulkWriteOptions _options = new BulkWriteOptions();
+        private readonly BulkWriteOptions _options = new BulkWriteOptions();
         private List<WriteModel<BsonDocument>> _requests;
         private BulkWriteResult<BsonDocument> _result;
         private IClientSessionHandle _session;

@@ -703,7 +703,7 @@ namespace MongoDB.Driver.Core.Servers
         private class TestException : Exception
 #pragma warning restore CA1064 // Exceptions should be public
         {
-            private string _emulatedStackTrace;
+            private readonly string _emulatedStackTrace;
 
             public TestException(string message, string stackTrace) : base(message)
             {

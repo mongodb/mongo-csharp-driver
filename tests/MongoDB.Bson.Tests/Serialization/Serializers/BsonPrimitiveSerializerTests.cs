@@ -145,7 +145,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             public DateTime GetPrivateD() => _d;
         }
 
-        private static string __expectedTemplate =
+        private static readonly string __expectedTemplate =
             "{ 'Default' : #Default, 'Local' : #Local, 'Unspecified' : #Unspecified, 'Utc' : #Utc, 'Ticks' : #Ticks, 'String' : '#String', 'DateOnlyString' : '#DateOnlyString', 'Document' : #Document }";
 
         [Fact]

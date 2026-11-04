@@ -30,17 +30,17 @@ namespace MongoDB.Driver.Core.Operations
     internal sealed class DistinctOperation<TValue> : IReadOperation<IAsyncCursor<TValue>>, ICommandCreator
     {
         private Collation _collation;
-        private CollectionNamespace _collectionNamespace;
+        private readonly CollectionNamespace _collectionNamespace;
         private BsonValue _comment;
         private bool _enableOverloadRetargeting;
         private BsonDocument _filter;
-        private string _fieldName;
+        private readonly string _fieldName;
         private int _maxAdaptiveRetries;
         private TimeSpan? _maxTime;
-        private MessageEncoderSettings _messageEncoderSettings;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
         private ReadConcern _readConcern = ReadConcern.Default;
         private bool _retryRequested;
-        private IBsonSerializer<TValue> _valueSerializer;
+        private readonly IBsonSerializer<TValue> _valueSerializer;
 
         public DistinctOperation(CollectionNamespace collectionNamespace, IBsonSerializer<TValue> valueSerializer, string fieldName, MessageEncoderSettings messageEncoderSettings)
         {

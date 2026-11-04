@@ -26,10 +26,10 @@ namespace MongoDB.Driver.Tests
     [Trait("Category", "Integration")]
     public class ListDatabasesTests
     {
-        private string _databaseName = $"authorizedDatabases{Guid.NewGuid()}";
-        private string _password = "authorizedDatabases";
-        private string _roleName = $"listDatabases{Guid.NewGuid()}";
-        private string _userName = $"authorizedDatabases{Guid.NewGuid()}";
+        private readonly string _databaseName = $"authorizedDatabases{Guid.NewGuid()}";
+        private readonly string _password = "authorizedDatabases";
+        private readonly string _roleName = $"listDatabases{Guid.NewGuid()}";
+        private readonly string _userName = $"authorizedDatabases{Guid.NewGuid()}";
 
         [Theory]
         [ParameterAttributeData]

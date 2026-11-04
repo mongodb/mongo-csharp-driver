@@ -30,7 +30,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             typeof(IReadOnlyDictionary<,>)
         };
 
-        private static Type[] __tupleTypeDefinitions =
+        private static readonly Type[] __tupleTypeDefinitions =
         {
             typeof(Tuple<>),
             typeof(Tuple<,>),
@@ -42,7 +42,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Misc
             typeof(Tuple<,,,,,,,>)
         };
 
-        private static Type[] __valueTupleTypeDefinitions =
+        private static readonly Type[] __valueTupleTypeDefinitions =
         {
             typeof(ValueTuple<>),
             typeof(ValueTuple<,>),

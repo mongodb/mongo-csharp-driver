@@ -34,10 +34,10 @@ namespace MongoDB.Bson.Tests.Serialization
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class ObjectSerializerTests
     {
-        private static Func<Type, bool> __defaultAllowedDeserializationTypes = ObjectSerializer.DefaultAllowedTypes;
-        private static Func<Type, bool> __defaultAllowedSerializationTypes = ObjectSerializer.DefaultAllowedTypes;
-        private static IDiscriminatorConvention __defaultDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
-        private static GuidRepresentation __defaultGuidRepresentation = GuidRepresentation.Unspecified;
+        private static readonly Func<Type, bool> __defaultAllowedDeserializationTypes = ObjectSerializer.DefaultAllowedTypes;
+        private static readonly Func<Type, bool> __defaultAllowedSerializationTypes = ObjectSerializer.DefaultAllowedTypes;
+        private static readonly IDiscriminatorConvention __defaultDiscriminatorConvention = BsonSerializer.LookupDiscriminatorConvention(typeof(object));
+        private static readonly GuidRepresentation __defaultGuidRepresentation = GuidRepresentation.Unspecified;
 
         public class C
         {

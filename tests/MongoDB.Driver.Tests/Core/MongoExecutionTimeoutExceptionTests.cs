@@ -29,8 +29,8 @@ namespace MongoDB.Driver
     public class MongoExecutionTimeoutExceptionTests
     {
         private readonly ConnectionId _connectionId = new ConnectionId(new ServerId(new ClusterId(1), new DnsEndPoint("localhost", 27017)), 2).WithServerValue(3);
-        private Exception _innerException = new Exception("inner");
-        private string _message = "message";
+        private readonly Exception _innerException = new Exception("inner");
+        private readonly string _message = "message";
 
         [Fact]
         public void constructor_should_initialize_subject()

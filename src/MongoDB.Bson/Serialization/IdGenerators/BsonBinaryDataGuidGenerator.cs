@@ -24,15 +24,15 @@ namespace MongoDB.Bson.Serialization.IdGenerators
     public class BsonBinaryDataGuidGenerator : IIdGenerator
     {
         // private static fields
-        private static BsonBinaryDataGuidGenerator __csharpLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.CSharpLegacy);
-        private static BsonBinaryDataGuidGenerator __javaLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.JavaLegacy);
-        private static BsonBinaryDataGuidGenerator __pythonLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.PythonLegacy);
-        private static BsonBinaryDataGuidGenerator __standardInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.Standard);
-        private static BsonBinaryDataGuidGenerator __unspecifiedInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.Unspecified);
-        private static byte[] __emptyGuidBytes = Guid.Empty.ToByteArray();
+        private static readonly BsonBinaryDataGuidGenerator __csharpLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.CSharpLegacy);
+        private static readonly BsonBinaryDataGuidGenerator __javaLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.JavaLegacy);
+        private static readonly BsonBinaryDataGuidGenerator __pythonLegacyInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.PythonLegacy);
+        private static readonly BsonBinaryDataGuidGenerator __standardInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.Standard);
+        private static readonly BsonBinaryDataGuidGenerator __unspecifiedInstance = new BsonBinaryDataGuidGenerator(GuidRepresentation.Unspecified);
+        private static readonly byte[] __emptyGuidBytes = Guid.Empty.ToByteArray();
 
         // private fields
-        private GuidRepresentation _guidRepresentation;
+        private readonly GuidRepresentation _guidRepresentation;
 
         // constructors
         /// <summary>

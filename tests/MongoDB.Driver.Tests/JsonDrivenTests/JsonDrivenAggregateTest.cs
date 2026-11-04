@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenAggregateTest : JsonDrivenCollectionTest
     {
         // private fields
-        private AggregateOptions _options = new AggregateOptions();
+        private readonly AggregateOptions _options = new AggregateOptions();
         private PipelineDefinition<BsonDocument, BsonDocument> _pipeline;
         private List<BsonDocument> _result;
         private IClientSessionHandle _session;

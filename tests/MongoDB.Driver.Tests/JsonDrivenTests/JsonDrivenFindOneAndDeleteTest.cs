@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private FilterDefinition<BsonDocument> _filter;
-        private FindOneAndDeleteOptions<BsonDocument> _options = new FindOneAndDeleteOptions<BsonDocument>();
+        private readonly FindOneAndDeleteOptions<BsonDocument> _options = new FindOneAndDeleteOptions<BsonDocument>();
         private BsonDocument _result;
         private IClientSessionHandle _session;
 

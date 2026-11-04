@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenGridFSDownloadTest : JsonDrivenGridFSTest
     {
         // private fields
-        private GridFSDownloadOptions _downloadOptions = new GridFSDownloadOptions();
-        private FilterDefinition<BsonDocument> _filter = new BsonDocument();
+        private readonly GridFSDownloadOptions _downloadOptions = new GridFSDownloadOptions();
+        private readonly FilterDefinition<BsonDocument> _filter = new BsonDocument();
         private ObjectId _id;
         private IClientSessionHandle _session;
 

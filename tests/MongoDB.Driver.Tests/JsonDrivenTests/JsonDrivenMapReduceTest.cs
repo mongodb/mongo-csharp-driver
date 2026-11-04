@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
         // private fields
         private BsonJavaScript _map;
 #pragma warning disable CS0618 // Type or member is obsolete
-        private MapReduceOptions<BsonDocument, BsonDocument> _options = new MapReduceOptions<BsonDocument, BsonDocument>();
+        private readonly MapReduceOptions<BsonDocument, BsonDocument> _options = new MapReduceOptions<BsonDocument, BsonDocument>();
 #pragma warning restore CS0618 // Type or member is obsolete
         private BsonJavaScript _reduce;
         private List<BsonDocument> _result;

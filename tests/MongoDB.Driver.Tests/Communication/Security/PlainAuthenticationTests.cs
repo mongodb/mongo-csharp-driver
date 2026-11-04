@@ -28,7 +28,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
     {
         private static readonly string __collectionName = "test";
 
-        private MongoClientSettings _settings;
+        private readonly MongoClientSettings _settings;
 
         public PlainAuthenticationTests()
         {

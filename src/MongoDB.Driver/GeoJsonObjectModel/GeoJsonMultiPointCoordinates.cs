@@ -30,7 +30,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonMultiPointCoordinates<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private ReadOnlyCollection<TCoordinates> _positions;
+        private readonly ReadOnlyCollection<TCoordinates> _positions;
 
         // constructors
         /// <summary>

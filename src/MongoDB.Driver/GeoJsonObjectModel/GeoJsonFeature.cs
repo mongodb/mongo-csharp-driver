@@ -27,9 +27,9 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonFeature<TCoordinates> : GeoJsonObject<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private GeoJsonGeometry<TCoordinates> _geometry;
-        private BsonValue _id;
-        private BsonDocument _properties;
+        private readonly GeoJsonGeometry<TCoordinates> _geometry;
+        private readonly BsonValue _id;
+        private readonly BsonDocument _properties;
 
         // constructors
         /// <summary>

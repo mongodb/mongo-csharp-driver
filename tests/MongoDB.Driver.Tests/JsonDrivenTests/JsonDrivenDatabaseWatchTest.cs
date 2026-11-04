@@ -24,8 +24,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenDatabaseWatchTest : JsonDrivenDatabaseTest
     {
         // private fields
-        private FilterDefinition<BsonDocument> _filter = new BsonDocument();
-        private ChangeStreamOptions _options = new ChangeStreamOptions();
+        private readonly FilterDefinition<BsonDocument> _filter = new BsonDocument();
+        private readonly ChangeStreamOptions _options = new ChangeStreamOptions();
         private IClientSessionHandle _session;
 
         // public constructors

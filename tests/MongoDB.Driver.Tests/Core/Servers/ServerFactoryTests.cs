@@ -27,14 +27,14 @@ namespace MongoDB.Driver.Core.Servers
 {
     public class ServerFactoryTests
     {
-        private ClusterId _clusterId;
-        private IConnectionPoolFactory _connectionPoolFactory;
-        private bool _directConnection;
-        private EndPoint _endPoint;
-        private IEventSubscriber _eventSubscriber;
-        private ServerApi _serverApi;
-        private IServerMonitorFactory _serverMonitorFactory;
-        private ServerSettings _settings;
+        private readonly ClusterId _clusterId;
+        private readonly IConnectionPoolFactory _connectionPoolFactory;
+        private readonly bool _directConnection;
+        private readonly EndPoint _endPoint;
+        private readonly IEventSubscriber _eventSubscriber;
+        private readonly ServerApi _serverApi;
+        private readonly IServerMonitorFactory _serverMonitorFactory;
+        private readonly ServerSettings _settings;
 
         public ServerFactoryTests()
         {

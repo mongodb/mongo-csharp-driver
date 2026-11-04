@@ -52,7 +52,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations
 
     public class UnifiedCloseCursorOperationBuilder
     {
-        private UnifiedEntityMap _entityMap;
+        private readonly UnifiedEntityMap _entityMap;
 
         public UnifiedCloseCursorOperationBuilder(UnifiedEntityMap entityMap) => _entityMap = entityMap;
 

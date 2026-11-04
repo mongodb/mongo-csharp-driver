@@ -31,8 +31,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class AggregateOperationTests : OperationTestBase
     {
-        private static BsonDocument[] __pipeline = new[] { BsonDocument.Parse("{ $match : { x : 'x' } }") };
-        private static IBsonSerializer<BsonDocument> __resultSerializer = BsonDocumentSerializer.Instance;
+        private static readonly BsonDocument[] __pipeline = new[] { BsonDocument.Parse("{ $match : { x : 'x' } }") };
+        private static readonly IBsonSerializer<BsonDocument> __resultSerializer = BsonDocumentSerializer.Instance;
 
         [Fact]
         public void Constructor_with_database_should_create_a_valid_instance()

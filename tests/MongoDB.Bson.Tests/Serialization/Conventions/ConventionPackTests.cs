@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class ConventionPackTests
     {
-        private ConventionPack _pack;
+        private readonly ConventionPack _pack;
 
         public ConventionPackTests()
         {

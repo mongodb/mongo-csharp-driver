@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Tests
     {
         #region static
         // private static fields
-        private static string __collectionName;
-        private static IMongoDatabase __database;
-        private static Lazy<bool> __ensureTestData;
+        private static readonly string __collectionName;
+        private static readonly IMongoDatabase __database;
+        private static readonly Lazy<bool> __ensureTestData;
 
         // static constructor
         static AggregateFluentBucketAutoTests()

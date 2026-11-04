@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonIgnoreIfNullAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields
-        private bool _value;
+        private readonly bool _value;
 
         // constructors
         /// <summary>

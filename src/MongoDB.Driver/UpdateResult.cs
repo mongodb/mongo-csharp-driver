@@ -147,7 +147,7 @@ namespace MongoDB.Driver
         /// </summary>
         public class Unacknowledged : UpdateResult
         {
-            private static Unacknowledged __instance = new Unacknowledged();
+            private static readonly Unacknowledged __instance = new Unacknowledged();
 
             /// <summary>
             /// Gets the instance.

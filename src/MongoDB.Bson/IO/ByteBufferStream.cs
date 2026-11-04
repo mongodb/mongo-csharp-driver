@@ -27,7 +27,7 @@ namespace MongoDB.Bson.IO
     public class ByteBufferStream : BsonStream, IStreamEfficientCopyTo
     {
         // private fields
-        private IByteBuffer _buffer;
+        private readonly IByteBuffer _buffer;
         private bool _disposed;
         private int _length;
         private readonly bool _ownsBuffer;

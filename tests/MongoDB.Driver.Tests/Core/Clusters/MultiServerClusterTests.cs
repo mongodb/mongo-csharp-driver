@@ -38,13 +38,13 @@ namespace MongoDB.Driver.Core.Clusters
 {
     public class MultiServerClusterTests : LoggableTestClass
     {
-        private EventCapturer _capturedEvents;
-        private MockClusterableServerFactory _serverFactory;
+        private readonly EventCapturer _capturedEvents;
+        private readonly MockClusterableServerFactory _serverFactory;
         private ClusterSettings _settings;
-        private EndPoint _firstEndPoint = new DnsEndPoint("localhost", 27017);
-        private EndPoint _secondEndPoint = new DnsEndPoint("localhost", 27018);
-        private EndPoint _thirdEndPoint = new DnsEndPoint("localhost", 27019);
-        private IEqualityComparer<ServerDescription> _serverDescriptionComparer = ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.Instance;
+        private readonly EndPoint _firstEndPoint = new DnsEndPoint("localhost", 27017);
+        private readonly EndPoint _secondEndPoint = new DnsEndPoint("localhost", 27018);
+        private readonly EndPoint _thirdEndPoint = new DnsEndPoint("localhost", 27019);
+        private readonly IEqualityComparer<ServerDescription> _serverDescriptionComparer = ServerDescriptionWithSimilarLastUpdateTimestampEqualityComparer.Instance;
 
         public MultiServerClusterTests(ITestOutputHelper output) : base(output)
         {

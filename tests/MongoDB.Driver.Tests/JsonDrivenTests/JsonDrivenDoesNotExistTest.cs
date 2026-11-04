@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public class JsonDrivenDoesNotExistTest : JsonDrivenCollectionTest
     {
         // private fields
-        private BsonDocument _command;
+        private readonly BsonDocument _command;
         private IClientSessionHandle _session;
 
         // public constructors

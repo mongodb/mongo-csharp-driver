@@ -20,13 +20,13 @@ namespace MongoDB.Driver.Core.Logging
 {
     internal static partial class StructuredLogTemplateProviders
     {
-        private static string[] __clusterCommonParams = new[]
+        private static readonly string[] __clusterCommonParams = new[]
         {
             TopologyId,
             Message,
         };
 
-        private static string[] __serverSelectionCommonParams = new[]
+        private static readonly string[] __serverSelectionCommonParams = new[]
         {
             TopologyId,
             Selector,

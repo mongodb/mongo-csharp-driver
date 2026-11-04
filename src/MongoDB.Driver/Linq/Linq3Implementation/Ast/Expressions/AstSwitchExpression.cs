@@ -60,8 +60,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Expressions
 
     internal sealed class AstSwitchExpression : AstExpression
     {
-        private IReadOnlyList<AstSwitchExpressionBranch> _branches;
-        private AstExpression _default;
+        private readonly IReadOnlyList<AstSwitchExpressionBranch> _branches;
+        private readonly AstExpression _default;
 
         public AstSwitchExpression(
             IEnumerable<AstSwitchExpressionBranch> branches,

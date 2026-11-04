@@ -91,7 +91,7 @@ namespace MongoDB.Driver.Core.ConnectionPools
         {
             private static readonly bool[,] __transitions;
             private State _state;
-            private string _poolIdentifier;
+            private readonly string _poolIdentifier;
 
             static PoolState()
             {
@@ -581,9 +581,9 @@ namespace MongoDB.Driver.Core.ConnectionPools
 
         private sealed class AcquiredConnection : IConnectionHandle, ICheckOutReasonTracker
         {
-            private ExclusiveConnectionPool _connectionPool;
+            private readonly ExclusiveConnectionPool _connectionPool;
             private bool _disposed;
-            private ReferenceCounted<PooledConnection> _reference;
+            private readonly ReferenceCounted<PooledConnection> _reference;
 
             public AcquiredConnection(ExclusiveConnectionPool connectionPool, ReferenceCounted<PooledConnection> reference)
             {

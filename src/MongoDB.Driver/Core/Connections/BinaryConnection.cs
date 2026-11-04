@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Core.Connections
         private ConnectionId _connectionId;
         private readonly IConnectionInitializer _connectionInitializer;
         private ConnectionInitializerContext _connectionInitializerContext;
-        private EndPoint _endPoint;
+        private readonly EndPoint _endPoint;
         private ConnectionDescription _description;
         private bool _failedEventHasBeenRaised;
         private DateTime _lastUsedAtUtc;
@@ -294,7 +294,14 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 helper.FailedOpeningConnection(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -333,7 +340,14 @@ namespace MongoDB.Driver.Core.Connections
                 }
 
                 helper.FailedOpeningConnection(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -378,7 +392,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -403,7 +424,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "receiving a message from the server");
                 ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -496,7 +524,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                 ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -517,7 +552,14 @@ namespace MongoDB.Driver.Core.Connections
             {
                 var wrappedException = WrapExceptionIfRequired(operationContext, ex, "sending a message to the server");
                 ConnectionFailed(wrappedException ?? ex);
-                if (wrappedException == null) { throw; } else { throw wrappedException; }
+                if (wrappedException == null)
+                {
+                    throw;
+                }
+                else
+                {
+                    throw wrappedException;
+                }
             }
         }
 
@@ -809,7 +851,7 @@ namespace MongoDB.Driver.Core.Connections
             private TimeSpan _deserializationDuration;
             private readonly MessageEncoderSettings _messageEncoderSettings;
             private TimeSpan _networkDuration;
-            private int _responseTo;
+            private readonly int _responseTo;
             private Stopwatch _stopwatch;
 
             public ReceiveMessageHelper(BinaryConnection connection, int responseTo, MessageEncoderSettings messageEncoderSettings, ICompressorSource compressorSource)

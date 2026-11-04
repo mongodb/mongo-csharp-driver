@@ -102,8 +102,8 @@ namespace MongoDB.Bson.IO
     public class JsonToken
     {
         // private fields
-        private JsonTokenType _type;
-        private string _lexeme;
+        private readonly JsonTokenType _type;
+        private readonly string _lexeme;
 
         // constructors
         /// <summary>
@@ -208,7 +208,7 @@ namespace MongoDB.Bson.IO
     public class DateTimeJsonToken : JsonToken
     {
         // private fields
-        private BsonDateTime _value;
+        private readonly BsonDateTime _value;
 
         // constructors
         /// <summary>
@@ -238,7 +238,7 @@ namespace MongoDB.Bson.IO
     public class DoubleJsonToken : JsonToken
     {
         // private fields
-        private double _value;
+        private readonly double _value;
 
         // constructors
         /// <summary>
@@ -295,7 +295,7 @@ namespace MongoDB.Bson.IO
     public class Int32JsonToken : JsonToken
     {
         // private fields
-        private int _value;
+        private readonly int _value;
 
         // constructors
         /// <summary>
@@ -352,7 +352,7 @@ namespace MongoDB.Bson.IO
     public class Int64JsonToken : JsonToken
     {
         // private fields
-        private long _value;
+        private readonly long _value;
 
         // constructors
         /// <summary>
@@ -409,7 +409,7 @@ namespace MongoDB.Bson.IO
     public class ObjectIdJsonToken : JsonToken
     {
         // private fields
-        private ObjectId _value;
+        private readonly ObjectId _value;
 
         // constructors
         /// <summary>
@@ -439,7 +439,7 @@ namespace MongoDB.Bson.IO
     public class RegularExpressionJsonToken : JsonToken
     {
         // private fields
-        private BsonRegularExpression _value;
+        private readonly BsonRegularExpression _value;
 
         // constructors
         /// <summary>
@@ -469,7 +469,7 @@ namespace MongoDB.Bson.IO
     public class StringJsonToken : JsonToken
     {
         // private fields
-        private string _value;
+        private readonly string _value;
 
         // constructors
         /// <summary>

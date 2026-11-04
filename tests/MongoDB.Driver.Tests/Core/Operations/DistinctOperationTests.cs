@@ -29,8 +29,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class DistinctOperationTests : OperationTestBase
     {
-        private string _fieldName;
-        private IBsonSerializer<int> _valueSerializer;
+        private readonly string _fieldName;
+        private readonly IBsonSerializer<int> _valueSerializer;
 
         public DistinctOperationTests()
         {

@@ -22,7 +22,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
 {
     public class ReadWriteMemberFinderConventionsTests
     {
-        private ReadWriteMemberFinderConvention _subject;
+        private readonly ReadWriteMemberFinderConvention _subject;
 
         public ReadWriteMemberFinderConventionsTests()
         {

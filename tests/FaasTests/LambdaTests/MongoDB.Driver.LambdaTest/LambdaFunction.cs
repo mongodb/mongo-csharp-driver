@@ -31,7 +31,7 @@ namespace MongoDB.Driver.LambdaTest
 {
     public class LambdaFunction
     {
-        private MongoClient _mongoClient;
+        private readonly MongoClient _mongoClient;
         private long _openConnections;
         private long _totalHeartbeatCount;
         private double _totalHeartbeatDurationMs;

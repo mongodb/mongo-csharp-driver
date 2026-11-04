@@ -39,14 +39,14 @@ namespace MongoDB.Driver.Core.Connections
 {
     public class BinaryConnection_CommandEventTests : LoggableTestClass
     {
-        private Mock<IConnectionInitializer> _mockConnectionInitializer;
-        private DnsEndPoint _endPoint;
-        private EventCapturer _capturedEvents;
-        private MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
-        private BlockingMemoryStream _stream;
-        private Mock<IStreamFactory> _mockStreamFactory;
-        private BinaryConnection _subject;
-        private EventContext.OperationIdDisposer _operationIdDisposer;
+        private readonly Mock<IConnectionInitializer> _mockConnectionInitializer;
+        private readonly DnsEndPoint _endPoint;
+        private readonly EventCapturer _capturedEvents;
+        private readonly MessageEncoderSettings _messageEncoderSettings = new MessageEncoderSettings();
+        private readonly BlockingMemoryStream _stream;
+        private readonly Mock<IStreamFactory> _mockStreamFactory;
+        private readonly BinaryConnection _subject;
+        private readonly EventContext.OperationIdDisposer _operationIdDisposer;
 
         public static IEnumerable<object[]> GetPotentiallyRedactedCommandTestCases()
         {

@@ -114,7 +114,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerDoubleMicrosecondsTests
     {
-        private static long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
+        private static readonly long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
 
         public class C : IC
         {
@@ -327,7 +327,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerInt32MicrosecondsTests
     {
-        private static long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
+        private static readonly long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
 
         public class C : IC
         {
@@ -564,7 +564,7 @@ namespace MongoDB.Bson.Tests.Serialization
 
     public class TimeSpanSerializerInt64MicrosecondsTests
     {
-        private static long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
+        private static readonly long __ticksPerMicrosecond = TimeSpan.TicksPerMillisecond / 1000;
 
         public class C : IC
         {

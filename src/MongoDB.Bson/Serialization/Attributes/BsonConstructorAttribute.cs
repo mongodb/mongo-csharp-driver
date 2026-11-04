@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonConstructorAttribute : Attribute, IBsonCreatorMapAttribute
     {
         // private fields
-        private string[] _argumentNames;
+        private readonly string[] _argumentNames;
 
         // constructors
         /// <summary>

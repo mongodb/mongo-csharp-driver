@@ -21,7 +21,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 {
     internal sealed class AstFilterField : AstNode
     {
-        private string _path;
+        private readonly string _path;
 
         public AstFilterField(string path)
         {

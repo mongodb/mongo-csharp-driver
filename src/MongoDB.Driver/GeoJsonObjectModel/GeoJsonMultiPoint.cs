@@ -27,7 +27,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonMultiPoint<TCoordinates> : GeoJsonGeometry<TCoordinates> where TCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private GeoJsonMultiPointCoordinates<TCoordinates> _coordinates;
+        private readonly GeoJsonMultiPointCoordinates<TCoordinates> _coordinates;
 
         // constructors
         /// <summary>

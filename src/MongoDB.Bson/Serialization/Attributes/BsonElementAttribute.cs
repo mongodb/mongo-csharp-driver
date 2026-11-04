@@ -24,7 +24,7 @@ namespace MongoDB.Bson.Serialization.Attributes
     public class BsonElementAttribute : Attribute, IBsonMemberMapAttribute
     {
         // private fields
-        private string _elementName;
+        private readonly string _elementName;
         private int _order = int.MaxValue;
 
         // constructors

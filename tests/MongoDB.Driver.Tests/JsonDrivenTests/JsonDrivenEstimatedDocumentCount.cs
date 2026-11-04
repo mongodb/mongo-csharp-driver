@@ -25,8 +25,8 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     public sealed class JsonDrivenEstimatedCountTest : JsonDrivenCollectionTest
     {
         // private fields
-        private FilterDefinition<BsonDocument> _filter = new BsonDocument();
-        private EstimatedDocumentCountOptions _options = new EstimatedDocumentCountOptions();
+        private readonly FilterDefinition<BsonDocument> _filter = new BsonDocument();
+        private readonly EstimatedDocumentCountOptions _options = new EstimatedDocumentCountOptions();
         private long _result;
 
         // public constructors

@@ -22,7 +22,7 @@ namespace MongoDB.Driver.Core.Configuration;
 /// </summary>
 public sealed class Socks5ProxyStreamSettings
 {
-    private Socks5ProxySettings _socks5ProxySettings;
+    private readonly Socks5ProxySettings _socks5ProxySettings;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Socks5ProxyStreamSettings"/> class.

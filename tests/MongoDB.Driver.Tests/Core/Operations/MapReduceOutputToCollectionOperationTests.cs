@@ -29,7 +29,7 @@ namespace MongoDB.Driver.Core.Operations
     {
         // fields
         private readonly BsonJavaScript _mapFunction;
-        private CollectionNamespace _outputCollectionNamespace;
+        private readonly CollectionNamespace _outputCollectionNamespace;
         private readonly BsonJavaScript _reduceFunction;
 
         // constructors

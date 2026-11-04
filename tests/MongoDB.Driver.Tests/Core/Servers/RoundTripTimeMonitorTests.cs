@@ -37,8 +37,8 @@ namespace MongoDB.Driver.Core.Tests.Core.Servers
 {
     public class RoundTripTimeMonitorTests
     {
-        private static EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
-        private static ServerId __serverId = new ServerId(new ClusterId(), __endPoint);
+        private static readonly EndPoint __endPoint = new DnsEndPoint("localhost", 27017);
+        private static readonly ServerId __serverId = new ServerId(new ClusterId(), __endPoint);
 
         [Fact]
         public void Constructor_should_throw_connection_endpoint_is_null()

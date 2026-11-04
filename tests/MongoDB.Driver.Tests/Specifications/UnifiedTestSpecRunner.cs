@@ -472,7 +472,7 @@ namespace MongoDB.Driver.Tests.Specifications
                "Received"
             });
 
-        private static string __connectionCategoryName = LogCategoryHelper.GetCategoryName<LogCategories.Connection>();
+        private static readonly string __connectionCategoryName = LogCategoryHelper.GetCategoryName<LogCategories.Connection>();
 
         private static bool IsCmapLogValid(LogEntry logEntry) =>
             logEntry.Category != __connectionCategoryName ||
@@ -533,7 +533,7 @@ namespace MongoDB.Driver.Tests.Specifications
                "Stopping topology monitoring"
           });
 
-        private static string __sdamCategoryName = LogCategoryHelper.GetCategoryName<LogCategories.SDAM>();
+        private static readonly string __sdamCategoryName = LogCategoryHelper.GetCategoryName<LogCategories.SDAM>();
 
         private static bool IsSdamLogValid(LogEntry logEntry) =>
             logEntry.Category != __sdamCategoryName ||

@@ -30,8 +30,8 @@ namespace MongoDB.Driver.Core.Operations
 {
     public class FindOneAndDeleteOperationTests : OperationTestBase
     {
-        private BsonDocument _filter;
-        private IBsonSerializer<BsonDocument> _findAndModifyValueDeserializer;
+        private readonly BsonDocument _filter;
+        private readonly IBsonSerializer<BsonDocument> _findAndModifyValueDeserializer;
 
         public FindOneAndDeleteOperationTests()
         {

@@ -25,8 +25,8 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJsonLinkedCoordinateReferenceSystem : GeoJsonCoordinateReferenceSystem
     {
         // private fields
-        private string _href;
-        private string _hrefType;
+        private readonly string _href;
+        private readonly string _hrefType;
 
         // constructors
         /// <summary>

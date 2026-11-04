@@ -31,8 +31,8 @@ namespace MongoDB.Driver
     public class MongoUrl : IEquatable<MongoUrl>
     {
         // private static fields
-        private static object __staticLock = new object();
-        private static Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
+        private static readonly object __staticLock = new object();
+        private static readonly Dictionary<string, MongoUrl> __cache = new Dictionary<string, MongoUrl>();
 
         // private fields
         private readonly bool _allowInsecureTls;

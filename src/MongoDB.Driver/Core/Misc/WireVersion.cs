@@ -184,7 +184,7 @@ namespace MongoDB.Driver.Core.Misc
             new WireVersionInfo(wireVersion: 30, major: 9, minor: 1)
         };
 
-        private static Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: Server44, maxWireVersion: Server91);
+        private static readonly Range<int> __supportedWireVersionRange = CreateSupportedWireVersionRange(minWireVersion: Server44, maxWireVersion: Server91);
 
         private static Range<int> CreateSupportedWireVersionRange(int minWireVersion, int maxWireVersion)
         {

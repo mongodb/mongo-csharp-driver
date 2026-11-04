@@ -26,7 +26,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private FilterDefinition<BsonDocument> _filter = new BsonDocument();
-        private CountOptions _options = new CountOptions();
+        private readonly CountOptions _options = new CountOptions();
         private long _result;
         private IClientSessionHandle _session;
 

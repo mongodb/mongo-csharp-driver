@@ -508,8 +508,8 @@ namespace MongoDB.Driver.Core.Clusters
         // nested types
         private class StubCluster : Cluster
         {
-            private Dictionary<EndPoint, IClusterableServer> _servers = new Dictionary<EndPoint, IClusterableServer>();
-            private ClusterType? _clusterType;
+            private readonly Dictionary<EndPoint, IClusterableServer> _servers = new Dictionary<EndPoint, IClusterableServer>();
+            private readonly ClusterType? _clusterType;
 
             public StubCluster(ClusterSettings settings,
                 IClusterableServerFactory serverFactory,

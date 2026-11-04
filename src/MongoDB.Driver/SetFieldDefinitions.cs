@@ -79,7 +79,7 @@ namespace MongoDB.Driver
     /// <typeparam name="TFields">The type of object specifying the fields to set.</typeparam>
     public sealed class ExpressionSetFieldDefinitions<TDocument, TFields> : SetFieldDefinitions<TDocument>
     {
-        private Expression<Func<TDocument, TFields>> _expression;
+        private readonly Expression<Func<TDocument, TFields>> _expression;
 
         /// <summary>
         /// Initializes an instance of ExpressionSetFieldDefinitions.

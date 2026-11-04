@@ -25,7 +25,7 @@ namespace MongoDB.Driver.Tests.JsonDrivenTests
     {
         // private fields
         private string _collectionName;
-        private CreateCollectionOptions<BsonDocument> _createCollectionOptions;
+        private readonly CreateCollectionOptions<BsonDocument> _createCollectionOptions;
         private IClientSessionHandle _session;
 
         // public constructors

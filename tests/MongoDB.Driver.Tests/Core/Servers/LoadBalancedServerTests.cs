@@ -40,17 +40,17 @@ namespace MongoDB.Driver.Core.Servers
 {
     public class LoadBalancedTests : LoggableTestClass
     {
-        private IClusterClock _clusterClock;
-        private ClusterId _clusterId;
-        private ConnectionId _connectionId;
-        private Mock<IConnectionPool> _mockConnectionPool;
-        private Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
-        private EndPoint _endPoint;
-        private EventCapturer _capturedEvents;
-        private EventLogger<LogCategories.SDAM> _eventLogger;
-        private ServerApi _serverApi;
-        private ServerSettings _settings;
-        private LoadBalancedServer _subject;
+        private readonly IClusterClock _clusterClock;
+        private readonly ClusterId _clusterId;
+        private readonly ConnectionId _connectionId;
+        private readonly Mock<IConnectionPool> _mockConnectionPool;
+        private readonly Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
+        private readonly EndPoint _endPoint;
+        private readonly EventCapturer _capturedEvents;
+        private readonly EventLogger<LogCategories.SDAM> _eventLogger;
+        private readonly ServerApi _serverApi;
+        private readonly ServerSettings _settings;
+        private readonly LoadBalancedServer _subject;
 
         public LoadBalancedTests(ITestOutputHelper output) : base(output)
         {

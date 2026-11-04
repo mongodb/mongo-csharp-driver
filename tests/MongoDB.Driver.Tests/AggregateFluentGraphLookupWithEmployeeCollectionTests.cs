@@ -32,9 +32,9 @@ namespace MongoDB.Driver.Tests
     {
         #region static
         // private static fields
-        private static IMongoDatabase __database;
-        private static IMongoCollection<Employee> __employeesCollection;
-        private static Lazy<bool> __ensureTestData;
+        private static readonly IMongoDatabase __database;
+        private static readonly IMongoCollection<Employee> __employeesCollection;
+        private static readonly Lazy<bool> __ensureTestData;
 
         private static Employee __dev, __eliot, __ron, __andrew, __asya, __dan;
 
@@ -365,7 +365,7 @@ namespace MongoDB.Driver.Tests
 
         private class EmployeeWithReportingHierarchyEqualityComparer : IEqualityComparer<EmployeeWithReportingHierarchy>
         {
-            private IEqualityComparer<Employee[]> _reportingHierarchyComparer = new EnumerableSetEqualityComparer<Employee>(new EmployeeEqualityComparer());
+            private readonly IEqualityComparer<Employee[]> _reportingHierarchyComparer = new EnumerableSetEqualityComparer<Employee>(new EmployeeEqualityComparer());
 
             public bool Equals(EmployeeWithReportingHierarchy x, EmployeeWithReportingHierarchy y)
             {

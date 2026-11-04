@@ -21,7 +21,7 @@ namespace MongoDB.Bson.Serialization.Conventions
     public class IgnoreExtraElementsConvention : ConventionBase, IClassMapConvention
     {
         // private fields
-        private bool _ignoreExtraElements;
+        private readonly bool _ignoreExtraElements;
 
         // constructors
         /// <summary>

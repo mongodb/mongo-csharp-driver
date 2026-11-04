@@ -30,7 +30,7 @@ namespace MongoDB.Bson.IO
         // fields
         private readonly IBsonChunkSource _baseSource;
         private bool _disposed;
-        private int _initialUnpooledChunkSize;
+        private readonly int _initialUnpooledChunkSize;
         private readonly int _maxChunkSize;
         private readonly int _minChunkSize;
         private int _previousChunkSize;

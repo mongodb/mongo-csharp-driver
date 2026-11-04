@@ -47,20 +47,20 @@ namespace MongoDB.Driver.Core.Servers
 {
     public class ServerTests : LoggableTestClass
     {
-        private IClusterClock _clusterClock;
-        private ClusterId _clusterId;
-        private ConnectionId _connectionId;
-        private bool _directConnection;
-        private Mock<IConnectionPool> _mockConnectionPool;
-        private Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
-        private EndPoint _endPoint;
-        private EventCapturer _capturedEvents;
-        private EventLogger<LogCategories.SDAM> _eventLogger;
-        private Mock<IServerMonitor> _mockServerMonitor;
-        private Mock<IServerMonitorFactory> _mockServerMonitorFactory;
-        private ServerApi _serverApi;
-        private ServerSettings _settings;
-        private DefaultServer _subject;
+        private readonly IClusterClock _clusterClock;
+        private readonly ClusterId _clusterId;
+        private readonly ConnectionId _connectionId;
+        private readonly bool _directConnection;
+        private readonly Mock<IConnectionPool> _mockConnectionPool;
+        private readonly Mock<IConnectionPoolFactory> _mockConnectionPoolFactory;
+        private readonly EndPoint _endPoint;
+        private readonly EventCapturer _capturedEvents;
+        private readonly EventLogger<LogCategories.SDAM> _eventLogger;
+        private readonly Mock<IServerMonitor> _mockServerMonitor;
+        private readonly Mock<IServerMonitorFactory> _mockServerMonitorFactory;
+        private readonly ServerApi _serverApi;
+        private readonly ServerSettings _settings;
+        private readonly DefaultServer _subject;
 
         public ServerTests(ITestOutputHelper output) : base(output)
         {

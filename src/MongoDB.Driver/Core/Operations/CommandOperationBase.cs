@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal abstract class CommandOperationBase<TCommandResult>
     {
-        private DatabaseNamespace _databaseNamespace;
-        private MessageEncoderSettings _messageEncoderSettings;
-        private IBsonSerializer<TCommandResult> _resultSerializer;
+        private readonly DatabaseNamespace _databaseNamespace;
+        private readonly MessageEncoderSettings _messageEncoderSettings;
+        private readonly IBsonSerializer<TCommandResult> _resultSerializer;
 
         protected CommandOperationBase(DatabaseNamespace databaseNamespace,
             IBsonSerializer<TCommandResult> resultSerializer,

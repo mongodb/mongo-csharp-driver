@@ -22,9 +22,9 @@ namespace MongoDB.Bson.Tests.IO
 {
     public class BsonBufferValueStraddlesChunksTests
     {
-        private static int __chunkSize = 16 * 1024; // 16KiB
-        private static int __used = 16;
-        private static int __filler = __chunkSize - __used;
+        private static readonly int __chunkSize = 16 * 1024; // 16KiB
+        private static readonly int __used = 16;
+        private static readonly int __filler = __chunkSize - __used;
 
         [Fact]
         public void TestNameStraddles()

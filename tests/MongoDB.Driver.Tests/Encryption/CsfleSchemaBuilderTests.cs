@@ -27,7 +27,7 @@ namespace MongoDB.Driver.Tests.Encryption
     {
         private readonly CollectionNamespace _collectionNamespace = CollectionNamespace.FromFullName("medicalRecords.patients");
         private const string KeyIdString = "6f4af470-00d1-401f-ac39-f45902a0c0c8";
-        private static Guid _keyId = Guid.Parse(KeyIdString);
+        private static readonly Guid _keyId = Guid.Parse(KeyIdString);
 
         [Fact]
         public void CsfleSchemaBuilder_works_as_expected()

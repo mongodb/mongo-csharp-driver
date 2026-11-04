@@ -39,17 +39,17 @@ namespace MongoDB.Driver
         #region static
         // static fields
         private static Lazy<IClusterInternal> __cluster = new Lazy<IClusterInternal>(CreateCluster, isThreadSafe: true);
-        private static Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(CreateConnectionString, isThreadSafe: true);
-        private static Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
+        private static readonly Lazy<ConnectionString> __connectionString = new Lazy<ConnectionString>(CreateConnectionString, isThreadSafe: true);
+        private static readonly Lazy<ConnectionString> __connectionStringWithMultipleShardRouters = new Lazy<ConnectionString>(
             GetConnectionStringWithMultipleShardRouters, isThreadSafe: true);
-        private static Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
-        private static Lazy<TimeSpan> __defaultServerSelectionTimeout = new Lazy<TimeSpan>(GetDefaultServerSelectionTimeout, isThreadSafe: true);
-        private static Lazy<int> __maxWireVersion = new Lazy<int>(GetMaxWireVersion, isThreadSafe: true);
-        private static MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
-        private static Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
-        private static Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
-        private static Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
-        private static Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
+        private static readonly Lazy<DatabaseNamespace> __databaseNamespace = new Lazy<DatabaseNamespace>(GetDatabaseNamespace, isThreadSafe: true);
+        private static readonly Lazy<TimeSpan> __defaultServerSelectionTimeout = new Lazy<TimeSpan>(GetDefaultServerSelectionTimeout, isThreadSafe: true);
+        private static readonly Lazy<int> __maxWireVersion = new Lazy<int>(GetMaxWireVersion, isThreadSafe: true);
+        private static readonly MessageEncoderSettings __messageEncoderSettings = new MessageEncoderSettings();
+        private static readonly Lazy<int> __numberOfMongoses = new Lazy<int>(GetNumberOfMongoses, isThreadSafe: true);
+        private static readonly Lazy<ServerApi> __serverApi = new Lazy<ServerApi>(GetServerApi, isThreadSafe: true);
+        private static readonly Lazy<SemanticVersion> __serverVersion = new Lazy<SemanticVersion>(GetServerVersion, isThreadSafe: true);
+        private static readonly Lazy<string> __storageEngine = new Lazy<string>(GetStorageEngine, isThreadSafe: true);
         private static TraceSource __traceSource;
 
         // static properties

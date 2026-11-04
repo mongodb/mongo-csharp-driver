@@ -26,7 +26,7 @@ namespace MongoDB.Driver.GeoJsonObjectModel
     public class GeoJson2DCoordinates : GeoJsonCoordinates
     {
         // private fields
-        private ReadOnlyCollection<double> _values;
+        private readonly ReadOnlyCollection<double> _values;
 
         // constructors
         /// <summary>

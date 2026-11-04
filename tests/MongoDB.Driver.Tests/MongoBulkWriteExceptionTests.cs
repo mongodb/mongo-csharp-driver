@@ -37,7 +37,7 @@ namespace MongoDB.Driver.Tests
         private static BulkWriteError[] __writeErrors;
         private static WriteModel<BsonDocument>[] __unprocessedRequests;
         private static bool __oneTimeSetupHasRun = false;
-        private static object __oneTimeSetupLock = new object();
+        private static readonly object __oneTimeSetupLock = new object();
 
         public MongoBulkWriteExceptionTests()
         {

@@ -34,7 +34,7 @@ namespace MongoDB.Bson.Tests.IO
             }
         }
 
-        private Test[] _tests = new Test[]
+        private readonly Test[] _tests = new Test[]
         {
             // note: use EST/EDT in all Json values to ensure DateTime.Parse doesn't work
             // test with dayOfWeek
