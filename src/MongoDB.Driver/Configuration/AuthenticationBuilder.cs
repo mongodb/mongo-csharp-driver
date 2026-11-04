@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 
+using System;
+using MongoDB.Driver.Core.Configuration;
+
 namespace MongoDB.Driver.Configuration;
 
 /// <summary>
@@ -38,5 +41,34 @@ public sealed class AuthenticationBuilder
     {
         get;
         set;
+    }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        if (connectionString.Username == null && connectionString.Password == null && connectionString.AuthMechanism == null)
+        {
+            return;
+        }
+
+        var credential = MongoCredential.FromComponents(
+            connectionString.AuthMechanism,
+            connectionString.AuthSource,
+            connectionString.DatabaseName,
+            connectionString.Username,
+            connectionString.Password);
+
+        foreach (var property in connectionString.AuthMechanismProperties)
+        {
+            if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.OrdinalIgnoreCase))
+            {
+                credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
+            }
+            else
+            {
+                credential = credential.WithMechanismProperty(property.Key, property.Value);
+            }
+        }
+
+        Credential = credential;
     }
 }

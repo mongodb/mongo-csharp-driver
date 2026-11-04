@@ -80,11 +80,6 @@ public sealed class DiagnosticsBuilder
     /// </summary>
     /// <param name="subscriber">The subscriber.</param>
     /// <returns>The same <see cref="DiagnosticsBuilder"/> instance so that calls can be chained.</returns>
-    /// <remarks>
-    /// Command events carry the full command and reply, apart from a closed allowlist of
-    /// authentication-bearing commands whose bodies the driver redacts. Bulk operations can therefore
-    /// deliver multi-megabyte payloads; filter or truncate in the subscriber.
-    /// </remarks>
     public DiagnosticsBuilder Subscribe(IEventSubscriber subscriber)
     {
         Ensure.IsNotNull(subscriber, nameof(subscriber));
@@ -92,4 +87,7 @@ public sealed class DiagnosticsBuilder
         _subscribers.Add(subscriber);
         return this;
     }
+
+    internal IReadOnlyList<IEventSubscriber> GetSubscribers()
+        => _subscribers.ToArray();
 }

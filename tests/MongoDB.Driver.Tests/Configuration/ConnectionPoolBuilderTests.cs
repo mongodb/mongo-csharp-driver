@@ -68,4 +68,28 @@ public class ConnectionPoolBuilderTests
             .Subject.ParamName.Should().Be(nameof(ConnectionPoolBuilder.MaintenanceInterval));
         subject.MaintenanceInterval.Should().Be(TimeSpan.FromMinutes(1));
     }
+
+    [Theory]
+    [InlineData(10, 5)]
+    [InlineData(10, 10)]
+    [InlineData(1, 0)]
+    public void Validate_should_accept_max_size_greater_than_or_equal_to_min_size(int maxSize, int minSize)
+    {
+        var subject = new ConnectionPoolBuilder { MaxSize = maxSize, MinSize = minSize };
+
+        var exception = Record.Exception(() => subject.Validate());
+
+        exception.Should().BeNull();
+    }
+
+    [Fact]
+    public void Validate_should_throw_when_max_size_is_less_than_min_size()
+    {
+        var subject = new ConnectionPoolBuilder { MaxSize = 5, MinSize = 10 };
+
+        var exception = Record.Exception(() => subject.Validate());
+
+        exception.Should().BeOfType<InvalidOperationException>()
+            .Subject.Message.Should().Contain("MaxSize must be greater than or equal to MinSize");
+    }
 }

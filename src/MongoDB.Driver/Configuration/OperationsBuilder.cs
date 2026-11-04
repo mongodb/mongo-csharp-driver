@@ -15,6 +15,7 @@
 
 using System;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
+using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 
@@ -166,5 +167,53 @@ public sealed class OperationsBuilder
     {
         get;
         set => field = Ensure.IsNotNull(value, nameof(WriteConcern));
+    }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        if (connectionString.EnableOverloadRetargeting.HasValue)
+        {
+            EnableOverloadRetargeting = connectionString.EnableOverloadRetargeting.Value;
+        }
+        if (connectionString.LocalThreshold.HasValue)
+        {
+            LocalThreshold = connectionString.LocalThreshold.Value;
+        }
+        if (connectionString.MaxAdaptiveRetries.HasValue)
+        {
+            MaxAdaptiveRetries = connectionString.MaxAdaptiveRetries.Value;
+        }
+        if (connectionString.ReadConcernLevel.HasValue)
+        {
+            ReadConcern = new ReadConcern(connectionString.ReadConcernLevel);
+        }
+        if (connectionString.ReadPreference.HasValue || connectionString.ReadPreferenceTags != null || connectionString.MaxStaleness.HasValue)
+        {
+            if (!connectionString.ReadPreference.HasValue)
+            {
+                throw new MongoConfigurationException("readPreference mode is required when using tag sets or max staleness.");
+            }
+
+            ReadPreference = new ReadPreference(
+                connectionString.ReadPreference.Value,
+                connectionString.ReadPreferenceTags,
+                connectionString.MaxStaleness);
+        }
+        if (connectionString.RetryReads.HasValue)
+        {
+            RetryReads = connectionString.RetryReads.Value;
+        }
+        if (connectionString.RetryWrites.HasValue)
+        {
+            RetryWrites = connectionString.RetryWrites.Value;
+        }
+        if (connectionString.ServerSelectionTimeout.HasValue)
+        {
+            ServerSelectionTimeout = connectionString.ServerSelectionTimeout.Value;
+        }
+        if (connectionString.W != null || connectionString.WTimeout.HasValue || connectionString.FSync.HasValue || connectionString.Journal.HasValue)
+        {
+            WriteConcern = new WriteConcern(connectionString.W, connectionString.WTimeout, connectionString.FSync, connectionString.Journal);
+        }
     }
 }

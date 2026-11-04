@@ -128,4 +128,32 @@ public sealed class NetworkBuilder
         get;
         set;
     }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        Compressors = connectionString.Compressors;
+        if (connectionString.ConnectTimeout.HasValue)
+        {
+            ConnectTimeout = ZeroToInfinite(connectionString.ConnectTimeout.Value);
+        }
+        if (connectionString.Ipv6.HasValue)
+        {
+            IPv6 = connectionString.Ipv6.Value;
+        }
+        if (connectionString.SocketTimeout.HasValue)
+        {
+            SocketTimeout = ZeroToInfinite(connectionString.SocketTimeout.Value);
+        }
+        if (!string.IsNullOrEmpty(connectionString.ProxyHost))
+        {
+            Socks5Proxy = Socks5ProxySettings.Create(
+                connectionString.ProxyHost,
+                connectionString.ProxyPort,
+                connectionString.ProxyUsername,
+                connectionString.ProxyPassword);
+        }
+    }
+
+    private static TimeSpan ZeroToInfinite(TimeSpan value)
+        => value == TimeSpan.Zero ? Timeout.InfiniteTimeSpan : value;
 }

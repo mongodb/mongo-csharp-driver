@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Security;
@@ -103,5 +104,41 @@ public sealed class TlsBuilder
     {
         get;
         set;
+    }
+
+    internal void Validate()
+    {
+        if (AllowInsecure && CheckCertificateRevocation)
+        {
+            throw new InvalidOperationException($"{nameof(AllowInsecure)} and {nameof(CheckCertificateRevocation)} cannot both be true.");
+        }
+
+        if (AllowInsecure && ServerCertificateValidationCallback != null)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(AllowInsecure)} cannot be used together with {nameof(ServerCertificateValidationCallback)}, because the callback would override it.");
+        }
+
+        if (!Enabled)
+        {
+            var defaultAllowedProtocols = SslStreamSettings.SslProtocolsTls13 | SslProtocols.Tls12;
+            var hasTlsOptions =
+                AllowInsecure ||
+                AllowedProtocols != defaultAllowedProtocols ||
+                CheckCertificateRevocation ||
+                ClientCertificates?.Any() == true ||
+                ClientCertificateSelectionCallback != null ||
+                ServerCertificateValidationCallback != null;
+            if (hasTlsOptions)
+            {
+                throw new InvalidOperationException("TLS options are configured, but TLS is not enabled. Set Enabled to true or remove the options.");
+            }
+        }
+    }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        Enabled = connectionString.Tls.GetValueOrDefault(false);
+        AllowInsecure = connectionString.TlsInsecure.GetValueOrDefault(false);
     }
 }

@@ -64,4 +64,20 @@ public sealed class ServerMonitoringBuilder
         get;
         set;
     }
+
+    internal void ApplyConnectionString(ConnectionString connectionString)
+    {
+        if (connectionString.HeartbeatInterval.HasValue)
+        {
+            HeartbeatInterval = connectionString.HeartbeatInterval.Value;
+        }
+        if (connectionString.HeartbeatTimeout.HasValue)
+        {
+            HeartbeatTimeout = connectionString.HeartbeatTimeout.Value;
+        }
+        if (connectionString.ServerMonitoringMode.HasValue)
+        {
+            Mode = connectionString.ServerMonitoringMode.Value;
+        }
+    }
 }
