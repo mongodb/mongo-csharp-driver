@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly long? _operationId;
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly bool _wasFirstBatchEmpty;
+        private bool _wasFirstBatchEmpty;
         private readonly bool _retryRequested;
         private readonly int _maxAdaptiveRetries;
         private readonly bool _enableOverloadRetargeting;
@@ -117,7 +117,7 @@ namespace MongoDB.Driver.Core.Operations
             _session = Ensure.IsNotNull(session, nameof(session));
             _comment = comment;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
+            Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
             _postBatchResumeToken = postBatchResumeToken;
             _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
@@ -129,12 +129,7 @@ namespace MongoDB.Driver.Core.Operations
             _maxAdaptiveRetries = maxAdaptiveRetries;
             _enableOverloadRetargeting = enableOverloadRetargeting;
 
-            if (_limit > 0 && _firstBatch.Count > _limit)
-            {
-                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
-            }
-            _count = _firstBatch.Count;
-            _wasFirstBatchEmpty = firstBatch.Count == 0;
+            SetFirstBatch(firstBatch);
 
             DisposeChannelSourceIfNoLongerNeeded();
         }
@@ -200,11 +195,7 @@ namespace MongoDB.Driver.Core.Operations
             var batch = (RawBsonArray)cursorDocument["nextBatch"];
             var postBatchResumeToken = (BsonDocument)cursorDocument.GetValue("postBatchResumeToken", null);
 
-            using (batch)
-            {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
-                return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, documents);
-            }
+            return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, DeserializeBatch(batch));
         }
 
         private BsonDocument CreateGetMoreCommand(ConnectionDescription connectionDescription)
@@ -230,6 +221,14 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             return command;
+        }
+
+        private List<TDocument> DeserializeBatch(RawBsonArray batch)
+        {
+            using (batch)
+            {
+                return CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
+            }
         }
 
         private CursorBatch<TDocument> ExecuteGetMoreCommand(OperationContext operationContext, IChannelHandle channel)
@@ -471,6 +470,32 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
+        public void InitializeFirstBatch(RawBsonArray firstBatch)
+        {
+            try
+            {
+                SetFirstBatch(DeserializeBatch(firstBatch));
+            }
+            catch
+            {
+                Dispose();
+                throw;
+            }
+        }
+
+        public async Task InitializeFirstBatchAsync(RawBsonArray firstBatch)
+        {
+            try
+            {
+                SetFirstBatch(DeserializeBatch(firstBatch));
+            }
+            catch
+            {
+                await DisposeAsync().ConfigureAwait(false);
+                throw;
+            }
+        }
+
         private bool IsMongoCursorNotFoundException(MongoCommandException exception)
         {
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
@@ -565,6 +590,17 @@ namespace MongoDB.Driver.Core.Operations
             _postBatchResumeToken = batch.PostBatchResumeToken;
 
             DisposeChannelSourceIfNoLongerNeeded();
+        }
+
+        private void SetFirstBatch(IReadOnlyList<TDocument> firstBatch)
+        {
+            _firstBatch = firstBatch;
+            if (_limit > 0 && _firstBatch.Count > _limit)
+            {
+                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
+            }
+            _count = _firstBatch.Count;
+            _wasFirstBatchEmpty = firstBatch.Count == 0;
         }
 
         private void ThrowIfDisposed()

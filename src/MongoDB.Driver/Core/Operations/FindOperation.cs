@@ -305,7 +305,10 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var commandResult = operation.Execute(operationContext, context);
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, commandResult);
+                var cursorDocument = commandResult["cursor"].AsBsonDocument;
+                var cursor = CreateCursor(operationContext, context.ChannelSource, context.Channel, cursorDocument);
+                cursor.InitializeFirstBatch((RawBsonArray)cursorDocument["firstBatch"]);
+                return cursor;
             }
         }
 
@@ -328,54 +331,18 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-                return await CreateCursorAsync(operationContext, context.ChannelSource, context.Channel, commandResult).ConfigureAwait(false);
+                var cursorDocument = commandResult["cursor"].AsBsonDocument;
+                var cursor = CreateCursor(operationContext, context.ChannelSource, context.Channel, cursorDocument);
+                await cursor.InitializeFirstBatchAsync((RawBsonArray)cursorDocument["firstBatch"]).ConfigureAwait(false);
+                return cursor;
             }
         }
 
-        private AsyncCursor<TDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
-        {
-            var cursorDocument = commandResult["cursor"].AsBsonDocument;
-
-            CursorBatch<TDocument> firstBatch;
-            try
-            {
-                firstBatch = CreateFirstCursorBatch(cursorDocument);
-            }
-            catch
-            {
-                CreateCursorToKill(operationContext, channelSource, channel, cursorDocument)?.Dispose();
-                throw;
-            }
-
-            return CreateCursor(operationContext, channelSource, channel, cursorDocument, firstBatch);
-        }
-
-        private async Task<AsyncCursor<TDocument>> CreateCursorAsync(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
-        {
-            var cursorDocument = commandResult["cursor"].AsBsonDocument;
-
-            CursorBatch<TDocument> firstBatch;
-            try
-            {
-                firstBatch = CreateFirstCursorBatch(cursorDocument);
-            }
-            catch
-            {
-                var cursorToKill = CreateCursorToKill(operationContext, channelSource, channel, cursorDocument);
-                if (cursorToKill != null)
-                {
-                    await cursorToKill.DisposeAsync().ConfigureAwait(false);
-                }
-                throw;
-            }
-
-            return CreateCursor(operationContext, channelSource, channel, cursorDocument, firstBatch);
-        }
-
-        private AsyncCursor<TDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument cursorDocument, CursorBatch<TDocument> firstBatch)
+        private AsyncCursor<TDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument cursorDocument)
         {
             var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
-            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, firstBatch.CursorId);
+            var cursorId = cursorDocument["id"].ToInt64();
+            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
 
             if (cursorDocument.TryGetValue("atClusterTime", out var atClusterTime))
             {
@@ -387,8 +354,8 @@ namespace MongoDB.Driver.Core.Operations
                 operationContext.Session.Fork(),
                 collectionNamespace,
                 _comment,
-                firstBatch.Documents,
-                firstBatch.CursorId,
+                [],
+                cursorId,
                 _batchSize,
                 _limit < 0 ? Math.Abs(_limit.Value) : _limit,
                 _resultSerializer,
@@ -397,31 +364,6 @@ namespace MongoDB.Driver.Core.Operations
                 _retryRequested,
                 maxAdaptiveRetries: _maxAdaptiveRetries,
                 enableOverloadRetargeting: _enableOverloadRetargeting);
-        }
-
-        private AsyncCursor<TDocument> CreateCursorToKill(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument cursorDocument)
-        {
-            try
-            {
-                var cursorId = cursorDocument["id"].ToInt64();
-                return cursorId == 0 ? null : CreateCursor(operationContext, channelSource, channel, cursorDocument, new CursorBatch<TDocument>(cursorId, []));
-            }
-            catch
-            {
-                return null; // best effort, must not replace the original exception
-            }
-        }
-
-        private CursorBatch<TDocument> CreateFirstCursorBatch(BsonDocument cursorDocument)
-        {
-            var cursorId = cursorDocument["id"].ToInt64();
-            var batch = (RawBsonArray)cursorDocument["firstBatch"];
-
-            using (batch)
-            {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings);
-                return new CursorBatch<TDocument>(cursorId, documents);
-            }
         }
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);

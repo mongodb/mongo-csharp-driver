@@ -19,7 +19,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
@@ -722,18 +721,11 @@ namespace MongoDB.Driver.Core.Operations
         public void CreateCursor_should_use_ns_field_instead_of_namespace_passed_in_constructor()
         {
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var firstBatchSlice = new ByteArrayBuffer(new byte[] { 5, 0, 0, 0, 0 }, isReadOnly: true);
             var cursorCollectionNamespace = CollectionNamespace.FromFullName("cursors.lkajlkasdf-3980238d908sdf");
             var cursorDocument = new BsonDocument
             {
                 { "id", 0 },
-                { "firstBatch", new RawBsonArray(firstBatchSlice) },
                 { "ns", cursorCollectionNamespace.FullName }
-            };
-            var commandResult = new BsonDocument
-            {
-                { "ok", 1 },
-                { "cursor", cursorDocument }
             };
             var mockServer = new Mock<IServer>();
             var mockChannelSource = new Mock<IChannelSourceHandle>();
@@ -744,7 +736,7 @@ namespace MongoDB.Driver.Core.Operations
 
             using var operationContext = new OperationContext(mockSession.Object);
 
-            var cursor = subject.CreateCursor(operationContext, mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult);
+            var cursor = subject.CreateCursor(operationContext, mockChannelSource.Object, Mock.Of<IChannelHandle>(), cursorDocument);
 
             cursor._collectionNamespace().Should().Be(cursorCollectionNamespace);
         }
@@ -1265,9 +1257,9 @@ namespace MongoDB.Driver.Core.Operations
             OperationContext operationContext,
             IChannelSourceHandle channelSource,
             IChannelHandle channel,
-            BsonDocument commandResult)
+            BsonDocument cursorDocument)
         {
-            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), operationContext, channelSource, channel, commandResult);
+            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), operationContext, channelSource, channel, cursorDocument);
         }
     }
 }
