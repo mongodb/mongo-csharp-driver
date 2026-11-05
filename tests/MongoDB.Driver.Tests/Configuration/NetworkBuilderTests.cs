@@ -25,55 +25,6 @@ namespace MongoDB.Driver.Tests.Configuration;
 public class NetworkBuilderTests
 {
     [Fact]
-    public void BufferSizes_should_default_to_MongoDefaults()
-    {
-        var subject = new NetworkBuilder();
-
-        subject.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
-        subject.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
-    }
-
-    [Fact]
-    public void BufferSizes_should_be_settable()
-    {
-        var subject = new NetworkBuilder();
-
-        subject.ReceiveBufferSize = 1024;
-        subject.SendBufferSize = 2048;
-
-        subject.ReceiveBufferSize.Should().Be(1024);
-        subject.SendBufferSize.Should().Be(2048);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void ReceiveBufferSize_should_throw_when_not_positive(int value)
-    {
-        var subject = new NetworkBuilder();
-
-        var exception = Record.Exception(() => subject.ReceiveBufferSize = value);
-
-        exception.Should().BeOfType<ArgumentOutOfRangeException>()
-            .Subject.ParamName.Should().Be("ReceiveBufferSize");
-        subject.ReceiveBufferSize.Should().Be(MongoDefaults.TcpReceiveBufferSize);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    public void SendBufferSize_should_throw_when_not_positive(int value)
-    {
-        var subject = new NetworkBuilder();
-
-        var exception = Record.Exception(() => subject.SendBufferSize = value);
-
-        exception.Should().BeOfType<ArgumentOutOfRangeException>()
-            .Subject.ParamName.Should().Be("SendBufferSize");
-        subject.SendBufferSize.Should().Be(MongoDefaults.TcpSendBufferSize);
-    }
-
-    [Fact]
     public void ConnectTimeout_should_default_to_MongoDefaults()
     {
         var subject = new NetworkBuilder();

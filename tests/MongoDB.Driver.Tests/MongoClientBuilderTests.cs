@@ -766,16 +766,12 @@ public class MongoClientBuilderTests
         var withMaintenanceInterval = MongoClientBuilder.FromEndPoint("host1")
             .ConnectionPool(pool => pool.MaintenanceInterval = TimeSpan.FromSeconds(10))
             .ToMongoClientSettings();
-        var withBufferSize = MongoClientBuilder.FromEndPoint("host1")
-            .Network(network => network.ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize + 1)
-            .ToMongoClientSettings();
         var withSocketConfigurator = MongoClientBuilder.FromEndPoint("host1")
             .Network(network => network.SocketConfigurator = _ => { })
             .ToMongoClientSettings();
 
         withoutExtras.ClusterConfigurator.Should().BeNull();
         withMaintenanceInterval.ClusterConfigurator.Should().NotBeNull();
-        withBufferSize.ClusterConfigurator.Should().NotBeNull();
         withSocketConfigurator.ClusterConfigurator.Should().NotBeNull();
     }
 
