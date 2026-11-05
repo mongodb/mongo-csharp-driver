@@ -254,6 +254,9 @@ namespace MongoDB.Driver
 
         public static string GetCryptSharedLibPath() => Environment.GetEnvironmentVariable("CRYPT_SHARED_LIB_PATH");
 
+        public static bool IsDisaggregatedStorage { get; } =
+            string.Equals(Environment.GetEnvironmentVariable("DSC_TESTS_ENABLED"), "true", StringComparison.OrdinalIgnoreCase);
+
         public static ConnectionString CreateConnectionString() =>
             new(Environment.GetEnvironmentVariable("MONGODB_URI") ??
                 Environment.GetEnvironmentVariable("MONGO_URI") ??
