@@ -36,4 +36,20 @@ fi
 export AWS_TESTS_ENABLED=true
 export AWS_ECS_ENABLED=true
 
-TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh
+# dotnet test console output does not reach the Evergreen log from the ECS container, so report the junit results here
+test_status=0
+TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh || test_status=$?
+
+for result in build/test-results/*.xml; do
+  grep -o '<testsuite [^>]*>' "$result" || true
+  grep -o '<testcase [^>]*>' "$result" || true
+  grep -o '<failure [^>]*>' "$result" || true
+done
+
+tests_run=$(grep -ho '<testsuite [^>]* tests="[0-9]*"' build/test-results/*.xml | grep -o 'tests="[0-9]*"' | tr -dc '0-9\n' | awk '{ total += $1 } END { print total + 0 }')
+if [ "$tests_run" -eq 0 ]; then
+  echo "No tests ran in the ECS container"
+  exit 1
+fi
+
+exit $test_status
