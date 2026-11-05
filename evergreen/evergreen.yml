@@ -565,10 +565,6 @@ functions:
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          if [ "${skip_EC2_auth_test}" = "true" ]; then
-            echo "This platform does not support the EC2 auth test, skipping..."
-            exit 0
-          fi
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh ec2
 
   run-aws-auth-test-with-aws-ECS-credentials:
@@ -1963,8 +1959,6 @@ axes:
         display_name: "Ubuntu 22.04"
         variables:
           OS: "ubuntu-2204"
-          # drivers-evergreen-tools runs the ECS test only on Ubuntu 20.04 and 24.04
-          skip_ECS_auth_test: true
         run_on: ubuntu2204-small
       - id: "ubuntu-2404"
         display_name: "Ubuntu 24.04"
@@ -1981,8 +1975,6 @@ axes:
         display_name: "macOS 14.00 ARM"
         variables:
           OS: "macos-14-arm64"
-          skip_ECS_auth_test: true
-          skip_web_identity_auth_test: true
         run_on: macos-14-arm64
 
   - id: topology
