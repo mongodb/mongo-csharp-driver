@@ -25,7 +25,8 @@ if [[ -z "$1" ]]; then
 fi
 
 export MONGODB_URI="$1"
-export FRAMEWORK=net6.0
+# The container does not inherit the Evergreen task environment, so the framework is passed in a file next to this script
+export FRAMEWORK=$(<.evergreen/framework)
 . ./evergreen/install-dotnet.sh
 
 if echo "$MONGODB_URI" | grep -q "@"; then
