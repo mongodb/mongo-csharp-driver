@@ -457,6 +457,7 @@ public sealed class MongoClientBuilder
         settings.IPv6 = _networkBuilder.IPv6;
         settings.SocketTimeout = _networkBuilder.SocketTimeout;
         settings.Socks5ProxySettings = _networkBuilder.Socks5Proxy;
+        // TODO: set MongoClientSettings.UseOperatingSystemBufferSizes = true, once it merged into the main
 
         // Operations
         settings.EnableOverloadRetargeting = _operationsBuilder.EnableOverloadRetargeting;
@@ -531,18 +532,11 @@ public sealed class MongoClientBuilder
                 postServerSelector: postServerSelector != null ? Optional.Create(postServerSelector) : default)));
         }
 
-        // A null buffer size keeps the driver default.
-        var receiveBufferSize = _networkBuilder.ReceiveBufferSize;
-        var sendBufferSize = _networkBuilder.SendBufferSize;
         var socketConfigurator = _networkBuilder.SocketConfigurator;
-        var isReceiveBufferSizeCustom = receiveBufferSize.HasValue && receiveBufferSize.Value != MongoDefaults.TcpReceiveBufferSize;
-        var isSendBufferSizeCustom = sendBufferSize.HasValue && sendBufferSize.Value != MongoDefaults.TcpSendBufferSize;
-        if (isReceiveBufferSizeCustom || isSendBufferSizeCustom || socketConfigurator != null)
+        if (socketConfigurator != null)
         {
             configurators.Add(builder => builder.ConfigureTcp(tcpSettings => tcpSettings.With(
-                receiveBufferSize: isReceiveBufferSizeCustom ? Optional.Create(receiveBufferSize.Value) : default,
-                sendBufferSize: isSendBufferSizeCustom ? Optional.Create(sendBufferSize.Value) : default,
-                socketConfigurator: socketConfigurator != null ? Optional.Create(socketConfigurator) : default)));
+                socketConfigurator: Optional.Create(socketConfigurator))));
         }
 
         var maintenanceInterval = _connectionPoolBuilder.MaintenanceInterval;

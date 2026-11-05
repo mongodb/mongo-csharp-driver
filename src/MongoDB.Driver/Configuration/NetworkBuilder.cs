@@ -33,8 +33,6 @@ public sealed class NetworkBuilder
     {
         Compressors = new CompressorConfiguration[0];
         ConnectTimeout = MongoDefaults.ConnectTimeout;
-        ReceiveBufferSize = MongoDefaults.TcpReceiveBufferSize;
-        SendBufferSize = MongoDefaults.TcpSendBufferSize;
         SocketTimeout = Timeout.InfiniteTimeSpan;
     }
 
@@ -73,29 +71,9 @@ public sealed class NetworkBuilder
     }
 
     /// <summary>
-    /// Gets or sets the size, in bytes, of each socket's receive buffer. Must be greater than zero.
-    /// Defaults to <see cref="MongoDefaults.TcpReceiveBufferSize"/> (64 KiB).
-    /// </summary>
-    public int? ReceiveBufferSize
-    {
-        get;
-        set => field = Ensure.IsNullOrGreaterThanZero(value, nameof(ReceiveBufferSize));
-    }
-
-    /// <summary>
-    /// Gets or sets the size, in bytes, of each socket's send buffer. Must be greater than zero.
-    /// Defaults to <see cref="MongoDefaults.TcpSendBufferSize"/> (64 KiB).
-    /// </summary>
-    public int? SendBufferSize
-    {
-        get;
-        set => field = Ensure.IsNullOrGreaterThanZero(value, nameof(SendBufferSize));
-    }
-
-    /// <summary>
     /// Gets or sets a delegate that is called with every socket once it is connected, after the driver has
-    /// applied its own socket settings, so that it can set additional socket options (for example keep-alive
-    /// or linger). The default value is <c>null</c>.
+    /// applied its own socket settings, so that it can set additional socket options (for example buffer sizes,
+    /// keep-alive or linger). The default value is <c>null</c>.
     /// </summary>
     /// <remarks>
     /// The delegate is called for every connection the client opens, including the ones used to monitor
