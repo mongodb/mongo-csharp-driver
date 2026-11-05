@@ -40,13 +40,18 @@ export AWS_ECS_ENABLED=true
 test_status=0
 TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh || test_status=$?
 
-for result in build/test-results/*.xml; do
-  grep -o '<testsuite [^>]*>' "$result" || true
-  grep -o '<testcase [^>]*>' "$result" || true
-  grep -o '<failure [^>]*>' "$result" || true
-done
+results=$(grep -ho '<testcase [^>]*>\|<failure [^>]*>\|<skipped[^>]*>' build/test-results/*.xml | awk '
+  function report() { if (name != "") print status ": " name detail }
+  /^<testcase / { report(); match($0, / name="[^"]*"/); name = substr($0, RSTART + 7, RLENGTH - 8); status = "Passed"; detail = "" }
+  /^<failure /  { status = "Failed"; match($0, /message="[^"]*"/); detail = " (" substr($0, RSTART + 9, RLENGTH - 10) ")" }
+  /^<skipped/   { status = "Skipped" }
+  END           { report() }')
 
-tests_run=$(grep -ho '<testsuite [^>]* tests="[0-9]*"' build/test-results/*.xml | grep -o 'tests="[0-9]*"' | tr -dc '0-9\n' | awk '{ total += $1 } END { print total + 0 }')
+echo "ECS test results:"
+[ -n "$results" ] && echo "$results" | sed 's/^/  /'
+tests_run=$(echo "$results" | grep -c . || true)
+tests_failed=$(echo "$results" | grep -c '^Failed' || true)
+echo "  Total: $tests_run, failed: $tests_failed"
 if [ "$tests_run" -eq 0 ]; then
   echo "No tests ran in the ECS container"
   exit 1
