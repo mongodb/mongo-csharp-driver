@@ -14,7 +14,8 @@
  */
 
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MongoDB.Driver.Compression;
 using MongoDB.TestHelpers.XunitExtensions;
@@ -22,14 +23,18 @@ using Xunit;
 
 namespace MongoDB.Driver.Tests.Compression
 {
-    public class ZlibCompressorTests
+    public class ZlibCompressorTests : CompressorTestsBase
     {
-        [Fact]
-        public void Type_should_return_Zlib_compressor_type()
-        {
-            var compressor = new ZlibCompressor();
-            compressor.Type.Should().Be(CompressorType.Zlib);
-        }
+        private protected override CompressorType ExpectedCompressorType => CompressorType.Zlib;
+
+        private protected override ICompressor CreateCompressor() => new ZlibCompressor();
+
+        private protected override IEnumerable<ICompressor> CreateRoundTripCompressors() =>
+            new[] { -1, 0, 1, 6, 9 }.Select(level => new ZlibCompressor(level));
+
+        // level 0 is excluded because it does not compress
+        private protected override IEnumerable<ICompressor> CreateShrinkingCompressors() =>
+            new[] { 1, 6, 9 }.Select(level => new ZlibCompressor(level));
 
         [Theory]
         [ParameterAttributeData]
@@ -42,175 +47,9 @@ namespace MongoDB.Driver.Tests.Compression
         }
 
         [Fact]
-        public void Compress_should_throw_when_input_is_null()
+        public void Compress_with_higher_compression_should_produce_smaller_output()
         {
-            var compressor = new ZlibCompressor();
-            using var output = new MemoryStream();
-
-            var exception = Record.Exception(() => compressor.Compress(null, output));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("input");
-        }
-
-        [Fact]
-        public void Compress_should_throw_when_output_is_null()
-        {
-            var compressor = new ZlibCompressor();
-            using var input = new MemoryStream();
-
-            var exception = Record.Exception(() => compressor.Compress(input, null));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("output");
-        }
-
-        [Fact]
-        public void Decompress_should_throw_when_input_is_null()
-        {
-            var compressor = new ZlibCompressor();
-            using var output = new MemoryStream();
-
-            var exception = Record.Exception(() => compressor.Decompress(null, output));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("input");
-        }
-
-        [Fact]
-        public void Decompress_should_throw_when_output_is_null()
-        {
-            var compressor = new ZlibCompressor();
-            using var input = new MemoryStream();
-
-            var exception = Record.Exception(() => compressor.Decompress(input, null));
-
-            exception.Should().BeOfType<ArgumentNullException>().Subject
-                .ParamName.Should().Be("output");
-        }
-
-        public static TheoryData<string, byte[]> RoundTripData => new()
-        {
-            { "empty", new byte[0] },
-            { "single byte", new byte[] { 0x42 } },
-            { "all byte values", CreateAllByteValues() },
-            { "random incompressible", CreateRandomBytes(size: 4096, seed: 12345) },
-            { "zeros", new byte[100_000] },
-            { "repeating pattern above 64KB", CreateRepeatingPattern(size: 200_000) },
-            { "large repeating pattern 1MB", CreateRepeatingPattern(size: 1024 * 1024) },
-            { "large random 1MB", CreateRandomBytes(size: 1024 * 1024, seed: 67890) }
-        };
-
-        [Theory]
-        [MemberData(nameof(RoundTripData))]
-        public void Compress_and_Decompress_should_round_trip_data_shape(string description, byte[] bytes)
-        {
-            _ = description;
-
-            foreach (var compressionLevel in new[] { -1, 0, 1, 6, 9 })
-            {
-                var compressor = new ZlibCompressor(compressionLevel);
-
-                using var input = new MemoryStream(bytes);
-                using var compressed = new MemoryStream();
-                using var decompressed = new MemoryStream();
-
-                compressor.Compress(input, compressed);
-                compressed.Position = 0;
-                compressor.Decompress(compressed, decompressed);
-
-                decompressed.ToArray().Should().Equal(bytes, $"compression level {compressionLevel}");
-            }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(6)]
-        [InlineData(9)]
-        public void Compress_should_shrink_highly_compressible_data(int compressionLevel)
-        {
-            var compressor = new ZlibCompressor(compressionLevel);
-
-            foreach (var bytes in new[] { new byte[100_000], CreateRepeatingPattern(size: 200_000), CreateRepeatingPattern(size: 1024 * 1024) })
-            {
-                using var input = new MemoryStream(bytes);
-                using var compressed = new MemoryStream();
-
-                compressor.Compress(input, compressed);
-
-                compressed.Length.Should().BeLessThan(bytes.Length / 4);
-            }
-        }
-
-        [Fact]
-        public void Compress_should_only_process_remainder_of_input_when_position_is_non_zero()
-        {
-            var header = "HEADER-NOT-COMPRESSED"u8.ToArray();
-            var payload = CreateRepeatingPattern(size: 10_000);
-            var compressor = new ZlibCompressor();
-
-            using var input = new MemoryStream();
-            input.Write(header, 0, header.Length);
-            input.Write(payload, 0, payload.Length);
-            input.Position = header.Length;
-            using var compressed = new MemoryStream();
-            using var decompressed = new MemoryStream();
-
-            compressor.Compress(input, compressed);
-
-            input.Position.Should().Be(input.Length);
-            compressed.Position = 0;
-            compressor.Decompress(compressed, decompressed);
-            decompressed.ToArray().Should().Equal(payload);
-        }
-
-        [Fact]
-        public void Decompress_should_only_process_remainder_of_input_when_position_is_non_zero()
-        {
-            var header = "HEADER-NOT-COMPRESSED"u8.ToArray();
-            var payload = CreateRepeatingPattern(size: 10_000);
-            var compressor = new ZlibCompressor();
-
-            using var compressedPayload = new MemoryStream();
-            compressor.Compress(new MemoryStream(payload), compressedPayload);
-
-            using var input = new MemoryStream();
-            input.Write(header, 0, header.Length);
-            input.Write(compressedPayload.ToArray(), 0, (int)compressedPayload.Length);
-            input.Position = header.Length;
-            using var decompressed = new MemoryStream();
-
-            compressor.Decompress(input, decompressed);
-
-            decompressed.ToArray().Should().Equal(payload);
-        }
-
-        private static byte[] CreateAllByteValues()
-        {
-            var bytes = new byte[256 * 4];
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                bytes[i] = (byte)(i % 256);
-            }
-            return bytes;
-        }
-
-        private static byte[] CreateRandomBytes(int size, int seed)
-        {
-            var bytes = new byte[size];
-            new Random(seed).NextBytes(bytes);
-            return bytes;
-        }
-
-        private static byte[] CreateRepeatingPattern(int size)
-        {
-            var pattern = "The quick brown fox jumps over the lazy dog. "u8.ToArray();
-            var bytes = new byte[size];
-            for (var i = 0; i < size; i++)
-            {
-                bytes[i] = pattern[i % pattern.Length];
-            }
-            return bytes;
+            AssertHigherCompressionLevelsProduceSmallerOutput(level => new ZlibCompressor(level), 0, 1, 6, 9);
         }
     }
 }
