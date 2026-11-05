@@ -366,6 +366,47 @@ functions:
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
+  start-dsc:
+    - command: ec2.assume_role
+      params:
+        role_arn: arn:aws:iam::664315256653:role/disagg-storage-tf-project-ro
+    - command: subprocess.exec
+      params:
+        working_dir: mongo-csharp-driver
+        binary: bash
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/disagg/setup.sh
+    - command: expansions.update
+      params:
+        file: mongo-csharp-driver/dsc-expansion.yml
+
+  stop-dsc:
+    - command: subprocess.exec
+      params:
+        working_dir: mongo-csharp-driver
+        binary: bash
+        args:
+          - ${DRIVERS_TOOLS}/.evergreen/disagg/teardown.sh
+
+  run-dsc-tests:
+    - command: shell.exec
+      type: test
+      params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
+        script: |
+          ${PREPARE_SHELL}
+          DSC_TESTS_ENABLED=true \
+          MONGODB_URI="${MONGODB_URI}" \
+          TOPOLOGY=replica_set \
+          OS=${OS} \
+          FRAMEWORK=${FRAMEWORK} \
+            evergreen/run-tests.sh
+
   run-csfle-with-mocked-kms-tests:
     - command: shell.exec
       type: test
@@ -1351,6 +1392,15 @@ tasks:
         - func: run-tests
           vars:
             REQUIRE_API_VERSION: true
+
+    - name: test-dsc-net100
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net10.0
+        - func: run-dsc-tests
+          vars:
+            FRAMEWORK: net10.0
 
     - name: atlas-search-test
       commands:
@@ -2372,6 +2422,32 @@ task_groups:
     tasks:
       - test-oidc-k8s-gke
 
+  - name: dsc-task-group
+    setup_group_can_fail_task: true
+    setup_group_timeout_secs: 1800 # 30 minutes
+    setup_group:
+      - func: fetch-source
+      - func: prepare-resources
+      - func: fix-absolute-paths
+      - func: init-test-results
+      - func: make-files-executable
+      - func: start-dsc
+    teardown_group:
+      - func: stop-dsc
+      - func: upload-test-results
+      - command: s3.put
+        params:
+          aws_key: ${aws_key}
+          aws_secret: ${aws_secret}
+          local_file: mongo-csharp-driver/sls-logs.txt.gz
+          remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${build_id}/sls-logs.txt.gz
+          bucket: mciuploads
+          permissions: public-read
+          content_type: application/gzip
+          optional: true
+    tasks:
+      - test-dsc-net100
+
   - name: validate-apicompat-task-group
     setup_group_can_fail_task: true
     setup_group_timeout_secs: 1800 # 30 minutes
@@ -2711,6 +2787,15 @@ buildvariants:
     - windows-2022-latest-small # Why on windows?
   tasks:
     - name: atlas-search-test
+
+# Disaggregated storage (DSC) tests
+- name: dsc-tests
+  display_name: "DSC Tests"
+  run_on: ubuntu2204-small
+  expansions:
+    OS: "ubuntu-2204"
+  tasks:
+    - name: dsc-task-group
 
 # Socks5 Proxy tests
 - matrix_name: "socks5-proxy-tests-linux"

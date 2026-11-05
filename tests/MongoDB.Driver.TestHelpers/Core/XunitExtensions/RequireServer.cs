@@ -352,6 +352,14 @@ namespace MongoDB.Driver.Core.TestHelpers.XunitExtensions
                         default:
                             throw new FormatException($"Invalid runOn requirement serverless field value: '{requirement.Value}'.");
                     }
+                case "dsc":
+                    return requirement.Value.AsString switch
+                    {
+                        "require" => CoreTestConfiguration.IsDisaggregatedStorage,
+                        "forbid" => !CoreTestConfiguration.IsDisaggregatedStorage,
+                        "allow" => true,
+                        _ => throw new FormatException($"Invalid runOn requirement dsc field value: '{requirement.Value}'.")
+                    };
                 case "serverParameters":
                     var serverParameters = CoreTestConfiguration.GetServerParameters();
                     foreach (var parameter in requirement.Value.AsBsonDocument)
