@@ -237,6 +237,17 @@ namespace MongoDB.Driver.Tests.Specifications
         public void ReadWriteConcern(JsonDrivenTestCase testCase) => Run(testCase);
 
         [Category("SupportLoadBalancing")]
+        [UnifiedTestsTheory("read_write_concern.tests.write_concern_errors")]
+        public void ReadWriteConcernWriteConcernErrors(JsonDrivenTestCase testCase)
+        {
+            // GridFS bucket-level deleteByName and renameByName are not implemented by the driver.
+            SkipNotSupportedTestCases(testCase, "deleteByName");
+            SkipNotSupportedTestCases(testCase, "renameByName");
+
+            Run(testCase);
+        }
+
+        [Category("SupportLoadBalancing")]
         [UnifiedTestsTheory("retryable_reads.tests.unified")]
         public void RetryableReads(JsonDrivenTestCase testCase) => Run(testCase);
 
