@@ -8,7 +8,7 @@ if [ -z "$DRIVER_PACKAGE_VERSION" ]; then
   exit 1
 fi
 
-. ./evergreen/append-myget-package-source.sh
+. ./evergreen/append-local-package-source.sh
 
 export DRIVER_PACKAGE_VERSION="${DRIVER_PACKAGE_VERSION}"
 ./evergreen/compile-sources.sh "$SMOKE_TESTS_PROJECT"
