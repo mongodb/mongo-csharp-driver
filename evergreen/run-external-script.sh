@@ -10,8 +10,8 @@ cd "${LOCAL_PATH}" || exit
 echo "Cloning the remote repo..."
 git clone -b "${GIT_BRANCH:-main}" --single-branch "${GIT_REPO}" .
 
-# add/adjust nuget.config pointing to myget so intermediate versions could be restored
-. "${PROJECT_DIRECTORY}/evergreen/append-myget-package-source.sh"
+# add/adjust nuget.config pointing to the local driver packages so intermediate versions could be restored
+. "${PROJECT_DIRECTORY}/evergreen/append-local-package-source.sh"
 
 # make files executable
 echo "Making files executable"
