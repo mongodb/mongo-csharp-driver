@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -24,6 +23,7 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 settings.Servers = new[] { serverAddress };
                 settings.DirectConnection = true;
 
-                failPointSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
+                failPointSelector = new EndPointServerSelector(EndPointHelper.Parse(serverAddress.ToString()));
             }
 
             settings.MaxConnectionPoolSize = 1;
