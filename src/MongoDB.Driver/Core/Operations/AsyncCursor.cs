@@ -37,6 +37,110 @@ namespace MongoDB.Driver.Core.Operations
         private static readonly IBsonSerializer<BsonDocument> __getMoreCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
             "cursor", new PartiallyRawBsonDocumentSerializer(
                 "nextBatch", new RawBsonArraySerializer()));
+
+        public static IBsonSerializer<BsonDocument> CommandResultSerializer { get; } = new PartiallyRawBsonDocumentSerializer(
+            "cursor", new PartiallyRawBsonDocumentSerializer(
+                "firstBatch", new RawBsonArraySerializer()));
+
+        public static AsyncCursor<TDocument> FromServerResponse(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var (cursor, firstBatch, atClusterTime) = CreateWithoutFirstBatch(operationContext, channelSource, channel, commandResult, comment, batchSize, limit, serializer, messageEncoderSettings, maxTime, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting);
+            try
+            {
+                cursor.SetFirstBatch(cursor.DeserializeBatch(firstBatch));
+                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime);
+                return cursor;
+            }
+            catch
+            {
+                cursor.CloseAfterFirstBatchFailure(channel);
+                throw;
+            }
+        }
+
+        public static async Task<AsyncCursor<TDocument>> FromServerResponseAsync(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var (cursor, firstBatch, atClusterTime) = CreateWithoutFirstBatch(operationContext, channelSource, channel, commandResult, comment, batchSize, limit, serializer, messageEncoderSettings, maxTime, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting);
+            try
+            {
+                cursor.SetFirstBatch(cursor.DeserializeBatch(firstBatch));
+                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime);
+                return cursor;
+            }
+            catch
+            {
+                await cursor.CloseAfterFirstBatchFailureAsync(channel).ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        private static (AsyncCursor<TDocument> Cursor, RawBsonArray FirstBatch, BsonTimestamp AtClusterTime) CreateWithoutFirstBatch(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var cursorDocument = commandResult["cursor"].AsBsonDocument;
+            var cursorId = cursorDocument["id"].ToInt64();
+            var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
+            var postBatchResumeToken = (BsonDocument)cursorDocument.GetValue("postBatchResumeToken", null);
+            var firstBatch = (RawBsonArray)cursorDocument["firstBatch"];
+            var atClusterTime = (BsonTimestamp)cursorDocument.GetValue("atClusterTime", null);
+
+            var cursor = new AsyncCursor<TDocument>(
+                ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId),
+                operationContext.Session.Fork(),
+                collectionNamespace,
+                comment,
+                [],
+                cursorId,
+                postBatchResumeToken,
+                batchSize,
+                limit,
+                serializer,
+                messageEncoderSettings,
+                maxTime,
+                retryRequested,
+                maxAdaptiveRetries,
+                enableOverloadRetargeting);
+
+            return (cursor, firstBatch, atClusterTime);
+        }
         #endregion
 
         private readonly int? _batchSize;
@@ -361,6 +465,59 @@ namespace MongoDB.Driver.Core.Operations
             GC.SuppressFinalize(this);
         }
 
+        // uses the operation's still-held connection and its own 10s bound, so it needs no extra connection and still runs after caller cancellation
+        private void CloseAfterFirstBatchFailure(IChannelHandle channel)
+        {
+            try
+            {
+                if (_cursorId != 0 && !channel.Connection.IsExpired)
+                {
+                    using var rootContext = new OperationContext(_session);
+                    using var operationContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
+                    using (EventContext.BeginOperation(_operationId))
+                    using (EventContext.BeginKillCursors(_collectionNamespace))
+                    {
+                        ExecuteKillCursorsCommand(operationContext, channel);
+                    }
+                }
+            }
+            catch
+            {
+                // ignore exceptions so the deserialization failure is the one that surfaces
+            }
+            finally
+            {
+                _closed = true;
+                Dispose();
+            }
+        }
+
+        private async Task CloseAfterFirstBatchFailureAsync(IChannelHandle channel)
+        {
+            try
+            {
+                if (_cursorId != 0 && !channel.Connection.IsExpired)
+                {
+                    using var rootContext = new OperationContext(_session);
+                    using var operationContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
+                    using (EventContext.BeginOperation(_operationId))
+                    using (EventContext.BeginKillCursors(_collectionNamespace))
+                    {
+                        await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch
+            {
+                // ignore exceptions so the deserialization failure is the one that surfaces
+            }
+            finally
+            {
+                _closed = true;
+                await DisposeAsync().ConfigureAwait(false);
+            }
+        }
+
         private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken = default)
         {
             if (!_closed)
@@ -467,32 +624,6 @@ namespace MongoDB.Driver.Core.Operations
             using (var channel = await _channelSource.GetChannelAsync(operationContext).ConfigureAwait(false))
             {
                 return await ExecuteGetMoreCommandAsync(operationContext, channel).ConfigureAwait(false);
-            }
-        }
-
-        public void InitializeFirstBatch(RawBsonArray firstBatch)
-        {
-            try
-            {
-                SetFirstBatch(DeserializeBatch(firstBatch));
-            }
-            catch
-            {
-                Dispose();
-                throw;
-            }
-        }
-
-        public async Task InitializeFirstBatchAsync(RawBsonArray firstBatch)
-        {
-            try
-            {
-                SetFirstBatch(DeserializeBatch(firstBatch));
-            }
-            catch
-            {
-                await DisposeAsync().ConfigureAwait(false);
-                throw;
             }
         }
 

@@ -18,9 +18,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -296,18 +294,21 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             {
                 var operation = CreateOperation(operationContext, context);
-                var result = operation.Execute(operationContext, context);
-
-                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
-
-                if (!result.CursorId.HasValue)
-                {
-                    return new SingleBatchAsyncCursor<TResult>(result.Results);
-                }
-
-                var cursor = CreateCursorFromCursorResult(operationContext, context.ChannelSource, context.Channel, result);
-                cursor.InitializeFirstBatch(result.FirstBatch);
-                return cursor;
+                var commandResult = operation.Execute(operationContext, context);
+                return AsyncCursor<TResult>.FromServerResponse(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    commandResult,
+                    _comment,
+                    _batchSize,
+                    limit: null,
+                    _resultSerializer,
+                    MessageEncoderSettings,
+                    _maxAwaitTime,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting);
             }
         }
 
@@ -332,18 +333,21 @@ namespace MongoDB.Driver.Core.Operations
             using (EventContext.BeginOperation())
             {
                 var operation = CreateOperation(operationContext, context);
-                var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-
-                operationContext.Session.SetSnapshotTimeIfNeeded(result.AtClusterTime);
-
-                if (!result.CursorId.HasValue)
-                {
-                    return new SingleBatchAsyncCursor<TResult>(result.Results);
-                }
-
-                var cursor = CreateCursorFromCursorResult(operationContext, context.ChannelSource, context.Channel, result);
-                await cursor.InitializeFirstBatchAsync(result.FirstBatch).ConfigureAwait(false);
-                return cursor;
+                var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
+                return await AsyncCursor<TResult>.FromServerResponseAsync(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    commandResult,
+                    _comment,
+                    _batchSize,
+                    limit: null,
+                    _resultSerializer,
+                    MessageEncoderSettings,
+                    _maxAwaitTime,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting).ConfigureAwait(false);
             }
         }
 
@@ -375,14 +379,13 @@ namespace MongoDB.Driver.Core.Operations
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
-        private ReadCommandOperation<AggregateResult> CreateOperation(OperationContext operationContext, RetryableReadContext context)
+        private ReadCommandOperation<BsonDocument> CreateOperation(OperationContext operationContext, RetryableReadContext context)
         {
             var databaseNamespace = _collectionNamespace == null ? _databaseNamespace : _collectionNamespace.DatabaseNamespace;
-            var serializer = new AggregateResultDeserializer(_resultSerializer);
-            return new ReadCommandOperation<AggregateResult>(
+            return new ReadCommandOperation<BsonDocument>(
                 databaseNamespace,
                 this,
-                serializer,
+                AsyncCursor<TResult>.CommandResultSerializer,
                 MessageEncoderSettings,
                 OperationName)
             {
@@ -392,139 +395,11 @@ namespace MongoDB.Driver.Core.Operations
             };
         }
 
-        private AsyncCursor<TResult> CreateCursorFromCursorResult(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, AggregateResult result)
-        {
-            var cursorId = result.CursorId.GetValueOrDefault(0);
-            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
-            return new AsyncCursor<TResult>(
-                getMoreChannelSource,
-                operationContext.Session.Fork(),
-                result.CollectionNamespace,
-                _comment,
-                [],
-                cursorId,
-                result.PostBatchResumeToken,
-                _batchSize,
-                null, // limit
-                _resultSerializer,
-                MessageEncoderSettings,
-                _maxAwaitTime,
-                _retryRequested,
-                maxAdaptiveRetries: _maxAdaptiveRetries,
-                enableOverloadRetargeting: _enableOverloadRetargeting);
-        }
-
         private void EnsureIsReadOnlyPipeline()
         {
             if (Pipeline.Any(s => { var n = s.GetElement(0).Name; return n == "$out" || n == "$merge"; }))
             {
                 throw new ArgumentException("The pipeline for an AggregateOperation contains a $out or $merge operator. Use AggregateToCollectionOperation instead.", "pipeline");
-            }
-        }
-
-        internal class AggregateResult
-        {
-            public BsonTimestamp AtClusterTime;
-            public long? CursorId;
-            public CollectionNamespace CollectionNamespace;
-            public RawBsonArray FirstBatch;
-            public BsonDocument PostBatchResumeToken;
-            public TResult[] Results;
-        }
-
-        internal class AggregateResultDeserializer : SerializerBase<AggregateResult>
-        {
-            private static readonly CursorDeserializer __cursorDeserializer = new CursorDeserializer();
-
-            private readonly IBsonSerializer<TResult> _resultSerializer;
-
-            public AggregateResultDeserializer(IBsonSerializer<TResult> resultSerializer)
-            {
-                _resultSerializer = resultSerializer;
-            }
-
-            public override AggregateResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-            {
-                var reader = context.Reader;
-                AggregateResult result = null;
-                reader.ReadStartDocument();
-                while (reader.ReadBsonType() != 0)
-                {
-                    var elementName = reader.ReadName();
-                    if (elementName == "cursor")
-                    {
-                        result = __cursorDeserializer.Deserialize(context);
-                    }
-                    else if (elementName == "result")
-                    {
-                        var arraySerializer = new ArraySerializer<TResult>(_resultSerializer);
-                        result = new AggregateResult();
-                        result.Results = arraySerializer.Deserialize(context);
-                    }
-                    else
-                    {
-                        reader.SkipValue();
-                    }
-                }
-                reader.ReadEndDocument();
-                return result;
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (object.ReferenceEquals(obj, null)) { return false; }
-                if (object.ReferenceEquals(this, obj)) { return true; }
-                return
-                    base.Equals(obj) &&
-                    obj is AggregateResultDeserializer other &&
-                    object.Equals(_resultSerializer, other._resultSerializer);
-            }
-
-            public override int GetHashCode() => 0;
-        }
-
-        internal class CursorDeserializer : SerializerBase<AggregateResult>
-        {
-            private static readonly RawBsonArraySerializer __firstBatchSerializer = new RawBsonArraySerializer();
-
-            public override AggregateResult Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
-            {
-                var reader = context.Reader;
-                var result = new AggregateResult();
-                reader.ReadStartDocument();
-                while (reader.ReadBsonType() != 0)
-                {
-                    var elementName = reader.ReadName();
-                    switch (elementName)
-                    {
-                        case "atClusterTime":
-                            result.AtClusterTime = BsonTimestampSerializer.Instance.Deserialize(context);
-                            break;
-
-                        case "id":
-                            result.CursorId = new Int64Serializer().Deserialize(context);
-                            break;
-
-                        case "ns":
-                            var ns = reader.ReadString();
-                            result.CollectionNamespace = CollectionNamespace.FromFullName(ns);
-                            break;
-
-                        case "firstBatch":
-                            result.FirstBatch = __firstBatchSerializer.Deserialize(context);
-                            break;
-
-                        case "postBatchResumeToken":
-                            result.PostBatchResumeToken = BsonDocumentSerializer.Instance.Deserialize(context);
-                            break;
-
-                        default:
-                            reader.SkipValue();
-                            break;
-                    }
-                }
-                reader.ReadEndDocument();
-                return result;
             }
         }
     }

@@ -24,11 +24,11 @@ using MongoDB.Bson.TestHelpers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Events;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
-using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Core.Operations
@@ -717,30 +717,6 @@ namespace MongoDB.Driver.Core.Operations
             result.Should().Be(expectedResult);
         }
 
-        [Fact]
-        public void CreateCursor_should_use_ns_field_instead_of_namespace_passed_in_constructor()
-        {
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, BsonDocumentSerializer.Instance, _messageEncoderSettings);
-            var cursorCollectionNamespace = CollectionNamespace.FromFullName("cursors.lkajlkasdf-3980238d908sdf");
-            var cursorDocument = new BsonDocument
-            {
-                { "id", 0 },
-                { "ns", cursorCollectionNamespace.FullName }
-            };
-            var mockServer = new Mock<IServer>();
-            var mockChannelSource = new Mock<IChannelSourceHandle>();
-            mockChannelSource.Setup(x => x.Server).Returns(mockServer.Object);
-            var mockSession = new Mock<ICoreSessionHandle>();
-            var mockSessionFork = new Mock<ICoreSessionHandle>();
-            mockSession.Setup(x => x.Fork()).Returns(mockSessionFork.Object);
-
-            using var operationContext = new OperationContext(mockSession.Object);
-
-            var cursor = subject.CreateCursor(operationContext, mockChannelSource.Object, Mock.Of<IChannelHandle>(), cursorDocument);
-
-            cursor._collectionNamespace().Should().Be(cursorCollectionNamespace);
-        }
-
         [Theory]
         [ParameterAttributeData]
         public void CursorType_get_and_set_should_work(
@@ -909,7 +885,7 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
-        public async Task Execute_should_kill_cursor_when_first_batch_deserialization_throws(
+        public async Task Execute_should_kill_cursor_on_the_same_connection_when_first_batch_deserialization_throws(
             [Values(false, true)] bool async)
         {
             RequireServer.Check();
@@ -919,14 +895,17 @@ namespace MongoDB.Driver.Core.Operations
                 .Capture<CommandStartedEvent>(e => e.CommandName == "killCursors");
             var subject = new FindOperation<BsonDocument>(_collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 2 };
 
-            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b
+                .ConfigureConnectionPool(s => s.With(maxConnections: 1))
+                .Subscribe(eventCapturer)))
             {
                 var exception = await Record.ExceptionAsync(() => ExecuteOperationAsync(subject, cluster, async));
 
                 exception.Should().BeOfType<FormatException>();
-                var cursorId = eventCapturer.Events.OfType<CommandSucceededEvent>().Single().Reply["cursor"]["id"];
+                var findSucceeded = eventCapturer.Events.OfType<CommandSucceededEvent>().Single();
                 var killCursors = eventCapturer.Events.OfType<CommandStartedEvent>().Should().ContainSingle().Subject;
-                killCursors.Command["cursors"].AsBsonArray.Should().Be(new BsonArray { cursorId });
+                killCursors.Command["cursors"].AsBsonArray.Should().Be(new BsonArray { findSucceeded.Reply["cursor"]["id"] });
+                killCursors.ConnectionId.Should().Be(findSucceeded.ConnectionId);
             }
         }
 
@@ -947,6 +926,24 @@ namespace MongoDB.Driver.Core.Operations
                 exception.Should().BeOfType<FormatException>();
                 eventCapturer.Events.Should().BeEmpty();
             }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_not_set_snapshot_time_when_first_batch_deserialization_throws(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.SnapshotReads).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            EnsureTestData();
+            var subject = new FindOperation<BsonDocument>(_collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 2 };
+
+            using var session = CoreTestConfiguration.StartSession(_cluster, new CoreSessionOptions(isSnapshot: true));
+            using var operationContext = new OperationContext(session);
+            using var binding = new ReadBindingHandle(CreateReadBinding());
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, binding, async));
+
+            exception.Should().BeOfType<FormatException>();
+            session.SnapshotTime.Should().BeNull();
         }
 
         [Theory]
@@ -1247,19 +1244,6 @@ namespace MongoDB.Driver.Core.Operations
                     new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
                     new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } });
             });
-        }
-    }
-
-    internal static class FindOperationReflector
-    {
-        public static AsyncCursor<BsonDocument> CreateCursor(
-            this FindOperation<BsonDocument> obj,
-            OperationContext operationContext,
-            IChannelSourceHandle channelSource,
-            IChannelHandle channel,
-            BsonDocument cursorDocument)
-        {
-            return (AsyncCursor<BsonDocument>)Reflector.Invoke(obj, nameof(CreateCursor), operationContext, channelSource, channel, cursorDocument);
         }
     }
 }
