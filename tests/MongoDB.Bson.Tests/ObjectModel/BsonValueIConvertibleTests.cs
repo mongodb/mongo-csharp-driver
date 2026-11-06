@@ -383,7 +383,7 @@ namespace MongoDB.Bson.Tests
         [Fact]
         public void TestBsonSymbol()
         {
-            var value = BsonSymbolTable.Lookup("name");
+            var value = new BsonSymbol("name");
             Assert.Same(value, ((IConvertible)value).ToType(typeof(object), null));
             Assert.Throws<InvalidCastException>(() => Convert.ToBoolean(value));
             Assert.Throws<InvalidCastException>(() => Convert.ToByte(value));

@@ -450,7 +450,7 @@ namespace MongoDB.Bson.Tests.IO
         {
             var document = new BsonDocument
             {
-                { "symbol", BsonSymbolTable.Lookup("name") }
+                { "symbol", new BsonSymbol("name") }
             };
             string expected = "{ \"symbol\" : { \"$symbol\" : \"name\" } }";
             string actual = document.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });

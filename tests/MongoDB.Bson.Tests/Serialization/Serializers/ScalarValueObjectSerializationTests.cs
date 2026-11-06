@@ -42,7 +42,7 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             new BsonRegularExpression("abc"),
             new BsonArray { 1, 2 },
             "abc",
-            BsonSymbolTable.Lookup("abc"),
+            new BsonSymbol("abc"),
             new BsonTimestamp(1234L),
             BsonUndefined.Value
         };

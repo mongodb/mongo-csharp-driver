@@ -51,7 +51,7 @@ namespace MongoDB.Bson.Serialization.Serializers
         protected override BsonSymbol DeserializeValue(BsonDeserializationContext context, BsonDeserializationArgs args)
         {
             var bsonReader = context.Reader;
-            return BsonSymbolTable.Lookup(bsonReader.ReadSymbol());
+            return new BsonSymbol(bsonReader.ReadSymbol());
         }
 
         /// <summary>
