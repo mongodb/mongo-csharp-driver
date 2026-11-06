@@ -392,6 +392,7 @@ functions:
           - "AWS_SECRET_ACCESS_KEY"
           - "AWS_SESSION_TOKEN"
           - "DSC_SLS_TAG"
+          - "DSC_MONGOD_TAG"
         args:
           - ${DRIVERS_TOOLS}/.evergreen/disagg/setup.sh
     - command: expansions.update
@@ -2489,6 +2490,7 @@ task_groups:
         vars:
           # The newest mainline SLS image has been seen to crash-loop, so pin a known-good tag
           DSC_SLS_TAG: linux-x86-64-f987ae59a6f61e0b4e3edc73663992e15c4e9261
+          DSC_MONGOD_TAG: 4afceda6cd20deb537d3b1b703a707e6b064b7e1
       - func: fetch-dsc-crypt-shared
       - func: print-dsc-server-version
     teardown_group:
@@ -2501,7 +2503,7 @@ task_groups:
           local_file: mongo-csharp-driver/sls-logs.txt.gz
           remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${build_id}/sls-logs.txt.gz
           bucket: mciuploads
-          permissions: public-read
+          permissions: private
           content_type: application/gzip
           optional: true
     tasks:
