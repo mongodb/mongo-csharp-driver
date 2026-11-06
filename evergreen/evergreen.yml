@@ -1639,9 +1639,10 @@ tasks:
 
     - name: test-smoke-tests-net472
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: net472
@@ -1650,9 +1651,10 @@ tasks:
 
     - name: test-smoke-tests-netcoreapp31
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: netcoreapp3.1
@@ -1661,9 +1663,10 @@ tasks:
 
     - name: test-smoke-tests-net50
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: net5.0
@@ -1672,9 +1675,10 @@ tasks:
 
     - name: test-smoke-tests-net60
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: net6.0
@@ -1683,9 +1687,10 @@ tasks:
 
     - name: test-smoke-tests-net80
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: net8.0
@@ -1694,9 +1699,10 @@ tasks:
 
     - name: test-smoke-tests-net100
       depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
@@ -1858,7 +1864,11 @@ tasks:
         - func: build-apidocs
 
     - name: test-odata
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: bootstrap-mongo-orchestration
         - command: expansions.update
           params:
@@ -1875,7 +1885,11 @@ tasks:
               DRIVER_VERSION="${PACKAGE_VERSION}" bash ./evergreen/run-tests.sh
 
     - name: test-analyzer
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - command: expansions.update
           params:
             updates:
@@ -1891,7 +1905,11 @@ tasks:
               DRIVER_VERSION="${PACKAGE_VERSION}" TARGET_FRAMEWORK=netcoreapp3.1 bash ./evergreen/run-tests.sh
 
     - name: test-efcore
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
       commands:
+        - func: download-packages
         - func: configure-framework
           vars:
             DOTNET_SDK_VERSION: 10.0
@@ -2967,6 +2985,7 @@ buildvariants:
   tags: ["push-packages-myget"]
   tasks:
     - name: push-packages-myget
+      activate: false
       depends_on:
         - name: build-packages
           variant: ".build-packages"
@@ -2991,9 +3010,6 @@ buildvariants:
   display_name: "OData tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-odata
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: odata-tests-linux-2004
   batchtime: 720 # 12 hours
@@ -3003,9 +3019,6 @@ buildvariants:
   display_name: "OData tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-odata
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: odata-tests-linux-2204
   batchtime: 720 # 12 hours
@@ -3015,9 +3028,6 @@ buildvariants:
   display_name: "OData tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-odata
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: analyzer-tests
   batchtime: 720 # 12 hours
@@ -3026,9 +3036,6 @@ buildvariants:
   display_name: "Analyzer tests on ${os}"
   tasks:
     - name: test-analyzer
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: efcore-tests
   batchtime: 720 # 12 hours
@@ -3039,9 +3046,6 @@ buildvariants:
   display_name: "Efcore tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-efcore
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: efcore-tests-linux-2004
   batchtime: 720 # 12 hours
@@ -3052,9 +3056,6 @@ buildvariants:
   display_name: "Efcore tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-efcore
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - matrix_name: efcore-tests-linux-2204
   batchtime: 720 # 12 hours
@@ -3065,9 +3066,6 @@ buildvariants:
   display_name: "Efcore tests on ${os} with MongoDB ${version}"
   tasks:
     - name: test-efcore
-      depends_on:
-        - name: push-packages-myget
-          variant: ".push-packages-myget"
 
 - name: sbom
   display_name: "SBOM"
