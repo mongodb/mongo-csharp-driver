@@ -304,13 +304,10 @@ namespace MongoDB.Driver.Core.Operations
             Insert(documents.Select(d => BsonDocument.Parse(d)));
         }
 
-        protected void Insert(IEnumerable<BsonDocument> documents, WriteConcern writeConcern = null)
+        protected void Insert(IEnumerable<BsonDocument> documents)
         {
             var requests = documents.Select(d => new InsertRequest(d));
-            var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings)
-            {
-                WriteConcern = writeConcern ?? WriteConcern.Acknowledged
-            };
+            var insertOperation = new BulkInsertOperation(_collectionNamespace, requests, _messageEncoderSettings);
             ExecuteOperation(insertOperation);
         }
 

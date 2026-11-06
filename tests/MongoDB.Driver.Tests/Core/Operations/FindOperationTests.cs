@@ -934,8 +934,14 @@ namespace MongoDB.Driver.Core.Operations
             [Values(false, true)] bool async)
         {
             RequireServer.Check().Supports(Feature.SnapshotReads).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
-            EnsureTestData();
-            var subject = new FindOperation<BsonDocument>(_collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 2 };
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, $"{_collectionNamespace.CollectionName}_snapshot");
+            DropCollection(collectionNamespace);
+            var insertOperation = new BulkInsertOperation(collectionNamespace, [new InsertRequest(new BsonDocument("_id", 1)), new InsertRequest(new BsonDocument("_id", 2))], _messageEncoderSettings)
+            {
+                WriteConcern = WriteConcern.WMajority
+            };
+            ExecuteOperation(insertOperation);
+            var subject = new FindOperation<BsonDocument>(collectionNamespace, new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 1 };
 
             using var session = CoreTestConfiguration.StartSession(_cluster, new CoreSessionOptions(isSnapshot: true));
             using var operationContext = new OperationContext(session);
@@ -1237,16 +1243,12 @@ namespace MongoDB.Driver.Core.Operations
             RunOncePerFixture(() =>
             {
                 DropCollection();
-                // majority so snapshot reads see the data on replica sets with an arbiter
                 Insert(
-                    [
-                        new BsonDocument { { "_id", 1 }, { "x", "a" }, { "y", 1 } },
-                        new BsonDocument { { "_id", 2 }, { "x", "b" }, { "y", 1 } },
-                        new BsonDocument { { "_id", 3 }, { "x", "c" }, { "y", 2 } },
-                        new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
-                        new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } }
-                    ],
-                    WriteConcern.WMajority);
+                    new BsonDocument { { "_id", 1 }, { "x", "a" }, { "y", 1 } },
+                    new BsonDocument { { "_id", 2 }, { "x", "b" }, { "y", 1 } },
+                    new BsonDocument { { "_id", 3 }, { "x", "c" }, { "y", 2 } },
+                    new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
+                    new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } });
             });
         }
     }
