@@ -1459,6 +1459,24 @@ namespace MongoDB.Driver.Tests
             result.ReadPreference.TagSets.Should().Equal(new TagSet([new Tag("dc", "ny&tls=false")]));
         }
 
+        [Theory]
+        [InlineData("dc", "x,y:z", "dc:x%2Cy%3Az")]
+        [InlineData("dc", "ny,sf", "dc:ny%2Csf")]
+        [InlineData("dc", "ny:1", "dc:ny%3A1")]
+        [InlineData("d,c:", "ny", "d%2Cc%3A:ny")]
+        [InlineData("d&c?%", "a&b?c%d", "d%26c%3F%25:a%26b%3Fc%25d")]
+        public void ToString_should_round_trip_read_preference_tags_containing_reserved_characters(string name, string value, string expectedTags)
+        {
+            var subject = new MongoUrlBuilder(BaseUrl)
+            {
+                ReadPreference = new ReadPreference(ReadPreferenceMode.Secondary, [new TagSet([new Tag(name, value)])])
+            };
+
+            var result = RoundTrip(subject, $"mongodb://appuser:s3cret@db.internal/?tls=true&readPreference=secondary&readPreferenceTags={expectedTags}");
+
+            result.ReadPreference.TagSets.Should().Equal(new TagSet([new Tag(name, value)]));
+        }
+
         [Fact]
         public void ToString_should_percent_encode_zlib_compression_level()
         {
