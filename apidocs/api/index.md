@@ -59,8 +59,8 @@
 <a href="xref:MongoDB.Driver.Core.Clusters.ServerSelectors"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Clusters.ServerSelectors.md)]
 
-<a href="xref:MongoDB.Driver.Core.Compression"></a>
-:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Compression.md)]
+<a href="xref:MongoDB.Driver.Compression"></a>
+:   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Compression.md)]
 
 <a href="xref:MongoDB.Driver.Core.Configuration"></a>
 :   [!INCLUDE[summary](../namespaces/MongoDB.Driver/MongoDB.Driver.Core.Configuration.md)]

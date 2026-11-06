@@ -14,7 +14,7 @@
  */
 
 using MongoDB.Bson.IO;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.WireProtocol.Messages.Encoders;
 

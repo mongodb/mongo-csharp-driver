@@ -18,8 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using MongoDB.Bson;
+using MongoDB.Driver.Compression;
 using MongoDB.Driver.Core.Clusters;
-using MongoDB.Driver.Core.Compression;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 

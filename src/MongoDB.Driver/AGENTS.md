@@ -13,7 +13,7 @@ This file is the entry point for any work under `src/MongoDB.Driver/`. Over 200 
 
 | If you're editing… | See |
 |---|---|
-| `Core/Clusters/`, `Core/Servers/`, `Core/Connections/`, `Core/ConnectionPools/`, `Core/WireProtocol/`, `Core/Compression/`, `Core/Configuration/`, `Core/Misc/` | `Core/AGENTS.md` (Connection & Transport / SDAM) |
+| `Core/Clusters/`, `Core/Servers/`, `Core/Connections/`, `Core/ConnectionPools/`, `Core/WireProtocol/`, `Core/Configuration/`, `Core/Misc/`, `Compression/` | `Core/AGENTS.md` (Connection & Transport / SDAM) |
 | `Core/Operations/`, `Core/Bindings/`, plus `ClientSession*.cs`, `CoreSession*` | `Core/Operations/AGENTS.md` (Operations, Sessions & Transactions) |
 | `Authentication/` | `Authentication/AGENTS.md` |
 | `Linq/`, `Linq/Linq3Implementation/` | `Linq/AGENTS.md` (LINQ provider) |

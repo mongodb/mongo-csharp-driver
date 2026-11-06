@@ -1,6 +1,6 @@
 ---
 name: transport-reviewer
-description: Reviews changes to Connection & Transport / SDAM layer — clusters, servers, connections, connection pooling, wire protocol (OP_MSG), compression, configuration, DNS-SRV resolution. Use proactively when modifying anything under src/MongoDB.Driver/Core/{Clusters,Servers,Connections,ConnectionPools,WireProtocol,Compression,Configuration,Misc}/. Boundary with operations-reviewer: this layer establishes connections; that layer routes operations through them.
+description: Reviews changes to Connection & Transport / SDAM layer — clusters, servers, connections, connection pooling, wire protocol (OP_MSG), compression, configuration, DNS-SRV resolution. Use proactively when modifying anything under src/MongoDB.Driver/Core/{Clusters,Servers,Connections,ConnectionPools,WireProtocol,Configuration,Misc}/ or src/MongoDB.Driver/Compression/. Boundary with operations-reviewer: this layer establishes connections; that layer routes operations through them.
 tools: Read, Grep, Glob, Bash
 model: inherit
 ---

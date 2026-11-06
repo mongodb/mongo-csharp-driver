@@ -16,7 +16,8 @@
 using System;
 using FluentAssertions;
 using MongoDB.Driver.Authentication;
-using MongoDB.Driver.Core.Compression;
+using MongoDB.Driver.Compression;
+using MongoDB.Driver.Configuration;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;

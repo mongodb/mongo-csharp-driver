@@ -1,13 +1,13 @@
 ---
 area: Connection & Transport (SDAM)
-scope: ["src/MongoDB.Driver/Core/Clusters/**/*.cs", "src/MongoDB.Driver/Core/Servers/**/*.cs", "src/MongoDB.Driver/Core/Connections/**/*.cs", "src/MongoDB.Driver/Core/ConnectionPools/**/*.cs", "src/MongoDB.Driver/Core/WireProtocol/**/*.cs", "src/MongoDB.Driver/Core/Compression/**/*.cs", "src/MongoDB.Driver/Core/Configuration/**/*.cs", "src/MongoDB.Driver/Core/Misc/**/*.cs"]
+scope: ["src/MongoDB.Driver/Core/Clusters/**/*.cs", "src/MongoDB.Driver/Core/Servers/**/*.cs", "src/MongoDB.Driver/Core/Connections/**/*.cs", "src/MongoDB.Driver/Core/ConnectionPools/**/*.cs", "src/MongoDB.Driver/Core/WireProtocol/**/*.cs", "src/MongoDB.Driver/Compression/**/*.cs", "src/MongoDB.Driver/Core/Configuration/**/*.cs", "src/MongoDB.Driver/Core/Misc/**/*.cs"]
 reviewer-agent: transport-reviewer
 adjacent-areas: [Core/Operations, Core/Events, Core/Logging, Driver/Authentication]
 ---
 
 # MongoDB.Driver / Core — AGENTS.md (Connection & Transport / SDAM)
 
-This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, connection pooling, wire protocol, and supporting infrastructure under `src/MongoDB.Driver/Core/`. Scoped subdirectories: `Clusters/`, `Servers/`, `Connections/`, `ConnectionPools/`, `WireProtocol/`, `Compression/`, `Configuration/`, `Misc/`. (`Core/Authentication/` and `Core/Bindings/` also live under `Core/` but are out of scope for this reviewer — see the auth-area and operations-area AGENTS.md.)
+This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, connection pooling, wire protocol, and supporting infrastructure under `src/MongoDB.Driver/Core/`. Scoped subdirectories: `Clusters/`, `Servers/`, `Connections/`, `ConnectionPools/`, `WireProtocol/`, `Configuration/`, `Misc/`, plus wire compression, which lives outside `Core/` at `src/MongoDB.Driver/Compression/` (namespace `MongoDB.Driver.Compression`) but is still owned by this reviewer. (`Core/Authentication/` and `Core/Bindings/` also live under `Core/` but are out of scope for this reviewer — see the auth-area and operations-area AGENTS.md.)
 
 **Ownership boundary:** the Operations layer (`Core/Operations/`, `Core/Bindings/`) sits above this and owns retry, session attachment, and cursor lifecycle. Events and Logging have their own `AGENTS.md` files. Authentication mechanisms live in `Authentication/` — but this layer drives the auth handshake during connection establishment.
 
@@ -120,7 +120,7 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 - During connection initialization, the driver sends a list of supported compressors.
 - The server responds with its preference.
 - Both sides agree on a single compressor type; messages are compressed after that point.
-- See also `Compression/` subdirectory.
+- See also the `src/MongoDB.Driver/Compression/` directory (section 6).
 
 ### Stream factories and TLS/SOCKS5
 
@@ -210,14 +210,18 @@ This file covers the **Server Discovery And Monitoring (SDAM)** topology layer, 
 
 ## 6. Compression / Wire compression
 
+**Location:** `src/MongoDB.Driver/Compression/` (namespace `MongoDB.Driver.Compression`; moved out of `Core/` for the next major version).
+
 **Files:** `ICompressor.cs`, `SnappyCompressor.cs`, `ZlibCompressor.cs`, `ZstandardCompressor.cs`, `NoopCompressor.cs`, `CompressorSource.cs`, `CompressorTypeMapper.cs`.
 
 ### Compressor types
 
-- **`CompressorType`** enum: `Noop` (0), `Snappy` (1), `Zlib` (2), `ZStandard` (3).
+- **`CompressorType`** public enum (`CompressorType.cs`): `Noop` (0), `Snappy` (1), `Zlib` (2), `ZStandard` (3).
 - Each type has a numeric wire protocol ID (as defined in the spec).
 
 ### ICompressor interface
+
+`ICompressor` and all the compressor implementations are `internal`; only `CompressorType` is public.
 
 - `Type` property: the compressor type.
 - `Compress(Stream input, Stream output)` — compress input to output.
@@ -394,6 +398,6 @@ JSON-driven SDAM and CMAP spec runners under `tests/MongoDB.Driver.Tests/Specifi
 | Connection lifecycle | `Connections/BinaryConnection.cs`, `Connections/ConnectionInitializer.cs` |
 | Wire messages | `WireProtocol/CommandWireProtocol.cs`, `WireProtocol/Messages/*.cs` |
 | Connection pooling | `ConnectionPools/ExclusiveConnectionPool.cs` |
-| Compression | `Compression/ICompressor.cs`, `Compression/*Compressor.cs` |
+| Compression | `../Compression/ICompressor.cs`, `../Compression/*Compressor.cs` (relative to `Core/`; i.e. `src/MongoDB.Driver/Compression/`) |
 | Settings & parsing | `Configuration/ConnectionString.cs`, `Configuration/ClusterBuilder.cs` |
 
