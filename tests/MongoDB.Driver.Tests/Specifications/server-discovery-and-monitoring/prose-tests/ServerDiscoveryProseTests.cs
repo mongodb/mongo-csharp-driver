@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -28,6 +27,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Support;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -78,9 +78,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
                 throw new Exception($"No connected secondary found despite RequireServer.ReplicaSetDataBearingMembers(2) guard. Cluster: {clusterDescription}.");
             }
 
-            var dnsEndpoint = (DnsEndPoint)secondary.EndPoint;
+            var serverAddress = secondary.EndPoint.ToMongoServerAddress();
             var replicaSetName = secondary.ReplicaSetConfig.Name;
-            var settings = MongoClientSettings.FromConnectionString(CreateConnectionString(dnsEndpoint, directConnection, replicaSetName));
+            var settings = MongoClientSettings.FromConnectionString(CreateConnectionString(serverAddress, directConnection, replicaSetName));
             settings.LoggingSettings = LoggingSettings;
 
             using (var client = new MongoClient(settings))
@@ -161,9 +161,9 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
         }
 
         // private methods
-        private string CreateConnectionString(DnsEndPoint endpoint, bool? directConnection, string replicaSetName)
+        private string CreateConnectionString(MongoServerAddress address, bool? directConnection, string replicaSetName)
         {
-            var connectionString = $"mongodb://{endpoint.Host}:{endpoint.Port}/?replicaSet={replicaSetName}";
+            var connectionString = $"mongodb://{address.Host}:{address.Port}/?replicaSet={replicaSetName}";
             if (directConnection.HasValue)
             {
                 connectionString += $"&directConnection={directConnection.Value}";

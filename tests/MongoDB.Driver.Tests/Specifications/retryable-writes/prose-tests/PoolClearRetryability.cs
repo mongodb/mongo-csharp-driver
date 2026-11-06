@@ -15,7 +15,6 @@
 
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
@@ -67,7 +66,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_writes.prose_tests
                 settings.Servers = [serverAddress];
                 settings.DirectConnection = true;
 
-                failPointSelector = new EndPointServerSelector(new DnsEndPoint(serverAddress.Host, serverAddress.Port));
+                failPointSelector = new EndPointServerSelector(EndPointHelper.Parse(serverAddress.ToString()));
             }
 
             settings.MaxConnectionPoolSize = 1;
