@@ -967,8 +967,13 @@ namespace MongoDB.Driver.Core.Operations
             RunOncePerFixture(() =>
             {
                 DropCollection();
-                Insert(new BsonDocument { { "_id", 1 }, { "x", "x" } });
-                Insert(new BsonDocument { { "_id", 2 }, { "x", "X" } });
+                // majority so snapshot reads see the data on replica sets with an arbiter
+                Insert(
+                    [
+                        new BsonDocument { { "_id", 1 }, { "x", "x" } },
+                        new BsonDocument { { "_id", 2 }, { "x", "X" } }
+                    ],
+                    WriteConcern.WMajority);
             });
         }
     }

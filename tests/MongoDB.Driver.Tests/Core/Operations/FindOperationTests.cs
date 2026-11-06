@@ -1237,12 +1237,16 @@ namespace MongoDB.Driver.Core.Operations
             RunOncePerFixture(() =>
             {
                 DropCollection();
+                // majority so snapshot reads see the data on replica sets with an arbiter
                 Insert(
-                    new BsonDocument { { "_id", 1 }, { "x", "a" }, { "y", 1 } },
-                    new BsonDocument { { "_id", 2 }, { "x", "b" }, { "y", 1 } },
-                    new BsonDocument { { "_id", 3 }, { "x", "c" }, { "y", 2 } },
-                    new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
-                    new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } });
+                    [
+                        new BsonDocument { { "_id", 1 }, { "x", "a" }, { "y", 1 } },
+                        new BsonDocument { { "_id", 2 }, { "x", "b" }, { "y", 1 } },
+                        new BsonDocument { { "_id", 3 }, { "x", "c" }, { "y", 2 } },
+                        new BsonDocument { { "_id", 4 }, { "x", "d" }, { "y", 2 } },
+                        new BsonDocument { { "_id", 5 }, { "x", "D" }, { "y", 3 } }
+                    ],
+                    WriteConcern.WMajority);
             });
         }
     }
