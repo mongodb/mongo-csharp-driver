@@ -565,10 +565,6 @@ functions:
           - "FRAMEWORK"
         script: |
           ${PREPARE_SHELL}
-          if [ "${skip_EC2_auth_test}" = "true" ]; then
-            echo "This platform does not support the EC2 auth test, skipping..."
-            exit 0
-          fi
           DRIVERS_TOOLS=${DRIVERS_TOOLS} OS=${OS} ASSERT_NO_URI_CREDS=true evergreen/run-mongodb-aws-test.sh ec2
 
   run-aws-auth-test-with-aws-ECS-credentials:
@@ -594,6 +590,7 @@ functions:
           # Workaround. EG_TOOLS scripts for ECS assume that a folder with EG scripts in the driver is named ".evergreen"
           mkdir $SRC_DIRECTORY/.evergreen
           cp -r $SRC_DIRECTORY/evergreen/run-mongodb-aws-ecs-test.sh $SRC_DIRECTORY/.evergreen/run-mongodb-aws-ecs-test.sh
+          echo "${FRAMEWORK}" > $SRC_DIRECTORY/.evergreen/framework
 
           export PROJECT_DIRECTORY="$SRC_DIRECTORY"
           ${DRIVERS_TOOLS}/.evergreen/auth_aws/aws_setup.sh ecs
@@ -1962,31 +1959,22 @@ axes:
         display_name: "Ubuntu 22.04"
         variables:
           OS: "ubuntu-2204"
-          # drivers-evergreen-tools runs the ECS test only on Ubuntu 20.04 and 24.04
-          skip_ECS_auth_test: true
         run_on: ubuntu2204-small
       - id: "ubuntu-2404"
         display_name: "Ubuntu 24.04"
         variables:
           OS: "ubuntu-2404"
-          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
-          skip_EC2_auth_test: true
         run_on: ubuntu2404-small
       - id: "macos-14"
         display_name: "macOS 14.00"
         variables:
           OS: "macos-1400"
-          # drivers-evergreen-tools assigns the EC2 instance profile over IMDSv1, which this host rejects
-          skip_EC2_auth_test: true
           skip_ECS_auth_test: true
         run_on: macos-14
       - id: "macos-14-arm64"
         display_name: "macOS 14.00 ARM"
         variables:
           OS: "macos-14-arm64"
-          skip_EC2_auth_test: true
-          skip_ECS_auth_test: true
-          skip_web_identity_auth_test: true
         run_on: macos-14-arm64
 
   - id: topology
@@ -2612,15 +2600,8 @@ buildvariants:
   tasks:
     - name: aws-auth-tests
 
-- matrix_name: aws-auth-tests-ubuntu-2204
-  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2204", framework: "net100" }
-  display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
-  tasks:
-    - name: aws-auth-tests
-
-# run-mongodb-aws-ecs-test.sh pins net6.0 inside the ECS container, so this cell's framework must match it
 - matrix_name: aws-auth-tests-ubuntu-2404
-  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2404", framework: "net60" }
+  matrix_spec: { version: "latest", topology: "standalone", os: "ubuntu-2404", framework: ["net60", "net100"] }
   display_name: "MONGODB-AWS Auth test ${version} ${os} ${framework}"
   tasks:
     - name: aws-auth-tests
