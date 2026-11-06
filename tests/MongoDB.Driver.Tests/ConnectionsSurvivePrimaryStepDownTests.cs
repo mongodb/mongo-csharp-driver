@@ -24,6 +24,7 @@ using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Support;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -129,8 +130,7 @@ namespace MongoDB.Driver.Tests
                 var secondarySettings = primaryClient.Settings.Clone();
                 secondarySettings.ClusterConfigurator = null;
                 secondarySettings.DirectConnection = true;
-                var secondaryDnsEndpoint = (DnsEndPoint)secondaryEndpoint;
-                secondarySettings.Server = new MongoServerAddress(secondaryDnsEndpoint.Host, secondaryDnsEndpoint.Port);
+                secondarySettings.Server = secondaryEndpoint.ToMongoServerAddress();
                 using (var secondaryClient = DriverTestConfiguration.CreateMongoClient(secondarySettings))
                 {
                     var adminDatabase = secondaryClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);
