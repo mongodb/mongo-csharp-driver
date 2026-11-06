@@ -13,6 +13,7 @@
 * limitations under the License.
 */
 
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Visitors;
@@ -30,9 +31,18 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters
 
         // the field is the implied document or element, so a sub field of it is the first element name of the
         // (possibly $elemMatch nested) filter document that it ends up in
-        public bool IsImpliedDocument => _path == "@<current>" || _path == "@<elem>";
+        public bool IsImpliedDocument => IsImpliedDocumentMarker(_path);
         public string Path => _path;
         public override AstNodeType NodeType => AstNodeType.FilterField;
+
+        // "@<current>" and "@<elem>" are markers and not element names: a name taken from application data that equals
+        // one would be read as the marker, and a path that starts with one has it stripped when it is rendered
+        public static bool IsImpliedDocumentMarker(string name) => name == "@<current>" || name == "@<elem>";
+
+        public static bool StartsWithImpliedDocumentMarker(string path) =>
+            IsImpliedDocumentMarker(path) ||
+            path.StartsWith("@<current>.", StringComparison.Ordinal) ||
+            path.StartsWith("@<elem>.", StringComparison.Ordinal);
 
         public override AstNode Accept(AstNodeVisitor visitor)
         {
