@@ -145,13 +145,13 @@ functions:
           - "./**"
     - command: s3.put
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: ${build_id}.tar.gz
         # Example: /mciuploads/${UPLOAD_BUCKET}/gcc49/9dfb7d741efbca16faa7859b9349d7a942273e43/debug-compile-nosasl-nossl/mongo_c_driver_releng_9dfb7d741efbca16faa7859b9349d7a942273e43_16_11_08_19_29_52.tar.gz
         remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${task_name}/${build_id}.tar.gz
-        bucket: mciuploads
-        permissions: public-read
+        bucket: ${S3_BUCKET}
+        permissions: private
+        visibility: signed
         content_type: ${content_type|application/x-gzip}
 
   run-external-script:
@@ -178,22 +178,22 @@ functions:
           find $MONGO_ORCHESTRATION_HOME -name \*.log | xargs tar czf mongodb-logs.tar.gz
     - command: s3.put
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongodb-logs.tar.gz
         remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-mongodb-logs.tar.gz
-        bucket: mciuploads
-        permissions: public-read
+        bucket: ${S3_BUCKET}
+        permissions: private
+        visibility: signed
         content_type: ${content_type|application/x-gzip}
         display_name: "mongodb-logs.tar.gz"
     - command: s3.put
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: drivers-tools/.evergreen/orchestration/server.log
         remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${version_id}/${build_id}/logs/${task_id}-${execution}-orchestration.log
-        bucket: mciuploads
-        permissions: public-read
+        bucket: ${S3_BUCKET}
+        permissions: private
+        visibility: signed
         content_type: ${content_type|text/plain}
         display_name: "orchestration.log"
 
@@ -881,74 +881,66 @@ functions:
   upload-packages:
     - command: s3.put
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_files_include_filter:
           - mongo-csharp-driver/artifacts/nuget/*.${PACKAGE_VERSION}.nupkg
           - mongo-csharp-driver/artifacts/nuget/*.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/
         preserve_path: false
-        bucket: mciuploads
-        permissions: public-read
+        bucket: ${S3_BUCKET}
+        permissions: private
+        visibility: signed
         content_type: ${content_type|application/octet-stream}
 
   download-packages:
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Bson.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Bson.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Bson.${PACKAGE_VERSION}.snupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.${PACKAGE_VERSION}.snupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Authentication.AWS.${PACKAGE_VERSION}.snupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.nupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
     - command: s3.get
       params:
-        aws_key: ${aws_key}
-        aws_secret: ${aws_secret}
+        role_arn: ${S3_ROLE_ARN}
         local_file: mongo-csharp-driver/artifacts/nuget/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
         remote_file: ${UPLOAD_BUCKET}/${revision}/MongoDB.Driver.Encryption.${PACKAGE_VERSION}.snupkg
-        bucket: mciuploads
+        bucket: ${S3_BUCKET}
 
   build-apidocs:
     - command: shell.exec
@@ -2400,14 +2392,14 @@ task_groups:
     teardown_group:
       - command: s3.put
         params:
-          aws_key: ${aws_key}
-          aws_secret: ${aws_secret}
+          role_arn: ${S3_ROLE_ARN}
           local_files_include_filter:
             - mongo-csharp-driver/artifacts/apicompat/*.${PACKAGE_VERSION}.txt
           remote_file: ${UPLOAD_BUCKET}/${revision}/
           preserve_path: false
-          bucket: mciuploads
-          permissions: public-read
+          bucket: ${S3_BUCKET}
+          permissions: private
+          visibility: signed
           content_type: text/plain
     tasks:
       - validate-apicompat
