@@ -27,6 +27,7 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
+using ClusterBuilder = MongoDB.Driver.Core.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver.Tests
 {
