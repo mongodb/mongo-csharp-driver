@@ -39,7 +39,7 @@ namespace MongoDB.Bson.Tests
             return "net60";
 #elif NET8_0
             return "net80";
-#elif NET10_0
+#elif NET10_0_OR_GREATER
             return "net100";
 #else
             throw new System.InvalidOperationException($"Unexpected target framework: {TargetFramework.Moniker}.");

@@ -22,6 +22,8 @@ using FluentAssertions;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
 using Xunit;
+using SrvRecord = MongoDB.Driver.Core.Misc.SrvRecord;
+using TxtRecord = MongoDB.Driver.Core.Misc.TxtRecord;
 
 namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.prose_tests
 {

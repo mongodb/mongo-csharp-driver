@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
 using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Core.TestHelpers.Logging
@@ -41,11 +41,11 @@ namespace MongoDB.Driver.Core.TestHelpers.Logging
                 throw new Exception($"Unsupported log state {state}");
             }
 
-            var formatterObject = (Func<object, Exception, string>)(Delegate)formatter;
+            var formatterObject = (Delegate)formatter as Func<object, Exception, string> ?? ((s, e) => formatter((TState)s, e));
             _output.Log(logLevel, _category, keyValuePairs, exception, formatterObject);
         }
 
         public bool IsEnabled(LogLevel logLevel) => true;
-        public IDisposable BeginScope<TState>(TState state) { return NullScope.Instance; }
+        public IDisposable BeginScope<TState>(TState state) { return NullLogger.Instance.BeginScope(state); }
     }
 }
