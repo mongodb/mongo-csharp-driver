@@ -146,7 +146,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                     }
                     if (commandException.Result?.TryGetValue("writeConcernError", out var writeConcernError) == true &&
                         writeConcernError.IsBsonDocument &&
-                        writeConcernError.AsBsonDocument.TryGetValue("code", out var writeConcernErrorCode) )
+                        writeConcernError.AsBsonDocument.TryGetValue("code", out var writeConcernErrorCode))
                     {
                         codes.Add(writeConcernErrorCode.ToInt32());
                     }
