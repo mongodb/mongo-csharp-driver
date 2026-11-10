@@ -22,6 +22,7 @@ using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver.Linq;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Optimizers;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators;
@@ -679,6 +680,57 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         public void TestWhereSIndexOfAnyBCStartIndex1Count2Equals1()
         {
             Assert<C>(c => c.S.IndexOfAny(new char[] { 'b', '-', 'c' }, 1, 2) == 1, 1, "{ \"s\" : /^.{1}(?=.{2})[b\\-c]/s }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyEquals0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) == 0, 0, "{ \"_id\" : { \"$type\" : -1 } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyEqualsMinus1()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) == -1, 5, "{ \"$expr\" : { \"$eq\" : [-1, -1] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyGreaterThan5()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) > 5, 0, "{ \"$expr\" : { \"$gt\" : [-1, 5] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyGreaterThanOrEquals0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) >= 0, 0, "{ \"$expr\" : { \"$gte\" : [-1, 0] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyLessThan0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) < 0, 5, "{ \"$expr\" : { \"$lt\" : [-1, 0] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyLessThanOrEqualsMinus1()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) <= -1, 5, "{ \"$expr\" : { \"$lte\" : [-1, -1] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyNotEquals0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) != 0, 5, "{ }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyNullEquals0()
+        {
+            var exception = Record.Exception(() => Assert<C>(c => c.S.IndexOfAny(null) == 0, 0, null));
+
+            exception.Should().BeOfType<ExpressionNotSupportedException>();
+            exception.Message.Should().Contain("because anyOf should not be null");
         }
 
         [Fact]
