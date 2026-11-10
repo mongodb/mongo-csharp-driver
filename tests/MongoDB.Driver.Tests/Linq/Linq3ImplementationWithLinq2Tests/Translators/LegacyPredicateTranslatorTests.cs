@@ -689,6 +689,36 @@ namespace MongoDB.Driver.Tests.Linq.Linq3ImplementationWithLinq2Tests.Translator
         }
 
         [Fact]
+        public void TestWhereSIndexOfAnyEmptyEqualsMinus1()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) == -1, 5, "{ \"$expr\" : { \"$eq\" : [-1, -1] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyGreaterThan5()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) > 5, 0, "{ \"$expr\" : { \"$gt\" : [-1, 5] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyGreaterThanOrEquals0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) >= 0, 0, "{ \"$expr\" : { \"$gte\" : [-1, 0] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyLessThan0()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) < 0, 5, "{ \"$expr\" : { \"$lt\" : [-1, 0] } }");
+        }
+
+        [Fact]
+        public void TestWhereSIndexOfAnyEmptyLessThanOrEqualsMinus1()
+        {
+            Assert<C>(c => c.S.IndexOfAny(new char[] { }) <= -1, 5, "{ \"$expr\" : { \"$lte\" : [-1, -1] } }");
+        }
+
+        [Fact]
         public void TestWhereSIndexOfAnyEmptyNotEquals0()
         {
             Assert<C>(c => c.S.IndexOfAny(new char[] { }) != 0, 5, "{ }");

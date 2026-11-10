@@ -570,7 +570,8 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                     }
                     if (anyOf.Length == 0)
                     {
-                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.MatchesNothing() : AstFilter.MatchesEverything(); // IndexOfAny returns -1 when anyOf is empty
+                        // IndexOfAny returns -1 when anyOf is empty, and the checks above only let Eq and Ne with a comparand >= 0 through
+                        return comparisonOperator == AstComparisonFilterOperator.Eq ? AstFilter.MatchesNothing() : AstFilter.MatchesEverything();
                     }
                 }
                 else if (method.IsOneOf(StringMethod.IndexOfWithCharOverloads))
