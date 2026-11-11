@@ -4,7 +4,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0;net8.0;net10.0</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0;net8.0;net10.0;net11.0</TargetFrameworks>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>None</AnalysisMode>
@@ -68,6 +68,17 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.TraceSource" Version="10.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <LangVersion>15.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.TraceSource" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
