@@ -15,13 +15,10 @@ if [ -n "$FRAMEWORK" ]; then
     RUNTIME_VERSIONS="10.0"
   elif [ "$FRAMEWORK" = "net11.0" ]; then
     RUNTIME_VERSIONS="11.0"
-    # .NET 11 is not GA yet: use the latest preview/RC build and an SDK that can build net11.0.
-    DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-11.0}"
-    DOTNET_QUALITY="preview"
   fi
 fi
 
-DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-10.0}"
+DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-11.0}"
 
 RUNTIMES=()
 if [ -n "$RUNTIME_VERSIONS" ]; then
@@ -37,19 +34,19 @@ if [[ $OS =~ [Ww]indows.* ]]; then
   echo "Downloading Windows .NET SDK installer into $DOTNET_ROOT folder..."
   curl -Lfo ./dotnet-install.ps1 https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.ps1
   echo "Installing .NET ${DOTNET_SDK_VERSION} SDK..."
-  powershell.exe ./dotnet-install.ps1 -Channel "$DOTNET_SDK_VERSION" -InstallDir "$DOTNET_ROOT" -NoPath ${DOTNET_QUALITY:+-Quality "$DOTNET_QUALITY"}
+  powershell.exe ./dotnet-install.ps1 -Channel "$DOTNET_SDK_VERSION" -InstallDir "$DOTNET_ROOT" -NoPath
   for RUNTIME in "${RUNTIMES[@]}"; do
     echo "Installing .NET ${RUNTIME} runtime..."
-    powershell.exe ./dotnet-install.ps1 -Channel "$RUNTIME" -Runtime dotnet -InstallDir "$DOTNET_ROOT" -NoPath ${DOTNET_QUALITY:+-Quality "$DOTNET_QUALITY"}
+    powershell.exe ./dotnet-install.ps1 -Channel "$RUNTIME" -Runtime dotnet -InstallDir "$DOTNET_ROOT" -NoPath
   done
 else
   echo "Downloading .NET SDK installer into $DOTNET_ROOT folder..."
   curl -Lfo ./dotnet-install.sh https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.sh
   echo "Installing .NET ${DOTNET_SDK_VERSION} SDK..."
-  bash ./dotnet-install.sh --channel "$DOTNET_SDK_VERSION" --install-dir "$DOTNET_ROOT" --no-path ${DOTNET_QUALITY:+--quality "$DOTNET_QUALITY"}
+  bash ./dotnet-install.sh --channel "$DOTNET_SDK_VERSION" --install-dir "$DOTNET_ROOT" --no-path
   for RUNTIME in "${RUNTIMES[@]}"; do
     echo "Installing .NET ${RUNTIME} runtime..."
-    bash ./dotnet-install.sh --channel "$RUNTIME" --runtime dotnet --install-dir "$DOTNET_ROOT" --no-path ${DOTNET_QUALITY:+--quality "$DOTNET_QUALITY"}
+    bash ./dotnet-install.sh --channel "$RUNTIME" --runtime dotnet --install-dir "$DOTNET_ROOT" --no-path
   done
 fi
 
