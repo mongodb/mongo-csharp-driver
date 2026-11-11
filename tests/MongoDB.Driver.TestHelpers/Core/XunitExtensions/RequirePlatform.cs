@@ -61,7 +61,6 @@ namespace MongoDB.Driver.TestHelpers
             "net60" => SupportedTargetFramework.Net60,
             "net80" => SupportedTargetFramework.Net80,
             "net100" => SupportedTargetFramework.Net100,
-            "net110" => SupportedTargetFramework.Net110,
             _ => throw new InvalidOperationException($"Unable to determine current target framework: {TargetFramework.Moniker}.")
         };
 
