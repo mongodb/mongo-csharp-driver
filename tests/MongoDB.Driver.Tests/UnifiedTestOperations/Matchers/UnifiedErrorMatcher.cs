@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MongoDB.Bson;
+using MongoDB.Driver.Core.Operations;
+using MongoDB.Driver.Encryption;
 using MongoDB.Driver.GridFS;
 using MongoDB.TestHelpers.XunitExtensions;
 
@@ -96,8 +98,64 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
         private void AssertErrorCode(Exception actualException, int expectedErrorCode)
         {
             actualException = UnwrapCommandException(actualException);
-            var mongoCommandException = actualException.Should().BeAssignableTo<MongoCommandException>().Subject;
-            mongoCommandException.Code.Should().Be(expectedErrorCode);
+
+            if (actualException is MongoEncryptionException { InnerException: not null } encryptionException)
+            {
+                actualException = UnwrapCommandException(encryptionException.InnerException);
+            }
+
+            var actualErrorCodes = GetServerErrorCodes(actualException);
+            actualErrorCodes.Should().Contain(
+                expectedErrorCode,
+                $"the error should include a server response with code {expectedErrorCode}, but found {actualException}");
+        }
+
+        private static List<int> GetServerErrorCodes(Exception exception)
+        {
+            switch (exception)
+            {
+                case MongoBulkWriteException bulkWriteException:
+                    return GetWriteErrorCodes(bulkWriteException.WriteErrors, bulkWriteException.WriteConcernError);
+                case MongoBulkWriteOperationException coreBulkWriteException:
+                    // thrown as is by operations that run core bulk write operations directly, e.g. GridFS
+                    var coreCodes = coreBulkWriteException.WriteErrors.Select(e => e.Code).ToList();
+                    if (coreBulkWriteException.WriteConcernError != null)
+                    {
+                        coreCodes.Add(coreBulkWriteException.WriteConcernError.Code);
+                    }
+                    return coreCodes;
+                case MongoWriteException writeException:
+                    var writeErrors = writeException.WriteError == null
+                        ? Enumerable.Empty<WriteError>()
+                        : [writeException.WriteError];
+                    return GetWriteErrorCodes(writeErrors, writeException.WriteConcernError);
+                case MongoCommandException commandException:
+                    // a write concern error reported in an ok:1 reply has no top-level code, only writeConcernError.code
+                    var codes = new List<int>();
+                    if (commandException.Result?.Contains("code") == true)
+                    {
+                        codes.Add(commandException.Code);
+                    }
+                    if (commandException.Result?.TryGetValue("writeConcernError", out var writeConcernError) == true &&
+                        writeConcernError.IsBsonDocument &&
+                        writeConcernError.AsBsonDocument.TryGetValue("code", out var writeConcernErrorCode))
+                    {
+                        codes.Add(writeConcernErrorCode.ToInt32());
+                    }
+                    return codes;
+                default:
+                    return null;
+            }
+
+            static List<int> GetWriteErrorCodes(IEnumerable<WriteError> writeErrors, WriteConcernError writeConcernError)
+            {
+                var codes = writeErrors.Select(e => e.Code).ToList();
+                if (writeConcernError != null)
+                {
+                    codes.Add(writeConcernError.Code);
+                }
+                return codes;
+            }
         }
 
         private void AssertErrorCodeName(Exception actualException, string expectedErrorCodeName)
@@ -218,7 +276,9 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 clientBulkWriteException.WriteConcernErrors.Select(
                     e => new BsonDocument
                     {
-                        { "code", ((MongoCommandException)e.MappedWriteConcernResultException).Code },
+                        // MappedWriteConcernResultException is null unless the error maps to a specific exception type
+                        // (not primary, node recovering, timeout), so read the code from the writeConcernError itself.
+                        { "code", e.Result["writeConcernError"]["code"] },
                         { "message", e.Message }
                     }));
 
