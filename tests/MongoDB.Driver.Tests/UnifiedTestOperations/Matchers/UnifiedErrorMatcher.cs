@@ -104,15 +104,7 @@ namespace MongoDB.Driver.Tests.UnifiedTestOperations.Matchers
                 actualException = UnwrapCommandException(encryptionException.InnerException);
             }
 
-            // Per the unified test format, errorCode matches the "code" of any server-generated response included in
-            // the error, which covers write errors and write concern errors, not only top-level command errors.
             var actualErrorCodes = GetServerErrorCodes(actualException);
-            if (actualErrorCodes == null)
-            {
-                actualException.Should().BeAssignableTo<MongoCommandException>();
-                return;
-            }
-
             actualErrorCodes.Should().Contain(
                 expectedErrorCode,
                 $"the error should include a server response with code {expectedErrorCode}, but found {actualException}");
