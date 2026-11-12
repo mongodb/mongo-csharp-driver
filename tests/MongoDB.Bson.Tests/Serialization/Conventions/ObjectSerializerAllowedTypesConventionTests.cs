@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using FluentAssertions;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.Serializers;
@@ -62,6 +63,13 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
         {
             public IEnumerator<SelfEnumerable> GetEnumerator() => throw new NotImplementedException();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        // A generic type declared in the "application" assembly, standing in for any generic wrapper an
+        // allowed assembly happens to expose.
+        private class GenericWrapper<T>
+        {
+            public T Value { get; set; }
         }
 
         [Fact]
@@ -484,7 +492,7 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             var conventionName = Guid.NewGuid().ToString();
 
             var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
-            ConventionRegistry.Register(conventionName, new ConventionPack {subject}, t => t == typeof(TestClass));
+            ConventionRegistry.Register(conventionName, new ConventionPack { subject }, t => t == typeof(TestClass));
 
             var classMap = new BsonClassMap<TestClass>(cm => cm.AutoMap());
             var memberMap = classMap.GetMemberMap("ObjectProp");
@@ -524,11 +532,361 @@ namespace MongoDB.Bson.Tests.Serialization.Conventions
             subject.Apply(memberMap);
         }
 
+        [Fact]
+        public void Apply_should_not_allow_generic_type_from_allowed_assembly_with_generic_argument_from_disallowed_assembly()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            // JsonWriterSettings is in MongoDB.Bson, which is not an allowed assembly
+            serializer.AllowedDeserializationTypes(typeof(JsonWriterSettings)).Should().BeFalse();
+
+            // the generic type definition is in an allowed assembly, but the generic argument is not
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<JsonWriterSettings>)).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<JsonWriterSettings>)).Should().BeFalse();
+
+            // and the same via an array of the constructed generic type
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<JsonWriterSettings>[])).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<JsonWriterSettings>[])).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Apply_should_allow_generic_type_from_allowed_assembly_with_allowed_generic_arguments()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            // generic argument is a default framework type
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<int>)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<int>)).Should().BeTrue();
+
+            // generic argument is from an allowed assembly
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+
+            // nested generic arguments are all allowed
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<GenericWrapper<TestClass>>)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<GenericWrapper<TestClass>>)).Should().BeTrue();
+
+            // arrays of allowed types are still allowed
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<TestClass>[])).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<TestClass>[])).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Apply_should_not_allow_nested_array_or_multiple_argument_generics_with_disallowed_types()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var disallowedTypes = new[]
+            {
+                typeof(GenericWrapper<JsonWriterSettings[]>),
+                typeof(GenericWrapper<JsonWriterSettings>[][]),
+                typeof(GenericWrapper<JsonWriterSettings>[,]),
+                typeof(GenericWrapper<GenericWrapper<JsonWriterSettings>[]>),
+                typeof(Dictionary<int, GenericWrapper<JsonWriterSettings>>),
+                typeof(GenericWrapper<List<JsonWriterSettings>>)
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Apply_should_allow_default_framework_generic_types_constructed_over_allowed_types()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var allowedTypes = new[]
+            {
+                typeof(List<int>),
+                typeof(List<TestClass>),
+                typeof(List<GenericWrapper<TestClass>>),
+                typeof(List<TestClass>[]),
+                typeof(List<List<TestClass>>),
+                typeof(Dictionary<string, TestClass>),
+                typeof(GenericWrapper<List<int>>),
+                typeof(GenericWrapper<List<TestClass>>),
+                typeof(GenericWrapper<Dictionary<string, List<TestClass>>>)
+            };
+
+            foreach (var type in allowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeTrue(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeTrue(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Apply_should_not_allow_default_framework_generic_types_constructed_over_disallowed_types()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var disallowedTypes = new[]
+            {
+                typeof(List<JsonWriterSettings>),
+                typeof(List<JsonWriterSettings>[]),
+                typeof(List<GenericWrapper<JsonWriterSettings>>),
+                typeof(List<List<JsonWriterSettings>>),
+                typeof(Dictionary<string, JsonWriterSettings>),
+                typeof(Dictionary<JsonWriterSettings, TestClass>),
+                typeof(GenericWrapper<List<JsonWriterSettings>>),
+                typeof(GenericWrapper<Dictionary<string, List<JsonWriterSettings>>>)
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Apply_should_not_allow_framework_generic_types_that_are_not_default_framework_types()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var disallowedTypes = new[]
+            {
+                typeof(Func<TestClass>),
+                typeof(Lazy<TestClass>),
+                typeof(GenericWrapper<Func<TestClass>>),
+                typeof(List<Lazy<TestClass>>)
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Apply_should_not_allow_default_framework_generic_types_when_default_framework_types_are_disabled()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly()) { AllowDefaultFrameworkTypes = false };
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var disallowedTypes = new[]
+            {
+                typeof(List<TestClass>),
+                typeof(List<TestClass>[]),
+                typeof(Dictionary<string, TestClass>),
+                typeof(GenericWrapper<List<TestClass>>)
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Apply_should_validate_generic_arguments_against_assemblies_only_when_default_framework_types_are_disabled()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly()) { AllowDefaultFrameworkTypes = false };
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            // int is not in an allowed assembly and default framework types are disabled
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<int>)).Should().BeFalse();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<int>)).Should().BeFalse();
+
+            serializer.AllowedDeserializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+            serializer.AllowedSerializationTypes(typeof(GenericWrapper<TestClass>)).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Constructor_with_allowed_assemblies_should_throw_when_assemblies_is_null()
+        {
+            var exception = Record.Exception(() => new ObjectSerializerAllowedTypesConvention((Assembly[])null));
+
+            exception.Should().BeOfType<ArgumentNullException>().Which.ParamName.Should().Be("allowedAssemblies");
+        }
+
+        [Fact]
+        public void Apply_should_not_allow_generic_type_from_disallowed_assembly_with_allowed_generic_arguments()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            // SerializerBase<T> is in MongoDB.Bson, which is not an allowed assembly, so its arguments being allowed is not enough
+            var disallowedTypes = new[]
+            {
+                typeof(SerializerBase<int>),
+                typeof(SerializerBase<TestClass>),
+                typeof(SerializerBase<List<TestClass>>),
+                typeof(List<SerializerBase<TestClass>>),
+                typeof(GenericWrapper<SerializerBase<TestClass>>)
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Constructor_with_allowed_assemblies_should_allow_only_default_framework_types_when_assemblies_is_empty()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Array.Empty<Assembly>());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var allowedTypes = new[]
+            {
+                typeof(int),
+                typeof(List<int>),
+                typeof(Dictionary<string, List<int>>)
+            };
+
+            foreach (var type in allowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeTrue(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeTrue(type.ToString());
+            }
+
+            var disallowedTypes = new[]
+            {
+                typeof(TestClass),
+                typeof(GenericWrapper<int>),
+                typeof(List<TestClass>),
+                typeof(TestClass[])
+            };
+
+            foreach (var type in disallowedTypes)
+            {
+                serializer.AllowedDeserializationTypes(type).Should().BeFalse(type.ToString());
+                serializer.AllowedSerializationTypes(type).Should().BeFalse(type.ToString());
+            }
+        }
+
+        [Fact]
+        public void Deserialize_should_throw_when_generic_argument_is_from_disallowed_assembly()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var document = new BsonDocument
+            {
+                { "_t", TypeNameDiscriminator.GetDiscriminator(typeof(GenericWrapper<JsonWriterSettings>)) },
+                { "Value", new BsonDocument("IndentChars", "attacker controlled") }
+            };
+
+            var exception = Record.Exception(() => Deserialize(serializer, document));
+
+            exception.Should().BeOfType<BsonSerializationException>();
+            exception.Message.Should().Contain("is not configured as a type that is allowed to be deserialized");
+        }
+
+        [Fact]
+        public void Serialize_should_throw_when_generic_argument_is_from_disallowed_assembly()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var exception = Record.Exception(() => Serialize(serializer, new GenericWrapper<JsonWriterSettings>()));
+
+            exception.Should().BeOfType<BsonSerializationException>();
+            exception.Message.Should().Contain("is not configured as a type that is allowed to be serialized");
+        }
+
+        [Fact]
+        public void Apply_should_validate_the_generic_arguments_of_anonymous_types()
+        {
+            var subject = new ObjectSerializerAllowedTypesConvention(Assembly.GetExecutingAssembly());
+
+            var memberMap = CreateMemberMap(c => c.ObjectProp);
+            subject.Apply(memberMap);
+
+            var serializer = (ObjectSerializer)memberMap.GetSerializer();
+
+            var allowedType = new { A = 1, B = new TestClass() }.GetType();
+            var disallowedType = new { A = 1, B = new JsonWriterSettings() }.GetType();
+
+            serializer.AllowedDeserializationTypes(allowedType).Should().BeTrue();
+            serializer.AllowedSerializationTypes(allowedType).Should().BeTrue();
+            serializer.AllowedDeserializationTypes(disallowedType).Should().BeFalse();
+            serializer.AllowedSerializationTypes(disallowedType).Should().BeFalse();
+        }
+
         // private methods
         private static BsonMemberMap CreateMemberMap<TMember>(Expression<Func<TestClass, TMember>> member)
         {
             var classMap = new BsonClassMap<TestClass>();
             return classMap.MapMember(member);
+        }
+
+        private static object Deserialize(IBsonSerializer serializer, BsonDocument document)
+        {
+            using var reader = new BsonDocumentReader(document);
+            var context = BsonDeserializationContext.CreateRoot(reader);
+            return serializer.Deserialize(context, new BsonDeserializationArgs { NominalType = typeof(object) });
+        }
+
+        private static void Serialize(IBsonSerializer serializer, object value)
+        {
+            using var writer = new BsonDocumentWriter(new BsonDocument());
+            var context = BsonSerializationContext.CreateRoot(writer);
+            serializer.Serialize(context, new BsonSerializationArgs { NominalType = typeof(object) }, value);
         }
     }
 }
