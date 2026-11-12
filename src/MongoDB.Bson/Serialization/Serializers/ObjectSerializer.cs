@@ -55,6 +55,9 @@ namespace MongoDB.Bson.Serialization.Serializers
         public static Func<Type, bool> NoAllowedTypes => __noAllowedTypes;
         #endregion
 
+        internal static bool IsDefaultAllowedGenericTypeDefinition(Type constructedGenericType) =>
+            DefaultFrameworkAllowedTypes.IsAllowedGenericTypeDefinition(constructedGenericType);
+
         // private fields
         private readonly Func<Type, bool> _allowedDeserializationTypes;
         private readonly Func<Type, bool> _allowedSerializationTypes;
@@ -573,9 +576,12 @@ namespace MongoDB.Bson.Serialization.Serializers
                     type.IsEnum;
 
                 static bool IsAllowedGenericType(Type type) =>
-                    (__allowedGenericTypesSet.Contains(type.GetGenericTypeDefinition()) || type.IsAnonymousType()) &&
+                    IsAllowedGenericTypeDefinition(type) &&
                     type.GetGenericArguments().All(__allowedTypes);
             }
+
+            public static bool IsAllowedGenericTypeDefinition(Type constructedGenericType) =>
+                __allowedGenericTypesSet.Contains(constructedGenericType.GetGenericTypeDefinition()) || constructedGenericType.IsAnonymousType();
         }
     }
 }

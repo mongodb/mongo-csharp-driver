@@ -56,6 +56,7 @@ namespace MongoDB.Bson.Serialization.Conventions
         private readonly Func<Type, bool> _allowedDeserializationTypes;
         private readonly Func<Type, bool> _allowedSerializationTypes;
         private readonly bool _allowDefaultFrameworkTypes = true;
+        private readonly bool _validateGenericArgumentsAndElementTypes;
         private readonly Lazy<Func<Type, bool>> _effectiveAllowedDeserializationTypes;
         private readonly Lazy<Func<Type, bool>> _effectiveAllowedSerializationTypes;
 
@@ -63,6 +64,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
         /// <param name="allowedTypes">A delegate that determines what types are allowed to be serialized and deserialized.</param>
+        /// <remarks>
+        /// The delegate is called with the full type, including constructed generic types and array types. It is the
+        /// delegate's responsibility to inspect generic arguments and array element types; a delegate that only looks
+        /// at the type itself (for example at its assembly or namespace) will allow types such as
+        /// Allowed.Wrapper&lt;NotAllowed.Anything&gt;.
+        /// </remarks>
         public ObjectSerializerAllowedTypesConvention(Func<Type, bool> allowedTypes)
             : this(allowedTypes, allowedTypes)
         {
@@ -73,6 +80,12 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// </summary>
         /// <param name="allowedDeserializationTypes">A delegate that determines what types are allowed to be deserialized.</param>
         /// <param name="allowedSerializationTypes">A delegate that determines what types are allowed to be serialized.</param>
+        /// <remarks>
+        /// The delegates are called with the full type, including constructed generic types and array types. It is each
+        /// delegate's responsibility to inspect generic arguments and array element types; a delegate that only looks
+        /// at the type itself (for example at its assembly or namespace) will allow types such as
+        /// Allowed.Wrapper&lt;NotAllowed.Anything&gt;.
+        /// </remarks>
         public ObjectSerializerAllowedTypesConvention(Func<Type, bool> allowedDeserializationTypes, Func<Type, bool> allowedSerializationTypes)
             : this()
         {
@@ -112,9 +125,23 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
         /// <param name="allowedAssemblies">A collection of allowed assemblies whose types can be serialized and deserialized.</param>
+        /// <remarks>
+        /// A type is allowed when it is declared in an allowed assembly or, if <see cref="AllowDefaultFrameworkTypes"/>
+        /// is true, is a default framework type. Constructed generic types and array types are only allowed when their
+        /// generic arguments and element types are themselves allowed, so a generic type declared in an allowed assembly
+        /// cannot be used to smuggle in a type from an assembly that is not allowed. When
+        /// <see cref="AllowDefaultFrameworkTypes"/> is true the default framework generic types (for example
+        /// <see cref="List{T}"/> and <see cref="Dictionary{TKey, TValue}"/>) can be constructed over allowed types, such
+        /// as List&lt;AllowedAssembly.MyType&gt;.
+        /// </remarks>
         public ObjectSerializerAllowedTypesConvention(params Assembly[] allowedAssemblies)
-            : this()
+            : this(true)
         {
+            if (allowedAssemblies == null)
+            {
+                throw new ArgumentNullException(nameof(allowedAssemblies));
+            }
+
             _allowedDeserializationTypes = _allowedSerializationTypes = t => allowedAssemblies.Contains(t.Assembly);
         }
 
@@ -122,12 +149,23 @@ namespace MongoDB.Bson.Serialization.Conventions
         /// Initializes a new instance of the <see cref="ObjectSerializerAllowedTypesConvention"/> class.
         /// </summary>
         public ObjectSerializerAllowedTypesConvention()
+            : this(false)
         {
+        }
+
+        private ObjectSerializerAllowedTypesConvention(bool validateGenericArgumentsAndElementTypes)
+        {
+            _validateGenericArgumentsAndElementTypes = validateGenericArgumentsAndElementTypes;
             _effectiveAllowedDeserializationTypes = new Lazy<Func<Type, bool>>(() => CreateEffectiveAllowedTypes(_allowedDeserializationTypes));
             _effectiveAllowedSerializationTypes = new Lazy<Func<Type, bool>>(() => CreateEffectiveAllowedTypes(_allowedSerializationTypes));
 
             Func<Type, bool> CreateEffectiveAllowedTypes(Func<Type, bool> allowedTypes)
             {
+                if (_validateGenericArgumentsAndElementTypes && allowedTypes is not null)
+                {
+                    return WithGenericArgumentsAndElementTypesValidation(allowedTypes, _allowDefaultFrameworkTypes);
+                }
+
                 return (allowedTypes, _allowDefaultFrameworkTypes) switch
                 {
                     (null, false) => ObjectSerializer.NoAllowedTypes,
@@ -197,6 +235,30 @@ namespace MongoDB.Bson.Serialization.Conventions
                 => !type.IsArray &&
                    typeof(IEnumerable).IsAssignableFrom(type) &&
                    !type.GetInterfaces().Prepend(type).Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+        }
+
+        private static Func<Type, bool> WithGenericArgumentsAndElementTypesValidation(Func<Type, bool> allowedTypes, bool allowDefaultFrameworkTypes)
+        {
+            return IsAllowedType;
+
+            bool IsAllowedType(Type type)
+            {
+                if (type.HasElementType)
+                {
+                    return IsAllowedType(type.GetElementType());
+                }
+
+                if (type.IsConstructedGenericType)
+                {
+                    var isAllowedDefinition =
+                        allowedTypes(type) ||
+                        (allowDefaultFrameworkTypes && ObjectSerializer.IsDefaultAllowedGenericTypeDefinition(type));
+
+                    return isAllowedDefinition && type.GetGenericArguments().All(IsAllowedType);
+                }
+
+                return allowedTypes(type) || (allowDefaultFrameworkTypes && ObjectSerializer.DefaultAllowedTypes(type));
+            }
         }
 
         // private methods
