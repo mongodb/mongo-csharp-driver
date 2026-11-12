@@ -53,7 +53,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new UnsafeFilterFieldNameException(expression, $"the name \"{segment}\" contains \".\", which the server would read as a path to a nested field; access each level separately instead, for example x[\"a\"][\"b\"]");
             }
 
-            if (parent.Ast.IsImpliedDocument && AstFilterField.IsImpliedDocumentMarker(segment))
+            if (parent.Ast.Path == "@<current>" && AstFilterField.IsImpliedDocumentMarker(segment))
             {
                 throw new UnsafeFilterFieldNameException(expression, $"the name \"{segment}\" is reserved by the driver as an internal path marker and would target the wrong field");
             }
