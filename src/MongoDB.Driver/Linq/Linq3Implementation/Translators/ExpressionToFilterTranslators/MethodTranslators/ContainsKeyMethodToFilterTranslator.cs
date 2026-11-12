@@ -18,6 +18,7 @@ using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.Ast.Filters;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilterTranslators.ToFilterFieldTranslators;
@@ -44,6 +45,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 {
                     case DictionaryRepresentation.Document:
                         var key = GetKeyStringConstant(expression, keyExpression, dictionarySerializer.KeySerializer);
+                        FilterFieldNameValidator.EnsureSegmentIsSafe(expression, fieldTranslation, key);
                         var keyField = fieldTranslation.Ast.SubField(key);
                         return AstFilter.Exists(keyField);
 
