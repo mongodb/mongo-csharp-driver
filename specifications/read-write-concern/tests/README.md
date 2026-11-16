@@ -42,6 +42,13 @@ have the following keys:
 - `isServerDefault:` Indicates whether the read or write concern is considered the server's default.
 - `isAcknowledged:` Indicates if the write concern should be considered acknowledged.
 
+### Write Concern Errors
+
+These tests check that drivers report a `writeConcernError` returned in an `ok: 1` server reply for each driver method
+that supports setting a write concern.
+
+The tests utilize the [Unified Test Format](../../unified-test-format/unified-test-format.md).
+
 ### Operation
 
 These tests check that the default write concern is omitted in operations.
