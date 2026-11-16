@@ -25,7 +25,8 @@ if [[ -z "$1" ]]; then
 fi
 
 export MONGODB_URI="$1"
-export FRAMEWORK=net6.0
+# The container does not inherit the Evergreen task environment, so the framework is passed in a file next to this script
+export FRAMEWORK=$(<.evergreen/framework)
 . ./evergreen/install-dotnet.sh
 
 if echo "$MONGODB_URI" | grep -q "@"; then
@@ -35,4 +36,25 @@ fi
 export AWS_TESTS_ENABLED=true
 export AWS_ECS_ENABLED=true
 
-TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh
+# dotnet test console output does not reach the Evergreen log from the ECS container, so report the junit results here
+test_status=0
+TEST_CATEGORY=AwsMechanism ./evergreen/execute-tests.sh || test_status=$?
+
+results=$(grep -ho '<testcase [^>]*>\|<failure [^>]*>\|<skipped[^>]*>' build/test-results/*.xml | awk '
+  function report() { if (name != "") print status ": " name detail }
+  /^<testcase / { report(); match($0, / name="[^"]*"/); name = substr($0, RSTART + 7, RLENGTH - 8); status = "Passed"; detail = "" }
+  /^<failure /  { status = "Failed"; match($0, /message="[^"]*"/); detail = " (" substr($0, RSTART + 9, RLENGTH - 10) ")" }
+  /^<skipped/   { status = "Skipped" }
+  END           { report() }')
+
+echo "ECS test results:"
+[ -n "$results" ] && echo "$results" | sed 's/^/  /'
+tests_run=$(echo "$results" | grep -c . || true)
+tests_failed=$(echo "$results" | grep -c '^Failed' || true)
+echo "  Total: $tests_run, failed: $tests_failed"
+if [ "$tests_run" -eq 0 ]; then
+  echo "No tests ran in the ECS container"
+  exit 1
+fi
+
+exit $test_status

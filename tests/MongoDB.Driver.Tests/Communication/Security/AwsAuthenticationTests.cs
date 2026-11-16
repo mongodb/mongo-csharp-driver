@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
         }
 
         [Fact]
-        public void Ecs_should_fill_AWS_CONTAINER_CREDENTIALS_RELATIVE_URI()
+        public void Container_credentials_uri_should_be_set_only_when_ECS_is_enabled()
         {
             var isEcs = Environment.GetEnvironmentVariable("AWS_ECS_ENABLED") != null;
             var awsContainerUri = Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI") ?? Environment.GetEnvironmentVariable("AWS_CONTAINER_CREDENTIALS_FULL_URI");
