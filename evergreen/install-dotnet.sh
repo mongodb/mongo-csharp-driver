@@ -2,7 +2,7 @@
 set -o errexit  # Exit the script with error if any of the commands fail
 
 DOTNET_ROOT="${DOTNET_ROOT:-./.dotnet}"
-DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-10.0}"
+DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-}"
 
 echo "runtime: $FRAMEWORK"
 
@@ -13,8 +13,12 @@ if [ -n "$FRAMEWORK" ]; then
     RUNTIME_VERSIONS="8.0"
   elif [ "$FRAMEWORK" = "net10.0" ]; then
     RUNTIME_VERSIONS="10.0"
+  elif [ "$FRAMEWORK" = "net11.0" ]; then
+    RUNTIME_VERSIONS="11.0"
   fi
 fi
+
+DOTNET_SDK_VERSION="${DOTNET_SDK_VERSION:-11.0}"
 
 RUNTIMES=()
 if [ -n "$RUNTIME_VERSIONS" ]; then
@@ -24,6 +28,9 @@ fi
 
 
 if [[ $OS =~ [Ww]indows.* ]]; then
+  # From .NET 11 the installer prefers .tar.gz on Windows whenever a `tar` is on PATH. On Evergreen that is
+  # GNU tar, which treats `C:\...` as a remote host ("Cannot connect to C: resolve failed"), so force .zip.
+  export DOTNET_INSTALL_SKIP_TAR=1
   echo "Downloading Windows .NET SDK installer into $DOTNET_ROOT folder..."
   curl -Lfo ./dotnet-install.ps1 https://builds.dotnet.microsoft.com/dotnet/scripts/v1/dotnet-install.ps1
   echo "Installing .NET ${DOTNET_SDK_VERSION} SDK..."

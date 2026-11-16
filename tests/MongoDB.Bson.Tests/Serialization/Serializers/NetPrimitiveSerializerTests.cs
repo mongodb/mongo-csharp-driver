@@ -18,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -986,20 +985,21 @@ namespace MongoDB.Bson.Tests.Serialization
         }
 
         [Fact]
-        public void TestOnePointThree()
+        public void TestOnePointTwoFive()
         {
             var obj = new TestClass
             {
-                X = 1.3m,
-                A = 1.3m,
-                D128 = 1.3m,
-                D = 1.3m,
+                X = 1.25m,
+                A = 1.25m,
+                D128 = 1.25m,
+                D = 1.25m,
                 I = 1.0m,
                 L = 1.0m,
-                S = 1.3m
+                S = 1.25m
             };
+
             var json = obj.ToJson(writerSettings: new JsonWriterSettings { OutputMode = JsonOutputMode.Shell });
-            var expected = "{ 'X' : NumberDecimal('1.3'), 'A' : [13, 0, 0, 65536], 'D128' : NumberDecimal('1.3'), 'D' : 1.3, 'I' : 1, 'L' : NumberLong(1), 'S' : '1.3' }".Replace("'", "\"");
+            var expected = "{ 'X' : NumberDecimal('1.25'), 'A' : [125, 0, 0, 131072], 'D128' : NumberDecimal('1.25'), 'D' : 1.25, 'I' : 1, 'L' : NumberLong(1), 'S' : '1.25' }".Replace("'", "\"");
             Assert.Equal(expected, json);
 
             var bson = obj.ToBson();

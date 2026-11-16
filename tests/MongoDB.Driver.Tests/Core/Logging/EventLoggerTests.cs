@@ -19,6 +19,7 @@ using System.Linq;
 using System.Net;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
@@ -75,7 +76,7 @@ namespace MongoDB.Driver.Core.Logging
 
             if (isLoggingEnabled)
             {
-                logger.Verify(l => l.Log(LogLevel.Debug, It.IsAny<EventId>(), It.IsNotNull<object>(), null, It.IsNotNull<Func<object, Exception, string>>()), Times.Once);
+                logger.Verify(l => l.Log(LogLevel.Debug, It.IsAny<EventId>(), It.Is<It.IsAnyType>((v, t) => v != null), null, (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
             }
 
             eventLogger.IsEventTracked<TEvent>().Should().Be(isLoggingEnabled || isHandlerRegistered);
@@ -91,7 +92,7 @@ namespace MongoDB.Driver.Core.Logging
 
             var eventsData = new (object, object)[]
             {
-                (new LogCategories.Command(), new CommandStartedEvent("test", new Bson.BsonDocument(), new DatabaseNamespace("test"), 1, 1, connectionId)),
+                (new LogCategories.Command(), new CommandStartedEvent("test", new BsonDocument(), new DatabaseNamespace("test"), 1, 1, connectionId)),
                 (new LogCategories.Connection(), new ConnectionCreatedEvent(connectionId, null, 1)),
                 (new LogCategories.SDAM(), new ServerHeartbeatStartedEvent(connectionId, true)),
                 (new LogCategories.ServerSelection(), new ClusterSelectingServerEvent(clusterDescription, Mock.Of<IServerSelector>(), default, default))
