@@ -139,6 +139,7 @@ internal partial class SerializerFinderVisitor
                 case "HasFlag": DeduceHasFlagMethodSerializers(); break;
                 case "Hash": DeduceHashMethodSerializers(); break;
                 case "HexHash": DeduceHexHashMethodSerializers(); break;
+                case "IndexOfAny": DeduceIndexOfAnyMethodSerializers(); break;
                 case "Inject": DeduceInjectMethodSerializers(); break;
                 case "Intersect": DeduceIntersectMethodSerializers(); break;
                 case "IsMatch": DeduceIsMatchMethodSerializers(); break;
@@ -1707,6 +1708,18 @@ internal partial class SerializerFinderVisitor
             if (method.Is(MqlMethod.HexHash))
             {
                 DeduceSerializer(node, StringSerializer.Instance);
+            }
+            else
+            {
+                DeduceUnknownMethodSerializer();
+            }
+        }
+
+        void DeduceIndexOfAnyMethodSerializers()
+        {
+            if (method.IsOneOf(StringMethod.IndexOfAnyOverloads))
+            {
+                DeduceReturnsInt32Serializer();
             }
             else
             {
