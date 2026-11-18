@@ -1,0 +1,8 @@
+uri: "mongodb+srv://cluster0.mongodb.net/?srvAllowedHostsSuffix=.mongodb.net"
+srvRecords:
+    - target: "evil.attacker.com,x.mongodb.net"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because ',' is not allowed in a label, even though the host name ends with the allowed suffix. The same record as comma-in-label-ticket must not bypass srvAllowedHostsSuffix."

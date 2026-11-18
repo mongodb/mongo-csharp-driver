@@ -1,0 +1,8 @@
+uri: "mongodb+srv://cluster0.mongodb.net/"
+srvRecords:
+    - target: "[evil.attacker.com].example.net"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because the returned host name does not share the SRV domain. The same bracketed record as brackets-in-label-ticket under a parent that does not match: a driver that rejects this but accepts the matching-parent record has a parser differential."

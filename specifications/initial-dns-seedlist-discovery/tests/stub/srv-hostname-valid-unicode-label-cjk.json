@@ -1,0 +1,15 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "日本語.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [
+    "xn--wgv71a119e.example.com:27017"
+  ],
+  "hosts": [],
+  "ping": false,
+  "comment": "Should succeed: a label in another script is converted to its A-label (Punycode) form."
+}

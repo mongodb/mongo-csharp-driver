@@ -1,0 +1,15 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "xn--bcher-kva.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [
+    "xn--bcher-kva.example.com:27017"
+  ],
+  "hosts": [],
+  "ping": false,
+  "comment": "Should succeed: an A-label (Punycode) label is ASCII letters, digits and hyphens."
+}

@@ -1,0 +1,15 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "evil.attacker.comx.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [
+    "evil.attacker.comx.example.com:27017"
+  ],
+  "hosts": [],
+  "ping": false,
+  "comment": "Should succeed: the letters of the comma cases without the comma are an ordinary host name under the SRV domain."
+}

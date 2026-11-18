@@ -1,0 +1,9 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "\u65e5\u672c\u8a9e.example.com"
+      port: 27017
+seeds:
+    - "xn--wgv71a119e.example.com:27017"
+hosts: []
+ping: false
+comment: "Should succeed: a label in another script is converted to its A-label (Punycode) form."
