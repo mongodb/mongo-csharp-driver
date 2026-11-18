@@ -75,6 +75,8 @@ Mid-operation token expiry: `TryHandleAuthenticationException` can refresh and r
 
 `PlainSaslMechanism.cs`, `PlainSaslStep.cs`. Single round-trip: base64-encoded `\0username\0password` per RFC 4616. Used for LDAP-backed deployments. **TLS is mandatory** — PLAIN over plaintext is a credential leak. No speculative auth.
 
+**NUL characters are forbidden** in the username and password (NUL is the RFC 4616 field delimiter, so allowing it would let a caller smuggle extra fields into the payload — identity smuggling; DRIVERS-3599 / CSHARP-6221). `PlainSaslMechanism.EnsureNoNulCharacters` throws `ArgumentException` with the spec-mandated message "PLAIN authentication username/password cannot contain NUL characters." It is called from the PLAIN case of `MongoCredential.FromComponents` (so code-configured credentials, `CreatePlainCredential`, and connection strings all fail fast at credential creation) and again from `PlainSaslMechanism.Create` as defense in depth. Use the ordinal `Contains("\0")` / `IndexOf('\0')`, never the culture-sensitive `IndexOf("\0")`.
+
 ### AWS IAM (separate project: `src/MongoDB.Driver.Authentication.AWS/`)
 
 Mechanism: `MONGODB-AWS`. Lives in its own NuGet package to avoid forcing the AWS SDK on every consumer. Files: `AWSSaslMechanism.cs`, `CredentialsSources/IAWSCredentialsSource.cs` (the abstraction), `CredentialsSources/AWSInstanceCredentialsSource.cs`, `CredentialsSources/AWSFallbackCredentialsSource.cs`, `SaslSteps/AWSFirstSaslStep.cs`, `SaslSteps/AWSLastSaslStep.cs`, `AWSSignatureVersion4.cs`. The `MONGODB-AWS` mechanism is wired into the global `ISaslMechanismRegistry` via `ExtensionManagerExtensions.cs`.

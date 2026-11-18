@@ -51,7 +51,7 @@ namespace MongoDB.Driver
                 return false;
             }
 
-            var index = name.IndexOfAny(new[] { '\0', '.' });
+            var index = name.IndexOfAny(['\0', '.']);
             return index == -1;
         }
 
