@@ -26,7 +26,6 @@ using MongoDB.Driver.Authentication.Oidc;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.TestHelpers.Core;
 using MongoDB.TestHelpers.XunitExtensions;
-using Moq;
 using Xunit;
 using Xunit.Sdk;
 using Reflector = MongoDB.Bson.TestHelpers.Reflector;
