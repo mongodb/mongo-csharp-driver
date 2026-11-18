@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://cluster0.mongodb.net/",
+  "srvRecords": [
+    {
+      "target": "[evil.attacker.com].mongodb.net",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because '[' and ']' are not allowed in a label, even though the host name ends with the SRV domain. This is the record from the Java report: a driver that truncates the host at the first ']' would connect to evil.attacker.com."
+}

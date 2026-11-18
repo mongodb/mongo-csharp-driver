@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "evil.attacker.com%2Fexample.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because '%' is not allowed in a label and the host name does not share the SRV domain."
+}

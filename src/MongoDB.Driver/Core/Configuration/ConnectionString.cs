@@ -69,6 +69,8 @@ namespace MongoDB.Driver.Core.Configuration
             "corp", "home", "mail"
         };
 
+        private static readonly Regex __hostNameValidator = new Regex(@"\A[a-zA-Z0-9_.-]+\z");
+
         // private fields
         private readonly string _originalConnectionString;
         private readonly NameValueCollection _allOptions;
@@ -1387,7 +1389,18 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             normalizedHost = TryGetAsciiForm(host, out _);
-            return normalizedHost != null;
+            if (normalizedHost == null)
+            {
+                return false;
+            }
+
+            if (!__hostNameValidator.IsMatch(normalizedHost))
+            {
+                normalizedHost = null;
+                return false;
+            }
+
+            return true;
         }
 
         // Returns the lowercased A-label form of value, or null when value has none. errorDetail
@@ -1656,13 +1669,11 @@ namespace MongoDB.Driver.Core.Configuration
             // for each resolved host, make sure that it ends with domain of the parent.
             foreach (var resolvedHost in resolved)
             {
-                EndPoint endPoint;
-                if (!EndPointHelper.TryParse(resolvedHost, 0, out endPoint) || !(endPoint is DnsEndPoint))
+                if (!EndPointHelper.TryParse(resolvedHost, 0, out var endPoint) || !(endPoint is DnsEndPoint))
                 {
                     throw new MongoConfigurationException($"Unable to parse {resolvedHost} as a hostname.");
                 }
                 var dnsEndPoint = (DnsEndPoint)endPoint;
-
                 if (!HasValidParentDomain(lookupDomainName, dnsEndPoint, _srvParentDomain))
                 {
                     throw new MongoConfigurationException(_srvParentDomain == null
@@ -1694,7 +1705,7 @@ namespace MongoDB.Driver.Core.Configuration
                 return host.Length > original.Length &&
                        hostDotCount > originalDotCount &&
                        host.EndsWith(original, StringComparison.Ordinal) &&
-                       host[host.Length - original.Length -1 ] == '.';
+                       host[host.Length - original.Length - 1] == '.';
             }
 
             // We check that the returned hostname has the same domain name as original

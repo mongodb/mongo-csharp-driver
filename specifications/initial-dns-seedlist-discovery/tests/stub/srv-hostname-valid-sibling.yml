@@ -1,0 +1,9 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "x.example.com"
+      port: 27017
+seeds:
+    - "x.example.com:27017"
+hosts: []
+ping: false
+comment: "Should succeed: a single extra label under the SRV domain."

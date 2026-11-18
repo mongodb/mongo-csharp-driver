@@ -1,0 +1,9 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "test_1.cluster_1.example.com"
+      port: 27017
+seeds:
+    - "test_1.cluster_1.example.com:27017"
+hosts: []
+ping: false
+comment: "Should succeed: underscores are allowed in labels (also used by the prose tests)."

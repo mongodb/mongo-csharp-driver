@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "x.example.com.."
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because only a single trailing dot is stripped. The remaining 'x.example.com.' ends in an empty label."

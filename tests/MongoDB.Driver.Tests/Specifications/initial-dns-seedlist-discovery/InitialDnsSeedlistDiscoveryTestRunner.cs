@@ -14,211 +14,244 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Driver.Core.Configuration;
-using Xunit;
+using MongoDB.Driver.Core.Misc;
 using MongoDB.TestHelpers.XunitExtensions;
-using System.Collections;
-using System.Threading.Tasks;
+using Moq;
+using Xunit;
 using Xunit.Abstractions;
 
-namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery
+namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery;
+
+[Trait("Category", "ConnectionString")]
+[Trait("Category", "SupportLoadBalancing")]
+[Trait("Category", "Integration")]
+public class InitialDnsSeedlistDiscoveryTestRunner
 {
-    [Trait("Category", "ConnectionString")]
-    [Trait("Category", "SupportLoadBalancing")]
-    [Trait("Category", "Integration")]
-    public class InitialDnsSeedlistDiscoveryTestRunner
+    [Theory]
+    [ClassData(typeof(TestCaseFactory))]
+    public void RunTestDefinition(TestCase testCase)
     {
-        [Theory]
-        [ClassData(typeof(TestCaseFactory))]
-        public void RunTestDefinition(TestCase testCase)
+        RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
+        ConnectionString connectionString = null;
+        var resolveException = Record.Exception(() => connectionString = CreateSubject(testCase).Resolve());
+        Assert(connectionString, resolveException, testCase.Definition);
+    }
+
+    [Theory]
+    [ClassData(typeof(TestCaseFactory))]
+    public async Task RunTestDefinitionAsync(TestCase testCase)
+    {
+        RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
+
+        ConnectionString connectionString = null;
+        var resolveException = await Record.ExceptionAsync(async () => connectionString = await CreateSubject(testCase).ResolveAsync());
+        Assert(connectionString, resolveException, testCase.Definition);
+    }
+
+    private ConnectionString CreateSubject(TestCase testCase)
+    {
+        var dnsResolver = DnsClientWrapper.Instance;
+        if (testCase.Definition.Contains("srvRecords"))
         {
-            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
-
-            ConnectionString connectionString = null;
-            Exception resolveException = Record.Exception(() => connectionString = new ConnectionString((string)testCase.Definition["uri"]).Resolve());
-            Assert(connectionString, resolveException, testCase.Definition);
-        }
-
-        [Theory]
-        [ClassData(typeof(TestCaseFactory))]
-        public async Task RunTestDefinitionAsync(TestCase testCase)
-        {
-            RequireEnvironment.Check().NoDuplicateIpv4MappedNameServers();
-
-            ConnectionString connectionString = null;
-            Exception resolveException = await Record.ExceptionAsync(async () => connectionString = await new ConnectionString((string)testCase.Definition["uri"]).ResolveAsync());
-            Assert(connectionString, resolveException, testCase.Definition);
-        }
-
-        private void Assert(ConnectionString connectionString, Exception resolveException, BsonDocument definition)
-        {
-            if (definition.GetValue("error", false).ToBoolean())
-            {
-                resolveException.Should().BeOfType<MongoConfigurationException>();
-            }
-            else
-            {
-                if (resolveException != null)
+            var dnsResolverMock = new Mock<IDnsResolver>();
+            var srvResponse = testCase.Definition["srvRecords"].AsBsonArray
+                .Select(x =>
                 {
-                    throw new AssertionException("failed to parse and resolve connection string", resolveException);
-                }
+                    var srvRecord = x.AsBsonDocument;
+                    return new SrvRecord(
+                        new DnsEndPoint(srvRecord["target"].AsString, srvRecord["port"].AsInt32), Timeout.InfiniteTimeSpan);
+                }).ToList();
+            var txtResponse = new List<TxtRecord>();
 
-                AssertValid(connectionString, definition);
+            dnsResolverMock.Setup(resolver => resolver.ResolveSrvRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(srvResponse);
+            dnsResolverMock.Setup(resolver => resolver.ResolveSrvRecordsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(srvResponse);
+
+            dnsResolverMock.Setup(resolver => resolver.ResolveTxtRecords(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Returns(txtResponse);
+            dnsResolverMock.Setup(resolver => resolver.ResolveTxtRecordsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(txtResponse);
+
+            dnsResolver = dnsResolverMock.Object;
+        }
+
+        return new ConnectionString(testCase.Definition["uri"].AsString, false, dnsResolver);
+    }
+
+    private void Assert(ConnectionString connectionString, Exception resolveException, BsonDocument definition)
+    {
+        if (definition.GetValue("error", false).ToBoolean())
+        {
+            resolveException.Should().BeOfType<MongoConfigurationException>();
+        }
+        else
+        {
+            if (resolveException != null)
+            {
+                throw new AssertionException("failed to parse and resolve connection string", resolveException);
+            }
+
+            AssertValid(connectionString, definition);
+        }
+    }
+
+    private void AssertValid(ConnectionString connectionString, BsonDocument definition)
+    {
+        if (definition.Contains("seeds"))
+        {
+            var expectedSeeds = definition["seeds"].AsBsonArray.Select(x => x.ToString()).ToList();
+            var actualSeeds = connectionString.Hosts.Select(ConvertEndPointToString).ToList();
+
+            actualSeeds.ShouldAllBeEquivalentTo(expectedSeeds);
+        }
+
+        if (definition.Contains("numSeeds"))
+        {
+            var numExpectedSeeds = definition["numSeeds"].AsInt32;
+            var numActualSeeds = connectionString.Hosts.Count;
+
+            numActualSeeds.Should().Be(numExpectedSeeds);
+        }
+
+        if (definition.Contains("options"))
+        {
+            foreach (BsonElement option in definition["options"].AsBsonDocument)
+            {
+                var expectedValue = ValueToString(option.Name, option.Value);
+
+                var optionName = GetOptionName(option);
+                var actualValue = Uri.UnescapeDataString(connectionString.GetOption(optionName).Split(',').Last());
+
+                actualValue.Should().Be(expectedValue);
             }
         }
 
-        private void AssertValid(ConnectionString connectionString, BsonDocument definition)
+        if (definition.Contains("parsed_options"))
         {
-            if (definition.Contains("seeds"))
+            foreach (BsonElement option in definition["parsed_options"].AsBsonDocument)
             {
-                var expectedSeeds = definition["seeds"].AsBsonArray.Select(x => x.ToString()).ToList();
-                var actualSeeds = connectionString.Hosts.Select(ConvertEndPointToString).ToList();
+                var expectedValue = ValueToString(option.Name, option.Value);
 
-                actualSeeds.ShouldAllBeEquivalentTo(expectedSeeds);
-            }
-
-            if (definition.Contains("numSeeds"))
-            {
-                var numExpectedSeeds = definition["numSeeds"].AsInt32;
-                var numActualSeeds = connectionString.Hosts.Count;
-
-                numActualSeeds.Should().Be(numExpectedSeeds);
-            }
-
-            if (definition.Contains("options"))
-            {
-                foreach (BsonElement option in definition["options"].AsBsonDocument)
+                var optionName = GetOptionName(option);
+                var actualValue = optionName switch
                 {
-                    var expectedValue = ValueToString(option.Name, option.Value);
+                    "user" => connectionString.Username,
+                    "password" => connectionString.Password,
+                    "auth_database" => connectionString.DatabaseName,
+                    "db" => connectionString.DatabaseName,
+                    _ => throw new FormatException($"Unexpected option name: {optionName}")
+                };
 
-                    var optionName = GetOptionName(option);
-                    var actualValue = Uri.UnescapeDataString(connectionString.GetOption(optionName).Split(',').Last());
-
-                    actualValue.Should().Be(expectedValue);
-                }
+                actualValue.Should().Be(expectedValue);
             }
+        }
+    }
 
-            if (definition.Contains("parsed_options"))
-            {
-                foreach (BsonElement option in definition["parsed_options"].AsBsonDocument)
+    private string GetOptionName(BsonElement option)
+    {
+        switch (option.Name.ToLowerInvariant())
+        {
+            case "ssl" when option.Value == true:
+                // Needs to restore some json tests which expect "ssl=true" option as autogenerated option for mongo+srv if no user defined "ssl" options, but now, we generate "tls=true"
+                return "tls";
+            default:
+                return option.Name;
+        }
+    }
+
+    private string ValueToString(string name, BsonValue value)
+    {
+        if (value == BsonNull.Value)
+        {
+            return null;
+        }
+
+        return value.ToString();
+    }
+
+    private string ConvertEndPointToString(EndPoint ep)
+    {
+        if (ep is DnsEndPoint)
+        {
+            var dep = (DnsEndPoint)ep;
+            return $"{dep.Host}:{dep.Port}";
+        }
+        else if (ep is IPEndPoint)
+        {
+            var iep = (IPEndPoint)ep;
+            return $"{iep.Address}:{iep.Port}";
+        }
+
+        throw new AssertionException($"Invalid endpoint: {ep}");
+    }
+
+    public class TestCase : IXunitSerializable
+    {
+        public BsonDocument Definition;
+        public string Name;
+
+        public void Deserialize(IXunitSerializationInfo info)
+        {
+            Definition = BsonDocument.Parse(info.GetValue<string>("Definition"));
+            Name = info.GetValue<string>("Name");
+        }
+
+        public void Serialize(IXunitSerializationInfo info)
+        {
+            info.AddValue("Definition", Definition.ToString());
+            info.AddValue("Name", Name);
+        }
+
+        public override string ToString()
+        {
+            return Name + "(" + Definition["uri"].ToString() + ")";
+        }
+    }
+
+    private class TestCaseFactory : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            const string prefix = "MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.tests.";
+            var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
+            return executingAssembly
+                .GetManifestResourceNames()
+                .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
+                .Select(path =>
                 {
-                    var expectedValue = ValueToString(option.Name, option.Value);
-
-                    var optionName = GetOptionName(option);
-                    var actualValue = optionName switch
-                    {
-                        "user" => connectionString.Username,
-                        "password" => connectionString.Password,
-                        "auth_database" => connectionString.DatabaseName,
-                        "db" => connectionString.DatabaseName,
-                        _ => throw new FormatException($"Unexpected option name: {optionName}")
-                    };
-
-                    actualValue.Should().Be(expectedValue);
-                }
-            }
+                    var test = ReadDefinition(path);
+                    var fullName = path.Remove(0, prefix.Length);
+                    var testName = fullName.Remove(fullName.Length - 5);
+                    return new object[] { new TestCase { Name = testName, Definition = test } };
+                }).GetEnumerator();
         }
 
-        private string GetOptionName(BsonElement option)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            switch (option.Name.ToLowerInvariant())
-            {
-                case "ssl" when option.Value == true:
-                    // Needs to restore some json tests which expect "ssl=true" option as autogenerated option for mongo+srv if no user defined "ssl" options, but now, we generate "tls=true"
-                    return "tls";
-                default:
-                    return option.Name;
-            }
+            return GetEnumerator();
         }
 
-        private string ValueToString(string name, BsonValue value)
+        private static BsonDocument ReadDefinition(string path)
         {
-            if (value == BsonNull.Value)
+            var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
+            using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
+            using (var definitionStringReader = new StreamReader(definitionStream))
             {
-                return null;
-            }
-
-            return value.ToString();
-        }
-
-        private string ConvertEndPointToString(EndPoint ep)
-        {
-            if (ep is DnsEndPoint)
-            {
-                var dep = (DnsEndPoint)ep;
-                return $"{dep.Host}:{dep.Port}";
-            }
-            else if (ep is IPEndPoint)
-            {
-                var iep = (IPEndPoint)ep;
-                return $"{iep.Address}:{iep.Port}";
-            }
-
-            throw new AssertionException($"Invalid endpoint: {ep}");
-        }
-
-        public class TestCase : IXunitSerializable
-        {
-            public BsonDocument Definition;
-            public string Name;
-
-            public void Deserialize(IXunitSerializationInfo info)
-            {
-                Definition = BsonDocument.Parse(info.GetValue<string>("Definition"));
-                Name = info.GetValue<string>("Name");
-            }
-
-            public void Serialize(IXunitSerializationInfo info)
-            {
-                info.AddValue("Definition", Definition.ToString());
-                info.AddValue("Name", Name);
-            }
-
-            public override string ToString()
-            {
-                return Name + "(" + Definition["uri"].ToString() + ")";
-            }
-        }
-
-        private class TestCaseFactory : IEnumerable<object[]>
-        {
-            public IEnumerator<object[]> GetEnumerator()
-            {
-                const string prefix = "MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery.tests.";
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                return executingAssembly
-                    .GetManifestResourceNames()
-                    .Where(path => path.StartsWith(prefix) && path.EndsWith(".json"))
-                    .Select(path =>
-                    {
-                        var test = ReadDefinition(path);
-                        var fullName = path.Remove(0, prefix.Length);
-                        var testName = fullName.Remove(fullName.Length - 5);
-                        return new object[] { new TestCase { Name = testName, Definition = test } };
-                    }).GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            private static BsonDocument ReadDefinition(string path)
-            {
-                var executingAssembly = typeof(TestCaseFactory).GetTypeInfo().Assembly;
-                using (var definitionStream = executingAssembly.GetManifestResourceStream(path))
-                using (var definitionStringReader = new StreamReader(definitionStream))
-                {
-                    var definitionString = definitionStringReader.ReadToEnd();
-                    return BsonDocument.Parse(definitionString);
-                }
+                var definitionString = definitionStringReader.ReadToEnd();
+                return BsonDocument.Parse(definitionString);
             }
         }
     }
