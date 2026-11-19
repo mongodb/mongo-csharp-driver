@@ -45,6 +45,15 @@ namespace MongoDB.Driver.Tests.Support
             result.Port.Should().Be(expectedPort);
         }
 
+        [Theory]
+        [MemberData(nameof(ToMongoServerAddressTestCases))]
+        public void ToEndPoint_should_round_trip_with_ToMongoServerAddress(EndPoint endPoint, string _, int __)
+        {
+            var result = endPoint.ToMongoServerAddress().ToEndPoint();
+
+            result.Should().Be(endPoint);
+        }
+
         [Fact]
         public void ToMongoServerAddress_should_throw_NotSupportedException_for_unsupported_EndPoint()
         {

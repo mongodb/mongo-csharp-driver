@@ -147,11 +147,9 @@ namespace MongoDB.Driver.Core.Misc
         {
             Ensure.IsNotNull(value, nameof(value));
 
-            EndPoint endPoint;
-            if (!TryParse(value, out endPoint))
+            if (!TryParse(value, out var endPoint))
             {
-                var message = string.Format("'{0}' is not a valid end point.", value);
-                throw new ArgumentException(message, "value");
+                throw new ArgumentException("The value is not a valid end point.", nameof(value));
             }
 
             return endPoint;

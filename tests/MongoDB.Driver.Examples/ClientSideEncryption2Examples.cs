@@ -56,7 +56,7 @@ namespace MongoDB.Driver.Examples
             };
             kmsProviders.Add("local", localKey);
 
-            var keyVaultClient = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var keyVaultClient = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
 
             // Create two data keys.
             var clientEncryptionOptions = new ClientEncryptionOptions(keyVaultClient, KeyVaultNamespace, kmsProviders);
@@ -96,7 +96,7 @@ namespace MongoDB.Driver.Examples
             };
 
             var autoEncryptionOptions = new AutoEncryptionOptions(KeyVaultNamespace, kmsProviders, encryptedFieldsMap: encryptedFieldsMap);
-            var encryptedClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var encryptedClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             encryptedClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
             var encryptedClient = new MongoClient(encryptedClientSettings);
 

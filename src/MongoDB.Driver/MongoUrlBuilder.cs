@@ -31,6 +31,9 @@ namespace MongoDB.Driver
     /// </summary>
     public class MongoUrlBuilder
     {
+        // private constants
+        internal const string RedactedMarker = "<redacted>";
+
         // private fields
         private bool _allowInsecureTls;
         private string _applicationName;
@@ -871,14 +874,31 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoUrl.</returns>
         public MongoUrl ToMongoUrl()
         {
-            return MongoUrl.Create(ToString());
+            return MongoUrl.Create(ToUnredactedString());
         }
 
         /// <summary>
-        /// Returns the canonical URL based on the settings in this MongoUrlBuilder.
+        /// Returns a redacted representation of the URL based on the settings in this MongoUrlBuilder.
+        /// The username, the password and the values of sensitive parameters are replaced with a fixed marker,
+        /// so the result is suitable for logging, but it is not a usable connection string.
+        /// Use <see cref="ToMongoUrl"/> to obtain a usable <see cref="MongoUrl"/>.
         /// </summary>
-        /// <returns>The canonical URL.</returns>
+        /// <returns>The redacted URL.</returns>
         public override string ToString()
+        {
+            return BuildUrl(redact: true);
+        }
+
+        // internal methods
+        /// <summary>
+        /// Returns the canonical URL, including credentials and other sensitive values.
+        /// </summary>
+        internal string ToUnredactedString()
+        {
+            return BuildUrl(redact: false);
+        }
+
+        private string BuildUrl(bool redact)
         {
             StringBuilder url = new StringBuilder();
             if (_scheme == ConnectionStringScheme.MongoDB)
@@ -891,17 +911,17 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_username))
             {
-                url.Append(Uri.EscapeDataString(_username));
+                url.Append(redact ? RedactedMarker : Uri.EscapeDataString(_username));
                 if (_password != null)
                 {
-                    url.AppendFormat(":{0}", Uri.EscapeDataString(_password));
+                    url.AppendFormat(":{0}", redact ? RedactedMarker : Uri.EscapeDataString(_password));
                 }
                 url.Append("@");
             }
             else if (_password != null)
             {
                 // this would be weird and we really shouldn't be here...
-                url.AppendFormat(":{0}@", Uri.EscapeDataString(_password));
+                url.AppendFormat(":{0}@", redact ? RedactedMarker : Uri.EscapeDataString(_password));
             }
             if (_servers != null)
             {
@@ -935,7 +955,7 @@ namespace MongoDB.Driver
                 query.AppendFormat(
                     "authMechanismProperties={0}&",
                     string.Join(",", _authenticationMechanismProperties
-                        .Select(x => string.Format("{0}:{1}", Uri.EscapeDataString(x.Key), Uri.EscapeDataString(x.Value ?? ""))).ToArray()));
+                        .Select(x => string.Format("{0}:{1}", Uri.EscapeDataString(x.Key), redact ? RedactedMarker : Uri.EscapeDataString(x.Value ?? ""))).ToArray()));
             }
             if (_authenticationSource != null)
             {
@@ -1122,11 +1142,11 @@ namespace MongoDB.Driver
             }
             if (!string.IsNullOrEmpty(_proxyUsername))
             {
-                query.AppendFormat("proxyUsername={0}&", Uri.EscapeDataString(_proxyUsername));
+                query.AppendFormat("proxyUsername={0}&", redact ? RedactedMarker : Uri.EscapeDataString(_proxyUsername));
             }
             if (!string.IsNullOrEmpty(_proxyPassword))
             {
-                query.AppendFormat("proxyPassword={0}&", Uri.EscapeDataString(_proxyPassword));
+                query.AppendFormat("proxyPassword={0}&", redact ? RedactedMarker : Uri.EscapeDataString(_proxyPassword));
             }
             if (_srvMaxHosts.HasValue)
             {

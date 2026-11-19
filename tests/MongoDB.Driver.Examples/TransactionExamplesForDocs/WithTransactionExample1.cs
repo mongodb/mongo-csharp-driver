@@ -31,7 +31,7 @@ namespace MongoDB.Driver.Examples.TransactionExamplesForDocs
         {
             RequireServer.Check().ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
 
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = CoreTestConfiguration.UnredactedConnectionString;
             DropCollections(
                 connectionString,
                 CollectionNamespace.FromFullName("mydb1.foo"),

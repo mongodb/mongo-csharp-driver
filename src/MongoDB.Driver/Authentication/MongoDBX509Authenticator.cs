@@ -119,7 +119,7 @@ namespace MongoDB.Driver.Authentication
 
         private MongoAuthenticationException CreateException(IConnection connection, Exception ex)
         {
-            var message = $"Unable to authenticate username '{_username}' using protocol '{Name}'.";
+            var message = $"Unable to authenticate using protocol '{Name}'.";
             return new MongoAuthenticationException(connection.ConnectionId, message, ex);
         }
     }

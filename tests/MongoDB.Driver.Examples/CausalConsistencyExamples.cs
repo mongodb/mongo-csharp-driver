@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Examples
             DropCollection(CreateClient(), "myDatabase", "myCollection");
 
             // Start Tunable Consistency Controls Example
-            var settings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var settings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             settings.ReadPreference = ReadPreference.SecondaryPreferred;
 
             var client = new MongoClient(settings);
@@ -150,7 +150,7 @@ namespace MongoDB.Driver.Examples
 
         private IMongoClient CreateClient()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = CoreTestConfiguration.UnredactedConnectionString;
             return new MongoClient(connectionString);
         }
 

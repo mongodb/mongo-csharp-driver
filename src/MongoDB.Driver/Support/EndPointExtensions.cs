@@ -18,11 +18,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using MongoDB.Driver.Core.Misc;
 
 namespace MongoDB.Driver.Support;
 
 internal static class EndPointExtensions
 {
+    public static EndPoint ToEndPoint(this MongoServerAddress address)
+        => EndPointHelper.Parse($"{address.Host}:{address.Port}");
+
     public static IEnumerable<MongoServerAddress> ToMongoServerAddresses(this IEnumerable<EndPoint> endPoints)
         => endPoints.Select(ToMongoServerAddress);
 

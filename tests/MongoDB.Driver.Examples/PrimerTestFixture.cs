@@ -43,7 +43,7 @@ namespace MongoDB.Driver.Examples
 
         private static bool OneTimeSetup()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = CoreTestConfiguration.UnredactedConnectionString;
             __client = new MongoClient(connectionString);
             __database = __client.GetDatabase("test");
             LoadDataSetFromResource();

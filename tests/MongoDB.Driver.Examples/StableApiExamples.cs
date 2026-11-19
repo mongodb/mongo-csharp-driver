@@ -74,7 +74,7 @@ namespace MongoDB.Driver.Examples
         public void StableAPI_Strict_Migration_Example()
         {
             var serverApi = new ServerApi(ServerApiVersion.V1, strict: true);
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var mongoClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             mongoClientSettings.ServerApi = serverApi;
             var mongoClient = new MongoClient(mongoClientSettings);
             var database = mongoClient.GetDatabase("test");
