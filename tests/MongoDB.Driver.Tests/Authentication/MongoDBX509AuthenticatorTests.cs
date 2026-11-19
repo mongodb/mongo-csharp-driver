@@ -133,7 +133,7 @@ namespace MongoDB.Driver.Tests.Authentication
             [Values(false, true)]
             bool async)
         {
-            var subject = new MongoDBX509Authenticator("CN=client,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi: null);
+            var subject = new MongoDBX509Authenticator("CN=SECRET123,OU=kerneluser,O=10Gen,L=New York City,ST=New York,C=US", serverApi: null);
 
             var response = MessageHelper.BuildCommandResponse(RawBsonDocumentHelper.FromJson("{ }"));
             var connection = new MockConnection(__serverId);
@@ -145,6 +145,9 @@ namespace MongoDB.Driver.Tests.Authentication
                 Record.Exception(() => subject.Authenticate(OperationContext.NoTimeout, connection, __descriptionCommandWireProtocol));
 
             exception.Should().BeOfType<MongoAuthenticationException>();
+            exception.Message.Should().Contain("MONGODB-X509");
+            exception.Message.Should().NotContainEquivalentOf("SECRET123");
+            exception.Message.Should().NotContainEquivalentOf("kerneluser");
         }
 
         [Theory]

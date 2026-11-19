@@ -256,6 +256,50 @@ namespace MongoDB.Driver.Tests
             Assert.Throws<InvalidOperationException>(() => { settings.Compressors = compressors; });
         }
 
+        [Fact]
+        public void ToString_should_not_contain_server_host_or_port()
+        {
+            var settings = new MongoClientSettings
+            {
+                Servers = [new MongoServerAddress("SECREThost1.example.com", 31337), new MongoServerAddress("SECREThost2.example.com", 31338)]
+            };
+
+            var result = settings.ToString();
+
+            result.Should().NotContainEquivalentOf("SECREThost");
+            result.Should().NotContain("3133");
+        }
+
+        [Theory]
+        [InlineData("true", true)]
+        [InlineData("false", false)]
+        [InlineData("TRUE", true)]
+        public void FromConnectionString_should_parse_CANONICALIZE_HOST_NAME(string value, bool expectedValue)
+        {
+            var settings = MongoClientSettings.FromConnectionString(
+                $"mongodb://user@localhost/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOST_NAME:{value}");
+
+            settings.Credential.GetMechanismProperty<bool>("CANONICALIZE_HOST_NAME", !expectedValue).Should().Be(expectedValue);
+        }
+
+        [Theory]
+        [InlineData("SECRETvalue")]
+        [InlineData("yes")]
+        [InlineData("")]
+        public void FromConnectionString_should_not_expose_an_invalid_CANONICALIZE_HOST_NAME_value(string value)
+        {
+            var exception = Record.Exception(() => MongoClientSettings.FromConnectionString(
+                $"mongodb://user@localhost/?authMechanism=GSSAPI&authMechanismProperties=CANONICALIZE_HOST_NAME:{value}"));
+
+            var configurationException = exception.Should().BeOfType<MongoConfigurationException>().Subject;
+            configurationException.Message.Should().Be("CANONICALIZE_HOST_NAME has an invalid value.");
+            configurationException.InnerException.Should().BeNull();
+            if (value.Length > 0)
+            {
+                configurationException.ToString().Should().NotContainEquivalentOf(value);
+            }
+        }
+
         [Theory]
         [InlineData(new[] {CompressorType.Snappy}, "Compressors=[snappy]")]
         [InlineData(new[] {CompressorType.Zlib}, "Compressors=[zlib]")]

@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "evil.attacker.com\uff0f.example.com"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because U+FF0F (fullwidth solidus) maps to '/' when converted to an A-label, and '/' is not allowed in a label. Drivers that reject the character during conversion also satisfy this test."

@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "evil%2Eattacker%2Ecom.example.com"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because '%' is not allowed in a label. Drivers that percent-decode seeds would otherwise connect to evil.attacker.com.example.com."

@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "evil.attacker.com,x.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because ',' is not allowed in a label, even though the host name ends with the SRV domain. A driver that joins validated hosts into a mongodb:// URI and parses it again sees two hosts, evil.attacker.com and x.example.com."
+}

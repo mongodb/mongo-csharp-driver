@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "evil.attacker.com,evil2.attacker.com,x.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because ',' is not allowed in a label. Re-parsing would produce three hosts, two of them outside the SRV domain."
+}

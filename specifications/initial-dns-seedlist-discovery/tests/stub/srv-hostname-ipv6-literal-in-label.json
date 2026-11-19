@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "[::1].example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because '[', ']' and ':' are not allowed in a label, even though the host name ends with the SRV domain."
+}

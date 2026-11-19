@@ -20,6 +20,7 @@ using System.Net;
 using System.Security;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Oidc;
+using MongoDB.Driver.Authentication.Plain;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -358,10 +359,7 @@ namespace MongoDB.Driver
         /// Returns a string representation of the credential.
         /// </summary>
         /// <returns>A string representation of the credential.</returns>
-        public override string ToString()
-        {
-            return string.Format("{0}@{1}", _identity.Username, _identity.Source);
-        }
+        public override string ToString() => "MongoCredential";
 
         /// <summary>
         /// Creates a new MongoCredential with the specified mechanism property.
@@ -422,11 +420,11 @@ namespace MongoDB.Driver
         }
 
         // private static methods
-        private static void EnsureNullOrExternalSource(string mechanism, string source)
+        private static void EnsureNullOrExternalSource(string source)
         {
             if (source != null && source != "$external")
             {
-                throw new ArgumentException($"A {mechanism} source must be $external.", nameof(source));
+                throw new ArgumentException("The source must be $external.", nameof(source));
             }
         }
 
@@ -442,7 +440,7 @@ namespace MongoDB.Driver
                     source = source ?? databaseName ?? "admin";
                     if (evidence == null || !(evidence is PasswordEvidence))
                     {
-                        var message = string.Format("A {0} credential must have a password.", defaultedMechanism);
+                        var message = "Credential must have a password.";
                         throw new ArgumentException(message);
                     }
 
@@ -452,7 +450,7 @@ namespace MongoDB.Driver
                         evidence);
                 case "MONGODB-AWS":
                     // MUST be "$external". Defaults to $external.
-                    EnsureNullOrExternalSource(mechanism, source);
+                    EnsureNullOrExternalSource(source);
                     if (username == null)
                     {
                         if (evidence is PasswordEvidence)
@@ -477,7 +475,7 @@ namespace MongoDB.Driver
                 case "MONGODB-OIDC":
                     {
                         // MUST be "$external". Defaults to $external.
-                        EnsureNullOrExternalSource(mechanism, source);
+                        EnsureNullOrExternalSource(source);
 
                         if (evidence is not ExternalEvidence)
                         {
@@ -492,7 +490,7 @@ namespace MongoDB.Driver
                     }
                 case "MONGODB-X509":
                     // MUST be "$external". Defaults to $external.
-                    EnsureNullOrExternalSource(mechanism, source);
+                    EnsureNullOrExternalSource(source);
                     if (evidence == null || !(evidence is ExternalEvidence))
                     {
                         throw new ArgumentException("A MONGODB-X509 does not support a password.");
@@ -504,18 +502,20 @@ namespace MongoDB.Driver
                         evidence);
                 case "GSSAPI":
                     // MUST be "$external". Defaults to $external.
-                    EnsureNullOrExternalSource(mechanism, source);
+                    EnsureNullOrExternalSource(source);
 
                     return new MongoCredential(
                         mechanism,
                         new MongoExternalIdentity(username),
                         evidence);
                 case "PLAIN":
-                    source = source ?? databaseName ?? "$external";
-                    if (evidence == null || !(evidence is PasswordEvidence))
+                    source ??= databaseName ?? "$external";
+                    if (evidence == null || evidence is not PasswordEvidence passwordEvidence)
                     {
                         throw new ArgumentException("A PLAIN credential must have a password.");
                     }
+
+                    PlainSaslMechanism.EnsureNoNulCharacters(username, passwordEvidence.ToInsecureString());
 
                     MongoIdentity identity;
                     if (source == "$external")
@@ -530,9 +530,9 @@ namespace MongoDB.Driver
                     return new MongoCredential(
                         mechanism,
                         identity,
-                        evidence);
+                        passwordEvidence);
                 default:
-                    throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationMechanism {0}.", mechanism));
+                    throw new NotSupportedException("Unsupported MongoAuthenticationMechanism.");
             }
         }
     }

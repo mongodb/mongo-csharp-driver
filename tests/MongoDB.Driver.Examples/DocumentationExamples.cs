@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Examples
 
         public DocumentationExamples()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = CoreTestConfiguration.UnredactedConnectionString;
             client = new MongoClient(connectionString);
             database = client.GetDatabase("test");
             collection = database.GetCollection<BsonDocument>("inventory");

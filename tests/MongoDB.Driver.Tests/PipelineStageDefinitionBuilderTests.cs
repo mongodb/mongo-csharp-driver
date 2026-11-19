@@ -303,7 +303,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var client = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
             var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
 
             var lookupPipeline = new EmptyPipelineDefinition<BsonDocument>()
@@ -362,7 +362,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var client = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
             var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>("warehouses");
 
             var lookupPipeline = new EmptyPipelineDefinition<BsonDocument>();
@@ -519,7 +519,7 @@ namespace MongoDB.Driver.Tests
         {
             RequireServer.Check();
 
-            var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+            var client = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
             var warehousesCollection = client.GetDatabase("test").GetCollection<Warehouse>("warehouses");
 
             var lookupPipeline = new EmptyPipelineDefinition<Warehouse>()
@@ -591,7 +591,7 @@ namespace MongoDB.Driver.Tests
 
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+                var client = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
                 var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>(warehousesCollectionName);
                 PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
                     warehousesCollection,
@@ -603,7 +603,7 @@ namespace MongoDB.Driver.Tests
 
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var client = new MongoClient(CoreTestConfiguration.ConnectionString.ToString());
+                var client = new MongoClient(CoreTestConfiguration.UnredactedConnectionString);
                 var warehousesCollection = client.GetDatabase("test").GetCollection<BsonDocument>(warehousesCollectionName);
                 PipelineStageDefinitionBuilder.Lookup<BsonDocument, BsonDocument, BsonDocument, IEnumerable<BsonDocument>, BsonDocument>(
                     warehousesCollection,

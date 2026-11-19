@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "evil.attacker.com\u0000.example.com"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because a NUL byte is not allowed in a label, even though the host name ends with the SRV domain. Drivers using C strings may truncate at the NUL."

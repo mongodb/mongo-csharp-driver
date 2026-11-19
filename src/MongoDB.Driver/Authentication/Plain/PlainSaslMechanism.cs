@@ -35,10 +35,14 @@ namespace MongoDB.Driver.Authentication.Plain
             UsernamePasswordCredential credential;
             if (context.IdentityEvidence is PasswordEvidence passwordEvidence)
             {
+                var password = passwordEvidence.ToInsecureString();
+
+                EnsureNoNulCharacters(context.Identity.Username, password);
+
                 credential = new UsernamePasswordCredential(
                     context.Identity.Source,
                     context.Identity.Username,
-                    passwordEvidence.ToInsecureString());
+                    password);
             }
             else
             {
@@ -79,6 +83,14 @@ namespace MongoDB.Driver.Authentication.Plain
         {
             nextStep = null;
             return false;
+        }
+
+        internal static void EnsureNoNulCharacters(string username, string password)
+        {
+            if (StringUtilities.ContainsNul(username) || StringUtilities.ContainsNul(password))
+            {
+                throw new ArgumentException("PLAIN authentication username/password cannot contain NUL characters.");
+            }
         }
     }
 }

@@ -66,6 +66,18 @@ namespace MongoDB.Driver.Core.Misc
             act.ShouldThrow<ArgumentException>();
         }
 
+        [Theory]
+        [InlineData("SECREThost:abc")]
+        [InlineData("SECREThost:1:2")]
+        [InlineData("SECREThost:99999999999")]
+        public void Parse_should_not_expose_the_value_when_it_is_not_a_valid_end_point(string value)
+        {
+            var exception = Record.Exception(() => EndPointHelper.Parse(value));
+
+            var argumentException = exception.Should().BeAssignableTo<ArgumentException>().Subject;
+            argumentException.ToString().Should().NotContainEquivalentOf("SECRET");
+        }
+
         [Fact]
         public void ToString_should_return_expected_result_when_value_is_a_DnsEndPoint()
         {

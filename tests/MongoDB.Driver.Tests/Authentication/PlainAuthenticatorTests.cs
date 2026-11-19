@@ -178,6 +178,58 @@ namespace MongoDB.Driver.Tests.Authentication
             sentMessages[0].Should().Be($"{{ opcode : \"opmsg\", requestId : {actualRequestId}, responseTo : 0, sections : [ {{ payloadType : 0, document : {{ saslStart : 1, mechanism : \"PLAIN\", payload : new BinData(0, \"AHVzZXIAcGVuY2ls\"), $db : \"source\"{expectedEndString} }} }} ] }}");
         }
 
+        [Theory]
+        [InlineData("us\0er", "pencil")]
+        [InlineData("\0user", "pencil")]
+        [InlineData("user", "pen\0cil")]
+        [InlineData("user", "pencil\0")]
+        public void Create_should_throw_when_username_or_password_contains_nul(string username, string password)
+        {
+            var saslContext = new SaslContext
+            {
+                EndPoint = __serverId.EndPoint,
+                ClusterEndPoints = [__serverId.EndPoint],
+                Identity = new MongoExternalIdentity(TestUserSource, username),
+                IdentityEvidence = new PasswordEvidence(password),
+                Mechanism = "PLAIN",
+                MechanismProperties = null,
+            };
+
+            var exception = Record.Exception(() => PlainSaslMechanism.Create(saslContext));
+
+            exception.Should().BeOfType<ArgumentException>().Which.Message.Should().Contain("PLAIN authentication username/password cannot contain NUL characters.");
+        }
+
+        // Prose test "Driver rejects a PLAIN authentication credential with NUL character":
+        // credentials configured in code (not in a connection string) must be rejected driver-side.
+        [Theory]
+        [InlineData("user\0name", "password")]
+        [InlineData("username", "pass\0word")]
+        [InlineData("user\0name", "password")]
+        [InlineData("username", "\0")]
+        [InlineData("\0", "password")]
+        public void MongoCredential_CreatePlainCredential_containing_nul_should_throw(string username, string password)
+        {
+            var exception = Record.Exception(() => new MongoClientSettings
+            {
+                Credential = MongoCredential.CreatePlainCredential("$external", username, password)
+            });
+
+            exception.Should().BeOfType<ArgumentException>().Which.Message.Should().Contain("PLAIN authentication username/password cannot contain NUL characters.");
+        }
+
+        [Theory]
+        [InlineData("user\0name", "password")]
+        [InlineData("username", "pass\0word")]
+        public void MongoCredential_CreatePlainCredential_with_SecureString_password_containing_nul_should_throw(string username, string password)
+        {
+            var securePassword = SecureStringHelper.ToSecureString(password);
+
+            var exception = Record.Exception(() => MongoCredential.CreatePlainCredential("$external", username, securePassword));
+
+            exception.Should().BeOfType<ArgumentException>().Which.Message.Should().Contain("PLAIN authentication username/password cannot contain NUL characters.");
+        }
+
         private static IAuthenticator CreatePlainSaslAuthenticator(ServerApi serverApi)
         {
             var saslContext = new SaslContext

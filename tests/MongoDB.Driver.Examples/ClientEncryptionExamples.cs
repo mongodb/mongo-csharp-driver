@@ -54,7 +54,7 @@ namespace MongoDB.Driver.Examples
             var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
             var autoEncryptionOptions = new AutoEncryptionOptions(keyVaultNamespace, kmsProviders);
 
-            var mongoClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var mongoClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             mongoClientSettings.AutoEncryptionOptions = autoEncryptionOptions;
 
             var client = new MongoClient(mongoClientSettings);
@@ -81,7 +81,7 @@ namespace MongoDB.Driver.Examples
             kmsProviders.Add("local", localKey);
 
             var keyVaultNamespace = CollectionNamespace.FromFullName("encryption.__keyVault");
-            var keyVaultClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var keyVaultClientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             var keyVaultMongoClient = new MongoClient(keyVaultClientSettings);
             var clientEncryptionSettings = new ClientEncryptionOptions(
                 keyVaultMongoClient,
@@ -120,7 +120,7 @@ namespace MongoDB.Driver.Examples
                     { collectionNamespace.ToString(), BsonDocument.Parse(schemaMap) }
                 });
 
-            var clientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.ConnectionString.ToString());
+            var clientSettings = MongoClientSettings.FromConnectionString(CoreTestConfiguration.UnredactedConnectionString);
             clientSettings.AutoEncryptionOptions = autoEncryptionSettings;
 
             var client = new MongoClient(clientSettings);

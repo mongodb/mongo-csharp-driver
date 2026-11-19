@@ -157,6 +157,38 @@ namespace MongoDB.Driver.Tests
             Assert.Equal(10, withProperties.GetMechanismProperty<int>("OTHER", 0));
         }
 
+        [Fact]
+        public void ToString_should_not_contain_sensitive_information()
+        {
+            var credentials = new[]
+            {
+                MongoCredential.CreateCredential("SECRETsource", "SECRETuser", "SECRETpassword"),
+                MongoCredential.CreateCredential("SECRETsource", "SECRETuser", "SECRETpassword")
+                    .WithMechanismProperty("SECRETkey", "SECRETvalue"),
+                MongoCredential.CreatePlainCredential("$external", "SECRETuser", "SECRETpassword"),
+                MongoCredential.CreateGssapiCredential("SECRETuser", "SECRETpassword"),
+                MongoCredential.CreateMongoX509Credential("CN=SECRETuser,OU=SECRETunit"),
+                MongoCredential.CreateOidcCredential("azure", "SECRETuser")
+                    .WithMechanismProperty("TOKEN_RESOURCE", "SECRETresource")
+            };
+
+            foreach (var credential in credentials)
+            {
+                var result = credential.ToString();
+
+                result.Should().NotContainEquivalentOf("SECRET", because: $"{credential.Mechanism} credential must not expose any of its values");
+                result.Should().Be("MongoCredential");
+            }
+        }
+
+        [Fact]
+        public void MongoClientSettings_ToString_should_not_contain_credential_values()
+        {
+            var settings = MongoClientSettings.FromConnectionString("mongodb://SECRETuser:SECRETpassword@localhost/?authSource=SECRETsource");
+
+            settings.ToString().Should().NotContainEquivalentOf("SECRET");
+        }
+
         [Theory]
         [InlineData("mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb%3A%2F%2Ftest-cluster,ANOTHER:test")]
         [InlineData("mongodb+srv://<cluster>/?retryWrites=true&authMechanism=MONGODB-OIDC&authSource=%24external&authMechanismProperties=ENVIRONMENT:azure,prop:ab%2Ccd%2Cef%2Cjh,TOKEN_RESOURCE:mongodb://test-cluster,ANOTHER:test")]

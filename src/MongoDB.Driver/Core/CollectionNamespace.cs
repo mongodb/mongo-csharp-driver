@@ -14,10 +14,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -56,16 +52,8 @@ namespace MongoDB.Driver
         /// </summary>
         /// <param name="collectionName">The name of the collection.</param>
         /// <returns>Whether the specified collection name is valid.</returns>
-        public static bool IsValid(string collectionName)
-        {
-            if (string.IsNullOrWhiteSpace(collectionName))
-            {
-                return false;
-            }
-
-            var index = collectionName.IndexOf('\0');
-            return index == -1;
-        }
+        public static bool IsValid(string collectionName) =>
+            !string.IsNullOrWhiteSpace(collectionName) && !StringUtilities.ContainsNul(collectionName);
 
         // fields
         private readonly string _collectionName;

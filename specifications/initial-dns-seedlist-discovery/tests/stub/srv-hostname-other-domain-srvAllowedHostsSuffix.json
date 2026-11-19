@@ -1,0 +1,13 @@
+{
+  "uri": "mongodb+srv://cluster0.mongodb.net/?srvAllowedHostsSuffix=.mongodb.net",
+  "srvRecords": [
+    {
+      "target": "evil.attacker.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [],
+  "hosts": [],
+  "error": true,
+  "comment": "Should fail because the returned host name does not end with the allowed suffix."
+}

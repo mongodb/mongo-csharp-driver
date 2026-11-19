@@ -1,0 +1,15 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "a.b.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [
+    "a.b.example.com:27017"
+  ],
+  "hosts": [],
+  "ping": false,
+  "comment": "Should succeed: several extra labels under the SRV domain."
+}

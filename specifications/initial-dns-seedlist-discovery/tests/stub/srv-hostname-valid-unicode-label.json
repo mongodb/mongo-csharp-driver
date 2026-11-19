@@ -1,0 +1,15 @@
+{
+  "uri": "mongodb+srv://prod.example.com/",
+  "srvRecords": [
+    {
+      "target": "bücher.example.com",
+      "port": 27017
+    }
+  ],
+  "seeds": [
+    "xn--bcher-kva.example.com:27017"
+  ],
+  "hosts": [],
+  "ping": false,
+  "comment": "Should succeed: a label with a non-ASCII character is converted to its A-label (Punycode) form, and the seed is the converted host name."
+}

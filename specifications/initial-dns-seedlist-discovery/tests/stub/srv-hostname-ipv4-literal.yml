@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "1.2.3.4"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because the returned host name is an IPv4 address and does not share the SRV domain."

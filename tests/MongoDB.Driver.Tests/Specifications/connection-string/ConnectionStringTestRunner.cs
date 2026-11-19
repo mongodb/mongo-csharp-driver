@@ -219,7 +219,13 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
 
         private void AssertValid(ConnectionString connectionString, BsonDocument definition)
         {
-            if (!definition["valid"].ToBoolean())
+            // valid attribute is missed for credential-disclosure tests
+            if (!definition.TryGetValue("valid", out var validAttribute))
+            {
+                return;
+            }
+
+            if (!validAttribute.ToBoolean())
             {
                 throw new AssertionException($"The connection string '{definition["uri"]}' should be invalid.");
             }
@@ -253,8 +259,13 @@ namespace MongoDB.Driver.Tests.Specifications.connection_string
 
         private void AssertInvalid(Exception ex, BsonDocument definition)
         {
+            var exceptionString = ex.ToString();
+            exceptionString.Should().NotContainEquivalentOf("SENTINELpassword1234");
+            exceptionString.Should().NotContainEquivalentOf("%53%45%4E%54%49%4E%45%4C%70%61%73%73%77%6F%72%64%31%32%33%34");
+
             // we will assume warnings are allowed to be errors...
-            if (definition["valid"].ToBoolean() && !definition["warning"].ToBoolean())
+            // valid attribute is missed for credential-disclosure tests
+            if (definition.TryGetValue("valid", out var validAttributeValue) && validAttributeValue.ToBoolean() && !definition["warning"].ToBoolean())
             {
                 throw new AssertionException($"The connection string '{definition["uri"]}' should be valid.", ex);
             }
