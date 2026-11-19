@@ -86,6 +86,7 @@ namespace MongoDB.Driver
         private readonly TimeSpan _waitQueueTimeout;
         private readonly TimeSpan? _wTimeout;
         private readonly string _url;
+        private readonly string _redactedUrl;
         private readonly string _originalUrl;
 
         // constructors
@@ -149,7 +150,8 @@ namespace MongoDB.Driver
             _w = builder.W;
             _waitQueueTimeout = builder.WaitQueueTimeout;
             _wTimeout = builder.WTimeout;
-            _url = builder.ToString(); // keep canonical form
+            _url = builder.ToUnredactedString(); // keep canonical form
+            _redactedUrl = builder.ToString(); // built from the parsed components, never by transforming _url
         }
 
         // public properties
@@ -508,7 +510,8 @@ namespace MongoDB.Driver
         public bool TlsDisableCertificateRevocationCheck => _tlsDisableCertificateRevocationCheck;
 
         /// <summary>
-        /// Gets the URL (in canonical form).
+        /// Gets the URL (in canonical form). The result includes the username, password and other sensitive
+        /// values in clear text, so it must not be logged. Use <see cref="ToString"/> for a redacted representation.
         /// </summary>
         public string Url
         {
@@ -602,7 +605,7 @@ namespace MongoDB.Driver
                 if (!__cache.TryGetValue(url, out mongoUrl))
                 {
                     mongoUrl = new MongoUrl(url);
-                    var canonicalUrl = mongoUrl.ToString();
+                    var canonicalUrl = mongoUrl.Url;
                     if (canonicalUrl != url)
                     {
                         if (__cache.ContainsKey(canonicalUrl))
@@ -754,12 +757,14 @@ namespace MongoDB.Driver
         }
 
         /// <summary>
-        /// Returns the canonical URL based on the settings in this MongoUrlBuilder.
+        /// Returns a redacted representation of this URL. The username, the password and the values of
+        /// sensitive parameters are replaced with a fixed marker, so the result is suitable for logging
+        /// but is not a usable connection string. Use <see cref="Url"/> to get the canonical URL.
         /// </summary>
-        /// <returns>The canonical URL.</returns>
+        /// <returns>The redacted URL.</returns>
         public override string ToString()
         {
-            return _url;
+            return _redactedUrl;
         }
     }
 }

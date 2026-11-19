@@ -64,16 +64,12 @@ namespace MongoDB.Driver
         /// <returns>A new instance of MongoServerAddress initialized with values parsed from the string.</returns>
         public static MongoServerAddress Parse(string value)
         {
-            MongoServerAddress address;
-            if (TryParse(value, out address))
+            if (TryParse(value, out var address))
             {
                 return address;
             }
-            else
-            {
-                var message = string.Format("'{0}' is not a valid server address.", value);
-                throw new FormatException(message);
-            }
+
+            throw new FormatException("The server address is not valid.");
         }
 
         /// <summary>
@@ -108,7 +104,7 @@ namespace MongoDB.Driver
             Ensure.IsNotNull(host, nameof(host));
             if (!__hostRegex.IsMatch(host))
             {
-                throw new ArgumentException($"'{host}' is not a valid host.", nameof(host));
+                throw new ArgumentException("The host is not valid.", nameof(host));
             }
 
             return host;
@@ -191,11 +187,10 @@ namespace MongoDB.Driver
 
         /// <summary>
         /// Returns a string representation of the server address.
+        /// The host and the port are not included, because they may come from a connection string.
+        /// Use <see cref="Host"/> and <see cref="Port"/> to get them.
         /// </summary>
-        /// <returns>A string representation of the server address.</returns>
-        public override string ToString()
-        {
-            return string.Format("{0}:{1}", _host, _port);
-        }
+        /// <returns>A redacted string representation of the server address.</returns>
+        public override string ToString() => "MongoServerAddress";
     }
 }

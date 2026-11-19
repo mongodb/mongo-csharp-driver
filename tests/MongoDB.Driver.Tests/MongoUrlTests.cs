@@ -291,7 +291,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(TimeSpan.FromSeconds(8), url.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), url.WTimeout);
 
-                Assert.Equal(connectionString, url.ToString());
+                Assert.Equal(connectionString, url.Url);
             }
         }
 
@@ -328,7 +328,7 @@ namespace MongoDB.Driver.Tests
             var url = new MongoUrl(value);
 
             url.ReadPreference.MaxStaleness.Should().NotHaveValue();
-            url.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
+            url.Url.Should().Be("mongodb://localhost/?readPreference=secondary");
         }
 
         [Fact]
@@ -355,7 +355,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = subject.Resolve();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.Url);
         }
 
         [Fact]
@@ -370,7 +370,7 @@ namespace MongoDB.Driver.Tests
 
             var resolved = await subject.ResolveAsync();
 
-            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.ToString());
+            Assert.Equal("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc/funny?authSource=thisDB&tls=true&replicaSet=rs0", resolved.Url);
         }
 
         [Fact]
@@ -450,7 +450,7 @@ namespace MongoDB.Driver.Tests
         [Fact]
         public void Create_should_distinguish_an_injected_setting_from_a_genuine_one()
         {
-            var injectedUrl = new MongoUrlBuilder("mongodb://localhost") { ApplicationName = "app&replicaSet=rs0" }.ToString();
+            var injectedUrl = new MongoUrlBuilder("mongodb://localhost") { ApplicationName = "app&replicaSet=rs0" }.ToUnredactedString();
 
             var injected = MongoUrl.Create(injectedUrl);
             var genuine = MongoUrl.Create("mongodb://localhost/?appname=app&replicaSet=rs0");
@@ -468,6 +468,19 @@ namespace MongoDB.Driver.Tests
         {
             yield return built.ToMongoUrl();
             yield return new MongoUrl(connectionString);
+        }
+
+        [Fact]
+        public void ToString_should_redact_credentials_but_Url_and_equality_should_not()
+        {
+            var url1 = new MongoUrl("mongodb://SECRETuser:SECRETpass1@db.internal/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:SECRETtoken");
+            var url2 = new MongoUrl("mongodb://SECRETuser:SECRETpass2@db.internal/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:SECRETtoken");
+
+            url1.ToString().Should().NotContainEquivalentOf("SECRET");
+            url1.ToString().Should().Be(url2.ToString()); // redacted forms are identical...
+            url1.Url.Should().Contain("SECRETpass1");
+            url1.Equals(url2).Should().BeFalse(); // ...but equality and hashing use the real canonical URL
+            MongoUrl.Create(url1.Url).Should().NotBeSameAs(MongoUrl.Create(url2.Url));
         }
     }
 }

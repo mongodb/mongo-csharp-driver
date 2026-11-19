@@ -29,6 +29,7 @@ using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -165,7 +166,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
             settings.ApplicationName = appName;
             settings.ServerSelectionTimeout = TimeSpan.FromSeconds(5);
 
-            var failPointServerSelector = new EndPointServerSelector(EndPointHelper.Parse(serverAddress.ToString()));
+            var failPointServerSelector = new EndPointServerSelector(serverAddress.ToEndPoint());
             using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
             using var client = DriverTestConfiguration.CreateMongoClient(settings);
 
@@ -275,7 +276,7 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring
                 eventsWaitTimeout);
             eventCapturer.Clear();
 
-            var failPointServerSelector = new EndPointServerSelector(EndPointHelper.Parse(serverAddress.ToString()));
+            var failPointServerSelector = new EndPointServerSelector(serverAddress.ToEndPoint());
             using var failPoint = FailPoint.Configure(failPointServerSelector, failPointCommand);
 
             eventCapturer.WaitForEventOrThrowIfTimeout<ConnectionPoolReadyEvent>(eventsWaitTimeout);

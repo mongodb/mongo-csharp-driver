@@ -23,6 +23,7 @@ using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
+using MongoDB.Driver.Support;
 
 namespace MongoDB.Driver
 {
@@ -87,7 +88,7 @@ namespace MongoDB.Driver
 
         private ClusterSettings ConfigureCluster(ClusterSettings settings, ClusterKey clusterKey)
         {
-            var endPoints = clusterKey.Servers.Select(s => EndPointHelper.Parse(s.ToString()));
+            var endPoints = clusterKey.Servers.Select(s => s.ToEndPoint());
             return settings.With(
                 directConnection: clusterKey.DirectConnection,
                 cryptClientSettings: clusterKey.CryptClientSettings,

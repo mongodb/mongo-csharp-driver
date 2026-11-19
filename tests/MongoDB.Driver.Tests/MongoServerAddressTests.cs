@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using FluentAssertions;
 using MongoDB.Driver;
 using Xunit;
 
@@ -65,7 +66,7 @@ namespace MongoDB.Driver.Tests
         {
             var exception = Record.Exception(() => new MongoServerAddress(host));
 
-            Assert.IsType<ArgumentException>(exception);
+            AssertInvalidHostException(exception, host);
         }
 
         [Theory]
@@ -74,7 +75,7 @@ namespace MongoDB.Driver.Tests
         {
             var exception = Record.Exception(() => new MongoServerAddress(host, 27017));
 
-            Assert.IsType<ArgumentException>(exception);
+            AssertInvalidHostException(exception, host);
         }
 
         [Theory]
@@ -161,8 +162,36 @@ namespace MongoDB.Driver.Tests
             var expection = Record.Exception(() => MongoServerAddress.Parse(value));
 
             Assert.IsType<FormatException>(expection);
-            var expectedMessage = string.Format("'{0}' is not a valid server address.", value);
-            Assert.Equal(expectedMessage, expection.Message);
+            expection.Message.Should().Be("The server address is not valid.");
+        }
+
+        [Theory]
+        [InlineData("SECREThost.example.com", 27017)]
+        [InlineData("SECREThost.example.com", 31337)]
+        [InlineData("192.168.0.1", 27017)]
+        [InlineData("[2001:0db8:85a3:0042:0000:8a2e:0370:7334]", 27018)]
+        public void ToString_should_not_contain_host_or_port(string host, int port)
+        {
+            var address = new MongoServerAddress(host, port);
+
+            var result = address.ToString();
+
+            result.Should().NotContainEquivalentOf(host);
+            result.Should().NotContain(port.ToString());
+            result.Should().Be("MongoServerAddress");
+        }
+
+        // private methods
+        private static void AssertInvalidHostException(Exception exception, string host)
+        {
+            var argumentException = Assert.IsType<ArgumentException>(exception);
+            // the message is followed by the parameter name, in a runtime specific format
+            Assert.StartsWith("The host is not valid.", argumentException.Message);
+            Assert.Equal("host", argumentException.ParamName);
+            if (host.Length > 0)
+            {
+                Assert.DoesNotContain(host, argumentException.ToString(), StringComparison.OrdinalIgnoreCase);
+            }
         }
     }
 }
