@@ -33,7 +33,7 @@ public sealed class NetworkBuilder
     {
         Compressors = Array.Empty<CompressorConfiguration>();
         ConnectTimeout = MongoDefaults.ConnectTimeout;
-        SocketTimeout = MongoDefaults.SocketTimeout;
+        SocketTimeout = MongoDefaults.SocketTimeout != TimeSpan.Zero ? MongoDefaults.SocketTimeout : Timeout.InfiniteTimeSpan;
     }
 
     /// <summary>
