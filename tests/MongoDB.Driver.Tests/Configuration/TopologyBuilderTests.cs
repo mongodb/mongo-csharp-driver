@@ -21,11 +21,10 @@ using FluentAssertions;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
 using Xunit;
-using ClusterBuilder = MongoDB.Driver.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver.Tests.Configuration;
 
-public class ClusterBuilderTests
+public class TopologyBuilderTests
 {
     private static readonly EndPoint Host1 = new DnsEndPoint("host1", 27017);
     private static readonly EndPoint Host2 = new DnsEndPoint("host2", 27017);
@@ -34,7 +33,7 @@ public class ClusterBuilderTests
     [Fact]
     public void SrvAllowedHostsSuffix_should_default_to_null()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         subject.SrvAllowedHostsSuffix.Should().BeNull();
     }
@@ -45,7 +44,7 @@ public class ClusterBuilderTests
     [InlineData("sub.example.com")]
     public void SrvAllowedHostsSuffix_should_accept_valid_values(string value)
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         subject.SrvAllowedHostsSuffix = value;
 
@@ -55,7 +54,7 @@ public class ClusterBuilderTests
     [Fact]
     public void SrvAllowedHostsSuffix_should_accept_null_after_being_set()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]) { SrvAllowedHostsSuffix = "example.com" };
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]) { SrvAllowedHostsSuffix = "example.com" };
 
         subject.SrvAllowedHostsSuffix = null;
 
@@ -68,7 +67,7 @@ public class ClusterBuilderTests
     [InlineData("notallowedsingle")]
     public void SrvAllowedHostsSuffix_should_throw_for_invalid_values(string value)
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]) { SrvAllowedHostsSuffix = "example.com" };
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]) { SrvAllowedHostsSuffix = "example.com" };
 
         var exception = Record.Exception(() => subject.SrvAllowedHostsSuffix = value);
 
@@ -80,7 +79,7 @@ public class ClusterBuilderTests
     [Fact]
     public void Constructor_should_initialize_defaults()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         subject.DirectConnection.Should().BeFalse();
         subject.LoadBalanced.Should().BeFalse();
@@ -95,7 +94,7 @@ public class ClusterBuilderTests
     {
         var servers = new EndPoint[] { Host1, new IPEndPoint(IPAddress.Loopback, 27018) };
 
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, servers);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDBPlusSrv, servers);
 
         subject.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
         subject.Servers.Should().Equal(servers);
@@ -104,7 +103,7 @@ public class ClusterBuilderTests
     [Fact]
     public void Constructor_should_throw_when_servers_is_null()
     {
-        var exception = Record.Exception(() => new ClusterBuilder(ConnectionStringScheme.MongoDB, null));
+        var exception = Record.Exception(() => new TopologyBuilder(ConnectionStringScheme.MongoDB, null));
 
         exception.Should().BeOfType<ArgumentNullException>()
             .Subject.ParamName.Should().Be("servers");
@@ -113,7 +112,7 @@ public class ClusterBuilderTests
     [Fact]
     public void Target_properties_should_be_settable()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         subject.DirectConnection = true;
         subject.LoadBalanced = true;
@@ -127,7 +126,7 @@ public class ClusterBuilderTests
     [Fact]
     public void ReplicaSetName_should_throw_when_value_is_empty()
     {
-        var exception = Record.Exception(() => new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]) { ReplicaSetName = "" });
+        var exception = Record.Exception(() => new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]) { ReplicaSetName = "" });
 
         exception.Should().BeOfType<ArgumentException>()
             .Subject.ParamName.Should().Be("ReplicaSetName");
@@ -136,7 +135,7 @@ public class ClusterBuilderTests
     [Fact]
     public void SrvMaxHosts_should_throw_when_value_is_negative()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         var exception = Record.Exception(() => subject.SrvMaxHosts = -1);
 
@@ -147,7 +146,7 @@ public class ClusterBuilderTests
     [Fact]
     public void SrvServiceName_should_throw_when_value_is_empty()
     {
-        var subject = new ClusterBuilder(ConnectionStringScheme.MongoDB, [Host1]);
+        var subject = new TopologyBuilder(ConnectionStringScheme.MongoDB, [Host1]);
 
         var exception = Record.Exception(() => subject.SrvServiceName = "");
 
@@ -157,7 +156,7 @@ public class ClusterBuilderTests
 
     [Theory]
     [MemberData(nameof(ValidConfigurations))]
-    public void Validate_should_accept_valid_configuration(string description, Func<ClusterBuilder> create)
+    public void Validate_should_accept_valid_configuration(string description, Func<TopologyBuilder> create)
     {
         var subject = create();
 
@@ -180,7 +179,7 @@ public class ClusterBuilderTests
 
     [Theory]
     [MemberData(nameof(InvalidConfigurations))]
-    public void Validate_should_throw_for_invalid_configuration(string expectedMessage, Func<ClusterBuilder> create)
+    public void Validate_should_throw_for_invalid_configuration(string expectedMessage, Func<TopologyBuilder> create)
     {
         var subject = create();
 
@@ -192,18 +191,18 @@ public class ClusterBuilderTests
 
     public static IEnumerable<object[]> InvalidConfigurations =>
     [
-        ["At least one server must be specified", () => new ClusterBuilder(ConnectionStringScheme.MongoDB, [])],
+        ["At least one server must be specified", () => new TopologyBuilder(ConnectionStringScheme.MongoDB, [])],
         [
             "Servers must be specified as DnsEndPoint or IPEndPoint",
-            () => new ClusterBuilder(ConnectionStringScheme.MongoDB, [new UnixDomainSocketEndPoint("/tmp/mongodb.sock")])
+            () => new TopologyBuilder(ConnectionStringScheme.MongoDB, [new UnixDomainSocketEndPoint("/tmp/mongodb.sock")])
         ],
         [
             "Only 1 host is allowed when using the mongodb+srv scheme",
-            () => new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost, new DnsEndPoint("cluster1.example.com", 53)])
+            () => new TopologyBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost, new DnsEndPoint("cluster1.example.com", 53)])
         ],
         [
             "must be a DNS name",
-            () => new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [new IPEndPoint(IPAddress.Loopback, 53)])
+            () => new TopologyBuilder(ConnectionStringScheme.MongoDBPlusSrv, [new IPEndPoint(IPAddress.Loopback, 53)])
         ],
         ["SRV cannot be used with direct connections", () => CreateSrv(b => b.DirectConnection = true)],
         [
@@ -254,19 +253,19 @@ public class ClusterBuilderTests
         ]
     ];
 
-    private static ClusterBuilder Create(Action<ClusterBuilder> configure = null)
+    private static TopologyBuilder Create(Action<TopologyBuilder> configure = null)
         => Create([Host1], configure);
 
-    private static ClusterBuilder Create(EndPoint[] servers, Action<ClusterBuilder> configure = null)
+    private static TopologyBuilder Create(EndPoint[] servers, Action<TopologyBuilder> configure = null)
     {
-        var builder = new ClusterBuilder(ConnectionStringScheme.MongoDB, servers);
+        var builder = new TopologyBuilder(ConnectionStringScheme.MongoDB, servers);
         configure?.Invoke(builder);
         return builder;
     }
 
-    private static ClusterBuilder CreateSrv(Action<ClusterBuilder> configure = null)
+    private static TopologyBuilder CreateSrv(Action<TopologyBuilder> configure = null)
     {
-        var builder = new ClusterBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost]);
+        var builder = new TopologyBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost]);
         configure?.Invoke(builder);
         return builder;
     }

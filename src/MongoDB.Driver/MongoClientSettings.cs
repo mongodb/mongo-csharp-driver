@@ -26,7 +26,6 @@ using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.Shared;
-using ClusterBuilder = MongoDB.Driver.Core.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver
 {
@@ -39,7 +38,7 @@ namespace MongoDB.Driver
         /// Extension Manager provides a way to configure extensions for the driver.
         /// </summary>
         [Obsolete("Use MongoClientBuilder.Extensions instead.")]
-        public static IExtensionManager Extensions => MongoClientBuilder.Extensions;
+        public static readonly IExtensionManager Extensions = MongoClientBuilder.Extensions;
 
         // private fields
         private bool _allowInsecureTls;

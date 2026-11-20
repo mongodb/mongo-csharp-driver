@@ -17,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
-using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +36,7 @@ public class MongoClientBuilderTests
         [nameof(MongoClientBuilder.Authentication), new Action<MongoClientBuilder>(b => b.Authentication(null))],
         [nameof(MongoClientBuilder.AutoEncryption), new Action<MongoClientBuilder>(b => b.AutoEncryption(null))],
         [nameof(MongoClientBuilder.ClientMetadata), new Action<MongoClientBuilder>(b => b.ClientMetadata(null))],
-        [nameof(MongoClientBuilder.Cluster), new Action<MongoClientBuilder>(b => b.Cluster(null))],
+        [nameof(MongoClientBuilder.Topology), new Action<MongoClientBuilder>(b => b.Topology(null))],
         [nameof(MongoClientBuilder.ConnectionPool), new Action<MongoClientBuilder>(b => b.ConnectionPool(null))],
         [nameof(MongoClientBuilder.Diagnostics), new Action<MongoClientBuilder>(b => b.Diagnostics(null))],
         [nameof(MongoClientBuilder.Network), new Action<MongoClientBuilder>(b => b.Network(null))],
@@ -140,9 +139,9 @@ public class MongoClientBuilderTests
         var subject = MongoClientBuilder.FromConnectionString(
             "mongodb://user:pass@host1,host2/?replicaSet=rs&tls=true&maxPoolSize=7&retryWrites=false&appName=app&heartbeatFrequencyMS=2000");
 
-        subject.Cluster().Servers.Should().Equal(new DnsEndPoint("host1", 27017), new DnsEndPoint("host2", 27017));
-        subject.Cluster().ReplicaSetName.Should().Be("rs");
-        subject.Cluster().Scheme.Should().Be(ConnectionStringScheme.MongoDB);
+        subject.Topology().Servers.Should().Equal(new DnsEndPoint("host1", 27017), new DnsEndPoint("host2", 27017));
+        subject.Topology().ReplicaSetName.Should().Be("rs");
+        subject.Topology().Scheme.Should().Be(ConnectionStringScheme.MongoDB);
         subject.Tls().Enabled.Should().BeTrue();
         subject.ConnectionPool().MaxSize.Should().Be(7);
         subject.Operations().RetryWrites.Should().BeFalse();
@@ -199,10 +198,10 @@ public class MongoClientBuilderTests
 
         var subject = MongoClientBuilder.FromConnectionString(connectionString);
 
-        var cluster = subject.Cluster();
-        cluster.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
-        cluster.Servers.Should().Equal(new DnsEndPoint("cluster0.example.com", ConnectionString.DefaultSrvPort));
-        cluster.ReplicaSetName.Should().Be("rs0");
+        var topology = subject.Topology();
+        topology.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
+        topology.Servers.Should().Equal(new DnsEndPoint("cluster0.example.com", ConnectionString.DefaultSrvPort));
+        topology.ReplicaSetName.Should().Be("rs0");
         subject.Tls().Enabled.Should().BeTrue();
         subject.ClientMetadata().ApplicationName.Should().Be("app");
         resolver.SrvQueries.Should().Be(0);
@@ -215,11 +214,11 @@ public class MongoClientBuilderTests
         var connectionString = new ConnectionString(
             "mongodb+srv://cluster0.example.com/?srvServiceName=custom&srvMaxHosts=2&srvAllowedHostsSuffix=.example.com", false, resolver);
 
-        var cluster = MongoClientBuilder.FromConnectionString(connectionString).Cluster();
+        var topology = MongoClientBuilder.FromConnectionString(connectionString).Topology();
 
-        cluster.SrvServiceName.Should().Be("custom");
-        cluster.SrvMaxHosts.Should().Be(2);
-        cluster.SrvAllowedHostsSuffix.Should().Be(".example.com");
+        topology.SrvServiceName.Should().Be("custom");
+        topology.SrvMaxHosts.Should().Be(2);
+        topology.SrvAllowedHostsSuffix.Should().Be(".example.com");
     }
 
     [Fact]
@@ -286,12 +285,12 @@ public class MongoClientBuilderTests
 
         var subject = MongoClientBuilder.FromEndPoint(endPoint);
 
-        var cluster = subject.Cluster();
-        cluster.Servers.Should().Equal(endPoint);
-        cluster.DirectConnection.Should().BeFalse();
-        cluster.LoadBalanced.Should().BeFalse();
-        cluster.ReplicaSetName.Should().BeNull();
-        cluster.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
+        var topology = subject.Topology();
+        topology.Servers.Should().Equal(endPoint);
+        topology.DirectConnection.Should().BeFalse();
+        topology.LoadBalanced.Should().BeFalse();
+        topology.ReplicaSetName.Should().BeNull();
+        topology.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
     }
 
     [Theory]
@@ -301,7 +300,7 @@ public class MongoClientBuilderTests
     {
         var subject = MongoClientBuilder.FromEndPoint(endPoint);
 
-        subject.Cluster().Servers.Should().Equal(new DnsEndPoint(expectedHost, expectedPort));
+        subject.Topology().Servers.Should().Equal(new DnsEndPoint(expectedHost, expectedPort));
     }
 
     [Theory]
@@ -323,12 +322,12 @@ public class MongoClientBuilderTests
 
         var subject = MongoClientBuilder.FromEndPoints(endPoints);
 
-        var cluster = subject.Cluster();
-        cluster.Servers.Should().Equal(endPoints);
-        cluster.DirectConnection.Should().BeFalse();
-        cluster.LoadBalanced.Should().BeFalse();
-        cluster.ReplicaSetName.Should().BeNull();
-        cluster.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
+        var topology = subject.Topology();
+        topology.Servers.Should().Equal(endPoints);
+        topology.DirectConnection.Should().BeFalse();
+        topology.LoadBalanced.Should().BeFalse();
+        topology.ReplicaSetName.Should().BeNull();
+        topology.Scheme.Should().Be(ConnectionStringScheme.MongoDB);
     }
 
     [Fact]
@@ -338,7 +337,7 @@ public class MongoClientBuilderTests
 
         var subject = MongoClientBuilder.FromEndPoints(endPoints);
 
-        subject.Cluster().Servers.Should().Equal(endPoints);
+        subject.Topology().Servers.Should().Equal(endPoints);
     }
 
     [Fact]
@@ -346,7 +345,7 @@ public class MongoClientBuilderTests
     {
         var subject = MongoClientBuilder.FromEndPoints(["host1", "HOST2:27018", "[::1]:27019"]);
 
-        subject.Cluster().Servers.Should().Equal(
+        subject.Topology().Servers.Should().Equal(
             new DnsEndPoint("host1", 27017),
             new DnsEndPoint("host2", 27018),
             new IPEndPoint(IPAddress.IPv6Loopback, 27019));
@@ -374,21 +373,21 @@ public class MongoClientBuilderTests
     {
         var subject = MongoClientBuilder.FromSrv("Cluster0.Example.com");
 
-        var cluster = subject.Cluster();
-        cluster.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
-        cluster.Servers.Should().Equal(new DnsEndPoint("cluster0.example.com", ConnectionString.DefaultSrvPort));
-        cluster.DirectConnection.Should().BeFalse();
-        cluster.LoadBalanced.Should().BeFalse();
-        cluster.ReplicaSetName.Should().BeNull();
+        var topology = subject.Topology();
+        topology.Scheme.Should().Be(ConnectionStringScheme.MongoDBPlusSrv);
+        topology.Servers.Should().Equal(new DnsEndPoint("cluster0.example.com", ConnectionString.DefaultSrvPort));
+        topology.DirectConnection.Should().BeFalse();
+        topology.LoadBalanced.Should().BeFalse();
+        topology.ReplicaSetName.Should().BeNull();
     }
 
     [Fact]
     public void FromSrv_should_allow_srv_options_to_be_set()
     {
         var subject = MongoClientBuilder.FromSrv("cluster0.example.com")
-            .Cluster(cluster => cluster.SrvMaxHosts = 3);
+            .Topology(topology => topology.SrvMaxHosts = 3);
 
-        subject.Cluster().SrvMaxHosts.Should().Be(3);
+        subject.Topology().SrvMaxHosts.Should().Be(3);
     }
 
     [Theory]
@@ -435,8 +434,8 @@ public class MongoClientBuilderTests
     public void Build_should_throw_when_settings_are_invalid()
     {
         var subject = MongoClientBuilder.FromEndPoint("localhost:27017")
-            .Cluster(cluster => cluster.LoadBalanced = true)
-            .Cluster(cluster => cluster.DirectConnection = true);
+            .Topology(topology => topology.LoadBalanced = true)
+            .Topology(topology => topology.DirectConnection = true);
 
         var exception = Record.Exception(() => subject.Build());
 
@@ -511,9 +510,9 @@ public class MongoClientBuilderTests
                 metadata.ApplicationName = "app";
                 metadata.LibraryInfo = libraryInfo;
             })
-            .Cluster(cluster =>
+            .Topology(topology =>
             {
-                cluster.ReplicaSetName = "rs";
+                topology.ReplicaSetName = "rs";
             })
             .ConnectionPool(pool =>
             {
@@ -592,10 +591,10 @@ public class MongoClientBuilderTests
     public void ToMongoClientSettings_should_map_direct_connection_and_load_balanced()
     {
         var direct = MongoClientBuilder.FromEndPoint("host1")
-            .Cluster(cluster => cluster.DirectConnection = true)
+            .Topology(topology => topology.DirectConnection = true)
             .ToMongoClientSettings();
         var loadBalanced = MongoClientBuilder.FromEndPoint("host1")
-            .Cluster(cluster => cluster.LoadBalanced = true)
+            .Topology(topology => topology.LoadBalanced = true)
             .ToMongoClientSettings();
 
         direct.DirectConnection.Should().BeTrue();
@@ -606,11 +605,11 @@ public class MongoClientBuilderTests
     public void ToMongoClientSettings_should_map_srv_options()
     {
         var subject = MongoClientBuilder.FromSrv("cluster0.example.com")
-            .Cluster(cluster =>
+            .Topology(topology =>
             {
-                cluster.SrvAllowedHostsSuffix = ".example.com";
-                cluster.SrvMaxHosts = 2;
-                cluster.SrvServiceName = "custom";
+                topology.SrvAllowedHostsSuffix = ".example.com";
+                topology.SrvMaxHosts = 2;
+                topology.SrvServiceName = "custom";
             });
 
         var result = subject.ToMongoClientSettings();
@@ -801,10 +800,10 @@ public class MongoClientBuilderTests
         ],
         [
             "Load balanced mode cannot be used with direct connection",
-            () => MongoClientBuilder.FromEndPoint("host1").Cluster(cluster =>
+            () => MongoClientBuilder.FromEndPoint("host1").Topology(topology =>
             {
-                cluster.LoadBalanced = true;
-                cluster.DirectConnection = true;
+                topology.LoadBalanced = true;
+                topology.DirectConnection = true;
             })
         ],
         [
@@ -823,8 +822,8 @@ public class MongoClientBuilderTests
         var valid = new[]
         {
             MongoClientBuilder.FromEndPoint("host1"),
-            MongoClientBuilder.FromEndPoints(["host1", "host2"]).Cluster(cluster => cluster.ReplicaSetName = "rs"),
-            MongoClientBuilder.FromSrv("cluster0.example.com").Cluster(cluster => cluster.SrvMaxHosts = 2),
+            MongoClientBuilder.FromEndPoints(["host1", "host2"]).Topology(topology => topology.ReplicaSetName = "rs"),
+            MongoClientBuilder.FromSrv("cluster0.example.com").Topology(topology => topology.SrvMaxHosts = 2),
             MongoClientBuilder.FromEndPoint("host1").Tls(tls => tls.Enabled = true).Authentication(a => a.UseX509Credential())
         };
 

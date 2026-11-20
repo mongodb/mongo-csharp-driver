@@ -57,7 +57,7 @@ namespace MongoDB.Driver.Tests
                 .Build();
         }
 
-        // The servers are chosen by the factory method, the topology hints are set on the cluster section.
+        // The servers are chosen by the factory method, the topology hints are set on the topology section.
         public void ChoosingTheTarget()
         {
             // A single seed, the topology is discovered (standalone server, replica set or sharded cluster).
@@ -66,16 +66,16 @@ namespace MongoDB.Driver.Tests
             MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com:27018"]);
             // Replica set: the name is verified.
             MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com"])
-                .Cluster(cluster => cluster.ReplicaSetName = "rs0");
+                .Topology(topology => topology.ReplicaSetName = "rs0");
             // A single server, without topology discovery.
             MongoClientBuilder.FromEndPoint("localhost:27017")
-                .Cluster(cluster => cluster.DirectConnection = true);
+                .Topology(topology => topology.DirectConnection = true);
             // A load balancer in front of the deployment.
             MongoClientBuilder.FromEndPoint("lb.example.com")
-                .Cluster(cluster => cluster.LoadBalanced = true);
+                .Topology(topology => topology.LoadBalanced = true);
             // mongodb+srv, with SRV specific options.
             MongoClientBuilder.FromSrv("cluster0.example.mongodb.net")
-                .Cluster(cluster => cluster.SrvMaxHosts = 3);
+                .Topology(topology => topology.SrvMaxHosts = 3);
         }
 
         // Username / password authentication with the mechanism negotiated with the server
@@ -93,7 +93,7 @@ namespace MongoDB.Driver.Tests
         {
             return MongoClientBuilder
                 .FromSrv("cluster0.example.mongodb.net")
-                .Authentication(auth => auth.UseOidcCredential("azure", "my-client-id"))
+                .Authentication(auth => auth.UseOidcEnvironment("azure", "my-client-id"))
                 .Build();
         }
 
@@ -103,7 +103,7 @@ namespace MongoDB.Driver.Tests
         {
             return MongoClientBuilder
                 .FromSrv("cluster0.example.mongodb.net")
-                .Authentication(auth => auth.UseOidcCredential(new MyOidcCallback()))
+                .Authentication(auth => auth.UseOidcCallback(new MyOidcCallback()))
                 .Build();
         }
 
@@ -114,7 +114,7 @@ namespace MongoDB.Driver.Tests
         {
             var builder = MongoClientBuilder.FromEndPoints(["mongo-1.example.com", "mongo-2.example.com"]);
 
-            builder.Cluster().ReplicaSetName = "rs0";
+            builder.Topology().ReplicaSetName = "rs0";
             builder.Authentication().UseUsernamePassword("user", "pencil");
             builder.Operations().ReadPreference = ReadPreference.SecondaryPreferred;
 
@@ -214,7 +214,7 @@ namespace MongoDB.Driver.Tests
                     new DnsEndPoint("mongo-1.example.com", 27017),
                     new DnsEndPoint("mongo-2.example.com", 27017)
                 ])
-                .Cluster(cluster => cluster.ReplicaSetName = "rs0")
+                .Topology(topology => topology.ReplicaSetName = "rs0")
                 .ClientMetadata(metadata => metadata.ApplicationName = "orders-service")
                 .Authentication(auth => auth.UseUsernamePassword("user", "pencil"))
                 .Tls(tls => tls.Enabled = true)

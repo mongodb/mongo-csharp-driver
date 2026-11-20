@@ -33,7 +33,6 @@ using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
 using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
-using ClusterBuilder = MongoDB.Driver.Core.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver.Tests
 {

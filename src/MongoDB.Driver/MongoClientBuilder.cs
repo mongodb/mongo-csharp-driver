@@ -21,8 +21,6 @@ using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Configuration;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Misc;
-using ClusterBuilder = MongoDB.Driver.Configuration.ClusterBuilder;
-using CoreClusterBuilder = MongoDB.Driver.Core.Configuration.ClusterBuilder;
 
 namespace MongoDB.Driver;
 
@@ -43,7 +41,7 @@ public sealed class MongoClientBuilder
     private readonly AuthenticationBuilder _authenticationBuilder = new();
     private readonly AutoEncryptionBuilder _autoEncryptionBuilder = new();
     private readonly ClientMetadataBuilder _clientMetadataBuilder = new();
-    private readonly ClusterBuilder _clusterBuilder;
+    private readonly TopologyBuilder _topologyBuilder;
     private readonly ConnectionPoolBuilder _connectionPoolBuilder = new();
     private readonly DiagnosticsBuilder _diagnosticsBuilder = new();
     private readonly NetworkBuilder _networkBuilder = new();
@@ -52,9 +50,9 @@ public sealed class MongoClientBuilder
     private readonly TlsBuilder _tlsBuilder = new();
     private readonly TranslationBuilder _translationBuilder = new();
 
-    private MongoClientBuilder(ClusterBuilder clusterBuilder)
+    private MongoClientBuilder(TopologyBuilder topologyBuilder)
     {
-        _clusterBuilder = clusterBuilder;
+        _topologyBuilder = topologyBuilder;
     }
 
     /// <summary>
@@ -77,10 +75,10 @@ public sealed class MongoClientBuilder
 
         connectionString = connectionString.Resolve(resolveHosts: false);
 
-        var builder = new MongoClientBuilder(new ClusterBuilder(connectionString.Scheme, connectionString.Hosts));
+        var builder = new MongoClientBuilder(new TopologyBuilder(connectionString.Scheme, connectionString.Hosts));
         builder._authenticationBuilder.ApplyConnectionString(connectionString);
         builder._clientMetadataBuilder.ApplyConnectionString(connectionString);
-        builder._clusterBuilder.ApplyConnectionString(connectionString);
+        builder._topologyBuilder.ApplyConnectionString(connectionString);
         builder._connectionPoolBuilder.ApplyConnectionString(connectionString);
         builder._networkBuilder.ApplyConnectionString(connectionString);
         builder._operationsBuilder.ApplyConnectionString(connectionString);
@@ -105,7 +103,7 @@ public sealed class MongoClientBuilder
     /// <param name="endPoint">The seed end point.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoint(EndPoint endPoint)
-        => new(new ClusterBuilder(ConnectionStringScheme.MongoDB, [endPoint]));
+        => new(new TopologyBuilder(ConnectionStringScheme.MongoDB, [endPoint]));
 
     /// <summary>
     /// Creates a builder that discovers the topology starting from the given seed servers. Use it for
@@ -123,7 +121,11 @@ public sealed class MongoClientBuilder
     /// <param name="endPoints">The seed end points.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoints(IEnumerable<EndPoint> endPoints)
-        => new(new ClusterBuilder(ConnectionStringScheme.MongoDB, endPoints.ToArray()));
+    {
+        Ensure.IsNotNullOrEmpty(endPoints, nameof(endPoints));
+
+        return new MongoClientBuilder(new TopologyBuilder(ConnectionStringScheme.MongoDB, endPoints.ToArray()));
+    }
 
     /// <summary>
     /// Creates a builder that connects to a mongodb+srv:// deployment: the servers are found by looking up
@@ -145,7 +147,7 @@ public sealed class MongoClientBuilder
         }
 
         // The port is not used by SRV, ConnectionString uses the same placeholder
-        return new(new ClusterBuilder(
+        return new(new TopologyBuilder(
             ConnectionStringScheme.MongoDBPlusSrv,
             [new DnsEndPoint(dnsEndPoint.Host, ConnectionString.DefaultSrvPort)]));
     }
@@ -213,24 +215,26 @@ public sealed class MongoClientBuilder
     }
 
     /// <summary>
-    /// Configures the cluster. The endpoints and the topology are fixed by the factory method that created this
-    /// builder, so only the SRV options can be modified here.
+    /// Configures the topology. The endpoints and the scheme are fixed by the factory method that created this
+    /// builder, so only the remaining topology options (such as the replica set name, direct connection, load
+    /// balancing and the SRV options) can be modified here.
     /// </summary>
-    /// <returns>The <see cref="ClusterBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
-    public ClusterBuilder Cluster()
-        => _clusterBuilder;
+    /// <returns>The <see cref="TopologyBuilder"/> of this <see cref="MongoClientBuilder"/>.</returns>
+    public TopologyBuilder Topology()
+        => _topologyBuilder;
 
     /// <summary>
-    /// Configures the cluster. The endpoints and the topology are fixed by the factory method that created this
-    /// builder, so only the SRV options can be modified here.
+    /// Configures the topology. The endpoints and the scheme are fixed by the factory method that created this
+    /// builder, so only the remaining topology options (such as the replica set name, direct connection, load
+    /// balancing and the SRV options) can be modified here.
     /// </summary>
-    /// <param name="configure">A delegate that configures the cluster.</param>
+    /// <param name="configure">A delegate that configures the topology.</param>
     /// <returns>The same <see cref="MongoClientBuilder"/> instance so that calls can be chained.</returns>
-    public MongoClientBuilder Cluster(Action<ClusterBuilder> configure)
+    public MongoClientBuilder Topology(Action<TopologyBuilder> configure)
     {
         Ensure.IsNotNull(configure, nameof(configure));
 
-        configure(_clusterBuilder);
+        configure(_topologyBuilder);
         return this;
     }
 
@@ -408,7 +412,7 @@ public sealed class MongoClientBuilder
     internal void Validate()
     {
         _tlsBuilder.Validate();
-        _clusterBuilder.Validate();
+        _topologyBuilder.Validate();
         _connectionPoolBuilder.Validate();
         ValidateAuthentication();
     }
@@ -430,14 +434,14 @@ public sealed class MongoClientBuilder
         settings.LibraryInfo = _clientMetadataBuilder.LibraryInfo;
 
         // Cluster. SrvMaxHosts goes before Servers: the Servers setter shuffles the list when SrvMaxHosts > 0.
-        settings.DirectConnection = _clusterBuilder.DirectConnection;
-        settings.LoadBalanced = _clusterBuilder.LoadBalanced;
-        settings.ReplicaSetName = _clusterBuilder.ReplicaSetName;
-        settings.Scheme = _clusterBuilder.Scheme;
-        settings.SrvAllowedHostsSuffix = _clusterBuilder.SrvAllowedHostsSuffix;
-        settings.SrvMaxHosts = _clusterBuilder.SrvMaxHosts;
-        settings.SrvServiceName = _clusterBuilder.SrvServiceName;
-        settings.Servers = _clusterBuilder.Servers.Select(ToServerAddress).ToList();
+        settings.DirectConnection = _topologyBuilder.DirectConnection;
+        settings.LoadBalanced = _topologyBuilder.LoadBalanced;
+        settings.ReplicaSetName = _topologyBuilder.ReplicaSetName;
+        settings.Scheme = _topologyBuilder.Scheme;
+        settings.SrvAllowedHostsSuffix = _topologyBuilder.SrvAllowedHostsSuffix;
+        settings.SrvMaxHosts = _topologyBuilder.SrvMaxHosts;
+        settings.SrvServiceName = _topologyBuilder.SrvServiceName;
+        settings.Servers = _topologyBuilder.Servers.Select(ToServerAddress).ToList();
 
         // ConnectionPool
         settings.MaxConnecting = _connectionPoolBuilder.MaxConnecting;
@@ -507,9 +511,9 @@ public sealed class MongoClientBuilder
         return settings;
     }
 
-    private Action<CoreClusterBuilder> CreateClusterConfigurator()
+    private Action<ClusterBuilder> CreateClusterConfigurator()
     {
-        var configurators = new List<Action<CoreClusterBuilder>>();
+        var configurators = new List<Action<ClusterBuilder>>();
 
         var subscribers = _diagnosticsBuilder.GetSubscribers();
         if (subscribers.Count > 0)

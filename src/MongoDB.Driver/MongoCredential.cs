@@ -219,7 +219,7 @@ namespace MongoDB.Driver
         /// <param name="callback">The OIDC callback.</param>
         /// <param name="principalName">The principal name.</param>
         /// <returns>The OIDC credential.</returns>
-        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcCallback instead.")]
         public static MongoCredential CreateOidcCredential(IOidcCallback callback, string principalName = null)
             => CreateRawOidcCredential(principalName)
                 .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback);
@@ -230,7 +230,7 @@ namespace MongoDB.Driver
         /// <param name="environment">The built in environemnt.</param>
         /// <param name="userName">User name.</param>
         /// <returns>The OIDC credential.</returns>
-        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcCredential instead.")]
+        [Obsolete("Use MongoClientBuilder.Authentication().UseOidcEnvironment instead.")]
         public static MongoCredential CreateOidcCredential(string environment, string userName = null)
             => CreateRawOidcCredential(userName)
                 .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment);

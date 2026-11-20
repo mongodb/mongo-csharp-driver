@@ -145,8 +145,8 @@ public static class MongoClientBuilderExtensions
     /// <param name="callback">The OIDC callback.</param>
     /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
     /// <remarks>Replaces any credential configured earlier on this builder.</remarks>
-    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, IOidcCallback callback)
-        => builder.UseOidcCredential(callback, principalName: null);
+    public static AuthenticationBuilder UseOidcCallback(this AuthenticationBuilder builder, IOidcCallback callback)
+        => builder.UseOidcCallback(callback, principalName: null);
 
     /// <summary>
     /// Authenticates with MONGODB-OIDC, using the specified callback to obtain the access token.
@@ -156,9 +156,10 @@ public static class MongoClientBuilderExtensions
     /// <param name="principalName">The principal name.</param>
     /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
     /// <remarks>Replaces any credential configured earlier on this builder.</remarks>
-    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, IOidcCallback callback, string principalName)
+    public static AuthenticationBuilder UseOidcCallback(this AuthenticationBuilder builder, IOidcCallback callback, string principalName)
     {
         Ensure.IsNotNull(builder, nameof(builder));
+        Ensure.IsNotNull(callback, nameof(callback));
 
         builder.Credential = MongoCredential.CreateRawOidcCredential(principalName)
             .WithMechanismProperty(OidcConfiguration.CallbackMechanismPropertyName, callback);
@@ -172,8 +173,8 @@ public static class MongoClientBuilderExtensions
     /// <param name="environment">The built-in environment.</param>
     /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
     /// <remarks>Replaces any credential configured earlier on this builder.</remarks>
-    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, string environment)
-        => builder.UseOidcCredential(environment, username: null);
+    public static AuthenticationBuilder UseOidcEnvironment(this AuthenticationBuilder builder, string environment)
+        => builder.UseOidcEnvironment(environment, username: null);
 
     /// <summary>
     /// Authenticates with MONGODB-OIDC, using one of the built-in environments.
@@ -183,9 +184,10 @@ public static class MongoClientBuilderExtensions
     /// <param name="username">The username.</param>
     /// <returns>The same <see cref="AuthenticationBuilder"/> instance so that calls can be chained.</returns>
     /// <remarks>Replaces any credential configured earlier on this builder.</remarks>
-    public static AuthenticationBuilder UseOidcCredential(this AuthenticationBuilder builder, string environment, string username)
+    public static AuthenticationBuilder UseOidcEnvironment(this AuthenticationBuilder builder, string environment, string username)
     {
         Ensure.IsNotNull(builder, nameof(builder));
+        Ensure.IsNotNull(environment, nameof(environment));
 
         builder.Credential = MongoCredential.CreateRawOidcCredential(username)
             .WithMechanismProperty(OidcConfiguration.EnvironmentMechanismPropertyName, environment);

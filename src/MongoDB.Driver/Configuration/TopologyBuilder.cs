@@ -25,9 +25,9 @@ namespace MongoDB.Driver.Configuration;
 /// <summary>
 /// Describes the endpoints a <see cref="MongoClient"/> connects to and the topology it expects.
 /// </summary>
-public sealed class ClusterBuilder
+public sealed class TopologyBuilder
 {
-    internal ClusterBuilder(ConnectionStringScheme scheme, IReadOnlyList<EndPoint> servers)
+    internal TopologyBuilder(ConnectionStringScheme scheme, IReadOnlyList<EndPoint> servers)
     {
         Scheme = scheme;
         Servers = Ensure.IsNotNull(servers, nameof(servers));

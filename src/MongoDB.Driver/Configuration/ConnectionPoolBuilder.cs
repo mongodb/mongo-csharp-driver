@@ -27,7 +27,7 @@ public sealed class ConnectionPoolBuilder
 {
     internal ConnectionPoolBuilder()
     {
-        MaintenanceInterval = TimeSpan.FromMinutes(1);
+        MaintenanceInterval = ConnectionPoolSettings.DefaultMaintenanceInterval;
         MaxConnecting = MongoInternalDefaults.ConnectionPool.MaxConnecting;
         MaxConnectionIdleTime = MongoDefaults.MaxConnectionIdleTime;
         MaxConnectionLifeTime = MongoDefaults.MaxConnectionLifeTime;
