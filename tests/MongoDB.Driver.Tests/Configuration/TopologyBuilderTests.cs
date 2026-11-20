@@ -154,6 +154,15 @@ public class TopologyBuilderTests
             .Subject.ParamName.Should().Be("SrvServiceName");
     }
 
+    [Fact]
+    public void Constructor_should_throw_when_servers_is_empty()
+    {
+        var exception = Record.Exception(() => new TopologyBuilder(ConnectionStringScheme.MongoDB, []));
+
+        exception.Should().BeOfType<ArgumentException>()
+            .Subject.ParamName.Should().Be("servers");
+    }
+
     [Theory]
     [MemberData(nameof(ValidConfigurations))]
     public void Validate_should_accept_valid_configuration(string description, Func<TopologyBuilder> create)
@@ -191,7 +200,6 @@ public class TopologyBuilderTests
 
     public static IEnumerable<object[]> InvalidConfigurations =>
     [
-        ["At least one server must be specified", () => new TopologyBuilder(ConnectionStringScheme.MongoDB, [])],
         #if !NET472
         [
             "Servers must be specified as DnsEndPoint or IPEndPoint",
