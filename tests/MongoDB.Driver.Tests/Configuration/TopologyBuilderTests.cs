@@ -192,10 +192,12 @@ public class TopologyBuilderTests
     public static IEnumerable<object[]> InvalidConfigurations =>
     [
         ["At least one server must be specified", () => new TopologyBuilder(ConnectionStringScheme.MongoDB, [])],
+        #if !NET472
         [
             "Servers must be specified as DnsEndPoint or IPEndPoint",
             () => new TopologyBuilder(ConnectionStringScheme.MongoDB, [new UnixDomainSocketEndPoint("/tmp/mongodb.sock")])
         ],
+        #endif
         [
             "Only 1 host is allowed when using the mongodb+srv scheme",
             () => new TopologyBuilder(ConnectionStringScheme.MongoDBPlusSrv, [SrvHost, new DnsEndPoint("cluster1.example.com", 53)])
