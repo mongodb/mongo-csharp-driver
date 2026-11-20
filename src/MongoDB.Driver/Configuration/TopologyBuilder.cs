@@ -29,8 +29,10 @@ public sealed class TopologyBuilder
 {
     internal TopologyBuilder(ConnectionStringScheme scheme, IReadOnlyList<EndPoint> servers)
     {
+        Ensure.IsNotNullOrEmpty(servers, nameof(servers));
+
         Scheme = scheme;
-        Servers = Ensure.IsNotNull(servers, nameof(servers));
+        Servers = servers;
         SrvServiceName = MongoInternalDefaults.MongoClientSettings.SrvServiceName;
     }
 

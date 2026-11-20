@@ -103,7 +103,10 @@ public sealed class MongoClientBuilder
     /// <param name="endPoint">The seed end point.</param>
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoint(EndPoint endPoint)
-        => new(new TopologyBuilder(ConnectionStringScheme.MongoDB, [endPoint]));
+    {
+        Ensure.IsNotNull(endPoint, nameof(endPoint));
+        return new MongoClientBuilder(new TopologyBuilder(ConnectionStringScheme.MongoDB, [endPoint]));
+    }
 
     /// <summary>
     /// Creates a builder that discovers the topology starting from the given seed servers. Use it for
@@ -122,7 +125,7 @@ public sealed class MongoClientBuilder
     /// <returns>A new <see cref="MongoClientBuilder"/>.</returns>
     public static MongoClientBuilder FromEndPoints(IEnumerable<EndPoint> endPoints)
     {
-        Ensure.IsNotNullOrEmpty(endPoints, nameof(endPoints));
+        Ensure.IsNotNull(endPoints, nameof(endPoints));
 
         return new MongoClientBuilder(new TopologyBuilder(ConnectionStringScheme.MongoDB, endPoints.ToArray()));
     }
@@ -433,7 +436,7 @@ public sealed class MongoClientBuilder
         settings.ApplicationName = _clientMetadataBuilder.ApplicationName;
         settings.LibraryInfo = _clientMetadataBuilder.LibraryInfo;
 
-        // Cluster. SrvMaxHosts goes before Servers: the Servers setter shuffles the list when SrvMaxHosts > 0.
+        // Topology.SrvMaxHosts goes before Servers: the Servers setter shuffles the list when SrvMaxHosts > 0.
         settings.DirectConnection = _topologyBuilder.DirectConnection;
         settings.LoadBalanced = _topologyBuilder.LoadBalanced;
         settings.ReplicaSetName = _topologyBuilder.ReplicaSetName;
@@ -544,7 +547,7 @@ public sealed class MongoClientBuilder
         }
 
         var maintenanceInterval = _connectionPoolBuilder.MaintenanceInterval;
-        if (maintenanceInterval != new ConnectionPoolSettings().MaintenanceInterval)
+        if (maintenanceInterval != ConnectionPoolSettings.DefaultMaintenanceInterval)
         {
             configurators.Add(builder => builder.ConfigureConnectionPool(poolSettings => poolSettings.With(
                 maintenanceInterval: maintenanceInterval)));
