@@ -39,7 +39,7 @@ public class LibmongocryptBindingBenchmark
     [GlobalSetup]
     public void Setup()
     {
-        MongoClientSettings.Extensions.AddAutoEncryption();
+        MongoClientBuilder.Extensions.AddAutoEncryption();
 
         var localMasterKey = Convert.FromBase64String(LocalMasterKey);
 
@@ -92,7 +92,7 @@ public class LibmongocryptBindingBenchmark
 
         // Create libmongocrypt binding that will be used for decryption
         _libMongoCryptController =
-            MongoClientSettings.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
+            MongoClientBuilder.Extensions.AutoEncryptionProvider.CreateAutoCryptClientController(_disposableKeyVaultClient, autoEncryptionOptions);
     }
 
     [Benchmark]

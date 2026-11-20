@@ -10,6 +10,7 @@
   <PropertyGroup>
     <NoWarn>
       1701;1702; <!--https://github.com/dotnet/roslyn/issues/19640-->
+      CS0618 <!-- TODO: Temporarily here, just to reduce noise around half-done API, remove it before completion of MongoClientBuilder work -->
     </NoWarn>
   </PropertyGroup>
 

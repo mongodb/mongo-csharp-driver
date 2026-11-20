@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Encryption
             var newCredentialsList = new List<BsonElement>();
             foreach (var kmsProvider in _kmsProviders.Where(k => k.Value.Count == 0))
             {
-                if (MongoClientSettings.Extensions.KmsProviders.TryCreate(kmsProvider.Key, out var provider))
+                if (MongoClientBuilder.Extensions.KmsProviders.TryCreate(kmsProvider.Key, out var provider))
                 {
                     var credentials = await provider.GetKmsCredentialsAsync(cancellationToken).ConfigureAwait(false);
                     newCredentialsList.Add(new BsonElement(kmsProvider.Key, credentials));
