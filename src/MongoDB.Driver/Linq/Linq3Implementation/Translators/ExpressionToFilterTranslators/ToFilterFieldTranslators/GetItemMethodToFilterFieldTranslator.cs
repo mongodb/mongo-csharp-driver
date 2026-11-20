@@ -20,6 +20,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Options;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Linq.Linq3Implementation.Ast;
 using MongoDB.Driver.Linq.Linq3Implementation.ExtensionMethods;
 using MongoDB.Driver.Linq.Linq3Implementation.Misc;
 using MongoDB.Driver.Linq.Linq3Implementation.Reflection;
@@ -72,6 +73,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
         {
             var fieldTranslation = ExpressionToFilterFieldTranslator.Translate(context, fieldExpression);
             var key = keyExpression.GetConstantValue<string>(containingExpression: expression);
+            FilterFieldNameValidator.EnsureSegmentIsSafe(expression, fieldTranslation, key);
             return fieldTranslation.SubField(key, BsonValueSerializer.Instance);
         }
 
@@ -103,6 +105,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToFilter
                 throw new ExpressionNotSupportedException(expression, because: "key did not serialize as a string");
             }
 
+            FilterFieldNameValidator.EnsureSegmentIsSafe(expression, fieldTranslation, serializedKey.AsString);
             return fieldTranslation.SubField(serializedKey.AsString, valueSerializer);
         }
     }
