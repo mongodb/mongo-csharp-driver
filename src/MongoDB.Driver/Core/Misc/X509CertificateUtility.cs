@@ -24,7 +24,7 @@ namespace MongoDB.Driver.Core.Misc;
 internal static class X509CertificateUtility
 {
     // Derived from the certificate hash (itself a digest of the raw data) so that any two
-    // certificates considered equal by CertificatesAreEqual produce the same value.
+    // certificates considered equal by AreCertificatesEqual produce the same value.
     public static int GetCertificateHashCode(X509Certificate certificate)
     {
         if (certificate == null)
@@ -70,14 +70,26 @@ internal static class X509CertificateUtility
             return true;
         }
 
-        var lhsCertificate = lhs as X509Certificate2;
-        var rhsCertificate = rhs as X509Certificate2;
+        using var lhsOwned = CopyIfNotCertificate2(lhs, out var lhsCertificate);
+        using var rhsOwned = CopyIfNotCertificate2(rhs, out var rhsCertificate);
 
         // Only the presence of a private key is compared, not the key itself. The caller has already established that the raw
         // certificate data (and therefore the public key) is identical, and the platform only associates a private key
         // with a certificate whose public key it matches (e.g. X509Certificate2.CopyWithPrivateKey rejects any other key).
         // So when both certificates have a private key it must be the key matching that shared public key.
-        return lhsCertificate?.HasPrivateKey == rhsCertificate?.HasPrivateKey;
+        return lhsCertificate.HasPrivateKey == rhsCertificate.HasPrivateKey;
+        // Returns the instantiated X509Certificate2 to dispose, or null when the input was already an X509Certificate2 and must not be disposed.
+        static X509Certificate2 CopyIfNotCertificate2(X509Certificate certificate, out X509Certificate2 certificate2)
+        {
+            if (certificate is X509Certificate2 existing)
+            {
+                certificate2 = existing;
+                return null;
+            }
+
+            certificate2 = new X509Certificate2(certificate);
+            return certificate2;
+        }
     }
 
 #if NET472

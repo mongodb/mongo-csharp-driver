@@ -245,6 +245,52 @@ namespace MongoDB.Driver.Tests
             subject.GetHashCode().Should().Be(other.GetHashCode());
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Equals_should_return_false_when_only_one_plain_X509Certificate_has_a_private_key(bool lhsHasPrivateKey)
+        {
+            using var certificateWithPrivateKey = CreateSelfSignedCertificateWithPrivateKey("CN=mongodb-test", useEcdsa: false);
+            using var certificateWithoutPrivateKey = X509CertificateLoader.LoadCertificate(certificateWithPrivateKey.RawData);
+            // The copy constructor yields a plain X509Certificate, which has no HasPrivateKey property of its own.
+            using var plainCertificateWithPrivateKey = new X509Certificate(certificateWithPrivateKey);
+            plainCertificateWithPrivateKey.GetType().Should().Be(typeof(X509Certificate));
+
+            var subject = new SslSettings { ClientCertificates = [lhsHasPrivateKey ? plainCertificateWithPrivateKey : certificateWithoutPrivateKey] };
+            var other = new SslSettings { ClientCertificates = [lhsHasPrivateKey ? certificateWithoutPrivateKey : plainCertificateWithPrivateKey] };
+
+            subject.Equals(other).Should().BeFalse();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Equals_should_return_true_when_plain_X509Certificate_and_X509Certificate2_both_have_a_private_key(bool plainIsLhs)
+        {
+            using var certificate = CreateSelfSignedCertificateWithPrivateKey("CN=mongodb-test", useEcdsa: false);
+            using var plainCertificate = new X509Certificate(certificate);
+            plainCertificate.GetType().Should().Be(typeof(X509Certificate));
+
+            var subject = new SslSettings { ClientCertificates = [plainIsLhs ? plainCertificate : certificate] };
+            var other = new SslSettings { ClientCertificates = [plainIsLhs ? certificate : plainCertificate] };
+
+            subject.Equals(other).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Equals_should_return_true_when_both_plain_X509Certificates_have_no_private_key()
+        {
+            using var certificate = CreateSelfSignedCertificateWithPrivateKey("CN=mongodb-test", useEcdsa: false);
+            using var certificateWithoutPrivateKey = X509CertificateLoader.LoadCertificate(certificate.RawData);
+            using var lhs = new X509Certificate(certificateWithoutPrivateKey);
+            using var rhs = new X509Certificate(certificateWithoutPrivateKey);
+
+            var subject = new SslSettings { ClientCertificates = [lhs] };
+            var other = new SslSettings { ClientCertificates = [rhs] };
+
+            subject.Equals(other).Should().BeTrue();
+        }
+
         [Fact]
         public void Equals_should_return_true_when_the_same_certificate_file_is_loaded_twice()
         {
