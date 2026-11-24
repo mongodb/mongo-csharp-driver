@@ -16,16 +16,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security.Authentication;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver.Compression;
 using MongoDB.Driver.Configuration;
+using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Configuration;
 using MongoDB.Driver.Core.Connections;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Servers;
 using MongoDB.TestHelpers.XunitExtensions;
+using Moq;
 using Xunit;
 
 namespace MongoDB.Driver.Tests
@@ -171,6 +175,80 @@ namespace MongoDB.Driver.Tests
         }
 
         // private methods
+        [Fact]
+        public void Equals_should_return_true_if_the_builder_cluster_configurations_are_equal()
+        {
+            var preServerSelector = Mock.Of<IServerSelector>();
+            Action<Socket> socketConfigurator = _ => { };
+
+            var key1 = CreateBuilderClusterKey(preServerSelector, socketConfigurator, TimeSpan.FromSeconds(30));
+            var key2 = CreateBuilderClusterKey(preServerSelector, socketConfigurator, TimeSpan.FromSeconds(30));
+
+            key1.ClusterConfigurator.Should().NotBeSameAs(key2.ClusterConfigurator);
+            key1.Equals(key2).Should().BeTrue();
+            key1.GetHashCode().Should().Be(key2.GetHashCode());
+        }
+
+        [Fact]
+        public void Equals_should_return_false_if_the_builder_cluster_configurations_differ()
+        {
+            var preServerSelector = Mock.Of<IServerSelector>();
+            Action<Socket> socketConfigurator = _ => { };
+            var key = CreateBuilderClusterKey(preServerSelector, socketConfigurator, TimeSpan.FromSeconds(30));
+
+            key.Equals(CreateBuilderClusterKey(Mock.Of<IServerSelector>(), socketConfigurator, TimeSpan.FromSeconds(30))).Should().BeFalse();
+            key.Equals(CreateBuilderClusterKey(preServerSelector, _ => { }, TimeSpan.FromSeconds(30))).Should().BeFalse();
+            key.Equals(CreateBuilderClusterKey(preServerSelector, socketConfigurator, TimeSpan.FromSeconds(31))).Should().BeFalse();
+            key.Equals(CreateBuilderClusterKey(null, socketConfigurator, TimeSpan.FromSeconds(30))).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Equals_should_return_false_if_the_builders_subscribed_different_subscribers()
+        {
+            var subscriber = Mock.Of<IEventSubscriber>();
+
+            var sameSubscriber1 = MongoClientBuilder.FromEndPoint("host1").Diagnostics(d => d.Subscribe(subscriber)).ToMongoClientSettings().ToClusterKey();
+            var sameSubscriber2 = MongoClientBuilder.FromEndPoint("host1").Diagnostics(d => d.Subscribe(subscriber)).ToMongoClientSettings().ToClusterKey();
+            var otherSubscriber = MongoClientBuilder.FromEndPoint("host1").Diagnostics(d => d.Subscribe(Mock.Of<IEventSubscriber>())).ToMongoClientSettings().ToClusterKey();
+            var sameHandler1 = MongoClientBuilder.FromEndPoint("host1").Diagnostics(d => d.Subscribe<ClusterOpeningEvent>(_ => { })).ToMongoClientSettings().ToClusterKey();
+
+            sameSubscriber1.Equals(sameSubscriber2).Should().BeTrue();
+            sameSubscriber1.Equals(otherSubscriber).Should().BeFalse();
+            sameSubscriber1.Equals(sameHandler1).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Equals_should_return_true_if_neither_builder_has_a_cluster_configuration()
+        {
+            var key1 = MongoClientBuilder.FromEndPoint("host1").ToMongoClientSettings().ToClusterKey();
+            var key2 = MongoClientBuilder.FromEndPoint("host1").ToMongoClientSettings().ToClusterKey();
+
+            key1.ClusterConfigurator.Should().BeNull();
+            key1.Equals(key2).Should().BeTrue();
+        }
+
+        [Fact]
+        public void Equals_should_not_treat_a_builder_cluster_configuration_as_equal_to_a_user_configurator()
+        {
+            var builderKey = MongoClientBuilder.FromEndPoint("host1")
+                .ConnectionPool(pool => pool.MaintenanceInterval = TimeSpan.FromSeconds(30))
+                .ToMongoClientSettings().ToClusterKey();
+            var settings = MongoClientBuilder.FromEndPoint("host1").ToMongoClientSettings();
+            settings.ClusterConfigurator = _ => { };
+            var userKey = settings.ToClusterKey();
+
+            builderKey.Equals(userKey).Should().BeFalse();
+            userKey.Equals(builderKey).Should().BeFalse();
+        }
+
+        private static ClusterKey CreateBuilderClusterKey(IServerSelector preServerSelector, Action<Socket> socketConfigurator, TimeSpan maintenanceInterval)
+            => MongoClientBuilder.FromEndPoint("host1")
+                .Operations(operations => operations.PreServerSelector = preServerSelector)
+                .Network(network => network.SocketConfigurator = socketConfigurator)
+                .ConnectionPool(pool => pool.MaintenanceInterval = maintenanceInterval)
+                .ToMongoClientSettings()
+                .ToClusterKey();
+
         private ClusterKey CreateSubject(string notEqualFieldName = null)
         {
             var allowInsecureTls = true;

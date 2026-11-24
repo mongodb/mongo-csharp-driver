@@ -196,6 +196,20 @@ namespace MongoDB.Driver
                 .GetHashCode();
         }
 
+        // Cluster configurators are compared by reference, except the ones created by MongoClientBuilder: a new delegate
+        // is created for each Build(), so those are compared by the configuration they carry.
+        private static bool ClusterConfiguratorsAreEqual(Action<ClusterBuilder> lhs, Action<ClusterBuilder> rhs)
+        {
+            if (object.ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            return lhs?.Target is BuilderClusterConfigurator lhsConfiguration &&
+                rhs?.Target is BuilderClusterConfigurator rhsConfiguration &&
+                lhsConfiguration.Equals(rhsConfiguration);
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null || obj.GetType() != typeof(ClusterKey))
@@ -207,7 +221,7 @@ namespace MongoDB.Driver
                 _hashCode == rhs._hashCode && // fail fast
                 _allowInsecureTls == rhs._allowInsecureTls &&
                 _applicationName == rhs._applicationName &&
-                object.ReferenceEquals(_clusterConfigurator, rhs._clusterConfigurator) &&
+                ClusterConfiguratorsAreEqual(_clusterConfigurator, rhs._clusterConfigurator) &&
                 _compressors.SequenceEqual(rhs._compressors) &&
                 _connectTimeout == rhs._connectTimeout &&
                 _credential == rhs._credential &&

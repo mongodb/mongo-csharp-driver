@@ -20,7 +20,6 @@ using System.Net;
 using System.Security;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Oidc;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
 namespace MongoDB.Driver
@@ -412,7 +411,7 @@ namespace MongoDB.Driver
             }
         }
 
-        private static MongoCredential FromComponents(string mechanism, string source, string databaseName, string username, MongoIdentityEvidence evidence)
+        internal static MongoCredential FromComponents(string mechanism, string source, string databaseName, string username, MongoIdentityEvidence evidence)
         {
             var defaultedMechanism = (mechanism ?? "DEFAULT").Trim().ToUpperInvariant();
             switch (defaultedMechanism)
