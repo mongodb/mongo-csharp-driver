@@ -37,7 +37,7 @@ namespace MongoDB.Driver
         /// <summary>
         /// Extension Manager provides a way to configure extensions for the driver.
         /// </summary>
-        public static readonly IExtensionManager Extensions = new ExtensionManager();
+        public static readonly IExtensionManager Extensions = MongoClientBuilder.Extensions;
 
         // private fields
         private bool _allowInsecureTls;
