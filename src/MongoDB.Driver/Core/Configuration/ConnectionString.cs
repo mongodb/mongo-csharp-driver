@@ -1076,7 +1076,7 @@ namespace MongoDB.Driver.Core.Configuration
                     break;
                 case "maxlifetime":
                 case "maxlifetimems":
-                    _maxLifeTime = ParseTimeSpan(name, value);
+                    _maxLifeTime = ParseTimeSpanOrInfinite(name, value);
                     break;
                 case "maxpoolsize":
                     _maxPoolSize = ParseInt32(name, value);
@@ -1462,6 +1462,9 @@ namespace MongoDB.Driver.Core.Configuration
             }
             return new TagSet(tags);
         }
+
+        private static TimeSpan ParseTimeSpanOrInfinite(string name, string value) =>
+            value == "0" ? System.Threading.Timeout.InfiniteTimeSpan : ParseTimeSpan(name, value);
 
         private static TimeSpan ParseTimeSpan(string name, string value)
         {

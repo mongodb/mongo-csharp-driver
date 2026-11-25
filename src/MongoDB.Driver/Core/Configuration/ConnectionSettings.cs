@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Misc;
@@ -60,7 +61,7 @@ namespace MongoDB.Driver.Core.Configuration
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _maxIdleTime = Ensure.IsGreaterThanOrEqualToZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
-            _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
+            _maxLifeTime = Ensure.IsInfiniteOrGreaterThanZero(maxLifeTime.WithDefault(Timeout.InfiniteTimeSpan), "maxLifeTime");
             _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }
 
@@ -80,7 +81,7 @@ namespace MongoDB.Driver.Core.Configuration
             _libraryInfo = libraryInfo.WithDefault(null);
             _loadBalanced = loadBalanced.WithDefault(false);
             _maxIdleTime = Ensure.IsGreaterThanOrEqualToZero(maxIdleTime.WithDefault(TimeSpan.FromMinutes(10)), "maxIdleTime");
-            _maxLifeTime = Ensure.IsGreaterThanZero(maxLifeTime.WithDefault(TimeSpan.FromMinutes(30)), "maxLifeTime");
+            _maxLifeTime = Ensure.IsInfiniteOrGreaterThanZero(maxLifeTime.WithDefault(Timeout.InfiniteTimeSpan), "maxLifeTime");
             _applicationName = ApplicationNameHelper.EnsureApplicationNameIsValid(applicationName.WithDefault(null), nameof(applicationName));
         }
 

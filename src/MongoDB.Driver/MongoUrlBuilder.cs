@@ -398,11 +398,7 @@ namespace MongoDB.Driver
             get { return _maxConnectionLifeTime; }
             set
             {
-                if (value < TimeSpan.Zero)
-                {
-                    throw new ArgumentOutOfRangeException("value", "MaxConnectionLifeTime must be greater than or equal to zero.");
-                }
-                _maxConnectionLifeTime = value;
+                _maxConnectionLifeTime = Ensure.IsInfiniteOrGreaterThanZero(value, nameof(MaxConnectionLifeTime));
             }
         }
 
@@ -980,7 +976,7 @@ namespace MongoDB.Driver
             }
             if (_maxConnectionLifeTime != MongoDefaults.MaxConnectionLifeTime)
             {
-                query.AppendFormat("maxLifeTime={0}&", FormatTimeSpan(_maxConnectionLifeTime));
+                query.AppendFormat("maxLifeTime={0}&", FormatInfiniteTimeSpan(_maxConnectionLifeTime));
             }
             if (_maxConnectionPoolSize != MongoDefaults.MaxConnectionPoolSize)
             {
@@ -1118,6 +1114,9 @@ namespace MongoDB.Driver
             _waitQueueTimeout = connectionString.WaitQueueTimeout.GetValueOrDefault(MongoDefaults.WaitQueueTimeout);
             _wTimeout = connectionString.WTimeout;
         }
+
+        private string FormatInfiniteTimeSpan(TimeSpan value) =>
+            value == System.Threading.Timeout.InfiniteTimeSpan ? "0" : FormatTimeSpan(value);
 
         private string FormatTimeSpan(TimeSpan value)
         {

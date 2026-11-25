@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Compression;
@@ -681,7 +682,7 @@ namespace MongoDB.Driver.Tests
             var built = new MongoUrlBuilder { Server = _localhost };
             if (maxConnectionLifeTime != null) { built.MaxConnectionLifeTime = maxConnectionLifeTime.Value; }
 
-            var canonicalConnectionString = string.Format(formatString, values[0]).Replace("/?maxLifeTime=30m", "");
+            var canonicalConnectionString = string.Format(formatString, values[0]);
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(maxConnectionLifeTime ?? MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
@@ -694,8 +695,36 @@ namespace MongoDB.Driver.Tests
         {
             var builder = new MongoUrlBuilder { Server = _localhost };
             Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionLifeTime = TimeSpan.FromSeconds(-1); });
-            builder.MaxConnectionLifeTime = TimeSpan.Zero;
+            Assert.Throws<ArgumentOutOfRangeException>(() => { builder.MaxConnectionLifeTime = TimeSpan.Zero; });
             builder.MaxConnectionLifeTime = TimeSpan.FromSeconds(1);
+            builder.MaxConnectionLifeTime = Timeout.InfiniteTimeSpan;
+        }
+
+        [Fact]
+        public void TestMaxConnectionLifeTime_Infinite()
+        {
+            var builder = new MongoUrlBuilder("mongodb://localhost/?maxLifeTimeMS=0");
+
+            Assert.Equal(Timeout.InfiniteTimeSpan, builder.MaxConnectionLifeTime);
+            Assert.Equal("mongodb://localhost", builder.ToString());
+        }
+
+        [Fact]
+        public void TestMaxConnectionLifeTime_Infinite_is_written_when_default_is_not_infinite()
+        {
+            var original = MongoDefaults.MaxConnectionLifeTime;
+            try
+            {
+                MongoDefaults.MaxConnectionLifeTime = TimeSpan.FromMinutes(30);
+                var builder = new MongoUrlBuilder { Server = _localhost, MaxConnectionLifeTime = Timeout.InfiniteTimeSpan };
+
+                Assert.Equal("mongodb://localhost/?maxLifeTime=0", builder.ToString());
+                Assert.Equal(Timeout.InfiniteTimeSpan, new MongoUrlBuilder(builder.ToString()).MaxConnectionLifeTime);
+            }
+            finally
+            {
+                MongoDefaults.MaxConnectionLifeTime = original;
+            }
         }
 
         [Theory]

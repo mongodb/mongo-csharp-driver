@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Threading;
 using FluentAssertions;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Core.Compression;
@@ -38,7 +39,7 @@ namespace MongoDB.Driver.Core.Configuration
             subject.ConnectionIdLocalValueProvider.Should().NotBeNull();
             subject.LibraryInfo.Should().BeNull();
             subject.MaxIdleTime.Should().Be(TimeSpan.FromMinutes(10));
-            subject.MaxLifeTime.Should().Be(TimeSpan.FromMinutes(30));
+            subject.MaxLifeTime.Should().Be(Timeout.InfiniteTimeSpan);
         }
 
         [Fact]
@@ -74,6 +75,14 @@ namespace MongoDB.Driver.Core.Configuration
         {
             var subject = new ConnectionSettings(maxIdleTime: TimeSpan.FromSeconds(0));
             subject.MaxIdleTime.Should().Be(TimeSpan.Zero);
+        }
+
+        [Fact]
+        public void constructor_should_accept_infinite_maxLifeTime()
+        {
+            var subject = new ConnectionSettings(maxLifeTime: Timeout.InfiniteTimeSpan);
+
+            subject.MaxLifeTime.Should().Be(Timeout.InfiniteTimeSpan);
         }
 
         [Theory]

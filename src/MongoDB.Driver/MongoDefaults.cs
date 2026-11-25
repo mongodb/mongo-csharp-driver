@@ -15,6 +15,7 @@
 
 using System;
 using System.Text;
+using System.Threading;
 using MongoDB.Bson.IO;
 using MongoDB.Driver.Core.Misc;
 
@@ -31,7 +32,7 @@ namespace MongoDB.Driver
         private static TimeSpan __connectTimeout = TimeSpan.FromSeconds(30);
         private static TimeSpan __localThreshold = TimeSpan.FromMilliseconds(15);
         private static TimeSpan __maxConnectionIdleTime = TimeSpan.FromMinutes(10);
-        private static TimeSpan __maxConnectionLifeTime = TimeSpan.FromMinutes(30);
+        private static TimeSpan __maxConnectionLifeTime = Timeout.InfiniteTimeSpan;
         private static int __maxBatchCount = 1000;
         private static int __maxConnectionPoolSize = 100;
         private static int __maxMessageLength = 16000000; // 16MB (not 16 MiB!)
