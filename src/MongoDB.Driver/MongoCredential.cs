@@ -20,6 +20,7 @@ using System.Net;
 using System.Security;
 using MongoDB.Driver.Authentication;
 using MongoDB.Driver.Authentication.Oidc;
+using MongoDB.Driver.Authentication.Plain;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -493,11 +494,13 @@ namespace MongoDB.Driver
                         new MongoExternalIdentity(username),
                         evidence);
                 case "PLAIN":
-                    source = source ?? databaseName ?? "$external";
-                    if (evidence == null || !(evidence is PasswordEvidence))
+                    source ??= databaseName ?? "$external";
+                    if (evidence == null || evidence is not PasswordEvidence passwordEvidence)
                     {
                         throw new ArgumentException("A PLAIN credential must have a password.");
                     }
+
+                    PlainSaslMechanism.EnsureNoNulCharacters(username, passwordEvidence.ToInsecureString());
 
                     MongoIdentity identity;
                     if (source == "$external")
@@ -512,7 +515,7 @@ namespace MongoDB.Driver
                     return new MongoCredential(
                         mechanism,
                         identity,
-                        evidence);
+                        passwordEvidence);
                 default:
                     throw new NotSupportedException(string.Format("Unsupported MongoAuthenticationMechanism {0}.", mechanism));
             }
