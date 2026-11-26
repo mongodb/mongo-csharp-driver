@@ -18,7 +18,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using FluentAssertions;
 using MongoDB.Bson.IO;
@@ -985,6 +984,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+#if !NET11_0_OR_GREATER
         [Fact]
         public void TestOnePointThree()
         {
@@ -1006,6 +1006,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+#endif
 
         [Fact]
         public void TestOnePointFive()

@@ -24,7 +24,8 @@ namespace MongoDB.Driver.TestHelpers
         Net472,
         Net60,
         Net80,
-        Net100
+        Net100,
+        Net110
     }
 
     public enum SupportedOperatingSystem
@@ -37,7 +38,7 @@ namespace MongoDB.Driver.TestHelpers
     public class RequirePlatform
     {
         #region static
-        public static RequirePlatform Check() => new RequirePlatform();
+        public static RequirePlatform Check() => new();
 
         public static SupportedOperatingSystem GetCurrentOperatingSystem()
         {
