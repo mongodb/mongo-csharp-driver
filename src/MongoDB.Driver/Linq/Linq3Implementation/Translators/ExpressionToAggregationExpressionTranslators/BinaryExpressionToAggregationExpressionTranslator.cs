@@ -377,6 +377,35 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             return ConstantExpressionToAggregationExpressionTranslator.Translate(constantExpression, constantSerializer);
         }
 
+        private static AstExpression TranslateDivide(BinaryExpression expression, AstExpression leftAst, AstExpression rightAst)
+        {
+            if (!expression.Type.IsIntegralOrNullableIntegral())
+            {
+                return AstExpression.Divide(leftAst, rightAst);
+            }
+
+            var resultType = expression.Type.IsNullable(out var valueType) ? valueType : expression.Type;
+
+            // double cannot represent every 64-bit integer so the division is performed using decimal
+            var useDecimal = resultType == typeof(long) || resultType == typeof(ulong);
+            var quotientAst = useDecimal
+                ? AstExpression.Divide(AstExpression.Convert(leftAst, "decimal"), AstExpression.Convert(rightAst, "decimal"))
+                : AstExpression.Divide(leftAst, rightAst);
+
+            if (resultType == typeof(int))
+            {
+                return AstExpression.Convert(quotientAst, "int");
+            }
+
+            if (resultType == typeof(ulong))
+            {
+                return AstExpression.Trunc(quotientAst); // $toLong cannot represent values above long.MaxValue
+            }
+
+            // uint and the smaller integral types fit in a long, and the double quotient is exact for them
+            return AstExpression.Convert(quotientAst, "long");
+        }
+
         private static TranslatedExpression TranslateEnumArithmeticExpression(
             TranslationContext context,
             BinaryExpression expression,
@@ -421,32 +450,6 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var serializer = enumTranslation.Serializer;
 
             return new TranslatedExpression(expression, ast, serializer);
-        }
-
-        private static AstExpression TranslateDivide(BinaryExpression expression, AstExpression leftAst, AstExpression rightAst)
-        {
-            if (!expression.Type.IsIntegralOrNullableIntegral())
-            {
-                return AstExpression.Divide(leftAst, rightAst);
-            }
-
-            var resultType = expression.Type.IsNullable(out var valueType) ? valueType : expression.Type;
-            if (resultType == typeof(int))
-            {
-                return AstExpression.Convert(AstExpression.Divide(leftAst, rightAst), "int");
-            }
-
-            if (resultType == typeof(long) || resultType == typeof(ulong))
-            {
-                // double cannot represent every 64-bit integer so the division is performed using decimal
-                var decimalQuotientAst = AstExpression.Divide(AstExpression.Convert(leftAst, "decimal"), AstExpression.Convert(rightAst, "decimal"));
-                return resultType == typeof(long)
-                    ? AstExpression.Convert(decimalQuotientAst, "long")
-                    : AstExpression.Trunc(decimalQuotientAst); // $toLong cannot represent values above long.MaxValue
-            }
-
-            // uint and the smaller integral types fit in a long, and the double quotient is exact for them
-            return AstExpression.Convert(AstExpression.Divide(leftAst, rightAst), "long");
         }
     }
 }
