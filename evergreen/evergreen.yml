@@ -405,6 +405,23 @@ functions:
     - command: expansions.update
       params:
         file: mongo-csharp-driver/crypt-shared-expansion.yml
+    # Some tests spawn mongocryptd from PATH ($MONGODB_BINARIES), which the DSC variant does not get from a server download
+    - command: shell.exec
+      params:
+        working_dir: mongo-csharp-driver
+        shell: "bash"
+        include_expansions_in_env:
+          - "AWS_ACCESS_KEY_ID"
+          - "AWS_SECRET_ACCESS_KEY"
+          - "AWS_SESSION_TOKEN"
+        script: |
+          ${PREPARE_SHELL}
+          . ${DRIVERS_TOOLS}/.evergreen/ensure-uv.sh
+          ensure_uv || exit 0
+          uv run --project "${DRIVERS_TOOLS}/.evergreen" python "${DRIVERS_TOOLS}/.evergreen/mongodl.py" \
+            --component archive --version latest --only "**/bin/mongocryptd" --strip-path-components 1 \
+            --out "${DRIVERS_TOOLS}/mongodb" --empty-is-error || echo "Unable to download mongocryptd"
+          ls -l "${MONGODB_BINARIES}" || true
 
   print-dsc-server-version:
     - command: shell.exec
@@ -2518,6 +2535,7 @@ task_groups:
           remote_file: ${UPLOAD_BUCKET}/${build_variant}/${revision}/${build_id}/sls-logs.txt.gz
           bucket: mciuploads
           permissions: private
+          visibility: signed
           content_type: application/gzip
           optional: true
     tasks:
