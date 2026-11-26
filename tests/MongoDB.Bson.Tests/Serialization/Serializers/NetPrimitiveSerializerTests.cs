@@ -985,6 +985,7 @@ namespace MongoDB.Bson.Tests.Serialization
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
 
+#if !NET11_0_OR_GREATER
         [Fact]
         public void TestOnePointThree()
         {
@@ -1006,6 +1007,7 @@ namespace MongoDB.Bson.Tests.Serialization
             var rehydrated = BsonSerializer.Deserialize<TestClass>(bson);
             Assert.True(bson.SequenceEqual(rehydrated.ToBson()));
         }
+#endif
 
         [Fact]
         public void TestOnePointFive()

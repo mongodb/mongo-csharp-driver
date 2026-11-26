@@ -1114,6 +1114,13 @@ tasks:
           vars:
             CONFIGURATION: "Release_CSharp_14"
 
+    - name: unit-tests-net110
+      commands:
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net11.0
+        - func: run-unit-tests
+
     - name: test-net472
       commands:
         - func: setup-csfle-secrets
@@ -1698,6 +1705,18 @@ tasks:
         - func: configure-framework
           vars:
             FRAMEWORK: net10.0
+        - func: bootstrap-mongo-orchestration
+        - func: run-smoke-tests
+
+    - name: test-smoke-tests-net110
+      depends_on:
+        - name: build-packages
+          variant: ".build-packages"
+      commands:
+        - func: download-packages
+        - func: configure-framework
+          vars:
+            FRAMEWORK: net11.0
         - func: bootstrap-mongo-orchestration
         - func: run-smoke-tests
 
@@ -2455,6 +2474,7 @@ buildvariants:
     - name: unit-tests-net60
     - name: unit-tests-net100
     - name: unit-tests-net100-csharp14
+    - name: unit-tests-net110
 
 - name: unit-tests-ubuntu
   display_name: Unit Tests on Ubuntu
@@ -2466,6 +2486,7 @@ buildvariants:
     - name: unit-tests-net60
     - name: unit-tests-net100
     - name: unit-tests-net100-csharp14
+    - name: unit-tests-net110
 
 - name: unit-tests-macos
   display_name: Unit Tests on MacOs
@@ -2477,6 +2498,7 @@ buildvariants:
     - name: unit-tests-net60
     - name: unit-tests-net100
     - name: unit-tests-net100-csharp14
+    - name: unit-tests-net110
 
 - name: unit-tests-macos-arm
   display_name: Unit Tests on MacOs Arm
@@ -2487,6 +2509,7 @@ buildvariants:
     - name: unit-tests-net60
     - name: unit-tests-net100
     - name: unit-tests-net100-csharp14
+    - name: unit-tests-net110
 
 - matrix_name: stable-api-tests
   matrix_spec: { version: ["5.0", "6.0", "7.0", "8.0", "9.0", "rapid", "latest"], topology: ["standalone", "sharded-cluster"], auth: "auth", ssl: "nossl", os: "windows-64" }
@@ -2880,6 +2903,7 @@ buildvariants:
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100
+    - name: test-smoke-tests-net110
   rules:
     - if: { version: "*", topology: "*", ssl: "*", os: ["macos-14"] }
       then:
@@ -2900,6 +2924,7 @@ buildvariants:
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100
+    - name: test-smoke-tests-net110
 
 - matrix_name: "smoke-tests-linux-2204"
   matrix_spec:
@@ -2915,6 +2940,7 @@ buildvariants:
     - name: test-smoke-tests-net60
     - name: test-smoke-tests-net80
     - name: test-smoke-tests-net100
+    - name: test-smoke-tests-net110
 
 # Package release variants
 - matrix_name: build-packages
