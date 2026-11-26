@@ -366,19 +366,6 @@ functions:
             evergreen/run-tests.sh
           echo "Skipping certificate removal..."
 
-  # Temporary: remove once mongodb-labs/drivers-evergreen-tools#918 is merged
-  use-dsc-drivers-tools:
-    - command: shell.exec
-      params:
-        working_dir: mongo-csharp-driver
-        shell: "bash"
-        script: |
-          set -o errexit
-          ${PREPARE_SHELL}
-          cd "$DRIVERS_TOOLS"
-          git fetch origin refs/pull/918/head
-          git checkout 5fe24a7d2d3606d33a914408b29fb4b8244bf41d
-
   start-dsc:
     - command: ec2.assume_role
       params:
@@ -391,6 +378,7 @@ functions:
           - "AWS_ACCESS_KEY_ID"
           - "AWS_SECRET_ACCESS_KEY"
           - "AWS_SESSION_TOKEN"
+          - "DRIVERS_TOOLS"
           - "DSC_SLS_TAG"
           - "DSC_MONGOD_TAG"
         args:
@@ -2512,7 +2500,6 @@ task_groups:
       - func: fix-absolute-paths
       - func: init-test-results
       - func: make-files-executable
-      - func: use-dsc-drivers-tools
       - func: start-dsc
         vars:
           # The newest mainline SLS image has been seen to crash-loop, so pin a known-good tag

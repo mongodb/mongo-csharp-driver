@@ -313,7 +313,7 @@ tests:
           - { _id: 1 }
   -
     description: 'write concern error on commit'
-    # Disaggregated storage deployments accept the unsatisfiable w: 10 without returning a writeConcernError.
+    # Disaggregated storage deployments accept the unsatisfiable w: 10 without returning a writeConcernError. (SERVER-120912)
     runOnRequirements:
       - dsc: forbid
     operations:
