@@ -32,6 +32,7 @@ namespace MongoDB.Driver.Core.Configuration
         private readonly int _receiveBufferSize;
         private readonly int _sendBufferSize;
         private readonly Action<Socket> _socketConfigurator;
+        private readonly bool _useOperatingSystemBufferSizes;
         private readonly TimeSpan? _writeTimeout;
 
         // constructors
@@ -53,6 +54,19 @@ namespace MongoDB.Driver.Core.Configuration
             Optional<int> sendBufferSize = default(Optional<int>),
             Optional<Action<Socket>> socketConfigurator = default(Optional<Action<Socket>>),
             Optional<TimeSpan?> writeTimeout = default(Optional<TimeSpan?>))
+            : this(addressFamily, connectTimeout, readTimeout, receiveBufferSize, sendBufferSize, socketConfigurator, writeTimeout, useOperatingSystemBufferSizes: false)
+        {
+        }
+
+        private TcpStreamSettings(
+            Optional<AddressFamily> addressFamily,
+            Optional<TimeSpan> connectTimeout,
+            Optional<TimeSpan?> readTimeout,
+            Optional<int> receiveBufferSize,
+            Optional<int> sendBufferSize,
+            Optional<Action<Socket>> socketConfigurator,
+            Optional<TimeSpan?> writeTimeout,
+            bool useOperatingSystemBufferSizes)
         {
             _addressFamily = addressFamily.WithDefault(AddressFamily.InterNetwork);
             _connectTimeout = Ensure.IsInfiniteOrGreaterThanOrEqualToZero(connectTimeout.WithDefault(Timeout.InfiniteTimeSpan), "connectTimeout");
@@ -60,6 +74,7 @@ namespace MongoDB.Driver.Core.Configuration
             _receiveBufferSize = Ensure.IsGreaterThanZero(receiveBufferSize.WithDefault(64 * 1024), "receiveBufferSize");
             _sendBufferSize = Ensure.IsGreaterThanZero(sendBufferSize.WithDefault(64 * 1024), "sendBufferSize");
             _socketConfigurator = socketConfigurator.WithDefault(null);
+            _useOperatingSystemBufferSizes = useOperatingSystemBufferSizes;
             _writeTimeout = Ensure.IsNullOrInfiniteOrGreaterThanOrEqualToZero(writeTimeout.WithDefault(null), "writeTimeout");
         }
 
@@ -71,6 +86,7 @@ namespace MongoDB.Driver.Core.Configuration
             _receiveBufferSize = other.ReceiveBufferSize;
             _sendBufferSize = other.SendBufferSize;
             _socketConfigurator = other.SocketConfigurator;
+            _useOperatingSystemBufferSizes = other._useOperatingSystemBufferSizes;
             _writeTimeout = other.WriteTimeout;
         }
 
@@ -142,6 +158,19 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether the socket buffer sizes are left at the operating system defaults.
+        /// When true, <see cref="ReceiveBufferSize"/> and <see cref="SendBufferSize"/> are ignored.
+        /// </summary>
+        /// <value>
+        /// Whether the socket buffer sizes are left at the operating system defaults.
+        /// </value>
+        [Obsolete("Will be removed in the next major version, where ReceiveBufferSize and SendBufferSize become nullable and null leaves the operating system default.")]
+        public bool UseOperatingSystemBufferSizes
+        {
+            get { return _useOperatingSystemBufferSizes; }
+        }
+
+        /// <summary>
         /// Gets the write timeout.
         /// </summary>
         /// <value>
@@ -180,7 +209,27 @@ namespace MongoDB.Driver.Core.Configuration
                 receiveBufferSize: receiveBufferSize.WithDefault(_receiveBufferSize),
                 sendBufferSize: sendBufferSize.WithDefault(_sendBufferSize),
                 socketConfigurator: socketConfigurator.WithDefault(_socketConfigurator),
-                writeTimeout: writeTimeout.WithDefault(_writeTimeout));
+                writeTimeout: writeTimeout.WithDefault(_writeTimeout),
+                useOperatingSystemBufferSizes: _useOperatingSystemBufferSizes);
+        }
+
+        /// <summary>
+        /// Returns a new TcpStreamSettings instance with <see cref="UseOperatingSystemBufferSizes"/> changed.
+        /// </summary>
+        /// <param name="useOperatingSystemBufferSizes">Whether to leave the socket buffer sizes at the operating system defaults.</param>
+        /// <returns>A new TcpStreamSettings instance.</returns>
+        [Obsolete("Will be removed in the next major version, where ReceiveBufferSize and SendBufferSize become nullable and null leaves the operating system default.")]
+        public TcpStreamSettings WithUseOperatingSystemBufferSizes(bool useOperatingSystemBufferSizes)
+        {
+            return new TcpStreamSettings(
+                addressFamily: _addressFamily,
+                connectTimeout: _connectTimeout,
+                readTimeout: _readTimeout,
+                receiveBufferSize: _receiveBufferSize,
+                sendBufferSize: _sendBufferSize,
+                socketConfigurator: _socketConfigurator,
+                writeTimeout: _writeTimeout,
+                useOperatingSystemBufferSizes: useOperatingSystemBufferSizes);
         }
     }
 }
