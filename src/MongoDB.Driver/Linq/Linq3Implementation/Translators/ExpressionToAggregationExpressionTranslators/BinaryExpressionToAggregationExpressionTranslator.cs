@@ -266,7 +266,7 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
                 ExpressionType.Add => AstExpression.Add(leftAst, rightAst),
                 ExpressionType.AddChecked => AstExpression.Add(leftAst, rightAst),
                 ExpressionType.And => AstExpression.BitAnd(leftAst, rightAst),
-                ExpressionType.Divide => AstExpression.Divide(leftAst, rightAst),
+                ExpressionType.Divide => TranslateDivide(expression, leftAst, rightAst),
                 ExpressionType.ExclusiveOr => AstExpression.BitXor(leftAst, rightAst),
                 ExpressionType.Modulo => AstExpression.Mod(leftAst, rightAst),
                 ExpressionType.Multiply => AstExpression.Multiply(leftAst, rightAst),
@@ -421,6 +421,32 @@ namespace MongoDB.Driver.Linq.Linq3Implementation.Translators.ExpressionToAggreg
             var serializer = enumTranslation.Serializer;
 
             return new TranslatedExpression(expression, ast, serializer);
+        }
+
+        private static AstExpression TranslateDivide(BinaryExpression expression, AstExpression leftAst, AstExpression rightAst)
+        {
+            if (!expression.Type.IsIntegralOrNullableIntegral())
+            {
+                return AstExpression.Divide(leftAst, rightAst);
+            }
+
+            var resultType = expression.Type.IsNullable(out var valueType) ? valueType : expression.Type;
+            if (resultType == typeof(int))
+            {
+                return AstExpression.Convert(AstExpression.Divide(leftAst, rightAst), "int");
+            }
+
+            if (resultType == typeof(long) || resultType == typeof(ulong))
+            {
+                // double cannot represent every 64-bit integer so the division is performed using decimal
+                var decimalQuotientAst = AstExpression.Divide(AstExpression.Convert(leftAst, "decimal"), AstExpression.Convert(rightAst, "decimal"));
+                return resultType == typeof(long)
+                    ? AstExpression.Convert(decimalQuotientAst, "long")
+                    : AstExpression.Trunc(decimalQuotientAst); // $toLong cannot represent values above long.MaxValue
+            }
+
+            // uint and the smaller integral types fit in a long, and the double quotient is exact for them
+            return AstExpression.Convert(AstExpression.Divide(leftAst, rightAst), "long");
         }
     }
 }
