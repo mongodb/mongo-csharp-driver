@@ -32,6 +32,9 @@ jobs:
 
       - name: Verify formatting and code style
         id: verify
+        env:
+          # Adds the net472 target to the test projects, so #if NET472 code is analyzed.
+          IsWindows: 'true'
         run: dotnet format CSharpDriver.sln --verify-no-changes
 
       - name: Show how to fix

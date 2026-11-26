@@ -35,7 +35,7 @@ namespace MongoDB.Bson.Tests.Serialization
             {
             }
 
-            private const string _literal = "constant";
+            private const string Literal = "constant";
             private readonly string _readOnly;
             private string _getOnly;
             private string _setOnly;
