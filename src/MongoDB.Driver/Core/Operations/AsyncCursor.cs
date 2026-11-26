@@ -465,7 +465,6 @@ namespace MongoDB.Driver.Core.Operations
             GC.SuppressFinalize(this);
         }
 
-        // reuses the operation's held connection (a pool of one has no other) and a fresh context, so it still runs after caller cancellation
         private void CloseAfterFirstBatchFailure(IChannelHandle heldChannel)
         {
             try
