@@ -272,7 +272,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                CloseIfNotAlreadyClosed(cancellationToken);
+                CloseIfNotAlreadyClosed(cancellationToken: cancellationToken);
             }
             finally
             {
@@ -284,7 +284,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                await CloseIfNotAlreadyClosedAsync(cancellationToken).ConfigureAwait(false);
+                await CloseIfNotAlreadyClosedAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -465,60 +465,32 @@ namespace MongoDB.Driver.Core.Operations
             GC.SuppressFinalize(this);
         }
 
-        // uses the operation's still-held connection and its own 10s bound, so it needs no extra connection and still runs after caller cancellation
-        private void CloseAfterFirstBatchFailure(IChannelHandle channel)
+        // reuses the operation's held connection (a pool of one has no other) and a fresh context, so it still runs after caller cancellation
+        private void CloseAfterFirstBatchFailure(IChannelHandle heldChannel)
         {
             try
             {
-                if (_cursorId != 0 && !channel.Connection.IsExpired)
-                {
-                    using var rootContext = new OperationContext(_session);
-                    using var operationContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
-                    using (EventContext.BeginOperation(_operationId))
-                    using (EventContext.BeginKillCursors(_collectionNamespace))
-                    {
-                        ExecuteKillCursorsCommand(operationContext, channel);
-                    }
-                }
-            }
-            catch
-            {
-                // ignore exceptions so the deserialization failure is the one that surfaces
+                CloseIfNotAlreadyClosed(heldChannel: heldChannel);
             }
             finally
             {
-                _closed = true;
                 Dispose();
             }
         }
 
-        private async Task CloseAfterFirstBatchFailureAsync(IChannelHandle channel)
+        private async Task CloseAfterFirstBatchFailureAsync(IChannelHandle heldChannel)
         {
             try
             {
-                if (_cursorId != 0 && !channel.Connection.IsExpired)
-                {
-                    using var rootContext = new OperationContext(_session);
-                    using var operationContext = rootContext.WithTimeout(TimeSpan.FromSeconds(10));
-                    using (EventContext.BeginOperation(_operationId))
-                    using (EventContext.BeginKillCursors(_collectionNamespace))
-                    {
-                        await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
-                    }
-                }
-            }
-            catch
-            {
-                // ignore exceptions so the deserialization failure is the one that surfaces
+                await CloseIfNotAlreadyClosedAsync(heldChannel: heldChannel).ConfigureAwait(false);
             }
             finally
             {
-                _closed = true;
                 await DisposeAsync().ConfigureAwait(false);
             }
         }
 
-        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken = default)
+        private void CloseIfNotAlreadyClosed(IChannelHandle heldChannel = null, CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -529,7 +501,7 @@ namespace MongoDB.Driver.Core.Operations
                         try
                         {
                             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
-                            KillCursors(operationContext);
+                            KillCursors(operationContext, heldChannel);
                         }
                         catch
                         {
@@ -544,7 +516,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken = default)
+        private async Task CloseIfNotAlreadyClosedAsync(IChannelHandle heldChannel = null, CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -555,7 +527,7 @@ namespace MongoDB.Driver.Core.Operations
                         try
                         {
                             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
-                            await KillCursorsAsync(operationContext).ConfigureAwait(false);
+                            await KillCursorsAsync(operationContext, heldChannel).ConfigureAwait(false);
                         }
                         catch
                         {
@@ -632,36 +604,60 @@ namespace MongoDB.Driver.Core.Operations
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
         }
 
-        private void KillCursors(OperationContext operationContext)
+        private void KillCursors(OperationContext operationContext, IChannelHandle heldChannel = null)
         {
-            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // note for 10s timeout on boundedOperationContext:
             // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
             // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
+            // With a held channel there is no checkout, so the bound covers the command instead.
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = _channelSource.GetChannel(killCursorGetChannelOperationContext))
+            using (var boundedOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
             {
-                if (!channel.Connection.IsExpired)
+                if (heldChannel != null)
                 {
-                    ExecuteKillCursorsCommand(operationContext, channel);
+                    if (!heldChannel.Connection.IsExpired)
+                    {
+                        ExecuteKillCursorsCommand(boundedOperationContext, heldChannel);
+                    }
+                    return;
+                }
+
+                using (var channel = _channelSource.GetChannel(boundedOperationContext))
+                {
+                    if (!channel.Connection.IsExpired)
+                    {
+                        ExecuteKillCursorsCommand(operationContext, channel);
+                    }
                 }
             }
         }
 
-        private async Task KillCursorsAsync(OperationContext operationContext)
+        private async Task KillCursorsAsync(OperationContext operationContext, IChannelHandle heldChannel = null)
         {
-            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // note for 10s timeout on boundedOperationContext:
             // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
             // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
+            // With a held channel there is no checkout, so the bound covers the command instead.
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = await _channelSource.GetChannelAsync(killCursorGetChannelOperationContext).ConfigureAwait(false))
+            using (var boundedOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
             {
-                if (!channel.Connection.IsExpired)
+                if (heldChannel != null)
                 {
-                    await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
+                    if (!heldChannel.Connection.IsExpired)
+                    {
+                        await ExecuteKillCursorsCommandAsync(boundedOperationContext, heldChannel).ConfigureAwait(false);
+                    }
+                    return;
+                }
+
+                using (var channel = await _channelSource.GetChannelAsync(boundedOperationContext).ConfigureAwait(false))
+                {
+                    if (!channel.Connection.IsExpired)
+                    {
+                        await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
+                    }
                 }
             }
         }

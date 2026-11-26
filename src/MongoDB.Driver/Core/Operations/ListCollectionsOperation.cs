@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -128,7 +127,20 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var result = operation.Execute(operationContext, context);
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
+                return AsyncCursor<BsonDocument>.FromServerResponse(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    result,
+                    _comment,
+                    batchSize: _batchSize ?? 0,
+                    limit: 0,
+                    BsonDocumentSerializer.Instance,
+                    _messageEncoderSettings,
+                    maxTime: null,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting);
             }
         }
 
@@ -153,7 +165,20 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var result = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, result);
+                return await AsyncCursor<BsonDocument>.FromServerResponseAsync(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    result,
+                    _comment,
+                    batchSize: _batchSize ?? 0,
+                    limit: 0,
+                    BsonDocumentSerializer.Instance,
+                    _messageEncoderSettings,
+                    maxTime: null,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting).ConfigureAwait(false);
             }
         }
 
@@ -170,36 +195,12 @@ namespace MongoDB.Driver.Core.Operations
                 { "authorizedCollections", () => _authorizedCollections.Value, _authorizedCollections.HasValue },
                 { "comment", _comment, _comment != null }
             };
-            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, BsonDocumentSerializer.Instance, _messageEncoderSettings, OperationName)
+            return new ReadCommandOperation<BsonDocument>(_databaseNamespace, command, AsyncCursor<BsonDocument>.CommandResultSerializer, _messageEncoderSettings, OperationName)
             {
                 EnableOverloadRetargeting = _enableOverloadRetargeting,
                 MaxAdaptiveRetries = _maxAdaptiveRetries,
                 RetryRequested = _retryRequested, // might be overridden by retryable read context
             };
-        }
-
-        private IAsyncCursor<BsonDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument result)
-        {
-            var cursorDocument = result["cursor"].AsBsonDocument;
-            var cursorId = cursorDocument["id"].ToInt64();
-            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId);
-            var cursor = new AsyncCursor<BsonDocument>(
-                getMoreChannelSource,
-                operationContext.Session.Fork(),
-                CollectionNamespace.FromFullName(cursorDocument["ns"].AsString),
-                _comment,
-                cursorDocument["firstBatch"].AsBsonArray.OfType<BsonDocument>().ToList(),
-                cursorId,
-                batchSize: _batchSize ?? 0,
-                0,
-                BsonDocumentSerializer.Instance,
-                _messageEncoderSettings,
-                maxTime: null,
-                retryRequested: _retryRequested,
-                maxAdaptiveRetries: _maxAdaptiveRetries,
-                enableOverloadRetargeting: _enableOverloadRetargeting);
-
-            return cursor;
         }
     }
 }
