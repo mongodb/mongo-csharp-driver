@@ -25,6 +25,7 @@ using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Servers;
 using Moq;
 using Xunit;
+using SrvRecord = MongoDB.Driver.Core.Misc.SrvRecord;
 
 namespace MongoDB.Driver.Core.Clusters
 {

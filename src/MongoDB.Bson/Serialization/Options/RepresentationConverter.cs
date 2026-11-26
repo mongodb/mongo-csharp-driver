@@ -298,7 +298,7 @@ namespace MongoDB.Bson.Serialization.Options
             {
                 return double.MinValue;
             }
-            else if (value == decimal.MaxValue)
+            if (value == decimal.MaxValue)
             {
                 return double.MaxValue;
             }

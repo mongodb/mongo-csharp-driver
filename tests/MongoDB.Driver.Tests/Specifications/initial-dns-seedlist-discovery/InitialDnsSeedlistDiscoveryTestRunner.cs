@@ -30,6 +30,8 @@ using MongoDB.TestHelpers.XunitExtensions;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
+using SrvRecord = MongoDB.Driver.Core.Misc.SrvRecord;
+using TxtRecord = MongoDB.Driver.Core.Misc.TxtRecord;
 
 namespace MongoDB.Driver.Tests.Specifications.initial_dns_seedlist_discovery;
 

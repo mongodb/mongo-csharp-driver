@@ -28,9 +28,9 @@ namespace MongoDB.Bson.Tests.Jira.CSharp151
         [Fact]
         public void TestDeserializeDouble()
         {
-            var json = "{ 'Value' : 1.23 }".Replace("'", "\"");
+            var json = "{ 'Value' : 1.25 }".Replace("'", "\"");
             var doc = BsonSerializer.Deserialize<Doc>(json);
-            Assert.Equal(1.23m, doc.Value);
+            Assert.Equal(1.25m, doc.Value);
         }
 
         [Fact]
