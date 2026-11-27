@@ -60,7 +60,7 @@ namespace MongoDB.Driver.Core.Clusters
             // since DNS is case insensitive and expects A-labels on the wire.
             if (!ConnectionString.TryNormalizeHostName(lookupDomainName, out _lookupDomainName))
             {
-                throw new MongoConfigurationException($"Unable to parse {lookupDomainName} as a hostname.");
+                throw new MongoConfigurationException("Unable to parse seed host as a hostname.");
             }
 
             _cancellationToken = cancellationToken;

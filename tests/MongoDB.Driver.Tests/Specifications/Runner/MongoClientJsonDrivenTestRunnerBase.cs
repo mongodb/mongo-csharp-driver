@@ -31,6 +31,7 @@ using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.TestHelpers.Logging;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Support;
 using MongoDB.Driver.Tests.JsonDrivenTests;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -453,7 +454,7 @@ namespace MongoDB.Driver.Tests.Specifications.Runner
                 IServerSelector failPointServerSelector;
                 if (settings.DirectConnection)
                 {
-                    var serverAddress = EndPointHelper.Parse(settings.Server.ToString());
+                    var serverAddress = settings.Server.ToEndPoint();
                     failPointServerSelector = new EndPointServerSelector(serverAddress);
                 }
                 else

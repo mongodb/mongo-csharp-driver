@@ -914,7 +914,12 @@ namespace MongoDB.Driver
                 {
                     if (property.Key.Equals("CANONICALIZE_HOST_NAME", StringComparison.OrdinalIgnoreCase))
                     {
-                        credential = credential.WithMechanismProperty(property.Key, bool.Parse(property.Value));
+                        // bool.Parse would put the value into its exception message
+                        if (!bool.TryParse(property.Value, out var canonicalizeHostName))
+                        {
+                            throw new MongoConfigurationException($"{property.Key} has an invalid value.");
+                        }
+                        credential = credential.WithMechanismProperty(property.Key, canonicalizeHostName);
                     }
                     else
                     {

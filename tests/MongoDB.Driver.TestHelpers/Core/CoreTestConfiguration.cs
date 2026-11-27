@@ -69,6 +69,12 @@ namespace MongoDB.Driver
             get => __connectionStringWithMultipleShardRouters.Value;
         }
 
+        // ConnectionString.ToString() is redacted, so tests that need a usable connection string must use these
+        public static string UnredactedConnectionString => __connectionString.Value.ToUnredactedString();
+
+        public static string UnredactedConnectionStringWithMultipleShardRouters =>
+            __connectionStringWithMultipleShardRouters.Value.ToUnredactedString();
+
         public static DatabaseNamespace DatabaseNamespace
         {
             get { return __databaseNamespace.Value; }

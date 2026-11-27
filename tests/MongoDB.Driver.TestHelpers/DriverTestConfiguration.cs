@@ -116,7 +116,7 @@ namespace MongoDB.Driver.Tests
 
         public static IEnumerable<IMongoClient> CreateDirectClientsToHostsInConnectionString(ConnectionString connectionString)
         {
-            return CreateDirectClientsToServersInClientSettings(MongoClientSettings.FromConnectionString(connectionString.ToString()));
+            return CreateDirectClientsToServersInClientSettings(MongoClientSettings.FromConnectionString(connectionString.ToUnredactedString()));
         }
 
         public static IMongoClient CreateMongoClient(LoggingSettings loggingSettings) =>
@@ -138,8 +138,8 @@ namespace MongoDB.Driver.Tests
             }
 
             var connectionString = useMultipleShardRouters
-                ? CoreTestConfiguration.ConnectionStringWithMultipleShardRouters.ToString()
-                : CoreTestConfiguration.ConnectionString.ToString();
+                ? CoreTestConfiguration.UnredactedConnectionStringWithMultipleShardRouters
+                : CoreTestConfiguration.UnredactedConnectionString;
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
             clientSettings.ServerApi = CoreTestConfiguration.ServerApi;
             clientSettings.TranslationOptions = GetTranslationOptions();
@@ -179,7 +179,7 @@ namespace MongoDB.Driver.Tests
 
         public static MongoClientSettings GetClientSettings()
         {
-            var connectionString = CoreTestConfiguration.ConnectionString.ToString();
+            var connectionString = CoreTestConfiguration.UnredactedConnectionString;
             var clientSettings = MongoClientSettings.FromUrl(new MongoUrl(connectionString));
 
             var serverSelectionTimeoutString = Environment.GetEnvironmentVariable("MONGO_SERVER_SELECTION_TIMEOUT_MS");

@@ -13,11 +13,8 @@
  * limitations under the License.
  */
 
-using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security;
-using System.Security.Cryptography;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Shared;
 
@@ -117,24 +114,6 @@ namespace MongoDB.Driver
             }
             secureString.MakeReadOnly();
             return secureString;
-        }
-
-        private static byte[] ComputeHash(HashAlgorithm algorithm, byte[] prefixBytes, byte[] passwordBytes)
-        {
-            var buffer = new byte[prefixBytes.Length + passwordBytes.Length];
-            var bufferHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            try
-            {
-                Buffer.BlockCopy(prefixBytes, 0, buffer, 0, prefixBytes.Length);
-                Buffer.BlockCopy(passwordBytes, 0, buffer, prefixBytes.Length, passwordBytes.Length);
-
-                return algorithm.ComputeHash(buffer);
-            }
-            finally
-            {
-                Array.Clear(buffer, 0, buffer.Length);
-                bufferHandle.Free();
-            }
         }
     }
 }

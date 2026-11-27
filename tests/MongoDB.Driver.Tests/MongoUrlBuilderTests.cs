@@ -196,7 +196,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2, ((WriteConcern.WCount)builder.W).Value);
                 Assert.Equal(TimeSpan.FromSeconds(8), builder.WaitQueueTimeout);
                 Assert.Equal(TimeSpan.FromSeconds(9), builder.WTimeout);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -213,7 +213,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(allowInsecureTls ?? false, builder.AllowInsecureTls);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -227,7 +227,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(applicationName, builder.ApplicationName);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -255,7 +255,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(mechanism, builder.AuthenticationMechanism);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -269,7 +269,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(authSource, builder.AuthenticationSource);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -285,7 +285,7 @@ namespace MongoDB.Driver.Tests
             var subject = new MongoUrlBuilder { Server = _localhost };
 
             subject.Compressors = compressors?.Select(x => new CompressorConfiguration(x)).ToList();
-            var connectionString = subject.ToString();
+            var connectionString = subject.ToUnredactedString();
 
             Assert.Equal(expectedConnectionString, connectionString);
         }
@@ -297,7 +297,7 @@ namespace MongoDB.Driver.Tests
 
             var zlibCompressor = new CompressorConfiguration(CompressorType.Zlib) { Properties = { { "Level", 1 } } };
             subject.Compressors = new[] { zlibCompressor };
-            var connectionString = subject.ToString();
+            var connectionString = subject.ToUnredactedString();
 
             Assert.Equal("mongodb://localhost/?compressors=zlib&zlibCompressionLevel=1", connectionString);
         }
@@ -319,7 +319,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(connectTimeout ?? MongoDefaults.ConnectTimeout, builder.ConnectTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -347,7 +347,7 @@ namespace MongoDB.Driver.Tests
             {
                 Assert.Equal(password, url.Password);
                 Assert.Equal(username, url.Username);
-                Assert.Equal(connectionString, url.ToString());
+                Assert.Equal(connectionString, url.ToUnredactedString());
             }
         }
 
@@ -361,7 +361,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(databaseName, builder.DatabaseName);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -408,7 +408,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(null, builder.W);
                 Assert.Equal(MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
                 Assert.Equal(null, builder.WTimeout);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -421,7 +421,7 @@ namespace MongoDB.Driver.Tests
             var built = new MongoUrlBuilder { Server = _localhost, DirectConnection = directConnection };
 
             directConnection.Should().Be(built.DirectConnection);
-            built.ToString().Should().Be(connectionString);
+            built.ToUnredactedString().Should().Be(connectionString);
         }
 
         [Theory]
@@ -436,7 +436,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(fsync, builder.FSync);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -484,7 +484,7 @@ namespace MongoDB.Driver.Tests
             {
                 var writeConcern = builder.GetWriteConcern(true);
                 Assert.Equal(journal, writeConcern.Journal);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -536,7 +536,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(heartbeatInterval ?? ServerSettings.DefaultHeartbeatInterval, builder.HeartbeatInterval);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -566,7 +566,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(heartbeatTimeout ?? ServerSettings.DefaultHeartbeatTimeout, builder.HeartbeatTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -593,7 +593,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(ipv6 ?? false, builder.IPv6);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -609,7 +609,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values, journalAliases))
             {
                 Assert.Equal(journal, builder.Journal);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -622,7 +622,7 @@ namespace MongoDB.Driver.Tests
 
             subject.LoadBalanced.Should().Be(value);
             var expectedConnectionString = $"mongodb://localhost{(value ? $"/?loadBalanced={JsonConvert.ToString(value)}" : "")}";
-            subject.ToString().Should().Be(expectedConnectionString);
+            subject.ToUnredactedString().Should().Be(expectedConnectionString);
         }
 
         [Theory]
@@ -656,7 +656,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(maxConnectionIdleTime ?? MongoDefaults.MaxConnectionIdleTime, builder.MaxConnectionIdleTime);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -686,7 +686,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(maxConnectionLifeTime ?? MongoDefaults.MaxConnectionLifeTime, builder.MaxConnectionLifeTime);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -710,7 +710,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(maxConnectionPoolSize ?? MongoDefaults.MaxConnectionPoolSize, builder.MaxConnectionPoolSize);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -740,7 +740,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(readPreference, builder.ReadPreference);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -755,7 +755,7 @@ namespace MongoDB.Driver.Tests
             var builder = new MongoUrlBuilder(value);
 
             builder.ReadPreference.MaxStaleness.Should().NotHaveValue();
-            builder.ToString().Should().Be("mongodb://localhost/?readPreference=secondary");
+            builder.ToUnredactedString().Should().Be("mongodb://localhost/?readPreference=secondary");
         }
 
         [Theory]
@@ -769,7 +769,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(minConnectionPoolSize ?? MongoDefaults.MinConnectionPoolSize, builder.MinConnectionPoolSize);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -795,7 +795,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(readConcernLevel, builder.ReadConcernLevel);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -816,7 +816,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(readPreference, builder.ReadPreference);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -848,7 +848,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(2, builderTagSet1Tags.Length);
                 Assert.Equal(new Tag("dc", "ny"), builderTagSet1Tags[0]);
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -876,7 +876,7 @@ namespace MongoDB.Driver.Tests
                 Assert.Equal(new Tag("rack", "1"), builderTagSet1Tags[1]);
                 Assert.Equal(1, builderTagSet2Tags.Length);
                 Assert.Equal(new Tag("dc", "sf"), builderTagSet2Tags[0]);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -890,7 +890,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(name, builder.ReplicaSetName);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -953,7 +953,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(w, builder.W);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -974,7 +974,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(localThreshold ?? MongoDefaults.LocalThreshold, builder.LocalThreshold);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1008,7 +1008,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(server, builder.Server);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1043,7 +1043,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, connectionString))
             {
                 Assert.Equal(servers, builder.Servers);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1064,7 +1064,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(serverSelectionTimeout ?? MongoDefaults.ServerSelectionTimeout, builder.ServerSelectionTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1094,7 +1094,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(socketTimeout ?? MongoDefaults.SocketTimeout, builder.SocketTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1126,7 +1126,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(timeout, builder.Timeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 #endif
@@ -1145,7 +1145,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
             {
                 Assert.Equal(srvServiceName, builder.SrvServiceName);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1170,7 +1170,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
             {
                 Assert.Equal(srvAllowedHostsSuffix, builder.SrvAllowedHostsSuffix);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1186,7 +1186,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, canonicalConnectionString))
             {
                 Assert.Equal(srvAllowedHostsSuffix, builder.SrvAllowedHostsSuffix);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1222,7 +1222,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(useTls ?? false, builder.UseTls);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1246,7 +1246,7 @@ namespace MongoDB.Driver.Tests
                 var writeConcern = builder.GetWriteConcern(acknowledgedDefault);
                 Assert.Equal(acknowledged, writeConcern.IsAcknowledged);
                 Assert.Equal(w, writeConcern.W);
-                Assert.Equal(connectionString, builder.ToString());
+                Assert.Equal(connectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1279,7 +1279,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(waitQueueTimeout ?? MongoDefaults.WaitQueueTimeout, builder.WaitQueueTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1309,7 +1309,7 @@ namespace MongoDB.Driver.Tests
             foreach (var builder in EnumerateBuiltAndParsedBuilders(built, formatString, values))
             {
                 Assert.Equal(wtimeout, builder.WTimeout);
-                Assert.Equal(canonicalConnectionString, builder.ToString());
+                Assert.Equal(canonicalConnectionString, builder.ToUnredactedString());
             }
         }
 
@@ -1338,7 +1338,7 @@ namespace MongoDB.Driver.Tests
         {
             var subject = new MongoUrlBuilder(connectionString);
 
-            var result = subject.ToString();
+            var result = subject.ToUnredactedString();
 
             result.Should().Be(expectedResult);
         }
@@ -1413,7 +1413,7 @@ namespace MongoDB.Driver.Tests
                 ProxyPassword = "p@ss:w&rd"
             };
 
-            var url = subject.ToString();
+            var url = subject.ToUnredactedString();
 
             url.Should().Be("mongodb://appuser:s3cret@db.internal/?tls=true&proxyHost=proxy.example.com&proxyUsername=user%40corp&proxyPassword=p%40ss%3Aw%26rd");
             var result = new MongoUrlBuilder(url);
@@ -1467,7 +1467,7 @@ namespace MongoDB.Driver.Tests
             compressor.Properties["Level"] = "5&tls=false";
             var subject = new MongoUrlBuilder(BaseUrl) { Compressors = [compressor] };
 
-            var url = subject.ToString();
+            var url = subject.ToUnredactedString();
 
             url.Should().Be("mongodb://appuser:s3cret@db.internal/?tls=true&compressors=zlib&zlibCompressionLevel=5%26tls%3Dfalse");
         }
@@ -1486,10 +1486,48 @@ namespace MongoDB.Driver.Tests
                 new Dictionary<string, string> { { "PROPERTY_NAME", "" } });
         }
 
+        [Fact]
+        public void ToString_should_redact_credentials_and_sensitive_values()
+        {
+            var subject = new MongoUrlBuilder(
+                "mongodb://SECRETuser:SECRETpass@db.internal/admin" +
+                "?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:SECRETtoken" +
+                "&proxyHost=proxy.example.com&proxyUsername=SECRETproxyuser&proxyPassword=SECRETproxypass");
+
+            var result = subject.ToString();
+
+            result.Should().NotContainEquivalentOf("SECRET");
+            result.Should().Be(
+                "mongodb://<redacted>:<redacted>@db.internal/admin" +
+                "?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:<redacted>" +
+                "&proxyHost=proxy.example.com&proxyUsername=<redacted>&proxyPassword=<redacted>");
+        }
+
+        [Fact]
+        public void ToString_should_redact_username_without_password()
+        {
+            new MongoUrlBuilder("mongodb://SECRETuser@db.internal").ToString().Should().Be("mongodb://<redacted>@db.internal");
+        }
+
+        [Fact]
+        public void ToString_should_not_change_when_there_are_no_credentials()
+        {
+            new MongoUrlBuilder("mongodb://db.internal/?tls=true").ToString().Should().Be("mongodb://db.internal/?tls=true");
+        }
+
+        [Fact]
+        public void ToMongoUrl_should_preserve_credentials()
+        {
+            var url = new MongoUrlBuilder("mongodb://user:pass@db.internal").ToMongoUrl();
+
+            url.Username.Should().Be("user");
+            url.Password.Should().Be("pass");
+        }
+
         // private methods
         private static MongoUrlBuilder RoundTrip(MongoUrlBuilder subject, string expectedUrl)
         {
-            var url = subject.ToString();
+            var url = subject.ToUnredactedString();
             url.Should().Be(expectedUrl);
 
             var result = new MongoUrlBuilder(url);

@@ -105,7 +105,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             result.IsResolved.Should().BeTrue();
-            result.ToString().Should().Be(expectedResult);
+            result.ToUnredactedString().Should().Be(expectedResult);
         }
 
         [Theory]
@@ -181,7 +181,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
 
             result.IsResolved.Should().BeTrue();
-            result.ToString().Should().Be(expectedResult);
+            result.ToUnredactedString().Should().Be(expectedResult);
         }
 
         [Fact]
@@ -569,17 +569,20 @@ namespace MongoDB.Driver.Core.Configuration
         }
 
         [Theory]
-        [InlineData("mongodb://nam!@#$%^&*())e:password@localhost", "mongodb://<hidden>@localhost")]
-        [InlineData("://nam!@#$%^&*())e:password@loc", "://<hidden>@loc")]
-        [InlineData("://nam!@#$%^&*())e@loc", "://<hidden>@loc")]
-        [InlineData("mongodb://nameloc@", "mongodb://<hidden>@")]
-        [InlineData("mongodb+srv://nameloc@", "mongodb+srv://<hidden>@")]
-        [InlineData("ongodb://username:password@localhost/?replicaSet=@x", "ongodb://<hidden>@localhost/?replicaSet=@x")]
-        public void When_connectionstring_invalid_security_data_should_be_protected(string connectionString, string protectedConnectionString)
+        [InlineData("mongodb://nam!@#$%^&*())e:password@localhost", "nam!@#$%^&*())e", "password")]
+        [InlineData("://nam!@#$%^&*())e:password@loc", "nam!@#$%^&*())e", "password")]
+        [InlineData("://nam!@#$%^&*())e@loc", "nam!@#$%^&*())e")]
+        [InlineData("mongodb://nameloc@", "nameloc")]
+        [InlineData("mongodb+srv://nameloc@", "nameloc")]
+        [InlineData("ongodb://username:password@localhost/?replicaSet=@x", "username", "password")]
+        public void When_connectionstring_invalid_security_data_should_not_leak(string connectionString, params string[] sentinelData)
         {
             var exception = Record.Exception(() => new ConnectionString(connectionString));
             var e = exception.Should().BeOfType<MongoConfigurationException>().Subject;
-            e.Message.Should().StartWith($"The connection string '{protectedConnectionString}'");
+            foreach (var sentinel in sentinelData)
+            {
+                e.Message.Should().NotContainEquivalentOf(sentinel);
+            }
         }
 
         [Theory]
@@ -1412,7 +1415,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = subject.Resolve();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToUnredactedString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
@@ -1426,7 +1429,7 @@ namespace MongoDB.Driver.Core.Configuration
 
             var resolved = await subject.ResolveAsync();
 
-            resolved.ToString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
+            resolved.ToUnredactedString().Should().Be("mongodb://user%40GSSAPI.COM:password@localhost.test.build.10gen.cc:27017/funny?authSource=thisDB&replicaSet=rs0&tls=true");
         }
 
         [Fact]
@@ -1439,6 +1442,19 @@ namespace MongoDB.Driver.Core.Configuration
             var resolved = subject.Resolve();
 
             resolved.Should().BeSameAs(subject);
+        }
+
+        [Fact]
+        public void ToString_should_redact_credentials_and_sensitive_values()
+        {
+            var subject = new ConnectionString(
+                "mongodb://SECRETuser:SECRETpass@db.internal/?proxyHost=p.example.com&proxyUsername=SECRETpu&proxyPassword=SECRETpp");
+
+            var result = subject.ToString();
+
+            result.Should().NotContainEquivalentOf("SECRET");
+            result.Should().StartWith("mongodb://<redacted>:<redacted>@db.internal");
+            subject.ToUnredactedString().Should().Contain("SECRETpass");
         }
     }
 

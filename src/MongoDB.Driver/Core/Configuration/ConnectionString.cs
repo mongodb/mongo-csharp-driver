@@ -692,6 +692,19 @@ namespace MongoDB.Driver.Core.Configuration
         /// <inheritdoc/>
         public override string ToString()
         {
+            // The username, password and sensitive option values are replaced with a fixed marker.
+            try
+            {
+                return new MongoUrlBuilder(this).ToString();
+            }
+            catch
+            {
+                return "<unavailable>";
+            }
+        }
+
+        internal string ToUnredactedString()
+        {
             return _originalConnectionString;
         }
 
@@ -778,8 +791,9 @@ namespace MongoDB.Driver.Core.Configuration
                 defaultPort = DefaultSrvPort;
             }
             List<EndPoint> endPoints = new List<EndPoint>();
-            foreach (Capture host in match.Groups["host"].Captures)
+            for (var index = 0; index < match.Groups["host"].Captures.Count; index++)
             {
+                var host = match.Groups["host"].Captures[index];
                 if (_scheme == ConnectionStringScheme.MongoDBPlusSrv && Regex.IsMatch(host.Value, @".*:\d+"))
                 {
                     throw new MongoConfigurationException("Host for mongodb+srv scheme cannot specify a port.");
@@ -792,7 +806,7 @@ namespace MongoDB.Driver.Core.Configuration
                 }
                 else
                 {
-                    throw new MongoConfigurationException(string.Format("Host '{0}' is not valid.", host.Value));
+                    throw new MongoConfigurationException($"Host #{index} is not valid.");
                 }
             }
 
@@ -850,7 +864,7 @@ namespace MongoDB.Driver.Core.Configuration
             }
             else
             {
-                throw new MongoConfigurationException($"Host {_hosts[0]} is invalid");
+                throw new MongoConfigurationException("Host name is invalid.");
             }
 
             return host;
@@ -873,18 +887,14 @@ namespace MongoDB.Driver.Core.Configuration
                 var invalidPercentPattern = @"%$|%.$|%[^0-9a-fA-F]|%[0-9a-fA-F][^0-9a-fA-F]";
                 if (Regex.IsMatch(_originalConnectionString, invalidPercentPattern))
                 {
-                    var protectedConnectionString = ProtectConnectionString(_originalConnectionString);
-                    var message = $"The connection string '{protectedConnectionString}' contains an invalid '%' escape sequence.";
-                    throw new MongoConfigurationException(message);
+                    throw new MongoConfigurationException("The connection string contains an invalid '%' escape sequence.");
                 }
             }
 
             var match = Regex.Match(_originalConnectionString, pattern);
             if (!match.Success)
             {
-                var protectedConnectionString = ProtectConnectionString(_originalConnectionString);
-                var message = $"The connection string '{protectedConnectionString}' is not valid.";
-                throw new MongoConfigurationException(message);
+                throw new MongoConfigurationException("The connection string is not valid.");
             }
 
             ExtractUsernameAndPassword(match);
@@ -988,12 +998,6 @@ namespace MongoDB.Driver.Core.Configuration
             if (_minPoolSize > _maxPoolSize)
             {
                 throw new MongoConfigurationException("maxPoolSize must be greater than or equal to minPoolSize.");
-            }
-
-            string ProtectConnectionString(string connectionString)
-            {
-                var protectedString = Regex.Replace(connectionString, @"(?<=://)[^/]*(?=@)", "<hidden>");
-                return protectedString;
             }
         }
 
@@ -1114,7 +1118,7 @@ namespace MongoDB.Driver.Core.Configuration
                     var proxyPortValue = ParseInt32(name, value);
                     if (proxyPortValue is < 1 or > 65535)
                     {
-                        throw new MongoConfigurationException($"Invalid proxy port {proxyPortValue}: must be between 1 and 65535, inclusive.");
+                        throw new MongoConfigurationException("Invalid proxy port: must be between 1 and 65535, inclusive.");
                     }
                     _proxyPort = proxyPortValue;
                     break;
@@ -1255,7 +1259,14 @@ namespace MongoDB.Driver.Core.Configuration
                     _tlsInsecure = EnsureTlsInsecureIsValid(tlsInsecureValue);
                     break;
                 case "w":
-                    _w = WriteConcern.WValue.Parse(value);
+                    try
+                    {
+                        _w = WriteConcern.WValue.Parse(value);
+                    }
+                    catch
+                    {
+                        throw new MongoConfigurationException($"{name} has an invalid value.");
+                    }
                     break;
                 case "wtimeout":
                 case "wtimeoutms":
@@ -1301,20 +1312,20 @@ namespace MongoDB.Driver.Core.Configuration
             var suffix = value.Trim('.');
             if (suffix.Length == 0)
             {
-                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage();
                 return false;
             }
 
             suffix = TryGetAsciiForm(suffix, out var errorDetail);
             if (suffix == null)
             {
-                errorMessage = $"srvAllowedHostsSuffix \"{value}\" is not a valid domain name: {errorDetail}";
+                errorMessage = $"srvAllowedHostsSuffix is not a valid domain name: {errorDetail}";
                 return false;
             }
 
             if (suffix.IndexOf('.') < 0 && Array.IndexOf(__validSingleLabelSrvAllowedHostsSuffixes, suffix) < 0)
             {
-                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage(value);
+                errorMessage = FormatSrvAllowedHostsSuffixLabelsMessage();
                 return false;
             }
 
@@ -1322,8 +1333,8 @@ namespace MongoDB.Driver.Core.Configuration
             return true;
         }
 
-        private static string FormatSrvAllowedHostsSuffixLabelsMessage(string value) =>
-            $"srvAllowedHostsSuffix \"{value}\" must name at least two domain labels, or one of these single " +
+        private static string FormatSrvAllowedHostsSuffixLabelsMessage() =>
+            "srvAllowedHostsSuffix must name at least two domain labels, or one of these single " +
             $"labels: {string.Join(", ", __validSingleLabelSrvAllowedHostsSuffixes)}. Any other single label " +
             "would allow any host registered under it. Specify a suffix that names the deployment's own domain.";
 
@@ -1383,7 +1394,7 @@ namespace MongoDB.Driver.Core.Configuration
                     {
                         // GetUnicode was passed a single label, so its own message would describe
                         // that label in isolation and name a parameter the caller never supplied
-                        errorDetail = $"\"{label}\" is not valid Punycode.";
+                        errorDetail = "label is not valid Punycode.";
                         return null;
                     }
                 }
@@ -1401,7 +1412,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var separatorPosition = unescapedProperty.IndexOf(':');
                 if (separatorPosition == -1)
                 {
-                    throw new MongoConfigurationException($"{name} has an invalid value of {value}.");
+                    throw new MongoConfigurationException($"{name} has an invalid value.");
                 }
 
                 var propertyKey = unescapedProperty.Substring(0, separatorPosition);
@@ -1417,9 +1428,9 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return JsonConvert.ToBoolean(value.ToLower());
             }
-            catch (Exception ex)
+            catch
             {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid boolean value of {1}.", name, value), ex);
+                throw new MongoConfigurationException($"{name} has an invalid value.");
             }
         }
 
@@ -1430,9 +1441,9 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return (TEnum)Enum.Parse(typeof(TEnum), value, true);
             }
-            catch (Exception ex)
+            catch
             {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid {1} value of {2}.", name, typeof(TEnum), value), ex);
+                throw new MongoConfigurationException($"{name} has an invalid {typeof(TEnum)} value.");
             }
         }
 
@@ -1442,9 +1453,9 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return JsonConvert.ToInt32(value);
             }
-            catch (Exception ex)
+            catch
             {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid int32 value of {1}.", name, value), ex);
+                throw new MongoConfigurationException($"{name} has an invalid value.");
             }
         }
 
@@ -1456,7 +1467,7 @@ namespace MongoDB.Driver.Core.Configuration
                 var parts = tagString.Split(':');
                 if (parts.Length != 2)
                 {
-                    throw new MongoConfigurationException(string.Format("{0} has an invalid value of {1}.", name, value));
+                    throw new MongoConfigurationException($"{name} has an invalid value.");
                 }
                 var tag = new Tag(parts[0].Trim(), parts[1].Trim());
                 tags.Add(tag);
@@ -1506,9 +1517,9 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     return TimeSpan.Parse(lowerValue);
                 }
-                catch (Exception ex)
+                catch
                 {
-                    throw new MongoConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
+                    throw new MongoConfigurationException($"{name} has an invalid value.");
                 }
             }
 
@@ -1516,9 +1527,9 @@ namespace MongoDB.Driver.Core.Configuration
             {
                 return TimeSpan.FromMilliseconds(multiplier * JsonConvert.ToDouble(lowerValue));
             }
-            catch (Exception ex)
+            catch
             {
-                throw new MongoConfigurationException(string.Format("{0} has an invalid TimeSpan value of {1}.", name, value), ex);
+                throw new MongoConfigurationException($"{name} has an invalid value.");
             }
         }
 
@@ -1588,7 +1599,7 @@ namespace MongoDB.Driver.Core.Configuration
         {
             if (resolved.Count == 0)
             {
-                throw new MongoConfigurationException($"No hosts were found in the SRV record for {original}.");
+                throw new MongoConfigurationException("No hosts were found in the SRV record.");
             }
 
             // the domain that resolved hosts are validated against carries the same normalization
@@ -1597,7 +1608,7 @@ namespace MongoDB.Driver.Core.Configuration
             var lookupDomainName = original;
             if (_srvParentDomain == null && !TryNormalizeHostName(original, out lookupDomainName))
             {
-                throw new MongoConfigurationException($"Unable to parse {original} as a hostname.");
+                throw new MongoConfigurationException("Unable to parse seed host as a hostname.");
             }
 
             // for each resolved host, make sure that it ends with domain of the parent.
@@ -1614,7 +1625,7 @@ namespace MongoDB.Driver.Core.Configuration
                 {
                     throw new MongoConfigurationException(_srvParentDomain == null
                         ? "Hosts in the SRV record must have the same parent domain as the seed host."
-                        : $"Hosts in the SRV record must end with the srvAllowedHostsSuffix \"{_srvParentDomain}\".");
+                        : "Hosts in the SRV record must end with the srvAllowedHostsSuffix.");
                 }
             }
         }

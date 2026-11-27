@@ -32,7 +32,7 @@ namespace MongoDB.Driver.Tests.Communication.Security
 
         public PlainAuthenticationTests()
         {
-            _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.ConnectionString.ToString()));
+            _settings = MongoClientSettings.FromUrl(new MongoUrl(CoreTestConfiguration.UnredactedConnectionString));
         }
 
         [Fact]

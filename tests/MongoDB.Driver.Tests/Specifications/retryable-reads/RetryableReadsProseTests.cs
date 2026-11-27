@@ -23,10 +23,10 @@ using MongoDB.Driver.Core;
 using MongoDB.Driver.Core.Clusters;
 using MongoDB.Driver.Core.Clusters.ServerSelectors;
 using MongoDB.Driver.Core.Events;
-using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.Operations;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
+using MongoDB.Driver.Support;
 using MongoDB.TestHelpers.XunitExtensions;
 using Xunit;
 
@@ -64,7 +64,7 @@ namespace MongoDB.Driver.Tests.Specifications.retryable_reads
                 settings.Servers = new[] { serverAddress };
                 settings.DirectConnection = true;
 
-                failPointSelector = new EndPointServerSelector(EndPointHelper.Parse(serverAddress.ToString()));
+                failPointSelector = new EndPointServerSelector(serverAddress.ToEndPoint());
             }
 
             settings.MaxConnectionPoolSize = 1;
