@@ -17,7 +17,6 @@ using System;
 using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
-using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Connections;
 using MongoDB.Driver.Core.Events;
@@ -30,13 +29,6 @@ namespace MongoDB.Driver.Core.Operations
 {
     internal sealed class FindOperation<TDocument> : IReadOperation<IAsyncCursor<TDocument>>, IExecutableInRetryableReadContext<IAsyncCursor<TDocument>>, ICommandCreator
     {
-        #region static
-        // private static fields
-        private static readonly IBsonSerializer<BsonDocument> __findCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
-            "cursor", new PartiallyRawBsonDocumentSerializer(
-                "firstBatch", new RawBsonArraySerializer()));
-        #endregion
-
         // fields
         private bool? _allowDiskUse;
         private bool? _allowPartialResults;
@@ -305,7 +297,20 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var commandResult = operation.Execute(operationContext, context);
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, commandResult);
+                return AsyncCursor<TDocument>.FromServerResponse(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    commandResult,
+                    _comment,
+                    _batchSize,
+                    CursorLimit,
+                    _resultSerializer,
+                    _messageEncoderSettings,
+                    CursorMaxTime,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting);
             }
         }
 
@@ -328,50 +333,26 @@ namespace MongoDB.Driver.Core.Operations
             {
                 var operation = CreateOperation();
                 var commandResult = await operation.ExecuteAsync(operationContext, context).ConfigureAwait(false);
-                return CreateCursor(operationContext, context.ChannelSource, context.Channel, commandResult);
+                return await AsyncCursor<TDocument>.FromServerResponseAsync(
+                    operationContext,
+                    context.ChannelSource,
+                    context.Channel,
+                    commandResult,
+                    _comment,
+                    _batchSize,
+                    CursorLimit,
+                    _resultSerializer,
+                    _messageEncoderSettings,
+                    CursorMaxTime,
+                    _retryRequested,
+                    _maxAdaptiveRetries,
+                    _enableOverloadRetargeting).ConfigureAwait(false);
             }
         }
 
-        private AsyncCursor<TDocument> CreateCursor(OperationContext operationContext, IChannelSourceHandle channelSource, IChannelHandle channel, BsonDocument commandResult)
-        {
-            var cursorDocument = commandResult["cursor"].AsBsonDocument;
-            var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
-            var firstBatch = CreateFirstCursorBatch(cursorDocument);
-            var getMoreChannelSource = ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, firstBatch.CursorId);
+        private int? CursorLimit => _limit < 0 ? Math.Abs(_limit.Value) : _limit;
 
-            if (cursorDocument.TryGetValue("atClusterTime", out var atClusterTime))
-            {
-                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime.AsBsonTimestamp);
-            }
-
-            return new AsyncCursor<TDocument>(
-                getMoreChannelSource,
-                operationContext.Session.Fork(),
-                collectionNamespace,
-                _comment,
-                firstBatch.Documents,
-                firstBatch.CursorId,
-                _batchSize,
-                _limit < 0 ? Math.Abs(_limit.Value) : _limit,
-                _resultSerializer,
-                _messageEncoderSettings,
-                _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null,
-                _retryRequested,
-                maxAdaptiveRetries: _maxAdaptiveRetries,
-                enableOverloadRetargeting: _enableOverloadRetargeting);
-        }
-
-        private CursorBatch<TDocument> CreateFirstCursorBatch(BsonDocument cursorDocument)
-        {
-            var cursorId = cursorDocument["id"].ToInt64();
-            var batch = (RawBsonArray)cursorDocument["firstBatch"];
-
-            using (batch)
-            {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _resultSerializer, _messageEncoderSettings);
-                return new CursorBatch<TDocument>(cursorId, documents);
-            }
-        }
+        private TimeSpan? CursorMaxTime => _cursorType == CursorType.TailableAwait ? _maxAwaitTime : null;
 
         private EventContext.OperationIdDisposer BeginOperation() => EventContext.BeginOperation(null, OperationName);
 
@@ -380,7 +361,7 @@ namespace MongoDB.Driver.Core.Operations
             var operation = new ReadCommandOperation<BsonDocument>(
                 _collectionNamespace.DatabaseNamespace,
                 this,
-                __findCommandResultSerializer,
+                AsyncCursor<TDocument>.CommandResultSerializer,
                 _messageEncoderSettings,
                 OperationName)
             {

@@ -14,13 +14,16 @@
  */
 
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Driver.Core.Bindings;
 using MongoDB.Driver.Core.Clusters;
+using MongoDB.Driver.Core.Events;
 using MongoDB.Driver.Core.Misc;
 using MongoDB.Driver.Core.TestHelpers;
 using MongoDB.Driver.Core.TestHelpers.XunitExtensions;
@@ -591,6 +594,75 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public async Task Execute_should_kill_cursor_on_the_same_connection_when_first_batch_deserialization_throws(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var eventCapturer = new EventCapturer()
+                .Capture<CommandSucceededEvent>(e => e.CommandName == "aggregate")
+                .Capture<CommandStartedEvent>(e => e.CommandName == "killCursors");
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Array.Empty<BsonDocument>(), new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 1 };
+
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b
+                .ConfigureConnectionPool(s => s.With(maxConnections: 1))
+                .Subscribe(eventCapturer)))
+            {
+                var exception = await Record.ExceptionAsync(() => ExecuteOperationAsync(subject, cluster, async));
+
+                exception.Should().BeOfType<FormatException>();
+                var aggregateSucceeded = eventCapturer.Events.OfType<CommandSucceededEvent>().Single();
+                var killCursors = eventCapturer.Events.OfType<CommandStartedEvent>().Should().ContainSingle().Subject;
+                killCursors.Command["cursors"].AsBsonArray.Should().Be(new BsonArray { aggregateSucceeded.Reply["cursor"]["id"] });
+                killCursors.ConnectionId.Should().Be(aggregateSucceeded.ConnectionId);
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public async Task Execute_should_not_send_killCursors_when_first_batch_deserialization_throws_and_cursor_is_exhausted(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check();
+            EnsureTestData();
+            var eventCapturer = new EventCapturer().Capture<CommandStartedEvent>(e => e.CommandName == "killCursors");
+            var subject = new AggregateOperation<BsonDocument>(_collectionNamespace, Array.Empty<BsonDocument>(), new ThrowingBsonDocumentSerializer(), _messageEncoderSettings);
+
+            using (var cluster = CoreTestConfiguration.CreateCluster(b => b.Subscribe(eventCapturer)))
+            {
+                var exception = await Record.ExceptionAsync(() => ExecuteOperationAsync(subject, cluster, async));
+
+                exception.Should().BeOfType<FormatException>();
+                eventCapturer.Events.Should().BeEmpty();
+            }
+        }
+
+        [Theory]
+        [ParameterAttributeData]
+        public void Execute_should_not_set_snapshot_time_when_first_batch_deserialization_throws(
+            [Values(false, true)] bool async)
+        {
+            RequireServer.Check().Supports(Feature.SnapshotReads).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded);
+            var collectionNamespace = new CollectionNamespace(_databaseNamespace, $"{_collectionNamespace.CollectionName}_snapshot");
+            DropCollection(collectionNamespace);
+            var insertOperation = new BulkInsertOperation(collectionNamespace, [new InsertRequest(new BsonDocument("_id", 1)), new InsertRequest(new BsonDocument("_id", 2))], _messageEncoderSettings)
+            {
+                WriteConcern = WriteConcern.WMajority
+            };
+            ExecuteOperation(insertOperation);
+            var subject = new AggregateOperation<BsonDocument>(collectionNamespace, Array.Empty<BsonDocument>(), new ThrowingBsonDocumentSerializer(), _messageEncoderSettings) { BatchSize = 1 };
+
+            using var session = CoreTestConfiguration.StartSession(_cluster, new CoreSessionOptions(isSnapshot: true));
+            using var operationContext = new OperationContext(session);
+            using var binding = new ReadBindingHandle(CreateReadBinding());
+            var exception = Record.Exception(() => ExecuteOperation(operationContext, subject, binding, async));
+
+            exception.Should().BeOfType<FormatException>();
+            session.SnapshotTime.Should().BeNull();
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void Execute_should_throw_when_binding_is_null(
             [Values(false, true)]
             bool async)
@@ -904,178 +976,6 @@ namespace MongoDB.Driver.Core.Operations
                 Insert(new BsonDocument { { "_id", 1 }, { "x", "x" } });
                 Insert(new BsonDocument { { "_id", 2 }, { "x", "X" } });
             });
-        }
-    }
-
-    public class AggregateOperation_AggregateResultDeserializerTests
-    {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-            var y = new DerivedFromAggregateResultDeserializer<int>(Int32Serializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_null_should_return_false()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(null);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_object_should_return_false()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-            var y = new object();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_self_should_return_true()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(x);
-
-            result.Should().Be(true);
-        }
-
-        [Fact]
-        public void Equals_with_equal_fields_should_return_true()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-            var y = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(true);
-        }
-
-        [Fact]
-        public void Equals_with_not_equal_field_should_return_false()
-        {
-            var resultSerializer1 = new Int32Serializer(BsonType.Int32);
-            var resultSerializer2 = new Int32Serializer(BsonType.String);
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(resultSerializer1);
-            var y = new AggregateOperation<int>.AggregateResultDeserializer(resultSerializer2);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void GetHashCode_should_return_zero()
-        {
-            var x = new AggregateOperation<int>.AggregateResultDeserializer(Int32Serializer.Instance);
-
-            var result = x.GetHashCode();
-
-            result.Should().Be(0);
-        }
-
-        internal class DerivedFromAggregateResultDeserializer<TResult> : AggregateOperation<TResult>.AggregateResultDeserializer
-        {
-            public DerivedFromAggregateResultDeserializer(IBsonSerializer<TResult> resultSerializer) : base(resultSerializer)
-            {
-            }
-        }
-    }
-
-    public class AggregateOperation_AggregateCursorDeserializerTests
-    {
-        [Fact]
-        public void Equals_derived_should_return_false()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-            var y = new DerivedFromCursorDeserializer<int>(Int32Serializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_null_should_return_false()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(null);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_object_should_return_false()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-            var y = new object();
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void Equals_self_should_return_true()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(x);
-
-            result.Should().Be(true);
-        }
-
-        [Fact]
-        public void Equals_with_equal_fields_should_return_true()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-            var y = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(true);
-        }
-
-        [Fact]
-        public void Equals_with_not_equal_field_should_return_false()
-        {
-            var resultSerializer1 = new Int32Serializer(BsonType.Int32);
-            var resultSerializer2 = new Int32Serializer(BsonType.String);
-            var x = new AggregateOperation<int>.CursorDeserializer(resultSerializer1);
-            var y = new AggregateOperation<int>.CursorDeserializer(resultSerializer2);
-
-            var result = x.Equals(y);
-
-            result.Should().Be(false);
-        }
-
-        [Fact]
-        public void GetHashCode_should_return_zero()
-        {
-            var x = new AggregateOperation<int>.CursorDeserializer(Int32Serializer.Instance);
-
-            var result = x.GetHashCode();
-
-            result.Should().Be(0);
-        }
-
-        internal class DerivedFromCursorDeserializer<TResult> : AggregateOperation<TResult>.CursorDeserializer
-        {
-            public DerivedFromCursorDeserializer(IBsonSerializer<TResult> resultSerializer) : base(resultSerializer)
-            {
-            }
         }
     }
 }

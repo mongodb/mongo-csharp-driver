@@ -464,6 +464,36 @@ namespace MongoDB.Driver.Core.Operations
 
         [Theory]
         [ParameterAttributeData]
+        public async Task FromServerResponse_should_use_ns_field_of_the_response([Values(false, true)] bool async)
+        {
+            var cursorCollectionNamespace = CollectionNamespace.FromFullName("cursors.lkajlkasdf-3980238d908sdf");
+            var commandResult = new BsonDocument
+            {
+                { "ok", 1 },
+                {
+                    "cursor", new BsonDocument
+                    {
+                        { "id", 0 },
+                        { "firstBatch", new RawBsonArray(new ByteArrayBuffer(new byte[] { 5, 0, 0, 0, 0 }, isReadOnly: true)) },
+                        { "ns", cursorCollectionNamespace.FullName }
+                    }
+                }
+            };
+            var mockChannelSource = new Mock<IChannelSourceHandle>();
+            mockChannelSource.Setup(x => x.Server).Returns(Mock.Of<IServer>());
+            var mockSession = new Mock<ICoreSessionHandle>();
+            mockSession.Setup(x => x.Fork()).Returns(Mock.Of<ICoreSessionHandle>());
+            using var operationContext = new OperationContext(mockSession.Object);
+
+            var cursor = async
+                ? await AsyncCursor<BsonDocument>.FromServerResponseAsync(operationContext, mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult, null, null, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), null, false, 0, false)
+                : AsyncCursor<BsonDocument>.FromServerResponse(operationContext, mockChannelSource.Object, Mock.Of<IChannelHandle>(), commandResult, null, null, null, BsonDocumentSerializer.Instance, new MessageEncoderSettings(), null, false, 0, false);
+
+            cursor._collectionNamespace().Should().Be(cursorCollectionNamespace);
+        }
+
+        [Theory]
+        [ParameterAttributeData]
         public void GetMore_should_use_same_session(
             [Values(false, true)] bool async)
         {

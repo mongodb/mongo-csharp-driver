@@ -37,6 +37,110 @@ namespace MongoDB.Driver.Core.Operations
         private static readonly IBsonSerializer<BsonDocument> __getMoreCommandResultSerializer = new PartiallyRawBsonDocumentSerializer(
             "cursor", new PartiallyRawBsonDocumentSerializer(
                 "nextBatch", new RawBsonArraySerializer()));
+
+        public static IBsonSerializer<BsonDocument> CommandResultSerializer { get; } = new PartiallyRawBsonDocumentSerializer(
+            "cursor", new PartiallyRawBsonDocumentSerializer(
+                "firstBatch", new RawBsonArraySerializer()));
+
+        public static AsyncCursor<TDocument> FromServerResponse(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var (cursor, firstBatch, atClusterTime) = CreateWithoutFirstBatch(operationContext, channelSource, channel, commandResult, comment, batchSize, limit, serializer, messageEncoderSettings, maxTime, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting);
+            try
+            {
+                cursor.SetFirstBatch(cursor.DeserializeBatch(firstBatch));
+                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime);
+                return cursor;
+            }
+            catch
+            {
+                cursor.CloseAfterFirstBatchFailure(channel);
+                throw;
+            }
+        }
+
+        public static async Task<AsyncCursor<TDocument>> FromServerResponseAsync(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var (cursor, firstBatch, atClusterTime) = CreateWithoutFirstBatch(operationContext, channelSource, channel, commandResult, comment, batchSize, limit, serializer, messageEncoderSettings, maxTime, retryRequested, maxAdaptiveRetries, enableOverloadRetargeting);
+            try
+            {
+                cursor.SetFirstBatch(cursor.DeserializeBatch(firstBatch));
+                operationContext.Session.SetSnapshotTimeIfNeeded(atClusterTime);
+                return cursor;
+            }
+            catch
+            {
+                await cursor.CloseAfterFirstBatchFailureAsync(channel).ConfigureAwait(false);
+                throw;
+            }
+        }
+
+        private static (AsyncCursor<TDocument> Cursor, RawBsonArray FirstBatch, BsonTimestamp AtClusterTime) CreateWithoutFirstBatch(
+            OperationContext operationContext,
+            IChannelSourceHandle channelSource,
+            IChannelHandle channel,
+            BsonDocument commandResult,
+            BsonValue comment,
+            int? batchSize,
+            int? limit,
+            IBsonSerializer<TDocument> serializer,
+            MessageEncoderSettings messageEncoderSettings,
+            TimeSpan? maxTime,
+            bool retryRequested,
+            int maxAdaptiveRetries,
+            bool enableOverloadRetargeting)
+        {
+            var cursorDocument = commandResult["cursor"].AsBsonDocument;
+            var cursorId = cursorDocument["id"].ToInt64();
+            var collectionNamespace = CollectionNamespace.FromFullName(cursorDocument["ns"].AsString);
+            var postBatchResumeToken = (BsonDocument)cursorDocument.GetValue("postBatchResumeToken", null);
+            var firstBatch = (RawBsonArray)cursorDocument["firstBatch"];
+            var atClusterTime = (BsonTimestamp)cursorDocument.GetValue("atClusterTime", null);
+
+            var cursor = new AsyncCursor<TDocument>(
+                ChannelPinningHelper.CreateGetMoreChannelSource(channelSource, channel, cursorId),
+                operationContext.Session.Fork(),
+                collectionNamespace,
+                comment,
+                [],
+                cursorId,
+                postBatchResumeToken,
+                batchSize,
+                limit,
+                serializer,
+                messageEncoderSettings,
+                maxTime,
+                retryRequested,
+                maxAdaptiveRetries,
+                enableOverloadRetargeting);
+
+            return (cursor, firstBatch, atClusterTime);
+        }
         #endregion
 
         private readonly int? _batchSize;
@@ -56,7 +160,7 @@ namespace MongoDB.Driver.Core.Operations
         private readonly long? _operationId;
         private BsonDocument _postBatchResumeToken;
         private readonly IBsonSerializer<TDocument> _serializer;
-        private readonly bool _wasFirstBatchEmpty;
+        private bool _wasFirstBatchEmpty;
         private readonly bool _retryRequested;
         private readonly int _maxAdaptiveRetries;
         private readonly bool _enableOverloadRetargeting;
@@ -117,7 +221,7 @@ namespace MongoDB.Driver.Core.Operations
             _session = Ensure.IsNotNull(session, nameof(session));
             _comment = comment;
             _collectionNamespace = Ensure.IsNotNull(collectionNamespace, nameof(collectionNamespace));
-            _firstBatch = Ensure.IsNotNull(firstBatch, nameof(firstBatch));
+            Ensure.IsNotNull(firstBatch, nameof(firstBatch));
             _cursorId = cursorId;
             _postBatchResumeToken = postBatchResumeToken;
             _batchSize = Ensure.IsNullOrGreaterThanOrEqualToZero(batchSize, nameof(batchSize));
@@ -129,12 +233,7 @@ namespace MongoDB.Driver.Core.Operations
             _maxAdaptiveRetries = maxAdaptiveRetries;
             _enableOverloadRetargeting = enableOverloadRetargeting;
 
-            if (_limit > 0 && _firstBatch.Count > _limit)
-            {
-                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
-            }
-            _count = _firstBatch.Count;
-            _wasFirstBatchEmpty = firstBatch.Count == 0;
+            SetFirstBatch(firstBatch);
 
             DisposeChannelSourceIfNoLongerNeeded();
         }
@@ -173,7 +272,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                CloseIfNotAlreadyClosed(cancellationToken);
+                CloseIfNotAlreadyClosed(cancellationToken: cancellationToken);
             }
             finally
             {
@@ -185,7 +284,7 @@ namespace MongoDB.Driver.Core.Operations
         {
             try
             {
-                await CloseIfNotAlreadyClosedAsync(cancellationToken).ConfigureAwait(false);
+                await CloseIfNotAlreadyClosedAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -200,11 +299,7 @@ namespace MongoDB.Driver.Core.Operations
             var batch = (RawBsonArray)cursorDocument["nextBatch"];
             var postBatchResumeToken = (BsonDocument)cursorDocument.GetValue("postBatchResumeToken", null);
 
-            using (batch)
-            {
-                var documents = CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
-                return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, documents);
-            }
+            return new CursorBatch<TDocument>(cursorId, postBatchResumeToken, DeserializeBatch(batch));
         }
 
         private BsonDocument CreateGetMoreCommand(ConnectionDescription connectionDescription)
@@ -230,6 +325,14 @@ namespace MongoDB.Driver.Core.Operations
             };
 
             return command;
+        }
+
+        private List<TDocument> DeserializeBatch(RawBsonArray batch)
+        {
+            using (batch)
+            {
+                return CursorBatchDeserializationHelper.DeserializeBatch(batch, _serializer, _messageEncoderSettings);
+            }
         }
 
         private CursorBatch<TDocument> ExecuteGetMoreCommand(OperationContext operationContext, IChannelHandle channel)
@@ -362,7 +465,31 @@ namespace MongoDB.Driver.Core.Operations
             GC.SuppressFinalize(this);
         }
 
-        private void CloseIfNotAlreadyClosed(CancellationToken cancellationToken = default)
+        private void CloseAfterFirstBatchFailure(IChannelHandle heldChannel)
+        {
+            try
+            {
+                CloseIfNotAlreadyClosed(heldChannel: heldChannel);
+            }
+            finally
+            {
+                Dispose();
+            }
+        }
+
+        private async Task CloseAfterFirstBatchFailureAsync(IChannelHandle heldChannel)
+        {
+            try
+            {
+                await CloseIfNotAlreadyClosedAsync(heldChannel: heldChannel).ConfigureAwait(false);
+            }
+            finally
+            {
+                await DisposeAsync().ConfigureAwait(false);
+            }
+        }
+
+        private void CloseIfNotAlreadyClosed(IChannelHandle heldChannel = null, CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -373,7 +500,7 @@ namespace MongoDB.Driver.Core.Operations
                         try
                         {
                             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
-                            KillCursors(operationContext);
+                            KillCursors(operationContext, heldChannel);
                         }
                         catch
                         {
@@ -388,7 +515,7 @@ namespace MongoDB.Driver.Core.Operations
             }
         }
 
-        private async Task CloseIfNotAlreadyClosedAsync(CancellationToken cancellationToken = default)
+        private async Task CloseIfNotAlreadyClosedAsync(IChannelHandle heldChannel = null, CancellationToken cancellationToken = default)
         {
             if (!_closed)
             {
@@ -399,7 +526,7 @@ namespace MongoDB.Driver.Core.Operations
                         try
                         {
                             using var operationContext = new OperationContext(_session, cancellationToken: cancellationToken);
-                            await KillCursorsAsync(operationContext).ConfigureAwait(false);
+                            await KillCursorsAsync(operationContext, heldChannel).ConfigureAwait(false);
                         }
                         catch
                         {
@@ -476,36 +603,60 @@ namespace MongoDB.Driver.Core.Operations
             return exception.Code == (int)ServerErrorCode.CursorNotFound;
         }
 
-        private void KillCursors(OperationContext operationContext)
+        private void KillCursors(OperationContext operationContext, IChannelHandle heldChannel = null)
         {
-            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // note for 10s timeout on boundedOperationContext:
             // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
             // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
+            // With a held channel there is no checkout, so the bound covers the command instead.
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = _channelSource.GetChannel(killCursorGetChannelOperationContext))
+            using (var boundedOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
             {
-                if (!channel.Connection.IsExpired)
+                if (heldChannel != null)
                 {
-                    ExecuteKillCursorsCommand(operationContext, channel);
+                    if (!heldChannel.Connection.IsExpired)
+                    {
+                        ExecuteKillCursorsCommand(boundedOperationContext, heldChannel);
+                    }
+                    return;
+                }
+
+                using (var channel = _channelSource.GetChannel(boundedOperationContext))
+                {
+                    if (!channel.Connection.IsExpired)
+                    {
+                        ExecuteKillCursorsCommand(operationContext, channel);
+                    }
                 }
             }
         }
 
-        private async Task KillCursorsAsync(OperationContext operationContext)
+        private async Task KillCursorsAsync(OperationContext operationContext, IChannelHandle heldChannel = null)
         {
-            // note for 10s timeout on killCursorGetChannelOperationContext:
+            // note for 10s timeout on boundedOperationContext:
             // not mandated by spec, but we bound the connection checkout (not the killCursors command) so a
             // saturated pool can't stall Close()/Dispose() for up to WaitQueueTimeout (2 min default).
+            // With a held channel there is no checkout, so the bound covers the command instead.
             using (EventContext.BeginOperation(_operationId))
             using (EventContext.BeginKillCursors(_collectionNamespace))
-            using (var killCursorGetChannelOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
-            using (var channel = await _channelSource.GetChannelAsync(killCursorGetChannelOperationContext).ConfigureAwait(false))
+            using (var boundedOperationContext = operationContext.WithTimeout(TimeSpan.FromSeconds(10)))
             {
-                if (!channel.Connection.IsExpired)
+                if (heldChannel != null)
                 {
-                    await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
+                    if (!heldChannel.Connection.IsExpired)
+                    {
+                        await ExecuteKillCursorsCommandAsync(boundedOperationContext, heldChannel).ConfigureAwait(false);
+                    }
+                    return;
+                }
+
+                using (var channel = await _channelSource.GetChannelAsync(boundedOperationContext).ConfigureAwait(false))
+                {
+                    if (!channel.Connection.IsExpired)
+                    {
+                        await ExecuteKillCursorsCommandAsync(operationContext, channel).ConfigureAwait(false);
+                    }
                 }
             }
         }
@@ -565,6 +716,17 @@ namespace MongoDB.Driver.Core.Operations
             _postBatchResumeToken = batch.PostBatchResumeToken;
 
             DisposeChannelSourceIfNoLongerNeeded();
+        }
+
+        private void SetFirstBatch(IReadOnlyList<TDocument> firstBatch)
+        {
+            _firstBatch = firstBatch;
+            if (_limit > 0 && _firstBatch.Count > _limit)
+            {
+                _firstBatch = _firstBatch.Take(_limit.Value).ToList();
+            }
+            _count = _firstBatch.Count;
+            _wasFirstBatchEmpty = firstBatch.Count == 0;
         }
 
         private void ThrowIfDisposed()

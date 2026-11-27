@@ -247,7 +247,7 @@ namespace MongoDB.Driver.Core.Operations
 
             result.Command.Should().Be(expectedCommand);
             result.DatabaseNamespace.Should().BeSameAs(subject.DatabaseNamespace);
-            result.ResultSerializer.Should().BeSameAs(BsonDocumentSerializer.Instance);
+            result.ResultSerializer.Should().BeSameAs(AsyncCursor<BsonDocument>.CommandResultSerializer);
             result.MessageEncoderSettings.Should().BeSameAs(subject.MessageEncoderSettings);
         }
 
