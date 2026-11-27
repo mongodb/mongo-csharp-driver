@@ -1288,6 +1288,9 @@ namespace MongoDB.Driver.Core.Configuration
         [InlineData("host..mydomain.net")]
         [InlineData("xn--host.mydomain.net")]
         [InlineData("XN--HOST.mydomain.net")]
+        [InlineData("a b.com")]
+        [InlineData("a/b.com")]
+        [InlineData("a:27017.com")]
         public void TryNormalizeHostName_should_return_false_when_host_has_no_A_label_form(string host)
         {
             var result = ConnectionString.TryNormalizeHostName(host, out var normalizedHost);

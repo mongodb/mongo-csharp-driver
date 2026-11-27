@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "\uff3bevil.attacker.com\uff3d.example.com"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because U+FF3B and U+FF3D (fullwidth square brackets) map to '[' and ']' when converted to an A-label, and neither is allowed in a label. Drivers that reject the characters during conversion also satisfy this test."

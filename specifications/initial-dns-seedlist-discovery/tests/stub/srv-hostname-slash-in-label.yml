@@ -1,0 +1,8 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "evil.attacker.com/.example.com"
+      port: 27017
+seeds: []
+hosts: []
+error: true
+comment: "Should fail because '/' is not allowed in a label, even though the host name ends with the SRV domain."

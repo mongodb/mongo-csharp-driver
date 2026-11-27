@@ -1,0 +1,9 @@
+uri: "mongodb+srv://prod.example.com/"
+srvRecords:
+    - target: "b\u00fccher.example.com."
+      port: 27017
+seeds:
+    - "xn--bcher-kva.example.com:27017"
+hosts: []
+ping: false
+comment: "Should succeed: the trailing dot is stripped and the label is converted to its A-label (Punycode) form."
