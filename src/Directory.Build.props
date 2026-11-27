@@ -1,9 +1,5 @@
 <Project>
   <PropertyGroup>
-    <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <TargetFrameworks>net472;net6.0;net8.0;net10.0</TargetFrameworks>
     <LangVersion>14.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

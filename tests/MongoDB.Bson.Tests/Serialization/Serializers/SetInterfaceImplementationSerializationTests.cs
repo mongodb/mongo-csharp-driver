@@ -26,7 +26,6 @@ using Xunit;
 namespace MongoDB.Bson.Tests.Serialization.Serializers
 {
     // Regression test for CSHARP-783.
-#if WINDOWS
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class SetInterfaceDiscriminatedSerializationTests
     {
@@ -146,7 +145,6 @@ namespace MongoDB.Bson.Tests.Serialization.Serializers
             Assert.Equal(c.S, r.S);
         }
     }
-#endif
 
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class SetInterfaceImpliedHashSetImplementationTests
