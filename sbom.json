@@ -2,9 +2,9 @@
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
   "serialNumber": "urn:uuid:a24dfa6a-26a8-44d8-94bd-a2488e01185b",
-  "version": 10,
+  "version": 11,
   "metadata": {
-    "timestamp": "2026-10-29T19:10:57Z",
+    "timestamp": "2026-11-27T18:42:19Z",
     "tools": {
       "components": [
         {
@@ -27,10 +27,10 @@
     },
     "component": {
       "type": "library",
-      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-130-g327f3f24e7",
+      "bom-ref": "pkg:nuget/mongo-csharp-driver@3.9.0-150-gf182a83171",
       "name": "mongo-csharp-driver",
-      "version": "3.9.0-130-g327f3f24e7",
-      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-130-g327f3f24e7"
+      "version": "3.9.0-150-gf182a83171",
+      "purl": "pkg:nuget/mongo-csharp-driver@3.9.0-150-gf182a83171"
     }
   },
   "components": [
@@ -1183,7 +1183,7 @@
       ]
     },
     {
-      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-130-g327f3f24e7",
+      "ref": "pkg:nuget/mongo-csharp-driver@3.9.0-150-gf182a83171",
       "dependsOn": [
         "pkg:nuget/DnsClient@1.6.1",
         "pkg:nuget/Microsoft.Extensions.Logging.Abstractions@2.0.0",
