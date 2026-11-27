@@ -46,7 +46,6 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedStage);
         }
 
-#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void First_should_add_limit_and_call_ToCursor(
@@ -73,7 +72,6 @@ namespace MongoDB.Driver.Tests
                 mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
                 result = mockSubject1.Object.FirstAsync(cancellationToken).GetAwaiter().GetResult();
-
             }
             else
             {
@@ -85,7 +83,6 @@ namespace MongoDB.Driver.Tests
 
             result.FirstName.Should().Be("John");
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -107,7 +104,6 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void FirstOrDefault_should_add_limit_and_call_ToCursor(
@@ -134,7 +130,6 @@ namespace MongoDB.Driver.Tests
                 mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
                 result = mockSubject1.Object.FirstOrDefaultAsync(cancellationToken).GetAwaiter().GetResult();
-
             }
             else
             {
@@ -146,7 +141,6 @@ namespace MongoDB.Driver.Tests
 
             result.FirstName.Should().Be("John");
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -329,7 +323,6 @@ namespace MongoDB.Driver.Tests
             AssertLast(subject, expectedStage);
         }
 
-#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void Single_should_add_limit_and_call_ToCursor(
@@ -355,7 +348,6 @@ namespace MongoDB.Driver.Tests
                 mockCursor.Setup(c => c.MoveNextAsync(cancellationToken)).Returns(Task.FromResult(true));
 
                 result = mockSubject1.Object.SingleAsync(cancellationToken).GetAwaiter().GetResult();
-
             }
             else
             {
@@ -367,7 +359,6 @@ namespace MongoDB.Driver.Tests
 
             result.FirstName.Should().Be("John");
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]
@@ -389,7 +380,6 @@ namespace MongoDB.Driver.Tests
             action.ShouldThrow<ArgumentNullException>().And.ParamName.Should().Be("aggregate");
         }
 
-#if WINDOWS
         [Theory]
         [ParameterAttributeData]
         public void SingleOrDefault_should_add_limit_and_call_ToCursor(
@@ -426,7 +416,6 @@ namespace MongoDB.Driver.Tests
 
             result.FirstName.Should().Be("John");
         }
-#endif
 
         [Theory]
         [ParameterAttributeData]

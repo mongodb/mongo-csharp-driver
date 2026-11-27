@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers;
@@ -92,13 +93,18 @@ namespace MongoDB.Driver.Tests
         {
             string emptyLogPath;
             string platformExtension;
-#if WINDOWS
-            emptyLogPath = "nul";
-            platformExtension = ".exe";
-#else
-            emptyLogPath = "/dev/null";
-            platformExtension = "";
-#endif
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                emptyLogPath = "nul";
+                platformExtension = ".exe";
+            }
+            else
+            {
+                emptyLogPath = "/dev/null";
+                platformExtension = "";
+            }
+
             stringExtraOptions = stringExtraOptions?.Replace("#logpath#", emptyLogPath);
             expectedArgs = expectedArgs?.Replace("#logpath#", emptyLogPath);
             expectedPath = expectedPath?.Replace("#extension#", platformExtension);

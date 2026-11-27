@@ -15,6 +15,7 @@
 
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -107,9 +108,10 @@ namespace MongoDB.Driver.Tests.Specifications.server_discovery_and_monitoring.pr
         public async Task Connection_Pool_Backpressure([Values(true, false)] bool async)
         {
             RequireServer.Check().VersionGreaterThanOrEqualTo("7.0.23");
-#if MACOS
-            RequireServer.Check().VersionLessThan("8.99.99"); // Skip the test on MacOS, more details in CSHARP-6102
-#endif
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                RequireServer.Check().VersionLessThan("8.99.99"); // Skip the test on MacOS, more details in CSHARP-6102
+            }
 
             var setupClient = DriverTestConfiguration.Client;
             var adminDatabase = setupClient.GetDatabase(DatabaseNamespace.Admin.DatabaseName);

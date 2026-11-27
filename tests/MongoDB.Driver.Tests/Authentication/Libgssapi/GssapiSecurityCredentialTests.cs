@@ -14,6 +14,7 @@
  */
 
 using System;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Driver.Authentication.Gssapi.Libgssapi;
 using MongoDB.Driver.Core.Misc;
@@ -40,8 +41,8 @@ namespace MongoDB.Driver.Tests.Authentication.Libgssapi
         public void Should_acquire_gssapi_security_credential_with_username_and_password()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Windows);
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.Windows);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
 
             var securePassword = SecureStringHelper.ToSecureString(_password);
             using var credential = GssapiSecurityCredential.Acquire(_username, securePassword);
@@ -52,8 +53,8 @@ namespace MongoDB.Driver.Tests.Authentication.Libgssapi
         public void Should_acquire_gssapi_security_credential_with_username_only()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Windows);
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.Windows);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
 
             using var credential = GssapiSecurityCredential.Acquire(_username);
             credential.Should().NotBeNull();
@@ -63,8 +64,8 @@ namespace MongoDB.Driver.Tests.Authentication.Libgssapi
         public void Should_fail_to_acquire_gssapi_security_credential_with_username_and_bad_password()
         {
             RequireEnvironment.Check().EnvironmentVariable("GSSAPI_TESTS_ENABLED");
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Windows);
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.Windows);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
 
             var securePassword = SecureStringHelper.ToSecureString("BADPASSWORD");
 

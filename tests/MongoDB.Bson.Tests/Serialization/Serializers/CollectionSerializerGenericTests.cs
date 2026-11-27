@@ -263,7 +263,6 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
         }
     }
 
-#if WINDOWS
     [Collection(RegisterObjectSerializerFixture.CollectionName)]
     public class EnumerableSerializerNominalTypeObjectTests
     {
@@ -343,7 +342,6 @@ namespace MongoDB.Bson.Tests.Serialization.CollectionSerializersGeneric
             Assert.True(bson.SequenceEqual(rehydrated.ToBson(configurator: c => c.IsDynamicType = t => false)));
         }
     }
-#endif
 
     public class EnumerableSerializerWithItemSerializationOptionsTests
     {
