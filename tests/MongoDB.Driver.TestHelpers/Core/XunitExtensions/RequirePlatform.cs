@@ -29,37 +29,10 @@ namespace MongoDB.Driver.TestHelpers
         Net110
     }
 
-    public enum SupportedOperatingSystem
-    {
-        Windows,
-        Linux,
-        MacOS
-    }
-
     public class RequirePlatform
     {
         #region static
         public static RequirePlatform Check() => new();
-
-        public static SupportedOperatingSystem GetCurrentOperatingSystem()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return SupportedOperatingSystem.Windows;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return SupportedOperatingSystem.Linux;
-            }
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return SupportedOperatingSystem.MacOS;
-            }
-
-            throw new InvalidOperationException($"Unable to determine current operating system.");
-        }
 
         public static SupportedTargetFramework GetCurrentTargetFramework() => TargetFramework.Moniker switch
         {
@@ -72,19 +45,21 @@ namespace MongoDB.Driver.TestHelpers
 
         #endregion
 
-        public RequirePlatform SkipWhen(SupportedOperatingSystem operatingSystem, params SupportedTargetFramework[] targetFrameworks)
+        public RequirePlatform SkipWhen(OSPlatform operatingSystem, params SupportedTargetFramework[] targetFrameworks)
         {
-            var currentOperatingSystem = GetCurrentOperatingSystem();
-            var currentTargetFramework = GetCurrentTargetFramework();
-            if (operatingSystem == currentOperatingSystem && ((targetFrameworks?.Length ?? 0) == 0 || targetFrameworks.Contains(currentTargetFramework)))
+            if (RuntimeInformation.IsOSPlatform(operatingSystem))
             {
-                throw new SkipException($"Test skipped because it's not supported on {currentOperatingSystem} with {currentTargetFramework}.");
+                var currentTargetFramework = GetCurrentTargetFramework();
+                if ((targetFrameworks?.Length ?? 0) == 0 || targetFrameworks.Contains(currentTargetFramework))
+                {
+                    throw new SkipException($"Test skipped because it's not supported on {operatingSystem} with {currentTargetFramework}.");
+                }
             }
 
             return this;
         }
 
-        public RequirePlatform SkipWhen(Func<bool> condition, SupportedOperatingSystem operatingSystem, params SupportedTargetFramework[] targetFrameworks)
+        public RequirePlatform SkipWhen(Func<bool> condition, OSPlatform operatingSystem, params SupportedTargetFramework[] targetFrameworks)
         {
             if (condition())
             {

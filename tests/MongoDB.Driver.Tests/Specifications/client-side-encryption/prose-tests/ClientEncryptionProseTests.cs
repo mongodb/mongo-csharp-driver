@@ -23,6 +23,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -336,8 +337,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             // socket.Close can hang on non windows OS. Might be related to this issue: https://github.com/dotnet/runtime/issues/47342
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux)
-                .SkipWhen(SupportedOperatingSystem.MacOS);
+                .SkipWhen(OSPlatform.Linux)
+                .SkipWhen(OSPlatform.OSX);
 
             const int mongocryptPort = 27030;
             var timeout = TimeSpan.FromSeconds(3);
@@ -1372,7 +1373,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(false, true)] bool async)
         {
             // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
 
             RequireServer.Check().Supports(Feature.Csfle2QEv2).ClusterTypes(ClusterType.ReplicaSet, ClusterType.Sharded, ClusterType.LoadBalanced);
 
@@ -2165,8 +2166,8 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
                                 // gcp mocked server fails on non windows env
                                 RequirePlatform
                                     .Check()
-                                    .SkipWhen(SupportedOperatingSystem.Linux)
-                                    .SkipWhen(SupportedOperatingSystem.MacOS);
+                                    .SkipWhen(OSPlatform.Linux)
+                                    .SkipWhen(OSPlatform.OSX);
 
                                 if (expectedEnvironment)
                                 {
@@ -2290,7 +2291,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption.prose_tests
             [Values(true, false)] bool async)
         {
             // CSHARP-4606: Skip all fle2v2 tests on Mac until https://jira.mongodb.org/browse/SERVER-69563 propagates to EG Macs.
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
 
             RequireServer.Check()
                 .Supports(Feature.Csfle2QEv2RangeAlgorithm)

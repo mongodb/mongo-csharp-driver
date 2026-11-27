@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Clusters;
@@ -179,8 +180,8 @@ namespace MongoDB.Driver.Tests.Specifications
 #if DEBUG
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Linux)
-                .SkipWhen(SupportedOperatingSystem.MacOS);
+                .SkipWhen(OSPlatform.Linux)
+                .SkipWhen(OSPlatform.OSX);
             // Make sure that LB is started. "nginx" is a LB we use for windows testing
             RequireEnvironment.Check().ProcessStarted("nginx");
             Environment.SetEnvironmentVariable("MONGODB_URI", "mongodb://localhost:17017?loadBalanced=true");
@@ -197,8 +198,8 @@ namespace MongoDB.Driver.Tests.Specifications
             // EG currently supports LB only for Ubuntu
             RequirePlatform
                 .Check()
-                .SkipWhen(SupportedOperatingSystem.Windows)
-                .SkipWhen(SupportedOperatingSystem.MacOS);
+                .SkipWhen(OSPlatform.Windows)
+                .SkipWhen(OSPlatform.OSX);
 #endif
 
             Run(testCase);

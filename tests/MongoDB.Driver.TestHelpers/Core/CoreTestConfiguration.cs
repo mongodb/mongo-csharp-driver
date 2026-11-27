@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using MongoDB.Bson;
@@ -344,7 +345,7 @@ namespace MongoDB.Driver
         }
 
         public static bool ShouldSkipMongocryptdTests_SERVER_106469() =>
-            RequirePlatform.GetCurrentOperatingSystem() == SupportedOperatingSystem.Windows &&
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
             ServerVersion >= new SemanticVersion(8, 1, 9999);
 
         public static void SkipMongocryptdTests_SERVER_106469(bool checkForSharedLib = false)

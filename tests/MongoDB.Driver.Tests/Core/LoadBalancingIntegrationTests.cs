@@ -15,6 +15,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Serializers;
@@ -737,8 +738,8 @@ namespace MongoDB.Driver.Core.Tests
         private void SkipIfNotLoadBalancingMode()
         {
 #if DEBUG
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Linux);
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.Linux);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
             // Make sure that LB is started. "nginx" is a LB we use for windows testing
             RequireEnvironment.Check().ProcessStarted("nginx");
             Environment.SetEnvironmentVariable("MONGODB_URI", "mongodb://localhost:17017?loadBalanced=true");
@@ -751,8 +752,8 @@ namespace MongoDB.Driver.Core.Tests
             RequireEnvironment.Check().EnvironmentVariable("SINGLE_MONGOS_LB_URI"); // these env variables are used only on the scripting side
             RequireEnvironment.Check().EnvironmentVariable("MULTI_MONGOS_LB_URI");
             // EG currently supports LB only for Ubuntu
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.Windows);
-            RequirePlatform.Check().SkipWhen(SupportedOperatingSystem.MacOS);
+            RequirePlatform.Check().SkipWhen(OSPlatform.Windows);
+            RequirePlatform.Check().SkipWhen(OSPlatform.OSX);
             RequireServer.Check().ClusterType(ClusterType.LoadBalanced);
 #endif
         }

@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MongoDB.Bson;
 using MongoDB.Bson.TestHelpers.JsonDrivenTests;
 using MongoDB.Driver.Core.Events;
@@ -72,7 +73,7 @@ namespace MongoDB.Driver.Tests.Specifications.client_side_encryption
                     // When fixing CSHARP-4606, skip fle2v2-Range tests on Mac because of: "spec wording requires skipping only "fle2-Range-<type>-Correctness" tests on macos,
                     // but we see significant performance downgrade with the rest fle2-Range tests too, so skip them as well"
                     () => testCase.Name.Contains("fle2v2"),
-                    SupportedOperatingSystem.MacOS);
+                    OSPlatform.OSX);
 
             SetupAndRunTest(testCase);
         }
